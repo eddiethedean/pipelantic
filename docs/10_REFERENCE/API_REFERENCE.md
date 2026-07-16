@@ -184,6 +184,26 @@ profile = Profile(
 
 Profiles may also be loaded from project configuration.
 
+## Secret References
+
+Planned secret APIs keep configuration serializable while making resolved
+values runtime-only:
+
+```python
+from pipelantic import SecretRef
+
+password = SecretRef(
+    provider="production-secrets",
+    name="analytics/warehouse",
+    key="password",
+    version="current",
+)
+```
+
+`SecretRef` may appear in profiles and plans. `SecretValue` is produced only by
+an authorized Secret Provider during execution; it redacts display and rejects
+ordinary serialization.
+
 ## Hooks
 
 Hook decorators register typed lifecycle callbacks:
@@ -232,6 +252,7 @@ from pipelantic.sdk import (
     OrchestratorPlugin,
     StoragePlugin,
     ResourceProvider,
+    SecretProvider,
     PluginCapabilities,
 )
 ```
@@ -263,4 +284,5 @@ cannot express essential authoring behavior.
 - [Type Annotations](../04_TRANSFORMATIONS/TYPE_ANNOTATIONS.md)
 - [Pipeline](../05_PIPELINES/PIPELINE.md)
 - [Plugin SDK Overview](../07_PLUGIN_SDK/OVERVIEW.md)
+- [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md)
 - [Exceptions](EXCEPTIONS.md)

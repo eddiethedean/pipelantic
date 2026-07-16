@@ -139,16 +139,34 @@ Resource providers supply managed runtime dependencies:
 ```toml
 [profiles.production.resources.analytics_database]
 provider = "sqlalchemy"
-url_env = "ANALYTICS_DATABASE_URL"
+url = "postgresql+psycopg://analytics@warehouse.internal/analytics"
+password = { secret = "production-secrets:analytics/warehouse#password" }
 pool_size = 10
 
 [profiles.production.resources.alert_client]
 provider = "http"
 base_url = "https://alerts.example.test"
-token_env = "ALERT_TOKEN"
+token = { secret = "production-secrets:alerts/api-token" }
+
+[profiles.production.secrets.production-secrets]
+provider = "aws-secrets-manager"
+region = "us-east-1"
+cache_ttl = "5m"
 ```
 
 Secrets should be referenced, not stored directly in committed configuration.
+
+Secret references contain provider and identifier metadata, never resolved
+values. Planning validates their structure and provider capabilities without
+contacting the backing store.
+
+```toml
+[profiles.local.secrets.production-secrets]
+provider = "keyring"
+service = "pipelantic.customer-platform"
+```
+
+See [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md).
 
 ## Execution Limits
 

@@ -365,6 +365,32 @@ Airflow, Dagster, Prefect, Argo, and future integrations each belong in their
 own distribution. Their SDKs and providers are dependencies of those
 distributions only.
 
+### Secret-provider plugins
+
+Pipelantic core should define `SecretRef`, `SecretValue`, and the Secret
+Provider protocol without requiring a secret-manager SDK.
+
+| Provider concept | Packages | Decision |
+|---|---|---|
+| Local workstation | `keyring` | Preferred local provider using OS credential stores |
+| AWS Secrets Manager | `boto3`; optional `aws-secretsmanager-caching` | Separate plugin; prefer IAM roles and explicit caching |
+| Azure Key Vault | `azure-keyvault-secrets`, `azure-identity` | Separate plugin; prefer managed identity |
+| Google Cloud Secret Manager | `google-cloud-secret-manager` | Separate plugin; prefer workload identity |
+| HashiCorp Vault | `hvac` | Separate plugin; expose leases, renewal, revocation, and dynamic credentials |
+| 1Password | `onepassword-sdk` | Optional plugin; evaluate after core conformance |
+
+`keyring` is preferable to depending directly on Linux `SecretStorage` because
+it supplies a cross-platform interface to supported system credential stores.
+
+Pydantic `SecretStr` and `SecretBytes` are useful protected value types at
+configuration boundaries, but they do not retrieve, rotate, lease, or revoke
+secrets. `pydantic-settings` may be evaluated for application configuration and
+mounted secret files; it should not become Pipelantic's provider abstraction.
+
+The AWS cache package is not a universal cache layer. AWS documents that it is
+not security hardened and does not force cache invalidation. Provider caching
+must remain bounded, scoped, configurable, and covered by rotation tests.
+
 ## Packages to Evaluate but Not Adopt Yet
 
 ### Pluggy
@@ -499,6 +525,12 @@ them in the core project's optional-dependency table.
 | Fsspec | Storage plugin | Adopt |
 | Tenacity | Runtime/provider implementation | Adopt behind portable retry policy |
 | PySpark | Separate plugin | Adopt |
+| keyring | Local secret-provider plugin | Adopt |
+| boto3 + AWS caching client | AWS secret-provider plugin | Adopt; caching optional |
+| azure-keyvault-secrets + azure-identity | Azure secret-provider plugin | Adopt |
+| google-cloud-secret-manager | GCP secret-provider plugin | Adopt |
+| hvac | Vault secret-provider plugin | Adopt |
+| onepassword-sdk | Optional secret-provider plugin | Evaluate after provider conformance |
 | Pluggy | Deferred | Re-evaluate if true hook requirements grow |
 | NetworkX | Development/post-1.0 | Use as test oracle; avoid core dependency |
 | Msgspec/orjson | Deferred | Add only after benchmarks |
@@ -536,6 +568,13 @@ dependencies at clearly enforced architectural boundaries.
 - [SQLAlchemy Core documentation](https://docs.sqlalchemy.org/en/20/intro.html)
 - [Fsspec documentation](https://filesystem-spec.readthedocs.io/en/stable/)
 - [Tenacity documentation](https://tenacity.readthedocs.io/en/stable/)
+- [Python keyring](https://keyring.readthedocs.io/en/stable/)
+- [Pydantic secret types](https://docs.pydantic.dev/latest/api/types/#pydantic.types.SecretStr)
+- [AWS Secrets Manager Python caching](https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-python.html)
+- [Azure Key Vault Secrets Python client](https://learn.microsoft.com/en-us/python/api/overview/azure/keyvault-secrets-readme)
+- [Google Cloud Secret Manager Python client](https://cloud.google.com/python/docs/reference/secretmanager/latest)
+- [HashiCorp Vault client libraries](https://developer.hashicorp.com/vault/api-docs/libraries)
+- [1Password SDKs](https://www.1password.dev/sdks/)
 - [Pluggy documentation](https://pluggy.readthedocs.io/en/stable/)
 - [NetworkX DAG algorithms](https://networkx.org/documentation/stable/reference/algorithms/dag.html)
 - [Hypothesis documentation](https://hypothesis.readthedocs.io/en/latest/)

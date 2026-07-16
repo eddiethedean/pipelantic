@@ -64,15 +64,18 @@ Plugin documentation must define parsing, defaults, and security behavior.
 
 ## Secrets
 
-Resource configuration should reference secret-bearing variables:
+Environment variables are one possible Secret Provider, primarily for CI,
+platform compatibility, and controlled local use:
 
 ```toml
-[profiles.production.resources.warehouse]
-provider = "sqlalchemy"
-url_env = "ANALYTICS_DATABASE_URL"
+[profiles.ci.secrets.ci-secrets]
+provider = "environment"
+prefix = "PIPELANTIC_SECRET_"
 ```
 
-Pipelantic should read the value only when the resource is acquired.
+Production profiles should prefer a managed secret store and workload identity.
+Pipelantic should read an environment-backed value only when the consuming
+resource is acquired.
 
 Never:
 
@@ -126,3 +129,4 @@ environment mutations do not unpredictably alter an active run.
 - [Configuration](CONFIGURATION.md)
 - [CLI](CLI.md)
 - [Resource Provider](../07_PLUGIN_SDK/RESOURCE_PROVIDER.md)
+- [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md)

@@ -164,6 +164,21 @@ resources.
 A pipeline node that receives data produced by upstream transformations
 and writes or publishes it through an execution plugin.
 
+## Secret Provider
+
+A Plugin SDK component that resolves a logical `SecretRef` into a protected
+runtime value inside an authorized execution boundary.
+
+## SecretRef
+
+A serializable reference to a secret provider, identifier, optional field, and
+version policy. It never contains the resolved secret value.
+
+## SecretValue
+
+A runtime-only sensitive wrapper whose display is redacted and whose ordinary
+serialization is prohibited.
+
 ## Source
 
 A pipeline node that introduces data into a pipeline from an external

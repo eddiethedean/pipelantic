@@ -233,6 +233,25 @@ reveal only inside an authorized provider boundary.
 Callables receive only declared resources. Middleware and callbacks must not
 acquire undeclared privileged services.
 
+Pipelantic uses a dedicated Secret Provider protocol rather than treating
+plaintext environment variables as its universal secrets API. Profiles and
+plans contain `SecretRef` identifiers only. Resolution occurs after the
+execution boundary begins, and only the Resource Provider constructing the
+authorized dependency receives the `SecretValue`.
+
+Remote providers should authenticate with workload, managed, pod, task, or
+instance identity rather than another long-lived secret whenever possible.
+Cross-provider fallback must be explicit; production resolution must never
+silently fall back to environment variables or plaintext files.
+
+Secret caching must be bounded, in-memory, scoped, and short-lived. Provider
+implementations must define rotation, version, lease, renewal, revocation, and
+cleanup behavior without claiming that immutable Python strings can be
+reliably zeroized.
+
+See [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md) and the
+[Secret Provider SDK](../07_PLUGIN_SDK/SECRET_PROVIDER.md).
+
 ## Executable User Code
 
 Transformations, validators, callbacks, middleware, lifespan handlers, and

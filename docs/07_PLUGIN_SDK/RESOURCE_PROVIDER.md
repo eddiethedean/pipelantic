@@ -211,7 +211,8 @@ Pipelantic diagnostics containing:
 
 - Depend on abstract resource types.
 - Resolve resources through execution profiles.
-- Keep credentials external.
+- Keep credentials external and accept resolved values only from declared
+  [Secret Providers](SECRET_PROVIDER.md).
 - Reuse pooled resources.
 - Dispose of resources predictably.
 

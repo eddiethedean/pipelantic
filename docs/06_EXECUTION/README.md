@@ -19,6 +19,7 @@ This section explains how to:
 - Select execution engines
 - Support synchronous and asynchronous execution
 - Manage resources
+- Resolve secrets through external providers
 - Handle retries and failures
 - Integrate callbacks
 - Report diagnostics
@@ -111,15 +112,16 @@ your project:
 2. [Run Reports](RUN_REPORTS.md)
 3. [Lifecycle Extensions](LIFECYCLE_EXTENSIONS.md)
 4. [Logging](LOGGING.md)
-5. [Plugins](PLUGINS.md)
-6. [Dataframe Plugins](DATAFRAME_PLUGINS.md)
-7. [Orchestration Plugins](ORCHESTRATION_PLUGINS.md)
-8. [Storage Plugins](STORAGE_PLUGINS.md)
-9. [Resource Providers](RESOURCE_PLUGINS.md)
-10. [Local Python](LOCAL_PYTHON.md)
-11. [Compilation](COMPILATION.md)
-12. [SQL](SQL.md)
-13. [PySpark](PYSPARK.md)
+5. [Secrets Management](SECRETS_MANAGEMENT.md)
+6. [Plugins](PLUGINS.md)
+7. [Dataframe Plugins](DATAFRAME_PLUGINS.md)
+8. [Orchestration Plugins](ORCHESTRATION_PLUGINS.md)
+9. [Storage Plugins](STORAGE_PLUGINS.md)
+10. [Resource Providers](RESOURCE_PLUGINS.md)
+11. [Local Python](LOCAL_PYTHON.md)
+12. [Compilation](COMPILATION.md)
+13. [SQL](SQL.md)
+14. [PySpark](PYSPARK.md)
 
 ## Key Principles
 

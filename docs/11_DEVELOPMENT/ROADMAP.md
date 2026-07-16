@@ -186,6 +186,7 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 - Named validation and quality-gate policies
 - Valid and invalid output declarations
 - `Profile` model with development, test, and production templates
+- Serializable `SecretRef` model and secret-provider capability declarations
 - Plugin, implementation, binding, and provider registries
 - Capability negotiation and fallback diagnostics
 - Immutable, versioned, secret-free `PipelinePlan`
@@ -228,6 +229,10 @@ class definitions or inventing missing semantics.
 - Runtime, run, and execution-region lifespan
 - Deterministic run, step, and provider middleware
 - Hierarchical resource injection with scoped caching and yield cleanup
+- Secret Provider protocol with runtime-only `SecretValue` resolution
+- Environment and mounted-file providers for explicit compatibility use
+- Bounded secret caching, version selection, rotation, lease, renewal, and
+  revocation lifecycle
 - Outcome callbacks and typed outbound event declarations
 - Immutable lifecycle and security events
 - Structured contextual logging with central secret redaction
@@ -244,6 +249,9 @@ class definitions or inventing missing semantics.
 - Lifespan cleanup runs after success, failure, or cancellation.
 - Middleware ordering is deterministic and observable.
 - Resource providers are scoped, cached, and cleaned up exactly once.
+- Planning never resolves a secret, and runtime resolution reaches only the
+  declared resource consumer.
+- Secret-provider failures fail closed without plaintext fallback.
 - Every run returns a report containing status, timing, row or record metrics
   where available, validation outcomes, artifacts, diagnostics, lineage, and
   failure context.
@@ -381,6 +389,7 @@ alternate source of pipeline truth.
 - Generated API reference
 - JSON, text, GitHub, and SARIF diagnostic renderers
 - Observability and notification provider protocols
+- Secret Provider conformance suite and reference `keyring` integration
 - Standard Python logging, JSON console, and OpenTelemetry integrations
 - Durable report-store and run-history provider interfaces
 - Report retrieval, comparison, and regression APIs

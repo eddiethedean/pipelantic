@@ -84,6 +84,7 @@ The SDK supports plugin categories such as:
 - Orchestration plugins
 - Storage plugins
 - Resource providers
+- Secret providers
 - Registry plugins
 - Observability providers
 - Future extension types
@@ -119,11 +120,12 @@ Read this section in the following order:
 3. [Orchestrator Plugin](ORCHESTRATOR_PLUGIN.md)
 4. [Storage Plugin](STORAGE_PLUGIN.md)
 5. [Resource Provider](RESOURCE_PROVIDER.md)
-6. [Observability Provider](OBSERVABILITY_PROVIDER.md)
-7. [SQL Plugin](SQL_PLUGIN.md)
-8. [PySpark Plugin](PYSPARK_PLUGIN.md)
-9. [Testing Plugins](TESTING_PLUGINS.md)
-10. [Distribution](DISTRIBUTION.md)
+6. [Secret Provider](SECRET_PROVIDER.md)
+7. [Observability Provider](OBSERVABILITY_PROVIDER.md)
+8. [SQL Plugin](SQL_PLUGIN.md)
+9. [PySpark Plugin](PYSPARK_PLUGIN.md)
+10. [Testing Plugins](TESTING_PLUGINS.md)
+11. [Distribution](DISTRIBUTION.md)
 
 ## Key Principles
 

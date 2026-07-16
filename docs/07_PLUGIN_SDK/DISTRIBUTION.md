@@ -47,6 +47,11 @@ Recommended naming convention:
 - pipelantic-pandas
 - pipelantic-postgres
 - pipelantic-s3
+- pipelantic-keyring
+- pipelantic-secrets-aws
+- pipelantic-secrets-azure
+- pipelantic-secrets-gcp
+- pipelantic-secrets-vault
 
 Third-party plugins should follow a consistent naming convention where practical.
 
@@ -126,6 +131,8 @@ Plugin authors should:
 - Avoid embedding credentials.
 - Follow secure disclosure practices.
 - Publish supported version ranges.
+- Ensure secret-provider packages pass redaction, rotation, lease, and
+  sentinel-leak conformance tests.
 
 ## Best Practices
 
