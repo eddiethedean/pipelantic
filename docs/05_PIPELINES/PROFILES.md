@@ -74,10 +74,18 @@ from pipelantic import Profile
 
 production = Profile(
     name="production",
-    orchestrator="airflow",
     dataframe_engine="polars",
 )
+
+sql_prod = Profile(
+    name="sql-prod",
+    sql_engine="sql",
+)
 ```
+
+Use `dataframe_engine` for Polars/Pandas/local implementations. Use
+`sql_engine="sql"` when SQL implementations and bindings should run through a
+SQL plugin (`pipelantic-sql`). Do not set `dataframe_engine` to `"sql"`.
 
 Planning uses the selected profile when generating a Pipeline Plan.
 
@@ -118,11 +126,20 @@ NormalizeCustomers
 polars implementation
 ```
 
+or, with `Profile(sql_engine="sql")`:
+
+```text
+NormalizeCustomers
+        │
+        ▼
+sql implementation (RelationRef / SqlQuery)
+```
+
 A different profile might instead select:
 
 - pandas
-- spark
-- duckdb
+- sql
+- spark (future)
 - remote service
 
 The transformation contract does not change.

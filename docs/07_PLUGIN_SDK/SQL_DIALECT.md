@@ -68,9 +68,9 @@ Differences include:
 - Boolean types
 - String concatenation
 - Date and time functions
-- `MERGE` support
+- `MERGE` support (the 0.6 reference plugin advertises `sql_merge=False`)
 - `RETURNING` support
-- Temporary table behavior
+- Temporary / staging table behavior
 - JSON operations
 - Array types
 - Window semantics
@@ -137,8 +137,7 @@ SqlDialectCapabilities(
     common_table_expressions=True,
     recursive_ctes=True,
     window_functions=True,
-    merge=True,
-    upsert=True,
+    sql_merge=False,  # advertise only when implemented
     returning=True,
     create_table_as=True,
     temporary_tables=True,
@@ -152,7 +151,7 @@ SqlDialectCapabilities(
 ```
 
 Capabilities should describe support, limitations, and any version-dependent
-behavior.
+behavior. The 0.6 `pipelantic-sql` reference advertises `sql_merge=False`.
 
 ## Feature Levels
 
@@ -162,12 +161,14 @@ Conceptually:
 
 ```python
 FeatureSupport(
-    supported=True,
-    level="partial",
-    notes="MERGE supports matched and not-matched branches but not all clauses.",
+    supported=False,
+    level="none",
+    notes="MERGE is not implemented by the 0.6 reference plugin.",
 )
 ```
 
+When a dialect does implement merge, notes should describe which clauses are
+supported.
 Possible states include:
 
 - Supported
@@ -594,7 +595,8 @@ These capabilities influence sink compilation and incremental loading.
 
 ## Merge and Upsert
 
-Merge semantics differ widely.
+Merge semantics differ widely. Dialects that do not implement merge must
+advertise `sql_merge=False` so planning fails closed when merge is required.
 
 The dialect should describe:
 

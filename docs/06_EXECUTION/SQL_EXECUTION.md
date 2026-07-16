@@ -105,11 +105,12 @@ Typical operations include:
 - Common table expressions
 - INSERT ... SELECT
 - CREATE TABLE AS SELECT
-- MERGE / UPSERT
 - DELETE
 - UPDATE
+- MERGE / UPSERT (only when the plugin advertises `sql_merge`)
 
-Support depends on plugin capabilities.
+Support depends on plugin capabilities. The 0.6 `pipelantic-sql` reference
+plugin sets `sql_merge=False`; requiring merge fails closed at planning.
 
 ## Hybrid Execution
 
@@ -155,15 +156,17 @@ Failures should trigger rollback whenever possible.
 Planning should verify support for features such as:
 
 - Transactions
-- MERGE
+- MERGE (when `sql_merge` is required)
 - Recursive CTEs
 - Window functions
-- Temporary tables
+- Staging / temporary tables
 - Streaming
 - Materialized views
 
 If mandatory capabilities are unavailable, planning fails closed. There is no
 silent emulation of unsupported merge, transaction, or dialect features.
+The 0.6 reference plugin stages intermediates in durable run-scoped tables
+(not session TEMP) so handoffs work across connection pools.
 
 ## Performance
 

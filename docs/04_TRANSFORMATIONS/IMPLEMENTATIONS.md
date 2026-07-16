@@ -59,15 +59,26 @@ Pipelantic chooses the implementation through the active execution profile.
 
 ## Execution Profiles
 
-Conceptually:
+Use `Profile` (there is no separate `ExecutionProfile` type):
 
 ```python
-ExecutionProfile(
+from pipelantic import Profile
+
+Profile(
+    name="local",
     dataframe_engine="polars",
+)
+
+Profile(
+    name="sql-prod",
+    sql_engine="sql",
 )
 ```
 
 Changing profiles changes the implementation—not the transformation contract.
+SQL implementations receive `RelationRef` handles and return SQL query
+objects; they do not fetch rows into Python unless a hybrid boundary requires
+it.
 
 ## Sync and Async
 

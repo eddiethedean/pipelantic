@@ -28,6 +28,7 @@ Pipelantic 0.6.0 is an alpha release. This page is the shortest answer to
 
 | Capability | Status |
 |---|---|
+| `MERGE` / upsert in the reference SQL plugin | Not implemented (`sql_merge=False`; fail closed) |
 | PySpark or streaming execution | Future design (0.7) |
 | Airflow or other orchestrator compilation | Future design (0.8) |
 | Public third-party Plugin SDK polish | Continues in 0.9 |
@@ -41,10 +42,15 @@ pip install pipelantic                 # core only — no engines
 pip install pipelantic-polars          # Polars reference plugin
 pip install pipelantic-pandas          # Pandas compatibility plugin
 pip install pipelantic-sql             # PostgreSQL SQL reference plugin
+pip install 'pipelantic[sql]'          # same as pipelantic-sql via extra
 pip install 'pipelantic-polars[arrow]' # optional PyArrow
 ```
 
 Core never imports Polars, Pandas, PyArrow, NumPy, or database drivers.
+
+Select SQL with `Profile(sql_engine="sql")` and
+`@Transformation.implementation("sql")` returning `RelationRef` / `SqlQuery`
+handles (not fetched rows).
 
 ## Next Step
 

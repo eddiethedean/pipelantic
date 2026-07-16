@@ -161,7 +161,9 @@ implementation or runtime concepts—not additional contract standards.
 2. [Installation](01_GETTING_STARTED/INSTALLATION.md)
 3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md)
 4. Runnable code: `examples/quickstart.py`, `examples/file_storage.py`,
-   `examples/dataframe_parity.py`, `examples/sql_to_sql.py`
+   `examples/dataframe_parity.py`, `examples/sql_to_sql.py`,
+   `examples/sql_boundary_hybrid.py`, `examples/sql_transactional_write.py`,
+   `examples/sql_failure_recovery.py`
 
 ### I want to understand the idea
 
@@ -193,6 +195,9 @@ implementation or runtime concepts—not additional contract standards.
 - [examples/file_storage.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/file_storage.py) — JSON/CSV storage
 - [examples/dataframe_parity.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/dataframe_parity.py) — Polars/Pandas
 - [examples/sql_to_sql.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_to_sql.py) — SQL (`pipelantic-sql`)
+- [examples/sql_boundary_hybrid.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_boundary_hybrid.py) — SQL → Python boundary
+- [examples/sql_transactional_write.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_transactional_write.py) — insert-select publication
+- [examples/sql_failure_recovery.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_failure_recovery.py) — unsupported merge fails closed
 
 ### I want design studies (not installable)
 

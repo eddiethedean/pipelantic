@@ -182,7 +182,8 @@ For example, the same transformation contract may have:
 - a local Python implementation
 - a Polars implementation
 - a Pandas implementation
-- later, a Spark or SQL implementation (future milestones)
+- a SQL implementation (`@….implementation("sql")` with `Profile.sql_engine`)
+- later, a Spark implementation (future milestone)
 
 The logical transformation remains unchanged.
 
@@ -202,7 +203,7 @@ Cloud-specific integrations are implemented through plugins.
 
 Yes.
 
-Pipelantic 0.5 generates or exposes:
+Pipelantic 0.6 generates or exposes:
 
 -   contract documentation
 -   pipeline documentation

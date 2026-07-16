@@ -243,8 +243,7 @@ SqlCapabilities(
     writes=True,
     transactions=True,
     savepoints=True,
-    merge=True,
-    upsert=True,
+    sql_merge=False,  # 0.6 reference: not implemented; fail closed if required
     create_table_as=True,
     temporary_tables=True,
     common_table_expressions=True,
@@ -256,6 +255,10 @@ SqlCapabilities(
     schema_introspection=True,
 )
 ```
+
+Advertise only what the plugin actually implements. The 0.6 `pipelantic-sql`
+reference sets `sql_merge=False` and uses durable run-scoped staging tables
+rather than session TEMP for intermediates.
 
 Capabilities should cover both SQL syntax and runtime behavior.
 
@@ -487,7 +490,8 @@ retain attribution metadata.
 
 Plugins may materialize intermediate results using:
 
-- Temporary tables
+- Durable run-scoped staging tables (preferred in 0.6; works across pools)
+- Session temporary tables (only when the dialect and connection model allow)
 - Persistent staging tables
 - Views
 - Materialized views
@@ -504,8 +508,9 @@ Materialization strategy should consider:
 - Backend capabilities
 - Cleanup requirements
 
-Temporary objects should use collision-safe names derived from execution
-identity rather than unsanitized user input.
+Staging objects should use collision-safe names derived from execution
+identity rather than unsanitized user input, and should be cleaned up after
+the run.
 
 ## Transactions
 

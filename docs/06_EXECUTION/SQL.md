@@ -48,8 +48,10 @@ so intermediate rows are not materialized in Python.
 
 ## Capabilities
 
-Plugins publish capabilities such as transactions, `MERGE`, and temporary
-tables. Unsupported requirements fail at validation or planning (fail closed).
+Plugins publish capabilities such as transactions, catalog inspection, and
+atomic rename/swap. The 0.6 `pipelantic-sql` reference plugin does **not**
+advertise `MERGE` (`sql_merge=False`); requiring merge fails closed at planning.
+Unsupported requirements fail at validation or planning (fail closed).
 
 ## Further reading
 
@@ -59,4 +61,5 @@ tables. Unsupported requirements fail at validation or planning (fail closed).
 - [SQL Dialect](../07_PLUGIN_SDK/SQL_DIALECT.md)
 - [Migration 0.5 → 0.6](../11_DEVELOPMENT/MIGRATION_0_5_TO_0_6.md)
 - [Known limitations](../10_REFERENCE/KNOWN_ISSUES.md)
-- Runnable example: `examples/sql_to_sql.py`
+- Runnable examples: `examples/sql_to_sql.py`, `sql_boundary_hybrid.py`,
+  `sql_transactional_write.py`, `sql_failure_recovery.py`

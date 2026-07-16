@@ -29,8 +29,9 @@ customer-pipeline/
 │       │
 │       ├── implementations/
 │       │   ├── local/
-│       │   ├── polars/          # optional in 0.5
-│       │   └── pandas/          # optional in 0.5
+│       │   ├── polars/          # optional (0.5+)
+│       │   ├── pandas/          # optional (0.5+)
+│       │   ├── sql/             # optional (0.6+)
 │       │   # spark/             # future — do not require yet
 │       │
 │       ├── pipelines/
@@ -88,8 +89,9 @@ Contains runtime-specific implementations.
 Example:
 
 - Local Python (`"local"`)
-- Polars / Pandas (optional plugins in 0.5)
-- Spark / DuckDB / remote (future)
+- Polars / Pandas (optional plugins in 0.5+)
+- SQL (`"sql"` via `pipelantic-sql` and `Profile.sql_engine` in 0.6+)
+- Spark / remote (future)
 
 A single transformation contract may have multiple implementations.
 

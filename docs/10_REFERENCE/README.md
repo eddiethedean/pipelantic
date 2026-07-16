@@ -1,6 +1,6 @@
 # Reference
 
-This section separates Pipelantic **0.5** shipped behavior from proposed 1.0
+This section separates Pipelantic **0.6** shipped behavior from proposed 1.0
 interfaces.
 
 ## Shipped

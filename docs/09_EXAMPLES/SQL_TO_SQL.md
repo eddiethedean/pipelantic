@@ -1,10 +1,12 @@
 # SQL to SQL
 
 !!! warning "Future design—not a Pipelantic 0.6 API guide"
-    This page is a design study. Prefer the runnable example
-    `examples/sql_to_sql.py` (requires `pipelantic-sql`) for shipped 0.6
-    behavior. Use Current Capabilities, the API reference, and the CLI
-    reference for the current boundary.
+    This page is a design study. Prefer the runnable examples under
+    `examples/sql_*.py` (requires `pipelantic-sql`) for shipped 0.6 behavior.
+    Use `Profile(sql_engine="sql")` — not a `transformation_engine` field.
+    The 0.6 reference plugin does not implement `MERGE`. Use Current
+    Capabilities, the API reference, and the CLI reference for the current
+    boundary.
 
 
 This example builds a complete Pipelantic pipeline that reads customer and
@@ -427,7 +429,7 @@ from pipelantic import Profile
 local_sql = Profile(
     name="local-sql",
     orchestrator="local-python",
-    transformation_engine="sql",
+    sql_engine="sql",
     bindings={
         "customers_source": {
             "plugin": "sqlite",
@@ -1148,7 +1150,7 @@ Each dialect should demonstrate either:
 production_sql = Profile(
     name="production-sql",
     orchestrator="airflow",
-    transformation_engine="sql",
+    sql_engine="sql",
     sql_pushdown="automatic",
     bindings={
         "customers_source": {
@@ -1187,7 +1189,7 @@ Full SQL execution is most effective when all relations are in one warehouse.
 warehouse_sql = Profile(
     name="warehouse-sql",
     orchestrator="airflow",
-    transformation_engine="sql",
+    sql_engine="sql",
     sql_pushdown="required",
     bindings={
         "customers_source": {

@@ -50,7 +50,8 @@ manager.
 1. [Capabilities](CAPABILITIES.md)
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
 3. Optional: `examples/dataframe_parity.py` with Polars or Pandas
-4. Optional: `examples/sql_to_sql.py` with `pipelantic-sql`
+4. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
+   `pipelantic-sql`
 5. [Migration 0.5 → 0.6](../11_DEVELOPMENT/MIGRATION_0_5_TO_0_6.md) if upgrading
 6. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
 

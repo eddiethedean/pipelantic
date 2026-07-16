@@ -58,9 +58,10 @@ Typical pushdown candidates include:
 - Conditional expressions
 - INSERT ... SELECT
 - CREATE TABLE AS SELECT
-- MERGE / UPSERT
+- MERGE / UPSERT (only when the plugin advertises `sql_merge`)
 
-Support depends on the selected SQL dialect and plugin capabilities.
+Support depends on the selected SQL dialect and plugin capabilities. The 0.6
+reference plugin does not implement MERGE.
 
 ## Predicate Pushdown
 

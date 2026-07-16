@@ -24,7 +24,7 @@ Path("customer_pipeline.mmd").write_text(diagram, encoding="utf-8")
 print(diagram)
 ```
 
-Only `Pipeline.to_mermaid()` is available in 0.5. Plan objects do not expose a
+Only `Pipeline.to_mermaid()` is available in 0.6. Plan objects do not expose a
 Mermaid helper.
 
 ## Philosophy

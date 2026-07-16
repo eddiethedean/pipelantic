@@ -342,13 +342,11 @@ Profiles should make this distinction explicit.
 A profile may configure validation behavior:
 
 ```python
-production = ExecutionProfile(
-    validation=ValidationPolicy(
-        source_outputs="schema",
-        transform_inputs="schema",
-        transform_outputs="full",
-        sink_inputs="full",
-    )
+from pipelantic import Profile
+
+production = Profile(
+    name="production",
+    # validation policy fields may evolve; keep policies declarative
 )
 ```
 

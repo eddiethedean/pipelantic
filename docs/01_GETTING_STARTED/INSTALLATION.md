@@ -46,13 +46,19 @@ pip install pipelantic-sql       # PostgreSQL SQL reference plugin
 pip install 'pipelantic[polars]'
 pip install 'pipelantic[pandas]'
 pip install 'pipelantic[dataframes]'
+pip install 'pipelantic[sql]'
 ```
 
-For SQL, set a connection URL:
+For SQL, set a connection URL (PostgreSQL is the reference; SQLite is demo-only):
 
 ```bash
 export PIPELANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/pipelantic
+# or for a local demo:
+export PIPELANTIC_SQL_URL=sqlite+pysqlite:///:memory:
 ```
+
+Select SQL with `Profile(sql_engine="sql")`. The 0.6 reference plugin does not
+implement `MERGE` (`sql_merge=False`).
 
 Spark and Airflow plugins are not part of 0.6. Do not install undocumented
 extras expecting those backends.

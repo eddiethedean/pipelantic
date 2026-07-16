@@ -1,15 +1,20 @@
 # Environment Variables
 
 !!! warning "Future design—not a Pipelantic 0.6 API guide"
-    This page describes a proposed 1.0 configuration surface. Pipelantic 0.5
-    does not load `pipelantic.toml` or these environment variables. Configure
-    profiles and bindings in Python.
+    This page describes a proposed 1.0 configuration surface. Pipelantic 0.6
+    does not load `pipelantic.toml` or most of these environment variables.
+    Configure profiles and bindings in Python.
+
+    **Shipped in 0.6 for SQL:** `PIPELANTIC_SQL_URL` is read by
+    `pipelantic-sql` (and the SQL examples/fixtures). It is not part of the
+    proposed 1.0 `pipelantic.toml` surface below.
 
 
 Environment variables provide deployment-time overrides and references to
 secrets. They should complement, not replace, explicit project configuration.
 
-> Variable names in this chapter are proposed for Pipelantic 1.0.
+> Variable names in this chapter (except `PIPELANTIC_SQL_URL`) are proposed
+> for Pipelantic 1.0.
 
 ## Precedence
 
@@ -61,12 +66,15 @@ files.
 Plugins should namespace their variables:
 
 ```text
+PIPELANTIC_SQL_URL              # shipped: SQLAlchemy URL for pipelantic-sql
 PIPELANTIC_POLARS_STREAMING
 PIPELANTIC_AIRFLOW_DAG_ID_PREFIX
 PIPELANTIC_SPARK_MASTER
 ```
 
 Plugin documentation must define parsing, defaults, and security behavior.
+Never log resolved DSNs with credentials; Pipelantic redacts connection
+secrets in diagnostics where possible.
 
 ## Secrets
 

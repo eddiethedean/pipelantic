@@ -35,7 +35,14 @@ python examples/dataframe_parity.py pandas
 ```bash
 # requires pipelantic-sql
 python examples/sql_to_sql.py
+python examples/sql_boundary_hybrid.py
+python examples/sql_transactional_write.py
+python examples/sql_failure_recovery.py
 ```
+
+Defaults to in-memory SQLite for demos; set `PIPELANTIC_SQL_URL` for
+PostgreSQL. Use `Profile(sql_engine="sql")` and
+`@….implementation("sql")`.
 
 ## Design studies (not installable)
 
@@ -47,7 +54,7 @@ commands that do not exist yet (or that go beyond the shipped surface).
 |---|---|
 | CSV and JSON through built-in storage | Use `examples/file_storage.py` |
 | Pandas and Polars pipelines | Use `examples/dataframe_parity.py` |
-| SQL execution and pushdown | Use `examples/sql_to_sql.py` (+ SQL docs) |
+| SQL execution and pushdown | Use `examples/sql_*.py` (+ SQL docs) |
 | PySpark and streaming | Future plugin design |
 | Airflow compilation | Future plugin design |
 | Generated Graphviz/HTML documentation | Future design |

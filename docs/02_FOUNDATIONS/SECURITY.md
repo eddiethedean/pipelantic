@@ -279,6 +279,8 @@ SQL plugins must:
 - limit multi-statement execution
 - use read-only connections for read-only work
 - scope write authority to declared sinks
+- keep compiled SQL artifacts secret-free (no live bound parameter values in
+  serializable metadata; redact DSN credentials in diagnostics)
 - redact parameters and sensitive query text
 - preserve row- and column-level security
 

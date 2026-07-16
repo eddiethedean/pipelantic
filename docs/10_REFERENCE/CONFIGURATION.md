@@ -1,9 +1,11 @@
 # Configuration Reference
 
 !!! warning "Future design—not a Pipelantic 0.6 API guide"
-    This page describes a proposed 1.0 configuration surface. Pipelantic 0.5
+    This page describes a proposed 1.0 configuration surface. Pipelantic 0.6
     does not load `pipelantic.toml` or these environment variables. Configure
-    profiles and bindings in Python.
+    profiles and bindings in Python. For SQL, set `PIPELANTIC_SQL_URL` and
+    `Profile(sql_engine="sql")` as documented in Installation and the SQL
+    pages.
 
 
 Pipelantic configuration binds portable pipeline models to concrete

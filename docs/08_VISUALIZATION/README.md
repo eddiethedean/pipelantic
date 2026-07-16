@@ -1,6 +1,6 @@
 # Visualization
 
-> **Available in 0.5:** Mermaid diagrams from `Pipeline.to_mermaid()`.
+> **Available in 0.6:** Mermaid diagrams from `Pipeline.to_mermaid()`.
 > Graphviz, HTML explorers, and generated HTML pipeline docs are future design.
 
 Visualization helps developers understand pipelines without reading every
