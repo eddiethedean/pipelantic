@@ -72,7 +72,7 @@ jobs:
       - name: Discovery smoke (entry points only)
         run: |
           uv run python -c "
-          from pipelantic.dataframe.discovery import discover_dataframe_plugins
+          from etlantic.dataframe.discovery import discover_dataframe_plugins
           found = discover_dataframe_plugins()
           assert '${{ matrix.engine }}' in found, found
           print('discovered', sorted(found))
@@ -93,7 +93,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pipelantic
+          POSTGRES_DB: etlantic
         ports:
           - 5432:5432
         options: >-
@@ -118,7 +118,7 @@ jobs:
       - name: Discovery smoke
         run: |
           uv run python -c "
-          from pipelantic.sql.discovery import discover_sql_plugins
+          from etlantic.sql.discovery import discover_sql_plugins
           found = discover_sql_plugins()
           assert 'sql' in found, found
           print('discovered', sorted(found))
@@ -126,17 +126,17 @@ jobs:
 
       - name: Pytest SQL suite (SQLite IR + runtime)
         env:
-          PIPELANTIC_SQL_URL: "sqlite+pysqlite:///:memory:"
+          ETLANTIC_SQL_URL: "sqlite+pysqlite:///:memory:"
         run: uv run pytest -q tests/sql -m sql
 
       - name: Pytest SQL suite (PostgreSQL)
         env:
-          PIPELANTIC_SQL_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/pipelantic"
+          ETLANTIC_SQL_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/etlantic"
         run: uv run pytest -q tests/sql -m sql
 
       - name: Runnable SQL examples
         env:
-          PIPELANTIC_SQL_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/pipelantic"
+          ETLANTIC_SQL_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/etlantic"
         run: |
           uv run python examples/sql_to_sql.py
           uv run python examples/sql_transactional_write.py
@@ -164,14 +164,14 @@ jobs:
         run: |
           rm -rf dist
           mkdir -p dist
-          uv build --package pipelantic
+          uv build --package etlantic
 
       - name: Pytest against installed wheel
         run: |
           shopt -s nullglob
-          wheels=(dist/pipelantic-*.whl)
+          wheels=(dist/etlantic-*.whl)
           if [ "${#wheels[@]}" -ne 1 ]; then
-            echo "Expected exactly one pipelantic wheel in dist/, found ${#wheels[@]}"
+            echo "Expected exactly one etlantic wheel in dist/, found ${#wheels[@]}"
             ls -la dist/ || true
             exit 1
           fi
