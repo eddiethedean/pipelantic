@@ -197,6 +197,8 @@ Use property-based tests for:
 - Idempotency and retry matrices for pure, transactional, compensatable, and
   unsafe operations
 - Portable write and materialization semantics across supported backends
+- SQLModel-to-`Data` mapping, deterministic model generation, migration safety,
+  repository transactions, tenant isolation, and API field separation
 - Reconciliation snapshots, tolerances, and control totals
 - Backfill range, partition, state-isolation, cancellation, and resume behavior
 - Cross-backend null, precision, ordering, timezone, and invalid-data parity

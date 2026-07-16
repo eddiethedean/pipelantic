@@ -285,6 +285,24 @@ SQL plugins must:
 Pushdown and fusion may not cross authorization, tenancy, residency, masking,
 or policy-enforcement boundaries.
 
+### SQLModel integration
+
+Optional SQLModel persistence and model-generation integrations must:
+
+- keep control-plane credentials separate from pipeline-data credentials;
+- expose provider protocols rather than sessions, engines, metadata, or ORM
+  instances through Pipelantic core;
+- use separate request, persistence, and response models when protected or
+  database-only fields exist;
+- prevent mass assignment of identity, tenant, policy, approval, secret
+  reference, and administrative fields;
+- enforce tenant and workspace filters inside repository operations;
+- bound pagination, relationship traversal, eager loading, and query results;
+- prohibit automatic production `create_all()` and require reviewed migrations;
+- treat generated SQLModel and migration source as a proposal requiring review;
+- avoid serializing ORM state into contracts, plans, reports, events, or
+  generated context.
+
 ## PySpark and Distributed Execution
 
 Remote Spark execution can submit privileged code to a cluster. Providers must

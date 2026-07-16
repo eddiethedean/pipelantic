@@ -214,6 +214,8 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 - Portable freshness, partition-completeness, reconciliation, write-intent,
   materialization-intent, idempotency, retry-safety, backfill, repair, and
   reliability-evidence models
+- Optional SQLModel adapter protocols for table metadata, `Data` mapping, and
+  deterministic Python source generation
 - Deterministic identities for logical pipelines, resolved environments,
   selected implementations, quality metrics, and statistical observations
 - Immutable, versioned, secret-free `PipelinePlan`
@@ -516,6 +518,8 @@ corrupting shared artifacts.
 - SQL lineage and query-plan explanation
 - SQL catalog, relation, and result-schema inspection with dialect-specific
   metadata preserved separately from the logical schema
+- Optional SQLModel table descriptors translated into ordinary SQL relation
+  metadata without ORM instance materialization
 - Dialect conformance suite
 
 ### Acceptance scenarios
@@ -617,6 +621,8 @@ alternate source of pipeline truth.
 - Provider protocols for quality history, statistical observations,
   reconciliation evidence, and environment inventories
 - Cross-backend parity and write-semantics conformance suites
+- Initial `pipelantic-sqlmodel` package, model-generation CLI, metadata
+  comparison, and integration conformance suite
 - Language-server foundations for workspace discovery, incremental document
   indexing, source maps, diagnostic publication, and graph previews
 - Editor-neutral command and result schemas for validate, plan, explain,
@@ -676,6 +682,9 @@ observation, history, policy, impact, and remediation design.
 See [ETL Reliability and Recovery Plan](ETL_RELIABILITY_PLAN.md) for freshness,
 repair, retries, writes, reconciliation, backfills, parity, drift, and quality
 tracking.
+See [SQLModel Integration Plan](SQLMODEL_INTEGRATION_PLAN.md) for optional
+contract mapping, typed control-plane persistence, FastAPI reuse, and migration
+support.
 
 ## 0.10 — SparkForge Migration Preview
 
@@ -803,6 +812,10 @@ Deliver:
 - OpenAPI callbacks and webhooks generated from outbound event declarations;
 - OAuth2/OIDC and application-defined authorization dependencies;
 - durable submission contract returning `202 Accepted`.
+- optional SQLModel-backed reference stores for registry, runs, reports,
+  events, schema observations, reliability evidence, and approvals;
+- separate request, persistence, and response models where fields or security
+  boundaries differ.
 
 Acceptance:
 
@@ -815,6 +828,8 @@ Acceptance:
   closed.
 - live schema inspection and drift acknowledgement require explicit subject,
   profile, workspace, and policy authority.
+- SQLModel sessions remain request-scoped integration details and never become
+  pipeline runtime resources.
 
 See [FastAPI Integration Plan](FASTAPI_INTEGRATION_PLAN.md).
 
@@ -836,6 +851,7 @@ Deliver:
 - searchable metadata indexes without storing arbitrary dataset contents;
 - registry events and cache-invalidation protocol;
 - FastAPI registry routes and CLI parity.
+- optional SQLModel-backed registry, revision, and history reference provider.
 
 Acceptance:
 
@@ -866,6 +882,8 @@ Deliver:
   handling;
 - state migration and corruption diagnostics;
 - dry-run state transition explanation.
+- optional SQLModel-backed state, checkpoint, and idempotency reference
+  provider with transactional concurrency controls.
 
 Acceptance:
 
@@ -960,6 +978,8 @@ Deliver:
 - source and port drift indicators, declared-versus-observed hover summaries,
   schema-history timelines, field-level impact navigation, and reviewable
   adapter or contract-update proposals;
+- SQLModel generation, contract-to-table navigation, table comparison,
+  API-field exposure warnings, and migration-impact actions;
 - freshness and incomplete-partition indicators, repair and backfill previews,
   unsafe-retry and destructive-write diagnostics, reconciliation results,
   implementation comparisons, plan and environment diffs, and bounded quality

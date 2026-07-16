@@ -363,6 +363,30 @@ Pipelantic needs to parse user SQL or perform cross-dialect AST analysis
 that SQLAlchemy does not provide. Query optimization remains database-owned
 unless Pipelantic can prove semantic preservation.
 
+### SQLModel integration
+
+Recommended package:
+
+- `sqlmodel`, in a separate `pipelantic-sqlmodel` distribution
+- optional `alembic` support for reviewed schema migrations
+
+SQLModel combines Pydantic and SQLAlchemy table models and is designed to work
+well with FastAPI. It is a strong fit for typed control-plane persistence,
+contract-to-table model generation, table-metadata inspection, and optional
+FastAPI repository implementations.
+
+It should not replace SQLAlchemy Core in the SQL execution plugin. Bulk ETL,
+portable SQL expressions, transactions, dialect compilation, write intents,
+and query execution remain SQL-plugin responsibilities.
+
+Pipelantic core must not import SQLModel or expose its sessions, engines,
+metadata, or ORM instances in public protocols. Provider protocols remain the
+stable boundary, with SQLModel supplying optional reference implementations.
+
+Production applications must use reviewed migrations. Calling
+`SQLModel.metadata.create_all()` is acceptable only for tests, examples, and
+explicit local development.
+
 ### Storage plugins
 
 Recommended foundation:
@@ -596,6 +620,8 @@ them in the core project's optional-dependency table.
 | Pandas | Separate plugin | Adopt as compatibility backend |
 | PyArrow | Plugin/interchange extra | Adopt where interchange requires it |
 | SQLAlchemy Core | SQL plugin | Adopt |
+| SQLModel | Separate integration | Adopt for typed persistence and model generation, not SQL execution |
+| Alembic | SQLModel/SQL provider extra | Adopt for explicit reviewed migrations |
 | SQLGlot | SQL plugin, provisional | Evaluate with concrete AST use cases |
 | Fsspec | Storage plugin | Adopt |
 | Tenacity | Runtime/provider implementation | Adopt behind portable retry policy |

@@ -29,6 +29,11 @@ It should not:
 - return secret values, live backend objects, or unbounded data artifacts;
 - make HTTP routes the source of truth for pipeline definitions.
 
+An optional `pipelantic-sqlmodel` integration may provide typed reference
+implementations for registry, run, report, event, observation, approval, and
+state stores. FastAPI and SQLModel remain adapters around Pipelantic's public
+provider protocols.
+
 ## Package Boundary
 
 ```text
@@ -111,6 +116,10 @@ FastAPI lifespan should initialize and close integration-wide components:
 Pipeline runtime lifespan remains owned by Pipelantic. The API lifespan manages
 the control-plane adapter, not every individual run.
 
+When SQLModel persistence is selected, lifespan may create engines and session
+factories and verify migration state. It must not create or migrate production
+tables automatically.
+
 ### Dependencies
 
 FastAPI dependencies should supply request-scoped control-plane concerns:
@@ -125,6 +134,10 @@ FastAPI dependencies should supply request-scoped control-plane concerns:
 
 Pipelantic Resource Providers remain runtime dependencies for pipeline work.
 FastAPI's dependency graph must not become the pipeline resource graph.
+
+An optional SQLModel dependency may yield a request-scoped control-plane
+session. That session is available only to API repositories and must not be
+passed to transformations, providers used by pipeline code, or remote workers.
 
 Dependency overrides are valuable for tests and should be documented in the
 integration conformance suite.
