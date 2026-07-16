@@ -118,6 +118,25 @@ execution, compilation, visualization, and external orchestrators.
 The plan is not the authoring model and should not contain unresolved names or
 secret values.
 
+## DD-010A: The Three Authoring Models Are Data, Transformation, and Pipeline
+
+**Status:** Accepted for 0.3
+
+Pipelantic presents one coherent code-first authoring language:
+
+```python
+from pipelantic import Data, Pipeline, Transformation
+```
+
+`Data` is a thin facade over ContractModel, not a new data-contract
+implementation. ContractModel retains authority for data-contract semantics,
+validation, and ODCS operationalization. Existing ContractModel subclasses
+remain valid wherever Pipelantic accepts `Data`.
+
+Prefer a direct alias over subclassing unless a concrete integration hook
+requires a subclass. Deprecate the Pipelantic-facing `DataContractModel` name
+before 1.0.
+
 ## DD-011: SQL and PySpark Are Backends, Not New Models
 
 **Status:** Accepted

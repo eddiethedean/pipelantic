@@ -182,6 +182,14 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 
 ### Deliver
 
+- Unified top-level authoring primitives:
+  `Data`, `Transformation`, and `Pipeline`
+- `Data` as Pipelantic's thin public facade over ContractModel, without
+  duplicating data-contract semantics or implementation
+- Compatibility acceptance for existing ContractModel subclasses wherever a
+  `Data` type is accepted
+- Deprecation path for the uneven Pipelantic-facing `DataContractModel` name
+  before 1.0
 - Multi-phase structural, reference, semantic, policy, and capability validation
 - Named validation and quality-gate policies
 - Valid and invalid output declarations
@@ -200,6 +208,16 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 
 ### Acceptance scenarios
 
+- A complete pipeline can be authored with one coherent import:
+
+  ```python
+  from pipelantic import Data, Pipeline, Transformation
+  ```
+
+- `Data`, `Transformation`, and `Pipeline` feel like three parts of one
+  modeling language while ContractModel remains the authority behind `Data`.
+- Existing classes authored directly against ContractModel work without
+  conversion, wrapping, or loss of ODCS behavior.
 - Planning is pure: it performs no user transformation, network, storage, or
   secret-resolution work.
 - The same model and profile produce byte-stable canonical plans.
@@ -213,7 +231,9 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 ### Exit gate
 
 Every supported runtime can consume `PipelinePlan` without inspecting pipeline
-class definitions or inventing missing semantics.
+class definitions or inventing missing semantics. The primary authoring
+experience consistently presents `Data`, `Transformation`, and `Pipeline` as
+the three top-level models.
 
 ## 0.4 — Local Runtime and Operational Model
 

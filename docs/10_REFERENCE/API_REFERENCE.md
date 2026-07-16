@@ -10,6 +10,7 @@ Common authoring and interchange APIs are available from the package root:
 
 ```python
 from pipelantic import (
+    Data,
     Pipeline,
     Transformation,
     Input,
@@ -18,7 +19,6 @@ from pipelantic import (
     Source,
     Step,
     Sink,
-    DataContractModel,
     ContractBundle,
     load_data_contract,
     write_odcs,
@@ -28,15 +28,35 @@ from pipelantic import (
 )
 ```
 
-Data-contract authoring remains owned by ContractModel:
+The three primary authoring models use one coherent import surface:
 
 ```python
-from contractmodel import ContractModel as DataContractModel
-# or
-from pipelantic import DataContractModel
+from pipelantic import Data, Pipeline, Transformation
 ```
 
+`Data` is Pipelantic's thin public facade over ContractModel. ContractModel
+continues to own data-contract validation and ODCS operational behavior.
+Pipelantic must not create a competing data-contract implementation.
+
+Classes authored directly against ContractModel remain accepted. The
+Pipelantic-facing `DataContractModel` name is deprecated before 1.0 in favor of
+`Data`.
+
 Plugin-author interfaces should live under `pipelantic.sdk`, not the root.
+
+## `Data`
+
+Base class or direct public alias for a ContractModel-backed data contract:
+
+```python
+class Customer(Data):
+    customer_id: int
+    full_name: str
+```
+
+The implementation should prefer a direct alias when possible. A thin subclass
+is justified only when Pipelantic requires a real integration hook that cannot
+be expressed through composition or registration.
 
 ## `Transformation`
 

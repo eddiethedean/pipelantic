@@ -27,13 +27,14 @@ Each stage answers a different question.
 
 A data contract describes valid data.
 
-In the code-first experience, it is a ContractModel-compatible Pydantic class:
+In the code-first experience, `Data` is Pipelantic's public facade over a
+ContractModel-compatible Pydantic class:
 
 ```python
-from pipelantic import DataContractModel
+from pipelantic import Data
 
 
-class Customer(DataContractModel):
+class Customer(Data):
     customer_id: int
     full_name: str
 ```
