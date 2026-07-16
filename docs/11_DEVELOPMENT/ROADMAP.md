@@ -209,6 +209,11 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
   data-contract compatibility meaning to ContractModel
 - Drift-impact vocabulary covering informational, compatible, conditional,
   breaking, and unknown changes
+- Portable freshness, partition-completeness, reconciliation, write-intent,
+  materialization-intent, idempotency, retry-safety, backfill, repair, and
+  reliability-evidence models
+- Deterministic identities for logical pipelines, resolved environments,
+  selected implementations, quality metrics, and statistical observations
 - Immutable, versioned, secret-free `PipelinePlan`
 - Logical-to-physical identity mappings
 - `OutputRef` to runtime `ArtifactRef` resolution rules
@@ -281,6 +286,11 @@ the three top-level models.
   hooks
 - Profile-scoped `SchemaDriftPolicy` decisions for record, warn, notify,
   approve, quarantine, adapt, or block behavior
+- Local freshness and partition-completeness checks
+- Incremental invalidation and minimum-safe-repair planning
+- Conditional idempotency analysis and retry-safety enforcement
+- `BackfillRequest`, repair, reconciliation, and explicit no-write execution
+  paths
 - Versioned `PipelineRunReport`
 - Text, JSON, and HTML report renderers
 - Cancellation-safe cleanup and partial-run reporting
@@ -321,6 +331,9 @@ runtime semantics, not a simplified test-only path.
 - Contract validation before and after transformations
 - Valid and invalid artifact production
 - Row-count, schema, timing, and validation metrics
+- Shared implementation-parity fixtures and normalized reconciliation evidence
+- Initial quality-history observations for null, invalid, duplicate, rejection,
+  cardinality, and volume metrics
 - Polars, Pandas, Arrow, and native-object schema inspectors with equivalent
   normalization and explicit inference limitations
 - Safe ownership, mutation, and copy semantics
@@ -351,6 +364,9 @@ implementations without changing pipeline semantics.
 - Parameter binding and identifier validation
 - Transaction, retry, and materialization boundaries
 - Portable append, replace, merge, create-table-as, and insert-select intents
+- Replace-partition, insert-only, snapshot, delete-propagation, and slowly
+  changing dimension write intents
+- SQL-native reconciliation and write-result evidence
 - Predicate, projection, join, and aggregation pushdown
 - Safe adjacent-step query fusion
 - SQL lineage and query-plan explanation
@@ -385,6 +401,8 @@ SQL is a first-class execution backend rather than a special pipeline type.
 - Valid and invalid Spark artifacts
 - Partition, cache, checkpoint, and materialization policies
 - Delta-compatible portable write intents
+- Partition completeness, controlled backfill, and idempotent Delta publication
+  semantics
 - Structured Streaming foundation: triggers, checkpoints, watermarks, state,
   and bounded-output semantics
 - Spark plan and metric normalization into `PipelineRunReport`
@@ -416,6 +434,7 @@ marked stable or experimental rather than implied.
 - Airflow reference compiler
 - Schedule, dependency, retry, timeout, resource, and state mapping
 - Retry-safety and idempotency validation
+- Portable repair, backfill, reconciliation, and write-intent mapping
 - External artifact transport and size policies
 - Submission, cancellation, polling, and status result models
 - Remote lifecycle-event and report correlation
@@ -448,6 +467,12 @@ alternate source of pipeline truth.
   registry-backed implementations
 - Stable drift diagnostic codes, SARIF output, notification deduplication, and
   drift evidence in reports
+- CLI and result models for freshness, partition checks, repair explanation,
+  backfill preview, reconciliation, implementation comparison, plan and
+  environment diff, quality trends, and statistical drift
+- Provider protocols for quality history, statistical observations,
+  reconciliation evidence, and environment inventories
+- Cross-backend parity and write-semantics conformance suites
 - Language-server foundations for workspace discovery, incremental document
   indexing, source maps, diagnostic publication, and graph previews
 - Editor-neutral command and result schemas for validate, plan, explain,
@@ -504,6 +529,9 @@ modules or weakening security defaults.
 
 See [Schema Drift and Evolution Plan](SCHEMA_DRIFT_PLAN.md) for the cross-phase
 observation, history, policy, impact, and remediation design.
+See [ETL Reliability and Recovery Plan](ETL_RELIABILITY_PLAN.md) for freshness,
+repair, retries, writes, reconciliation, backfills, parity, drift, and quality
+tracking.
 
 ## 0.10 — SparkForge Migration Preview
 
@@ -619,6 +647,8 @@ Deliver:
 - typed schema observation, history, diff, impact, proposal, and
   acknowledgement endpoints with authorization distinct from ordinary pipeline
   reads;
+- typed freshness, partition, repair, backfill, reconciliation, parity, plan
+  drift, environment drift, quality-trend, and statistical-drift endpoints;
 - FastAPI lifespan integration for registry, store, broker, and submitter
   clients;
 - dependency adapters for identity, tenant, policy, idempotency, and request
@@ -655,6 +685,8 @@ Deliver:
 - dependency and impact queries across pipeline revisions;
 - immutable schema observations, operational baselines, acknowledgements, and
   remediation references;
+- immutable plan, environment, reconciliation, quality, freshness,
+  completeness, and statistical observation histories;
 - field-aware impact queries from observed changes through contracts,
   transformations, outputs, sinks, and downstream pipelines;
 - searchable metadata indexes without storing arbitrary dataset contents;
@@ -681,6 +713,8 @@ Deliver:
   identities;
 - compare-and-swap and atomic checkpoint advancement;
 - replay, resume, repair, and backfill planning;
+- partition-aware invalidation, reusable-artifact selection, and minimum-safe
+  repair closure;
 - dataset and code provenance sufficient to reproduce or explain a run;
 - schema-baseline revisions linked to checkpoints, snapshots, runs, and replay
   evidence;
@@ -711,6 +745,9 @@ Deliver:
 - policy decision evidence in reports and APIs;
 - signed or integrity-protected production schema observations, approval gates,
   retention rules, and acknowledgement evidence;
+- policy gates for stale or incomplete inputs, unsafe retries, destructive
+  writes, backfills, reconciliation failures, plan drift, environment drift,
+  quality trends, and privacy-sensitive statistical profiling;
 - compatibility rules for policy revisions.
 
 Acceptance:
@@ -779,6 +816,10 @@ Deliver:
 - source and port drift indicators, declared-versus-observed hover summaries,
   schema-history timelines, field-level impact navigation, and reviewable
   adapter or contract-update proposals;
+- freshness and incomplete-partition indicators, repair and backfill previews,
+  unsafe-retry and destructive-write diagnostics, reconciliation results,
+  implementation comparisons, plan and environment diffs, and bounded quality
+  or statistical-drift charts;
 - test discovery and one-click conformance runs across multiple transformation
   implementations;
 - code actions to extract a transformation, add an adapter, create a missing
@@ -825,6 +866,8 @@ Deliver:
 - stable optimization-pass protocol;
 - rule-based and statistics-aware cost model;
 - explainable implementation selection and materialization decisions;
+- cost- and evidence-aware repair closure, backfill batching, artifact reuse,
+  and implementation selection;
 - cardinality, partitioning, ordering, locality, and reuse metadata;
 - safe cross-backend region optimization;
 - shadow planning and plan comparison;
@@ -901,6 +944,8 @@ Deliver:
 - human-governed proposals for schema adapters, source corrections, contract
   revisions, migrations, and conformance tests using bounded redacted drift
   evidence;
+- human-governed proposals for repair plans, backfill tests, reconciliation
+  rules, parity fixes, write-policy migrations, and quality remediation;
 - provenance and evidence attached to every generated proposal;
 - deterministic validation sandbox for proposals before review;
 - proposal previews showing file diffs, graph changes, compatibility, plan
@@ -936,6 +981,7 @@ Acceptance:
   plugins, or initiate runs.
 
 See [Schema Drift and Evolution Plan](SCHEMA_DRIFT_PLAN.md).
+See [ETL Reliability and Recovery Plan](ETL_RELIABILITY_PLAN.md).
 
 ### 1.x Candidate Themes
 
@@ -943,6 +989,8 @@ These remain candidates rather than promised release numbers:
 
 - run-history trends, regression detection, and anomaly analysis;
 - schema-drift frequency, recurring-change, and source-stability trends;
+- freshness, completeness, reconciliation, quality, statistical-drift, plan,
+  and environment stability trends;
 - additional orchestrators, dataframe engines, SQL dialects, and stores;
 - declarative data previews with bounded privacy budgets;
 - Wasm or isolated remote transformations where ecosystem maturity permits;

@@ -191,6 +191,18 @@ Use property-based tests for:
 - Drift-policy precedence and fail-closed behavior
 - Field-level impact analysis with complete and incomplete lineage
 - Equivalent observations across dataframe, SQL, Spark, and Arrow inspectors
+- Freshness windows across timezones, grace periods, and schedule boundaries
+- Missing, late, duplicate, unexpected, and partially published partitions
+- Minimum-safe invalidation and repair closure
+- Idempotency and retry matrices for pure, transactional, compensatable, and
+  unsafe operations
+- Portable write and materialization semantics across supported backends
+- Reconciliation snapshots, tolerances, and control totals
+- Backfill range, partition, state-isolation, cancellation, and resume behavior
+- Cross-backend null, precision, ordering, timezone, and invalid-data parity
+- Plan and environment fingerprint stability and semantic drift classification
+- Quality-trend windows, deduplicated notifications, and statistical privacy
+  budgets
 - Random valid transformation signatures
 
 ## Async Testing

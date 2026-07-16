@@ -1,0 +1,571 @@
+# ETL Reliability and Recovery Plan
+
+## Purpose
+
+An ETL pipeline can be structurally valid and still produce an untrustworthy
+result. Inputs may be stale or incomplete, retries may repeat side effects,
+backfills may overwrite the wrong partitions, two backend implementations may
+disagree, and an apparently successful load may not reconcile with its source.
+
+Pipelantic should model and coordinate these reliability concerns without
+becoming a scheduler, execution engine, storage system, or statistical
+monitoring platform.
+
+The core should own:
+
+- portable intent;
+- static analysis;
+- deterministic planning;
+- capability negotiation;
+- normalized observations and evidence;
+- policy decisions;
+- impact and repair planning;
+- reports and diagnostics.
+
+Plugins and providers should perform backend-specific inspection, execution,
+measurement, persistence, and notification.
+
+## Scope
+
+This plan covers ten related capability families:
+
+1. freshness and partition completeness;
+2. incremental invalidation and repair planning;
+3. idempotency and retry safety;
+4. explicit write and materialization semantics;
+5. reconciliation;
+6. backfill planning;
+7. cross-backend implementation parity;
+8. plan and environment drift;
+9. data-quality trends;
+10. statistical data drift.
+
+These are operational models, policies, observations, and evidence. They are
+not additional top-level contract standards.
+
+## Shared Reliability Model
+
+Each capability should follow a consistent lifecycle:
+
+```text
+Declared expectation or intent
+              │
+              ▼
+Observation or proposed operation
+              │
+              ▼
+Normalized evidence
+              │
+              ▼
+Policy evaluation
+              │
+              ▼
+Decision and affected graph
+              │
+              ▼
+Execution, remediation, or review
+              │
+              ▼
+Durable report and history
+```
+
+Shared models should include:
+
+- stable subject identity;
+- profile, environment, workspace, and security domain;
+- observation time and provenance;
+- evidence and confidence;
+- policy revision and decision;
+- affected nodes, fields, partitions, and artifacts;
+- acknowledgement, approval, and remediation references;
+- deterministic fingerprints where possible.
+
+## Freshness and Partition Completeness
+
+### Problem
+
+A source may exist and match its schema while still being too old, missing
+expected partitions, or only partially published.
+
+### Model
+
+Freshness expectations should describe:
+
+- maximum acceptable age;
+- event-time, ingestion-time, publication-time, or source-revision basis;
+- expected schedule or availability window;
+- grace period and timezone;
+- authoritative timestamp or provider capability;
+- behavior when no new data is expected.
+
+Partition-completeness expectations should describe:
+
+- partition key and logical partition domain;
+- expected ranges or enumerated partitions;
+- allowed lateness;
+- minimum counts or control manifests;
+- partial-publication indicators;
+- late, missing, duplicate, and unexpected partition handling.
+
+### Planning and runtime
+
+Pipelantic should support:
+
+- preflight freshness checks;
+- partition-manifest inspection;
+- waiting, warning, blocking, or skipping according to policy;
+- a distinct `NO_NEW_DATA` outcome rather than treating it as failure;
+- downstream impact for stale or incomplete inputs;
+- freshness and completeness evidence in `PipelineRunReport`.
+
+Live checks require explicit provider authority and never occur during static
+planning.
+
+## Incremental Invalidation and Repair Planning
+
+### Problem
+
+When an input partition, source snapshot, contract, implementation, or output
+changes, teams need the smallest safe rerun rather than a blind full rebuild.
+
+### Model
+
+The planner should combine:
+
+- changed subjects and partitions;
+- dataset and column lineage;
+- state cursors, watermarks, and checkpoints;
+- artifact identities and validity;
+- transformation determinism and side effects;
+- materialization and publication boundaries;
+- contract and schema impact;
+- downstream reuse rules.
+
+### Outputs
+
+A `RepairPlan` should explain:
+
+- invalidated and reusable artifacts;
+- minimum upstream and downstream closure;
+- partitions or ranges to recompute;
+- state that must remain unchanged;
+- unsafe side effects;
+- required approvals;
+- expected writes and reconciliation checks;
+- why each node was included or excluded.
+
+Repair execution must consume an ordinary `RunRequest` and `PipelinePlan`
+extension rather than introduce a separate runtime.
+
+## Idempotency and Retry Safety
+
+### Problem
+
+Retries, reruns, backfills, and resumed runs can duplicate writes, events, API
+calls, and other side effects.
+
+### Model
+
+Transformations, sinks, callbacks, and providers should declare:
+
+- pure or side-effecting behavior;
+- deterministic or nondeterministic behavior;
+- idempotency scope and key;
+- retry safety;
+- transaction boundary;
+- deduplication support;
+- compensation or rollback capability;
+- externally visible effect;
+- maximum safe attempts.
+
+Idempotency is conditional. A merge may be idempotent only for a stable key,
+source snapshot, predicate, and write policy.
+
+### Validation
+
+The planner should:
+
+- reject retries for undeclared or unsafe side effects;
+- ensure idempotency keys include the correct run, input, partition, or effect
+  identity;
+- prevent retry policy from crossing transaction or publication boundaries;
+- distinguish retry, replay, resume, and intentional duplicate processing;
+- record the safety proof and residual risk in the plan.
+
+## Explicit Write and Materialization Semantics
+
+### Problem
+
+Generic `write` and `save` operations hide destructive behavior, portability
+limitations, and materialization costs.
+
+### Write intent
+
+Portable write intents should initially include:
+
+- append;
+- insert-only;
+- replace;
+- replace selected partitions;
+- merge or upsert;
+- create-table-as;
+- insert-select;
+- snapshot publication;
+- delete propagation;
+- slowly changing dimension strategies;
+- validate-only and no-write modes.
+
+Each intent should declare keys, matching behavior, schema-evolution policy,
+transaction needs, conflict behavior, and idempotency assumptions.
+
+### Materialization intent
+
+Materialization should describe:
+
+- in-memory, lazy, cached, temporary, durable, or external-reference form;
+- persistence lifetime and cleanup;
+- reuse and invalidation rules;
+- serialization and interchange format;
+- partitioning and ordering;
+- security classification and encryption;
+- whether materialization is required for validation, retry, branching,
+  orchestration, or backend transition.
+
+Plugins must either preserve requested semantics, select an explicitly approved
+fallback, or fail compilation before execution.
+
+## Reconciliation
+
+### Problem
+
+A successful write does not prove that source and destination agree.
+
+### Model
+
+Reconciliation checks should support:
+
+- row and distinct-key counts;
+- accepted, rejected, inserted, updated, and deleted counts;
+- control totals and aggregates;
+- checksums or fingerprints;
+- partition coverage;
+- source-to-sink lag;
+- key-set comparison;
+- referential checks;
+- bounded tolerance and rounding rules.
+
+Checks may compare sources, intermediate artifacts, sinks, manifests, or
+independent control systems.
+
+### Evidence
+
+Providers calculate backend-specific evidence. Pipelantic normalizes:
+
+- compared subjects and snapshots;
+- metric definitions;
+- expected and observed values;
+- tolerances;
+- completeness and confidence;
+- policy decision;
+- remediation and affected downstream nodes.
+
+Reconciliation failures should be distinguishable from transformation,
+validation, and publication failures.
+
+## Backfill Planning
+
+### Problem
+
+Backfills are often improvised scripts with unclear scope, cost, write
+behavior, and side effects.
+
+### Model
+
+A `BackfillRequest` should describe:
+
+- temporal, partition, key, or snapshot range;
+- inclusive and exclusive bounds;
+- source and contract revisions;
+- profile and implementation selection;
+- write and existing-output behavior;
+- concurrency and rate limits;
+- notification and callback policy;
+- checkpoint isolation;
+- reconciliation requirements;
+- approval and cost budgets.
+
+### Preview
+
+Before execution, a backfill plan should show:
+
+- dependency closure;
+- partitions, batches, and estimated task count;
+- selected backends and implementations;
+- materialization and publication boundaries;
+- expected scans, writes, and destructive operations;
+- side effects suppressed or permitted;
+- estimated resources, duration, and cost with confidence;
+- idempotency and retry assessment;
+- state transitions and rollback constraints.
+
+Backfill execution uses ordinary plans, reports, policies, and provider
+interfaces.
+
+## Cross-Backend Implementation Parity
+
+### Problem
+
+Pandas, Polars, SQL, and PySpark implementations of one transformation may
+differ in null behavior, precision, ordering, timezone handling, or invalid
+record treatment.
+
+### Conformance model
+
+Transformation authors should define shared fixtures, properties, or generated
+cases. The parity harness should compare:
+
+- output contracts and normalized schemas;
+- values within declared tolerance;
+- null and missing-value behavior;
+- numeric precision and rounding;
+- date, timestamp, and timezone behavior;
+- ordering guarantees;
+- duplicate and key behavior;
+- valid and invalid outputs;
+- side effects and write intent;
+- deterministic replay;
+- diagnostics and lineage evidence.
+
+Results should classify implementations as conforming, conditionally
+conforming, nonconforming, or not comparable.
+
+Backend-specific differences may be documented capabilities, but cannot be
+silently treated as equivalent semantics.
+
+## Plan and Environment Drift
+
+### Problem
+
+The logical pipeline may remain unchanged while production behavior changes
+because profiles, plugins, implementations, policies, statistics, bindings, or
+optimizer decisions changed.
+
+### Tracked identity
+
+Pipelantic should fingerprint:
+
+- logical pipeline and contract revisions;
+- resolved profile;
+- environment and capability inventory;
+- plugin, provider, and implementation versions;
+- selected implementations;
+- policy bundle;
+- optimization inputs and decisions;
+- `PipelinePlan`;
+- compiled backend artifacts.
+
+### Comparison
+
+Plan and environment drift should identify:
+
+- implementation selection changes;
+- new materialization or backend boundaries;
+- write, retry, validation, or security-policy changes;
+- resource and cost changes;
+- plugin or provider upgrades;
+- capability gain or loss;
+- binding and secret-reference changes without exposing values;
+- optimizer decisions that materially change execution.
+
+Policies may record, warn, require approval, or block deployment and execution.
+
+## Data-Quality Trends
+
+### Problem
+
+One run may pass while quality gradually deteriorates.
+
+### Metrics
+
+Pipelantic should normalize time-series evidence such as:
+
+- null, invalid, duplicate, and rejection rates;
+- record and partition counts;
+- distinct-key counts and cardinality;
+- referential-integrity results;
+- validation latency and failure rates;
+- reconciliation deltas;
+- freshness and completeness;
+- schema and statistical drift frequency.
+
+Providers store and query metric history. Pipelantic defines metric identity,
+dimensions, policy inputs, report summaries, and trend diagnostics.
+
+Initial trend analysis should use explainable rules such as thresholds, moving
+windows, percentage changes, and consecutive violations. Advanced anomaly
+detection remains provider-driven.
+
+## Statistical Data Drift
+
+### Problem
+
+Data meaning may change without a schema change, such as a categorical code
+becoming a full name or a numeric distribution shifting significantly.
+
+### Observations
+
+Statistical observations may include:
+
+- null and missing rates;
+- cardinality and new categorical values;
+- min, max, quantiles, mean, and variance;
+- length and pattern summaries;
+- frequency sketches and histograms;
+- referential and uniqueness rates;
+- bounded distribution-distance measures.
+
+### Privacy and safety
+
+Statistical profiling is opt-in and must declare:
+
+- selected fields and metrics;
+- sampling and confidence;
+- row, byte, cardinality, and time budgets;
+- classification and privacy policy;
+- retention and sharing scope;
+- prohibited sensitive fields;
+- redaction or aggregation requirements.
+
+Raw values, unrestricted category sets, and sensitive exemplars must not enter
+plans, diagnostics, reports, prompts, or general-purpose metric stores.
+
+Statistical drift is evidence, not proof of a defect. Policies should generally
+warn or require review before blocking unless an organization explicitly
+defines a mandatory gate.
+
+## CLI and API
+
+Planned commands include:
+
+```text
+pipelantic freshness check
+pipelantic partitions check
+pipelantic impact data
+pipelantic repair explain
+pipelantic repair plan
+pipelantic backfill plan
+pipelantic reconcile
+pipelantic implementations compare
+pipelantic plan diff
+pipelantic environment diff
+pipelantic quality trends
+pipelantic data-drift inspect
+```
+
+The Python API, CLI, FastAPI integration, IDE, notebooks, and AI tooling should
+share the same request, result, policy, and evidence models.
+
+## Reporting and Developer Experience
+
+`PipelineRunReport` should include normalized evidence for:
+
+- freshness and completeness;
+- invalidation and reuse;
+- retry and idempotency decisions;
+- writes and materializations;
+- reconciliation;
+- backfill scope and progress;
+- implementation identity and parity status;
+- plan and environment drift;
+- quality trends;
+- statistical drift.
+
+IDE and notebook tooling should offer:
+
+- freshness and incomplete-partition indicators;
+- repair and backfill previews;
+- unsafe-retry and destructive-write diagnostics;
+- reconciliation results;
+- implementation comparison;
+- plan and environment diffs;
+- bounded quality and drift charts;
+- navigation to affected models, policies, fields, and sinks.
+
+AI tools may explain evidence and propose repairs, tests, adapters, or policy
+changes, but cannot approve destructive writes, backfills, retries, baseline
+changes, or production execution.
+
+## Security
+
+These capabilities can require powerful access and reveal sensitive metadata.
+
+Required controls include:
+
+- read-only inspection credentials where possible;
+- separate inspect, plan, approve, execute, and acknowledge authorities;
+- bounded scans, samples, profiles, and history queries;
+- explicit destructive-write and backfill approval;
+- tenant and security-domain isolation;
+- no secret values in fingerprints, comparisons, or reports;
+- privacy review for statistical metrics;
+- integrity-protected evidence used for deployment or recovery decisions;
+- audit events for repair, backfill, retry override, baseline, and policy
+  decisions;
+- fail-closed behavior when safety or write semantics are unknown.
+
+## Testing
+
+Conformance testing should cover:
+
+- timezone and schedule boundaries for freshness;
+- missing, late, duplicate, and partial partitions;
+- invalidation closure and artifact reuse;
+- retry matrices across pure, idempotent, transactional, compensatable, and
+  unsafe operations;
+- write-intent behavior across SQL, Spark, dataframe, and storage plugins;
+- reconciliation tolerance and snapshot identity;
+- backfill partitioning, state isolation, cancellation, and resume;
+- cross-backend null, precision, ordering, timezone, and invalid-data behavior;
+- plan and environment fingerprint stability;
+- quality-trend windows and notification deduplication;
+- statistical-drift privacy budgets and bounded execution.
+
+## Roadmap Placement
+
+| Release | Reliability capabilities |
+|---|---|
+| 0.3 | Portable policies, intent models, evidence schemas, fingerprints |
+| 0.4 | Local retry safety, repair selection, backfill requests, reports |
+| 0.5 | Dataframe parity, quality metrics, reconciliation evidence |
+| 0.6 | SQL write intents, transactions, reconciliation, plan evidence |
+| 0.7 | Spark and Delta writes, partition completeness, backfill semantics |
+| 0.8 | Orchestrator mapping for retries, repair, backfills, and reports |
+| 0.9 | CLI, provider protocols, conformance suites, drift comparisons |
+| 1.1 | FastAPI inspection, planning, approval, and history routes |
+| 1.2 | Registry and workspace history for plans, environments, and quality |
+| 1.3 | Incremental invalidation, repair, state, and reproducibility |
+| 1.4 | Governance, approvals, budgets, destructive-write policy |
+| 1.5 | IDE and notebook previews, diagnostics, and trend displays |
+| 1.6 | Cost-aware repair, materialization, and implementation selection |
+| 1.9 | Human-governed repair and migration proposals |
+
+## Success Criteria
+
+Pipelantic succeeds when a developer can determine:
+
+- Is the input fresh and complete?
+- What changed and what must be rebuilt?
+- Is retry or replay safe?
+- What exactly will be written or materialized?
+- Did source and destination reconcile?
+- What will a backfill touch and cost?
+- Do all implementations preserve the same semantics?
+- Why did the physical plan or environment change?
+- Is data quality degrading over time?
+- Did the data distribution change within approved privacy limits?
+
+The core principle is:
+
+> Pipelantic makes reliability intent explicit, turns runtime behavior into
+> comparable evidence, and plans safe recovery without owning the execution
+> engines that perform the work.

@@ -349,6 +349,35 @@ Schema inspection and tracking must:
 Acknowledgement is an auditable operational decision, not authorization to
 rewrite an authoritative data contract.
 
+## Reliability Observations and Recovery Operations
+
+Freshness checks, partition inspection, reconciliation, repair, backfills,
+quality profiling, and statistical drift analysis can scan sensitive data or
+perform high-impact writes.
+
+These capabilities must:
+
+- separate inspect, plan, approve, execute, and acknowledge authority;
+- prefer metadata and manifests over source-row scans;
+- bound partitions, rows, bytes, fields, categories, history, time, and cost;
+- require explicit approval for destructive writes, large backfills, checkpoint
+  replacement, unsafe retry overrides, and broad downstream invalidation;
+- keep idempotency keys, reconciliation snapshots, and repair identities scoped
+  to tenant, environment, source revision, and security domain;
+- exclude secret values and unrestricted source values from fingerprints,
+  plans, reports, and quality histories;
+- require privacy policy for statistical profiling and prohibit sensitive
+  exemplars or unrestricted categorical values;
+- integrity-protect evidence used to authorize repair, publication, backfill,
+  or deployment;
+- record audit events for retry overrides, destructive writes, reconciliation
+  waivers, repair execution, backfill approval, and drift acknowledgement;
+- fail closed when write, retry, transaction, reconciliation, or privacy
+  semantics are unknown.
+
+An estimated repair scope, cost, or statistical anomaly is evidence for a
+decision, not authority to execute it.
+
 ## Cache Security
 
 Cache identity should include:
