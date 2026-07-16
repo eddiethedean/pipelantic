@@ -23,6 +23,13 @@ dependencies = [
     "packaging>=24",
 ]
 
+[project.urls]
+Homepage = "https://github.com/eddiethedean/pipelinemodel"
+Documentation = "https://github.com/eddiethedean/pipelinemodel/tree/main/docs"
+Repository = "https://github.com/eddiethedean/pipelinemodel"
+Issues = "https://github.com/eddiethedean/pipelinemodel/issues"
+Changelog = "https://github.com/eddiethedean/pipelinemodel/blob/main/CHANGELOG.md"
+
 [dependency-groups]
 dev = [
     "pytest>=8,<9",
@@ -35,6 +42,17 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pipelinemodel"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/pipelinemodel",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+    "/SECURITY.md",
+    "/pyproject.toml",
+]
 
 [tool.uv]
 package = true

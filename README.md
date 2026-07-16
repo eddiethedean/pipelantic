@@ -14,8 +14,9 @@ topology and compatibility diagnostics, graph inspection, and Mermaid output.
 Planning, execution plugins, and contract serialization arrive in later
 milestones.
 
-See [docs/](docs/README.md) for the full design and [Roadmap](docs/11_DEVELOPMENT/ROADMAP.md)
-for sequencing.
+See [docs/](docs/README.md) for the full design,
+[CHANGELOG.md](CHANGELOG.md) for release notes, and
+[Roadmap](docs/11_DEVELOPMENT/ROADMAP.md) for sequencing.
 
 ## Install
 
@@ -30,6 +31,18 @@ uv run ruff format .
 
 `uv sync` creates `.venv`, installs the package in editable mode, and installs
 the `dev` dependency group (pytest, ruff) by default.
+
+## Release
+
+Tag a version that matches `src/pipelinemodel/_version.py`, then push the tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions runs checks and publishes to PyPI using the `PYPI_API_TOKEN`
+repository secret.
 
 ## Quick example
 
