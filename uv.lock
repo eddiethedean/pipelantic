@@ -8,10 +8,10 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "pipelantic",
-    "pipelantic-pandas",
-    "pipelantic-polars",
-    "pipelantic-sql",
+    "etlantic",
+    "etlantic-pandas",
+    "etlantic-polars",
+    "etlantic-sql",
 ]
 
 [[package]]
@@ -806,7 +806,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pipelantic"
+name = "etlantic"
 version = "0.6.0"
 source = { editable = "." }
 dependencies = [
@@ -825,26 +825,26 @@ arrow = [
     { name = "pyarrow" },
 ]
 dataframes = [
-    { name = "pipelantic-pandas" },
-    { name = "pipelantic-polars" },
+    { name = "etlantic-pandas" },
+    { name = "etlantic-polars" },
 ]
 pandas = [
-    { name = "pipelantic-pandas" },
+    { name = "etlantic-pandas" },
 ]
 polars = [
-    { name = "pipelantic-polars" },
+    { name = "etlantic-polars" },
 ]
 postgresql = [
-    { name = "pipelantic-sql" },
+    { name = "etlantic-sql" },
 ]
 sql = [
-    { name = "pipelantic-sql" },
+    { name = "etlantic-sql" },
 ]
 
 [package.dev-dependencies]
 dataframes = [
-    { name = "pipelantic-pandas" },
-    { name = "pipelantic-polars" },
+    { name = "etlantic-pandas" },
+    { name = "etlantic-polars" },
     { name = "pyarrow" },
 ]
 dev = [
@@ -856,15 +856,15 @@ dev = [
     { name = "ruff" },
 ]
 pandas = [
-    { name = "pipelantic-pandas" },
+    { name = "etlantic-pandas" },
     { name = "pyarrow" },
 ]
 polars = [
-    { name = "pipelantic-polars" },
+    { name = "etlantic-polars" },
     { name = "pyarrow" },
 ]
 sql = [
-    { name = "pipelantic-sql" },
+    { name = "etlantic-sql" },
 ]
 
 [package.metadata]
@@ -875,12 +875,12 @@ requires-dist = [
     { name = "dpcs", specifier = ">=0.13,<1" },
     { name = "dtcs", specifier = ">=0.11,<1" },
     { name = "packaging", specifier = ">=24" },
-    { name = "pipelantic-pandas", marker = "extra == 'dataframes'", editable = "packages/pipelantic-pandas" },
-    { name = "pipelantic-pandas", marker = "extra == 'pandas'", editable = "packages/pipelantic-pandas" },
-    { name = "pipelantic-polars", marker = "extra == 'dataframes'", editable = "packages/pipelantic-polars" },
-    { name = "pipelantic-polars", marker = "extra == 'polars'", editable = "packages/pipelantic-polars" },
-    { name = "pipelantic-sql", marker = "extra == 'postgresql'", editable = "packages/pipelantic-sql" },
-    { name = "pipelantic-sql", marker = "extra == 'sql'", editable = "packages/pipelantic-sql" },
+    { name = "etlantic-pandas", marker = "extra == 'dataframes'", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-pandas", marker = "extra == 'pandas'", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-polars", marker = "extra == 'dataframes'", editable = "packages/etlantic-polars" },
+    { name = "etlantic-polars", marker = "extra == 'polars'", editable = "packages/etlantic-polars" },
+    { name = "etlantic-sql", marker = "extra == 'postgresql'", editable = "packages/etlantic-sql" },
+    { name = "etlantic-sql", marker = "extra == 'sql'", editable = "packages/etlantic-sql" },
     { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
     { name = "pydantic", specifier = ">=2.12,<3" },
     { name = "typer", specifier = ">=0.15,<1" },
@@ -889,8 +889,8 @@ provides-extras = ["polars", "pandas", "sql", "postgresql", "arrow", "dataframes
 
 [package.metadata.requires-dev]
 dataframes = [
-    { name = "pipelantic-pandas", editable = "packages/pipelantic-pandas" },
-    { name = "pipelantic-polars", editable = "packages/pipelantic-polars" },
+    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
     { name = "pyarrow", specifier = ">=14" },
 ]
 dev = [
@@ -902,22 +902,22 @@ dev = [
     { name = "ruff", specifier = ">=0.9,<1" },
 ]
 pandas = [
-    { name = "pipelantic-pandas", editable = "packages/pipelantic-pandas" },
+    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
     { name = "pyarrow", specifier = ">=14" },
 ]
 polars = [
-    { name = "pipelantic-polars", editable = "packages/pipelantic-polars" },
+    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
     { name = "pyarrow", specifier = ">=14" },
 ]
-sql = [{ name = "pipelantic-sql", editable = "packages/pipelantic-sql" }]
+sql = [{ name = "etlantic-sql", editable = "packages/etlantic-sql" }]
 
 [[package]]
-name = "pipelantic-pandas"
+name = "etlantic-pandas"
 version = "0.6.0"
-source = { editable = "packages/pipelantic-pandas" }
+source = { editable = "packages/etlantic-pandas" }
 dependencies = [
     { name = "pandas" },
-    { name = "pipelantic" },
+    { name = "etlantic" },
 ]
 
 [package.optional-dependencies]
@@ -928,17 +928,17 @@ arrow = [
 [package.metadata]
 requires-dist = [
     { name = "pandas", specifier = ">=2.0,<3" },
-    { name = "pipelantic", editable = "." },
+    { name = "etlantic", editable = "." },
     { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
 ]
 provides-extras = ["arrow"]
 
 [[package]]
-name = "pipelantic-polars"
+name = "etlantic-polars"
 version = "0.6.0"
-source = { editable = "packages/pipelantic-polars" }
+source = { editable = "packages/etlantic-polars" }
 dependencies = [
-    { name = "pipelantic" },
+    { name = "etlantic" },
     { name = "polars" },
 ]
 
@@ -949,25 +949,25 @@ arrow = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pipelantic", editable = "." },
+    { name = "etlantic", editable = "." },
     { name = "polars", specifier = ">=1.0,<2" },
     { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
 ]
 provides-extras = ["arrow"]
 
 [[package]]
-name = "pipelantic-sql"
+name = "etlantic-sql"
 version = "0.6.0"
-source = { editable = "packages/pipelantic-sql" }
+source = { editable = "packages/etlantic-sql" }
 dependencies = [
-    { name = "pipelantic" },
+    { name = "etlantic" },
     { name = "psycopg", extra = ["binary"] },
     { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "pipelantic", editable = "." },
+    { name = "etlantic", editable = "." },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.1,<4" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]

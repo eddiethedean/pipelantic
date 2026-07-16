@@ -1,6 +1,6 @@
 # Lifecycle Extension Mechanisms
 
-Pipelantic provides four distinct mechanisms for inserting reusable behavior
+ETLantic provides four distinct mechanisms for inserting reusable behavior
 at well-defined points in modeling and execution:
 
 1. Runtime lifespan
@@ -9,7 +9,7 @@ at well-defined points in modeling and execution:
 4. Lifecycle callbacks and outbound event declarations
 
 These mechanisms are inspired by FastAPI's separation of lifespan,
-middleware, dependencies, and OpenAPI callbacks or webhooks. Pipelantic
+middleware, dependencies, and OpenAPI callbacks or webhooks. ETLantic
 adopts the architectural distinction, not the HTTP terminology or request
 model.
 
@@ -37,7 +37,7 @@ A lifespan is an async context manager surrounding a runtime session.
 ```python
 from contextlib import asynccontextmanager
 
-from pipelantic import PipelineRuntime
+from etlantic import PipelineRuntime
 
 
 @asynccontextmanager
@@ -64,7 +64,7 @@ Code before `yield` runs before the runtime accepts pipeline runs. Code after
 
 ### Scopes
 
-Pipelantic should support explicit scopes:
+ETLantic should support explicit scopes:
 
 ```text
 Runtime lifespan
@@ -123,7 +123,7 @@ runtime.add_step_middleware(tracing_middleware)
 
 ### Scopes
 
-Pipelantic should distinguish:
+ETLantic should distinguish:
 
 ```text
 Run middleware
@@ -170,7 +170,7 @@ planned extension point.
 
 ## 3. Resource Injection
 
-FastAPI calls this dependency injection. Pipelantic uses the term resource
+FastAPI calls this dependency injection. ETLantic uses the term resource
 injection to avoid confusion with edges in the pipeline dependency graph.
 
 Transformation implementations and callbacks declare typed requirements:
@@ -178,7 +178,7 @@ Transformation implementations and callbacks declare typed requirements:
 ```python
 from typing import Annotated
 
-from pipelantic import Inject, Resource
+from etlantic import Inject, Resource
 
 Warehouse = Annotated[SqlDatabase, Inject("warehouse")]
 
@@ -191,7 +191,7 @@ async def normalize_customers(
     ...
 ```
 
-Pipelantic resolves the requirement through the selected profile and
+ETLantic resolves the requirement through the selected profile and
 resource provider.
 
 ### Hierarchical providers
@@ -288,7 +288,7 @@ Callbacks are operational policy, not transformation logic.
 ## 5. Outbound Event Declarations
 
 FastAPI's OpenAPI callbacks and webhooks primarily document requests an
-application may send to another system. The Pipelantic equivalent is a
+application may send to another system. The ETLantic equivalent is a
 typed outbound event declaration.
 
 ```python
@@ -323,7 +323,7 @@ message queue
 local test capture
 ```
 
-### What Pipelantic owns
+### What ETLantic owns
 
 - event name and payload type
 - lifecycle association
@@ -347,7 +347,7 @@ do not create another top-level contract standard alongside ODCS, DTCS, and
 DPCS.
 
 HTTP-specific webhook descriptions may be generated from outbound event
-declarations through a documentation plugin. The Pipelantic core remains
+declarations through a documentation plugin. The ETLantic core remains
 transport-neutral.
 
 ## Selection Guide

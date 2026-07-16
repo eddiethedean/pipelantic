@@ -1,6 +1,6 @@
 # Spark Provider
 
-A **Spark Provider** implements the Pipelantic Resource Provider API for
+A **Spark Provider** implements the ETLantic Resource Provider API for
 creating, configuring, supplying, reusing, and disposing Apache Spark sessions
 and related runtime resources.
 
@@ -174,7 +174,7 @@ Examples include:
 - Managed worker process
 - Spark Connect server
 
-Pipelantic must not stop externally managed sessions.
+ETLantic must not stop externally managed sessions.
 
 ## Lifecycle Models
 
@@ -374,7 +374,7 @@ A name may include:
 Example:
 
 ```text
-pipelantic-customer-pipeline-production
+etlantic-customer-pipeline-production
 ```
 
 Application names should avoid secrets and unsafe user input.
@@ -674,7 +674,7 @@ The provider may supply a checkpoint root.
 Conceptually:
 
 ```text
-s3://company-checkpoints/pipelantic/
+s3://company-checkpoints/etlantic/
 ```
 
 The PySpark Plugin derives run- and query-specific paths beneath that root.
@@ -1007,7 +1007,7 @@ failure.
 Conceptually:
 
 ```python
-from pipelantic.resources import register_provider
+from etlantic.resources import register_provider
 
 register_provider(
     "spark",

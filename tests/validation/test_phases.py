@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -12,10 +12,10 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.capabilities import PluginCapabilities
-from pipelantic.policy import STRICT_POLICY
-from pipelantic.profile import Profile
-from pipelantic.registry import PluginDescriptor, RegistryBundle
+from etlantic.capabilities import PluginCapabilities
+from etlantic.policy import STRICT_POLICY
+from etlantic.profile import Profile
+from etlantic.registry import PluginDescriptor, RegistryBundle
 
 
 class Item(Data):

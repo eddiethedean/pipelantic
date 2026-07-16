@@ -2,10 +2,10 @@
 
 A one-page answer for enterprise evaluators and technical decision-makers.
 
-## What Pipelantic is
+## What ETLantic is
 
 A typed, contract-driven **modeling** layer for data pipelines in Python. You
-define datasets, transformations, and pipelines once; Pipelantic validates and
+define datasets, transformations, and pipelines once; ETLantic validates and
 plans them; plugins execute.
 
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
@@ -22,7 +22,7 @@ manager.
 | Memory / callable / JSON / CSV / no-write storage | Yes |
 | Env + mounted-file secrets | Yes |
 | Polars / Pandas plugins | Yes (separate packages) |
-| SQL plugin (`pipelantic-sql`) | Yes (PostgreSQL reference) |
+| SQL plugin (`etlantic-sql`) | Yes (PostgreSQL reference) |
 | Spark / Airflow | No — future design |
 | Multi-tenant durable orchestration | No |
 | Formal SLA / support response times | No |
@@ -35,7 +35,7 @@ manager.
 - Threat model documents many controls as **Gap** (plugin allowlists, DoS
   budgets, stronger isolation)—read
   [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
-  [security policy](https://github.com/eddiethedean/pipelantic/blob/main/SECURITY.md)
+  [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md)
 - Report vulnerabilities privately; alpha has best-effort fixes only
 
 ## What not to bet on yet
@@ -51,12 +51,12 @@ manager.
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
 3. Optional: `examples/dataframe_parity.py` with Polars or Pandas
 4. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
-   `pipelantic-sql`
+   `etlantic-sql`
 5. [Migration 0.5 → 0.6](../11_DEVELOPMENT/MIGRATION_0_5_TO_0_6.md) if upgrading
 6. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
 
 ## Support channel
 
-GitHub issues for bugs and questions. Include Pipelantic version, Python
+GitHub issues for bugs and questions. Include ETLantic version, Python
 version, and a minimal reproduction. Never include credentials or production
 data.

@@ -1,6 +1,6 @@
 # Core Concepts
 
-Pipelantic is easiest to understand as a sequence of distinct models rather
+ETLantic is easiest to understand as a sequence of distinct models rather
 than as one large framework object.
 
 ## The Complete Lifecycle
@@ -27,11 +27,11 @@ Each stage answers a different question.
 
 A data contract describes valid data.
 
-In the code-first experience, `Data` is Pipelantic's public facade over a
+In the code-first experience, `Data` is ETLantic's public facade over a
 ContractModel-compatible Pydantic class:
 
 ```python
-from pipelantic import Data
+from etlantic import Data
 
 
 class Customer(Data):
@@ -40,7 +40,7 @@ class Customer(Data):
 ```
 
 ContractModel owns operational behavior such as runtime validation and ODCS
-interoperability. Pipelantic uses the class as a typed dataset boundary.
+interoperability. ETLantic uses the class as a typed dataset boundary.
 
 ## Transformation
 
@@ -197,7 +197,7 @@ while still retaining mappings back to all three logical identities.
 
 ## Plugin
 
-A plugin extends Pipelantic with backend behavior:
+A plugin extends ETLantic with backend behavior:
 
 - Dataframe execution
 - SQL or Spark execution
@@ -286,8 +286,8 @@ silently rewrite them.
 | Data-contract operationalization | ContractModel |
 | Transformation semantics | DTCS |
 | Pipeline semantics | DPCS |
-| Typed authoring and logical graph | Pipelantic |
-| Validation and planning | Pipelantic |
+| Typed authoring and logical graph | ETLantic |
+| Validation and planning | ETLantic |
 | Runtime adaptation | Plugins |
 | Actual computation and scheduling | External engines |
 

@@ -1,8 +1,8 @@
 # Pydantic Integration
 
-Pipelantic relies on Pydantic through ContractModel rather than introducing a second data-modeling system.
+ETLantic relies on Pydantic through ContractModel rather than introducing a second data-modeling system.
 
-Pydantic provides the Python-native type system, field metadata, validation behavior, and schema introspection used by `Data`. ContractModel extends that experience with data-contract semantics and ODCS interoperability. Pipelantic then consumes those contract classes as typed pipeline interfaces.
+Pydantic provides the Python-native type system, field metadata, validation behavior, and schema introspection used by `Data`. ContractModel extends that experience with data-contract semantics and ODCS interoperability. ETLantic then consumes those contract classes as typed pipeline interfaces.
 
 The relationship is:
 
@@ -19,7 +19,7 @@ Python Type Annotations
 ODCS-Compatible Data Contracts
           │
           ▼
-     Pipelantic
+     ETLantic
 ```
 
 ## Architectural Boundary
@@ -53,9 +53,9 @@ ContractModel owns:
 - Data-contract generation and loading
 - Data-contract-specific diagnostics
 
-### Pipelantic
+### ETLantic
 
-Pipelantic owns:
+ETLantic owns:
 
 - Referencing data contracts from transformations
 - Referencing data contracts from sources and sinks
@@ -65,14 +65,14 @@ Pipelantic owns:
 - Generating pipeline-wide contract bundles
 - Passing contract requirements to execution plugins
 
-Pipelantic must not reimplement Pydantic field parsing or validation behavior.
+ETLantic must not reimplement Pydantic field parsing or validation behavior.
 
 ## Basic Model Definition
 
-A Pipelantic-ready data contract is an ordinary ContractModel class:
+A ETLantic-ready data contract is an ordinary ContractModel class:
 
 ```python
-from pipelantic import Data, load_data_contract
+from etlantic import Data, load_data_contract
 
 
 class Customer(Data):
@@ -93,7 +93,7 @@ customer = Customer(
 The same class is usable as a logical pipeline type:
 
 ```python
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 
 class NormalizeCustomers(Transformation):
@@ -103,7 +103,7 @@ class NormalizeCustomers(Transformation):
 
 ## Type Annotations
 
-Pipelantic should preserve standard Python and Pydantic typing conventions.
+ETLantic should preserve standard Python and Pydantic typing conventions.
 
 Supported annotations should include, where ContractModel and ODCS can represent them reliably:
 
@@ -130,7 +130,7 @@ from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-from pipelantic import Data, load_data_contract
+from etlantic import Data, load_data_contract
 
 
 class Order(Data):
@@ -143,7 +143,7 @@ class Order(Data):
 
 ContractModel determines how these Python types map into ODCS.
 
-Pipelantic treats the resulting contract as authoritative.
+ETLantic treats the resulting contract as authoritative.
 
 ## `Annotated`
 
@@ -176,7 +176,7 @@ class Customer(Data):
 
 This style keeps the Python type visible while allowing additional metadata to travel with it.
 
-Pipelantic should reuse this information for:
+ETLantic should reuse this information for:
 
 - Generated documentation
 - ODCS generation
@@ -195,7 +195,7 @@ class Customer(Data):
     email: str
 ```
 
-Pipelantic should not invent separate required-field metadata.
+ETLantic should not invent separate required-field metadata.
 
 It should rely on Pydantic and ContractModel.
 
@@ -216,7 +216,7 @@ ContractModel must distinguish, where relevant, between:
 - A field with a default value
 - A field that is both nullable and defaulted
 
-Pipelantic should consume the normalized ContractModel interpretation rather than inferring these details independently.
+ETLantic should consume the normalized ContractModel interpretation rather than inferring these details independently.
 
 ## Defaults
 
@@ -285,7 +285,7 @@ These can be pushed down into a particular runtime, such as SQL or Polars, but m
 
 ContractModel should classify these capabilities.
 
-Pipelantic should surface unsupported enforcement during planning.
+ETLantic should surface unsupported enforcement during planning.
 
 ## Strict Validation
 
@@ -324,7 +324,7 @@ class Customer(Data):
     ]
 ```
 
-Pipelantic may include this description in:
+ETLantic may include this description in:
 
 - Generated ODCS
 - Transformation documentation
@@ -369,7 +369,7 @@ ContractModel must define the canonical behavior for:
 - Database columns
 - Compatibility checks
 
-Pipelantic should not independently choose whether to use the Python name or alias.
+ETLantic should not independently choose whether to use the Python name or alias.
 
 It should request the canonical contract field name from ContractModel.
 
@@ -379,7 +379,7 @@ Pydantic may allow different names for input and output.
 
 When used, ContractModel must decide whether ODCS can represent the distinction.
 
-Pipelantic should treat unresolved naming ambiguity as a planning or compatibility diagnostic rather than guessing.
+ETLantic should treat unresolved naming ambiguity as a planning or compatibility diagnostic rather than guessing.
 
 ## Model Configuration
 
@@ -402,7 +402,7 @@ ContractModel should classify configuration as:
 - Python-runtime-only
 - unsupported for portable generation
 
-Pipelantic should only rely on the contract-relevant subset.
+ETLantic should only rely on the contract-relevant subset.
 
 ## Extra Fields
 
@@ -431,7 +431,7 @@ For pipeline validation:
 
 ContractModel should translate this behavior into ODCS or extension metadata where possible.
 
-Pipelantic should preserve the declared policy at validation boundaries.
+ETLantic should preserve the declared policy at validation boundaries.
 
 ## Nested Models
 
@@ -451,7 +451,7 @@ class Customer(Data):
 
 ContractModel owns the mapping into ODCS structures.
 
-Pipelantic treats the top-level contract as the logical pipeline type while retaining access to nested schema metadata for documentation and compatibility analysis.
+ETLantic treats the top-level contract as the logical pipeline type while retaining access to nested schema metadata for documentation and compatibility analysis.
 
 ## Reusable Component Models
 
@@ -479,7 +479,7 @@ ContractModel should distinguish:
 - embedded schema components
 - internal helper models
 
-Pipelantic should only generate standalone ODCS documents for published contracts.
+ETLantic should only generate standalone ODCS documents for published contracts.
 
 ## Enums
 
@@ -529,7 +529,7 @@ Payment = Annotated[
 
 ContractModel must determine whether the target ODCS version supports the equivalent structure.
 
-Pipelantic should report unsupported portability rather than flattening the union silently.
+ETLantic should report unsupported portability rather than flattening the union silently.
 
 ## Custom Field Types
 
@@ -582,7 +582,7 @@ ContractModel should expose whether a validator is:
 - Python-only
 - execution-engine-specific
 
-Pipelantic should not assume a Python-only validator can run inside SQL, Polars, Spark, or another external engine.
+ETLantic should not assume a Python-only validator can run inside SQL, Polars, Spark, or another external engine.
 
 ## Model Validators
 
@@ -605,7 +605,7 @@ class DateRange(Data):
 
 Cross-field rules are often important contract semantics but may be difficult to push down into every execution engine.
 
-Pipelantic should allow planning policies such as:
+ETLantic should allow planning policies such as:
 
 - validate through ContractModel after materialization
 - use a plugin-native equivalent
@@ -638,7 +638,7 @@ Private Pydantic attributes are implementation details and must not become part 
 - pipeline wiring
 - compatibility analysis
 
-Pipelantic should ignore private attributes.
+ETLantic should ignore private attributes.
 
 ## Generic Models
 
@@ -660,7 +660,7 @@ class Page(BaseModel, Generic[T]):
 
 Before a generic model can serve as a published pipeline data contract, it should be fully specialized.
 
-Pipelantic should not accept unresolved type variables as contract boundaries.
+ETLantic should not accept unresolved type variables as contract boundaries.
 
 ## Root Models
 
@@ -674,7 +674,7 @@ Examples include:
 
 ContractModel must define whether and how these map into ODCS.
 
-Pipelantic should support them only when:
+ETLantic should support them only when:
 
 - ContractModel exposes a valid data-contract identity
 - the active execution plugin supports the representation
@@ -712,7 +712,7 @@ Each artifact serves a different purpose.
 
 ContractModel should own both mappings.
 
-Pipelantic may expose generated schemas through inspection and documentation APIs.
+ETLantic may expose generated schemas through inspection and documentation APIs.
 
 ## Runtime Record Validation
 
@@ -731,7 +731,7 @@ customer = Customer.model_validate(
 
 For large dataframe workloads, row-by-row Pydantic validation may be too expensive.
 
-Pipelantic should allow execution plugins to provide optimized validation while preserving the same declared semantics.
+ETLantic should allow execution plugins to provide optimized validation while preserving the same declared semantics.
 
 ## Dataframe Validation
 
@@ -755,7 +755,7 @@ Unsupported constraints must not disappear silently.
 
 ## Validation Fallback
 
-When a plugin cannot enforce a contract fully, Pipelantic may:
+When a plugin cannot enforce a contract fully, ETLantic may:
 
 1. Materialize records.
 2. Delegate validation to ContractModel or Pydantic.
@@ -767,7 +767,7 @@ This fallback preserves correctness at the cost of performance.
 
 ## Schema Pushdown
 
-Where supported, Pipelantic may ask plugins to push contract validation closer to the source.
+Where supported, ETLantic may ask plugins to push contract validation closer to the source.
 
 Examples include:
 
@@ -783,7 +783,7 @@ The Pydantic and ContractModel declaration remains the semantic source of truth.
 
 ## Transformation Inputs and Outputs
 
-Pydantic-backed data contract classes appear inside Pipelantic annotations:
+Pydantic-backed data contract classes appear inside ETLantic annotations:
 
 ```python
 class AggregateOrders(Transformation):
@@ -791,7 +791,7 @@ class AggregateOrders(Transformation):
     summary: Output[OrderSummary]
 ```
 
-Pipelantic should introspect these types through ContractModel's public API.
+ETLantic should introspect these types through ContractModel's public API.
 
 It should not inspect Pydantic internals directly.
 
@@ -814,7 +814,7 @@ Compatibility should consider:
 
 ContractModel owns this analysis.
 
-Pipelantic uses the result to validate graph edges.
+ETLantic uses the result to validate graph edges.
 
 ## Dynamic Models
 
@@ -828,7 +828,7 @@ Customer = load_data_contract(
 )
 ```
 
-Pipelantic should treat dynamically generated and statically authored models equivalently when they satisfy the ContractModel public interface.
+ETLantic should treat dynamically generated and statically authored models equivalently when they satisfy the ContractModel public interface.
 
 ## Generated Python Source
 
@@ -842,19 +842,19 @@ That supports:
 - code review
 - reproducible builds
 
-Pipelantic should be compatible with either approach.
+ETLantic should be compatible with either approach.
 
 ## Model Rebuilding
 
 Forward references and recursive types may require Pydantic model rebuilding.
 
-ContractModel should ensure loaded or authored models are fully resolved before Pipelantic uses them as pipeline boundaries.
+ContractModel should ensure loaded or authored models are fully resolved before ETLantic uses them as pipeline boundaries.
 
 Unresolved forward references should produce clear model-definition diagnostics.
 
 ## Static Type Checking
 
-Pipelantic should preserve as much static typing as possible.
+ETLantic should preserve as much static typing as possible.
 
 For example:
 
@@ -889,30 +889,30 @@ info.metadata
 info.odcs_version
 ```
 
-Pipelantic should depend on this normalized interface rather than:
+ETLantic should depend on this normalized interface rather than:
 
 - `model_fields` directly
 - private Pydantic internals
 - undocumented metadata storage
 - raw JSON Schema alone
 
-This boundary protects Pipelantic from Pydantic and ContractModel implementation changes.
+This boundary protects ETLantic from Pydantic and ContractModel implementation changes.
 
 ## Version Compatibility
 
-Pipelantic and ContractModel should define supported Pydantic major versions explicitly.
+ETLantic and ContractModel should define supported Pydantic major versions explicitly.
 
 A suggested policy is:
 
 - Support one active Pydantic major version at a time.
 - Treat Pydantic internals as private.
 - Test against the minimum and latest supported minor versions.
-- Keep Pipelantic integration behind ContractModel's public API.
+- Keep ETLantic integration behind ContractModel's public API.
 - Document breaking changes before upgrading the required Pydantic major version.
 
 ## Error Translation
 
-Pydantic validation errors should be translated into Pipelantic's structured invalid-data diagnostics.
+Pydantic validation errors should be translated into ETLantic's structured invalid-data diagnostics.
 
 The resulting event should preserve:
 
@@ -934,19 +934,19 @@ Pydantic ValidationError
 ContractModel Validation Report
         │
         ▼
-Pipelantic InvalidDataContext
+ETLantic InvalidDataContext
         │
         ▼
 Callback and InvalidDataAction
 ```
 
-Pipelantic should not expose raw Pydantic exceptions as the only failure interface.
+ETLantic should not expose raw Pydantic exceptions as the only failure interface.
 
 ## Security and Sensitive Values
 
 Validation diagnostics may contain sensitive data.
 
-Pipelantic and ContractModel should support:
+ETLantic and ContractModel should support:
 
 - redacted values
 - field-level sensitivity metadata
@@ -970,7 +970,7 @@ Recommended strategies include:
 - cached schema compilation
 - avoiding repeated model introspection
 
-Pipelantic should make performance strategy explicit through profiles while preserving contract semantics.
+ETLantic should make performance strategy explicit through profiles while preserving contract semantics.
 
 ## Recommended Practices
 
@@ -1007,9 +1007,9 @@ class NormalizeCustomers(Transformation):
     customers: Input[Customer]
 ```
 
-### Inspecting Pydantic internals in Pipelantic
+### Inspecting Pydantic internals in ETLantic
 
-Pipelantic should not depend directly on private Pydantic details.
+ETLantic should not depend directly on private Pydantic details.
 
 ### Treating all validators as portable
 
@@ -1025,8 +1025,8 @@ A `Data` describes record semantics. It should not force the physical dataframe 
 
 ## Key Principle
 
-> Pydantic defines the Python model experience. ContractModel turns that model into an operational data contract. Pipelantic uses the contract as a typed boundary across the pipeline.
+> Pydantic defines the Python model experience. ContractModel turns that model into an operational data contract. ETLantic uses the contract as a typed boundary across the pipeline.
 
 ## Next Step
 
-Continue with **ODCS.md** to learn how ContractModel-backed Pydantic classes map to the Open Data Contract Standard and how Pipelantic generates, loads, references, and versions ODCS artifacts.
+Continue with **ODCS.md** to learn how ContractModel-backed Pydantic classes map to the Open Data Contract Standard and how ETLantic generates, loads, references, and versions ODCS artifacts.

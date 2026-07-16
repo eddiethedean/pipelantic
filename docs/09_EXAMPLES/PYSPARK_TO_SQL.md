@@ -1,13 +1,13 @@
 # PySpark to SQL
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads distributed
+This example builds a complete ETLantic pipeline that reads distributed
 data with PySpark, performs transformation and validation on Spark, and
 publishes the resulting records to a relational SQL database.
 
@@ -26,7 +26,7 @@ Contract Validation
 SQL Publication
 ```
 
-Pipelantic keeps data contracts, transformation semantics, pipeline topology,
+ETLantic keeps data contracts, transformation semantics, pipeline topology,
 lineage, and validation portable. The execution profile selects the PySpark
 backend, Spark Provider, SQL sink plugin, and publication strategy.
 
@@ -117,7 +117,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 
 from pydantic import Field
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class Customer(DataContractModel):
@@ -148,7 +148,7 @@ The contracts remain independent of Spark and SQL.
 ```python
 from typing import Literal
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 
 class BuildCustomerOrderSummary(Transformation):
@@ -168,7 +168,7 @@ The transformation contract defines the logical operation only.
 
 ```python
 from pyspark.sql import functions as F
-from pipelantic.pyspark import SparkDataFrame
+from etlantic.pyspark import SparkDataFrame
 
 
 @BuildCustomerOrderSummary.implementation("pyspark")
@@ -220,7 +220,7 @@ action.
 ## Step 4 — Define the Pipeline
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerOrderWarehousePipeline(Pipeline):
@@ -249,7 +249,7 @@ The pipeline contains no Spark paths, database URLs, or JDBC options.
 ## Step 5 — Define the Local Profile
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -831,7 +831,7 @@ source, Spark environment, SQL database, or publication strategy.
 ## Key Principle
 
 > PySpark-to-SQL execution uses Spark for distributed transformation and SQL as
-> a validated publication boundary. Pipelantic makes materialization,
+> a validated publication boundary. ETLantic makes materialization,
 > validation, transaction, retry, and lineage semantics explicit while
 > preserving one portable pipeline definition.
 

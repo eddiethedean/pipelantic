@@ -1,10 +1,10 @@
 # Plugins
 
-Plugins are the extension mechanism that allows Pipelantic to execute
+Plugins are the extension mechanism that allows ETLantic to execute
 portable pipeline plans on different technologies without changing pipeline
 definitions.
 
-The core Pipelantic library is intentionally small. It models, validates,
+The core ETLantic library is intentionally small. It models, validates,
 plans, generates contracts, and loads contracts. Plugins provide concrete
 runtime behavior.
 
@@ -21,12 +21,12 @@ Plugins should:
 
 ## Philosophy
 
-Pipelantic defines **what** a pipeline means.
+ETLantic defines **what** a pipeline means.
 
 Plugins define **how** that meaning is realized.
 
 ```text
-Pipelantic Core
+ETLantic Core
         │
         ▼
 Plugin Interface
@@ -43,7 +43,7 @@ Plugin Interface
 
 ## Plugin Categories
 
-Pipelantic may support several plugin types.
+ETLantic may support several plugin types.
 
 ### Execution Plugins
 
@@ -173,7 +173,7 @@ Plugins should publish:
 
 - Plugin name
 - Version
-- Supported Pipelantic version
+- Supported ETLantic version
 - Supported ODCS version
 - Supported DTCS version
 - Supported DPCS version
@@ -193,14 +193,14 @@ Planning should reject incompatible plugins.
 
 Avoid:
 
-- Embedding plugin logic into Pipelantic core.
+- Embedding plugin logic into ETLantic core.
 - Changing pipeline semantics.
 - Relying on global mutable state.
 - Silently ignoring unsupported capabilities.
 
 ## Key Principle
 
-> Pipelantic provides the portable modeling framework. Plugins provide the
+> ETLantic provides the portable modeling framework. Plugins provide the
 runtime-specific behavior needed to execute, integrate, and extend that model
 without altering its meaning.
 

@@ -1,6 +1,6 @@
 """SQL-to-SQL example: normalize customers inside the database.
 
-Requires ``pipelantic-sql``. Uses ``PIPELANTIC_SQL_URL`` (defaults to
+Requires ``etlantic-sql``. Uses ``ETLANTIC_SQL_URL`` (defaults to
 in-memory SQLite for local demos).
 """
 
@@ -10,7 +10,7 @@ import os
 
 from sqlalchemy import text
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -21,14 +21,14 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.plan import explain_plan
-from pipelantic.registry import (
+from etlantic.plan import explain_plan
+from etlantic.registry import (
     BindingDescriptor,
     PlanningContext,
     builtin_stub_registry,
 )
-from pipelantic.sql import RelationRef, col, concat, select
-from pipelantic.sql.discovery import register_discovered_plugins
+from etlantic.sql import RelationRef, col, concat, select
+from etlantic.sql.discovery import register_discovered_plugins
 
 
 class RawCustomer(Data):
@@ -63,8 +63,8 @@ class CustomerSqlPipeline(Pipeline):
 
 
 def main() -> None:
-    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
+    os.environ.setdefault("ETLANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    from etlantic_sql import create_plugin
 
     plugin = create_plugin()
     engine = plugin._get_engine()

@@ -1,13 +1,13 @@
 # Pandas Plugin
 
 **Status: shipped in 0.5.0** as the compatibility dataframe backend
-(`pipelantic-pandas`).
+(`etlantic-pandas`).
 
 ## Install
 
 ```bash
-pip install pipelantic-pandas
-pip install 'pipelantic-pandas[arrow]'  # optional
+pip install etlantic-pandas
+pip install 'etlantic-pandas[arrow]'  # optional
 ```
 
 ## Behavior

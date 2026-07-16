@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -13,7 +13,7 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.registry import PlanningContext
+from etlantic.registry import PlanningContext
 
 
 class RawCustomer(Data):
@@ -72,7 +72,7 @@ def run_with_engine(engine: str):
     profile = Profile(name=f"{engine}-example", dataframe_engine=engine)
     context = PlanningContext.create(profile=profile, registry=runtime.registry)
     report = CustomerPipeline.run(profile=profile, runtime=runtime, context=context)
-    from pipelantic.reports import render_text
+    from etlantic.reports import render_text
 
     print(render_text(report))
     for row in runtime.memory.get("curated"):

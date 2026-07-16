@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -18,8 +18,8 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.exceptions import PipelineValidationError
-from pipelantic.plan import (
+from etlantic.exceptions import PipelineValidationError
+from etlantic.plan import (
     explain_plan,
     plan_fingerprint,
     plan_from_json,
@@ -28,8 +28,8 @@ from pipelantic.plan import (
     run_one_selection,
     run_until_selection,
 )
-from pipelantic.plan.artifacts import ArtifactStrategy
-from pipelantic.profile import Profile
+from etlantic.plan.artifacts import ArtifactStrategy
+from etlantic.profile import Profile
 
 
 class Customer(Data):

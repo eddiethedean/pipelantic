@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from pipelantic.reports.model import PipelineRunReport, RunSummary
-from pipelantic.runtime.request import RunIntent
-from pipelantic.runtime.state import RunStatus
+from etlantic.reports.model import PipelineRunReport, RunSummary
+from etlantic.runtime.request import RunIntent
+from etlantic.runtime.state import RunStatus
 
 
 def test_report_includes_lineage_in_json() -> None:

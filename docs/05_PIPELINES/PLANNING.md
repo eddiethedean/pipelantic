@@ -114,7 +114,7 @@ Examples:
 - SQL functions and data types
 - Spark stateful operations
 
-Pipelantic must not silently approximate mandatory behavior.
+ETLantic must not silently approximate mandatory behavior.
 
 ### 6. Form Execution Regions
 

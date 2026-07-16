@@ -2,7 +2,7 @@
 
 Loading is the inverse of generation.
 
-Where generation produces portable artifacts from Python models, loading reconstructs typed models and metadata from existing contract artifacts so they can participate in Pipelantic.
+Where generation produces portable artifacts from Python models, loading reconstructs typed models and metadata from existing contract artifacts so they can participate in ETLantic.
 
 ## Goals
 
@@ -19,7 +19,7 @@ Loading should:
 | Component | Responsibility |
 |-----------|----------------|
 | ContractModel | Load and validate ODCS data contracts |
-| Pipelantic | Register loaded contracts and connect them to transformations and pipelines |
+| ETLantic | Register loaded contracts and connect them to transformations and pipelines |
 | DTCS/DPCS | Define portable transformation and pipeline artifacts |
 | Plugins | Load optional runtime-specific metadata |
 
@@ -34,7 +34,7 @@ Python classes are authored directly and artifacts are generated.
 Existing artifacts are loaded into Python.
 
 ```python
-from pipelantic import Data, load_data_contract
+from etlantic import Data, load_data_contract
 
 Customer = load_data_contract(
     "contracts/data/customer.odcs.yaml",
@@ -49,7 +49,7 @@ Projects may combine authored contracts with externally supplied contracts.
 
 ```text
 Python Models ─┐
-               ├──► Pipelantic
+               ├──► ETLantic
 ODCS Artifacts ┘
 ```
 
@@ -71,7 +71,7 @@ Normalize
 Register
    │
    ▼
-Pipelantic
+ETLantic
 ```
 
 Invalid artifacts should fail during loading rather than later during execution.
@@ -100,7 +100,7 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 ```
 
-Pipelantic should not distinguish between authored and loaded contracts once registration is complete.
+ETLantic should not distinguish between authored and loaded contracts once registration is complete.
 
 ## Validation During Loading
 
@@ -131,7 +131,7 @@ A bundle may contain:
 - DTCS transformation contracts
 - DPCS pipeline contracts
 
-Pipelantic can then resolve references automatically.
+ETLantic can then resolve references automatically.
 
 ## Unknown Extensions
 
@@ -164,7 +164,7 @@ Avoid:
 
 ## Key Principle
 
-> Loading reconstructs portable contracts into typed Python models. After loading, authored and imported contracts should behave the same inside Pipelantic.
+> Loading reconstructs portable contracts into typed Python models. After loading, authored and imported contracts should behave the same inside ETLantic.
 
 ## Next Step
 

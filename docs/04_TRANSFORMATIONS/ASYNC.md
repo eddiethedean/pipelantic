@@ -1,16 +1,16 @@
 # Async
 
-Pipelantic is asynchronous by design, but it strives to make asynchronous
+ETLantic is asynchronous by design, but it strives to make asynchronous
 execution nearly invisible to application developers.
 
-Like FastAPI, Pipelantic allows authors to write either synchronous (`def`)
+Like FastAPI, ETLantic allows authors to write either synchronous (`def`)
 or asynchronous (`async def`) code. The framework detects the implementation
 style and invokes it correctly, allowing developers to focus on business logic
 instead of concurrency primitives.
 
 ## Goals
 
-Pipelantic's async model should:
+ETLantic's async model should:
 
 - Support both synchronous and asynchronous implementations.
 - Hide event-loop management from users.
@@ -22,7 +22,7 @@ Pipelantic's async model should:
 
 Authors describe *what* a transformation does.
 
-Pipelantic decides *how* to invoke it.
+ETLantic decides *how* to invoke it.
 
 ```python
 @NormalizeCustomers.implementation("polars")
@@ -73,7 +73,7 @@ async def notify(context):
     ...
 ```
 
-Pipelantic awaits asynchronous callbacks automatically.
+ETLantic awaits asynchronous callbacks automatically.
 
 ## Resources
 
@@ -99,7 +99,7 @@ Examples include:
 - Distributed execution
 - Vectorized dataframe operations
 
-Pipelantic plans execution but does not dictate a concurrency strategy.
+ETLantic plans execution but does not dictate a concurrency strategy.
 
 ## Cancellation
 
@@ -111,7 +111,7 @@ Cancellation should propagate through typed execution contexts and callbacks.
 ## Error Handling
 
 Exceptions raised by synchronous and asynchronous implementations should be
-translated into the same structured Pipelantic diagnostics.
+translated into the same structured ETLantic diagnostics.
 
 Users should not need separate error-handling paths.
 
@@ -119,7 +119,7 @@ Users should not need separate error-handling paths.
 
 - Prefer `async def` for naturally asynchronous operations.
 - Use `def` for CPU-bound or synchronous libraries.
-- Let Pipelantic manage invocation.
+- Let ETLantic manage invocation.
 - Keep contracts independent of concurrency concerns.
 - Avoid manual event-loop management.
 
@@ -134,7 +134,7 @@ Avoid:
 
 ## Key Principle
 
-> Pipelantic treats synchronous and asynchronous implementations as
+> ETLantic treats synchronous and asynchronous implementations as
 equivalent ways of satisfying the same transformation contract. Concurrency is
 an execution concern, not a modeling concern.
 

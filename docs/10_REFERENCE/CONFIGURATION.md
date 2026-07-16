@@ -1,18 +1,18 @@
 # Configuration Reference
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
-    This page describes a proposed 1.0 configuration surface. Pipelantic 0.6
-    does not load `pipelantic.toml` or these environment variables. Configure
-    profiles and bindings in Python. For SQL, set `PIPELANTIC_SQL_URL` and
+!!! warning "Future design—not a ETLantic 0.6 API guide"
+    This page describes a proposed 1.0 configuration surface. ETLantic 0.6
+    does not load `etlantic.toml` or these environment variables. Configure
+    profiles and bindings in Python. For SQL, set `ETLANTIC_SQL_URL` and
     `Profile(sql_engine="sql")` as documented in Installation and the SQL
     pages.
 
 
-Pipelantic configuration binds portable pipeline models to concrete
+ETLantic configuration binds portable pipeline models to concrete
 environments without embedding execution details in `Pipeline`,
 `Transformation`, or data-contract classes.
 
-> This chapter defines the proposed configuration model for Pipelantic 1.0.
+> This chapter defines the proposed configuration model for ETLantic 1.0.
 
 ## Configuration Sources
 
@@ -32,7 +32,7 @@ Later sources take precedence over earlier sources.
 The preferred project file is:
 
 ```text
-pipelantic.toml
+etlantic.toml
 ```
 
 Example:
@@ -137,7 +137,7 @@ default_pool = "etl"
 streaming = true
 ```
 
-Pipelantic preserves the settings as typed plugin configuration; it should
+ETLantic preserves the settings as typed plugin configuration; it should
 not silently accept unknown fields.
 
 ## Resource Providers
@@ -171,7 +171,7 @@ contacting the backing store.
 ```toml
 [profiles.local.secrets.production-secrets]
 provider = "keyring"
-service = "pipelantic.customer-platform"
+service = "etlantic.customer-platform"
 ```
 
 See [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md).
@@ -250,7 +250,7 @@ It must not change pipeline semantics or the canonical plan hash.
 Plugin-specific logger configuration should use a namespace:
 
 ```toml
-[logging.loggers."pipelantic.plugin.airflow"]
+[logging.loggers."etlantic.plugin.airflow"]
 level = "DEBUG"
 ```
 
@@ -261,7 +261,7 @@ The effective configuration model should retain the origin of every value:
 ```text
 profiles.production.orchestrator
 value: airflow
-source: pipelantic.toml:24
+source: etlantic.toml:24
 ```
 
 This makes overrides diagnosable.
@@ -271,7 +271,7 @@ This makes overrides diagnosable.
 Applications may construct configuration explicitly:
 
 ```python
-from pipelantic import PipelineRuntime, Profile
+from etlantic import PipelineRuntime, Profile
 
 runtime = PipelineRuntime(
     profile=Profile(

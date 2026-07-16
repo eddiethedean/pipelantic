@@ -9,17 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Versioned SQL execution protocol (`pipelantic.sql/1`) with relation refs,
+- Versioned SQL execution protocol (`etlantic.sql/1`) with relation refs,
   typed expressions, write intents, and dialect capability negotiation
 - `Profile.sql_engine` for selecting a SQL backend during planning
-- Independently installable `pipelantic-sql` PostgreSQL reference plugin
+- Independently installable `etlantic-sql` PostgreSQL reference plugin
   (SQLAlchemy Core; SQLite usable for local demos)
 - SQL→SQL execution without intermediate Python row fetches when fusion is
   preserved
 - Fail-closed merge and capability checks when a dialect cannot honor required
   semantics
-- Entry-point discovery group `pipelantic.sql_plugins`
-- Conformance helpers under `pipelantic.testing` for SQL expressions
+- Entry-point discovery group `etlantic.sql_plugins`
+- Conformance helpers under `etlantic.testing` for SQL expressions
 
 ### Changed
 
@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrade notes
 
-- Install `pipelantic-sql` separately; core stays driver-free
+- Install `etlantic-sql` separately; core stays driver-free
 - Register SQL implementations with
   `@TransformationClass.implementation("sql")`
 - Set `Profile(sql_engine="sql")` to select the SQL backend
-- Configure connections via `PIPELANTIC_SQL_URL` (or plugin-specific wiring)
+- Configure connections via `ETLANTIC_SQL_URL` (or plugin-specific wiring)
 - Missing plugins or unsupported capabilities (e.g. MERGE without keys) fail
   at validation/planning
 
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Versioned dataframe execution protocol (`pipelantic.dataframe/1`) with
+- Versioned dataframe execution protocol (`etlantic.dataframe/1`) with
   materialize → invoke → normalize → validate → metrics → cleanup phases
 - Expanded capability vocabulary: eager, lazy, Arrow import/export, zero-copy,
   schema inspection, invalid-row separation, cancellation, thread-safety
@@ -49,11 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   conversion boundaries, ownership, and validation policy on `PipelinePlan`
 - Runtime delegation of Polars/Pandas steps through the dataframe protocol
   without reselecting engines
-- Independently installable `pipelantic-polars` (eager + LazyFrame preservation)
-  and `pipelantic-pandas` (eager, CoW/ownership isolation)
+- Independently installable `etlantic-polars` (eager + LazyFrame preservation)
+  and `etlantic-pandas` (eager, CoW/ownership isolation)
 - Optional Arrow interchange helpers (PyArrow imported only when available)
-- Entry-point discovery group `pipelantic.dataframe_plugins`
-- Conformance helpers in `pipelantic.testing`
+- Entry-point discovery group `etlantic.dataframe_plugins`
+- Conformance helpers in `etlantic.testing`
 - uv workspace packaging for core + dataframe plugins
 
 ### Changed
@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrade notes
 
-- Install `pipelantic-polars` or `pipelantic-pandas` separately; core stays
+- Install `etlantic-polars` or `etlantic-pandas` separately; core stays
   engine-free
 - Register dataframe implementations with
   `@TransformationClass.implementation("polars")` or `"pandas"`
@@ -117,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Structured logging with central secret redaction and lifecycle/security events
 - `SchemaDriftPolicy` observation hooks and local reliability helpers
   (freshness, partition completeness, retry-safety, backfill/repair/no-write)
-- CLI: `pipelantic run` and `pipelantic report show|export`
+- CLI: `etlantic run` and `etlantic report show|export`
 - Hard dependency on `anyio` for structured concurrency
 
 ### Fixed
@@ -146,7 +146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Package version and public status advance to 0.4 (Local Runtime and
   Operational Model)
-- `SecretRef` lives under the `pipelantic.secrets` package alongside runtime
+- `SecretRef` lives under the `etlantic.secrets` package alongside runtime
   secret resolution types
 
 ## [0.3.0] - 2026-07-16
@@ -158,13 +158,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-phase validation (structural, reference, semantic, policy, capability)
   with diagnostic actions and source symbols
 - `Profile` templates, `SecretRef`, scoped registries, and capability negotiation
-- Immutable secret-free `PipelinePlan` IR (`pipelantic.plan/1`) with slicing,
+- Immutable secret-free `PipelinePlan` IR (`etlantic.plan/1`) with slicing,
   explain output, and canonical fingerprints
 - Schema-drift models (`NormalizedSchema`, observations, changes, `DriftImpact`)
 - Portable reliability/intent models (freshness, write/materialization intents,
   idempotency, evidence schemas)
 - JSON Schemas for profiles, project config, and PipelinePlan
-- `pipelantic` CLI: `validate`, `inspect`, `plan`, and `plan explain`
+- `etlantic` CLI: `validate`, `inspect`, `plan`, and `plan explain`
   (plus `plan --explain` alias, `--nodes`, and mutual exclusion for
   `--run-one` / `--run-until`)
 - `Pipeline.plan()` / `Pipeline.explain_plan()`
@@ -203,7 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Map ContractModel `number`/`datetime` fields to DTCS `decimal`/`datetime`
-- Emit transformation parameters as `pipelantic:parameters` (toolkit-valid)
+- Emit transformation parameters as `etlantic:parameters` (toolkit-valid)
 - Round-trip DPCS step parameter overrides
 - Treat matching published ODCS ids as compatible in `PMPIPE210` checks
 - Recursively validate nested subpipelines
@@ -212,14 +212,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detect published-id / filename slug collisions during bundle generation
 - Resolve `odcs:`-prefixed contract registry keys in `from_dtcs`
 - Expose `ValidationReport.has_errors` for the documented validation UX
-- Correct getting-started imports to use `pipelantic.DataContractModel`
+- Correct getting-started imports to use `etlantic.DataContractModel`
   (ContractModel does not export `DataContractModel`)
 
 ## [0.1.0] - 2026-07-16
 
 ### Added
 
-- First public release as **Pipelantic** (PyPI package `pipelantic`)
+- First public release as **ETLantic** (PyPI package `etlantic`)
 - Typed modeling kernel for authoring pipelines without an execution backend
 - `Transformation`, `Input`, `Output`, and `Parameter` port annotations
 - `Pipeline`, `Source`, `Step`, `Sink`, and subpipeline composition
@@ -230,9 +230,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
-[0.6.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.6.0
-[0.5.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.5.0
-[0.4.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.4.0
-[0.3.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.3.0
-[0.2.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.2.0
-[0.1.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.1.0
+[0.6.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.6.0
+[0.5.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.5.0
+[0.4.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.4.0
+[0.3.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.3.0
+[0.2.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.2.0
+[0.1.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.1.0

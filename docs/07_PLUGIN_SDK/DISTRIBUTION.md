@@ -1,11 +1,11 @@
 # Distribution
 
-Distribution describes how Pipelantic plugins are packaged, published,
+Distribution describes how ETLantic plugins are packaged, published,
 discovered, installed, and maintained across the ecosystem.
 
 A healthy plugin ecosystem depends on stable distribution practices. Plugins
 should be independently releasable while remaining compatible with the
-Pipelantic Plugin SDK and supported standards.
+ETLantic Plugin SDK and supported standards.
 
 ## Goals
 
@@ -20,12 +20,12 @@ Plugin distribution should:
 
 ## Philosophy
 
-The Pipelantic core should remain small.
+The ETLantic core should remain small.
 
 Functionality grows through independently distributed plugins.
 
 ```text
-Pipelantic Core
+ETLantic Core
         │
         ▼
  Python Package Index
@@ -42,16 +42,16 @@ Plugins should be distributed as standard Python packages.
 
 Recommended naming convention:
 
-- pipelantic-airflow
-- pipelantic-polars
-- pipelantic-pandas
-- pipelantic-postgres
-- pipelantic-s3
-- pipelantic-keyring
-- pipelantic-secrets-aws
-- pipelantic-secrets-azure
-- pipelantic-secrets-gcp
-- pipelantic-secrets-vault
+- etlantic-airflow
+- etlantic-polars
+- etlantic-pandas
+- etlantic-postgres
+- etlantic-s3
+- etlantic-keyring
+- etlantic-secrets-aws
+- etlantic-secrets-azure
+- etlantic-secrets-gcp
+- etlantic-secrets-vault
 
 Third-party plugins should follow a consistent naming convention where practical.
 
@@ -60,7 +60,7 @@ Third-party plugins should follow a consistent naming convention where practical
 Typical installation:
 
 ```bash
-pip install pipelantic-airflow
+pip install etlantic-airflow
 ```
 
 Multiple plugins may be installed simultaneously.
@@ -74,7 +74,7 @@ Installed plugins should be discoverable automatically through the Plugin SDK.
 Conceptually:
 
 ```python
-from pipelantic import PluginRegistry
+from etlantic import PluginRegistry
 
 plugins = PluginRegistry.discover()
 ```
@@ -87,7 +87,7 @@ Every plugin should publish:
 
 - Plugin name
 - Plugin version
-- Supported Pipelantic version(s)
+- Supported ETLantic version(s)
 - Supported SDK version
 - Supported ODCS version(s)
 - Supported DTCS version(s)
@@ -150,11 +150,11 @@ Avoid:
 - Publishing plugins without compatibility metadata.
 - Introducing breaking changes in minor releases.
 - Hiding runtime dependencies.
-- Depending on internal Pipelantic APIs.
+- Depending on internal ETLantic APIs.
 
 ## Key Principle
 
-> Pipelantic grows through a distributed ecosystem of independently versioned
+> ETLantic grows through a distributed ecosystem of independently versioned
 > plugins. Stable packaging, discovery, and compatibility metadata allow users
 > to compose the execution environment that best fits their pipelines.
 

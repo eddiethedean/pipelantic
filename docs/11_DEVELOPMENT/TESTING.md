@@ -1,6 +1,6 @@
 # Testing
 
-Pipelantic testing must prove that typed models, portable contracts,
+ETLantic testing must prove that typed models, portable contracts,
 planning, and backend execution preserve the same semantics.
 
 ## Test Layers

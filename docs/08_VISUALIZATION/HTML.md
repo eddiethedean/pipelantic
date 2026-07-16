@@ -1,19 +1,19 @@
 # HTML
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
     Mermaid are not shipped in 0.5. For diagrams today, use
     `Pipeline.to_mermaid()`.
 
 
-Pipelantic can generate **HTML documentation** from a validated Pipeline Plan.
+ETLantic can generate **HTML documentation** from a validated Pipeline Plan.
 
 HTML output combines pipeline structure, contracts, lineage, diagnostics, and
 visualizations into a navigable document that can be viewed locally, published
 to a documentation site, attached to a release, or embedded in a broader data
 platform.
 
-Like every Pipelantic visualization, HTML documentation is derived from the
+Like every ETLantic visualization, HTML documentation is derived from the
 canonical Pipeline Plan rather than maintained separately.
 
 ## Purpose
@@ -154,7 +154,7 @@ Mermaid and Graphviz exports.
 
 ## Static and Interactive Modes
 
-Pipelantic may support two HTML output modes.
+ETLantic may support two HTML output modes.
 
 ### Static
 
@@ -203,7 +203,7 @@ plan.write_html(
 
 ## Documentation Site Output
 
-For larger projects, Pipelantic may generate a directory:
+For larger projects, ETLantic may generate a directory:
 
 ```text
 site/
@@ -247,7 +247,7 @@ project.write_documentation(
 ```
 
 The exact API may evolve, but all HTML output should derive from validated
-Pipelantic artifacts.
+ETLantic artifacts.
 
 ## Profile-Aware Documentation
 
@@ -339,7 +339,7 @@ Self-contained output should not silently include remote scripts.
 
 ## Styling and Themes
 
-Pipelantic may provide standard themes such as:
+ETLantic may provide standard themes such as:
 
 - Light
 - Dark
@@ -436,7 +436,7 @@ Avoid:
 
 ## Key Principle
 
-> HTML documentation is a navigable projection of Pipelantic's canonical
+> HTML documentation is a navigable projection of ETLantic's canonical
 > contracts and Pipeline Plan. It makes pipeline semantics accessible to humans
 > without creating another definition that can drift from the source of truth.
 

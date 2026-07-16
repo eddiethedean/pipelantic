@@ -1,6 +1,6 @@
 # Resource Provider
 
-A **Resource Provider** implements the Pipelantic Resource Provider API,
+A **Resource Provider** implements the ETLantic Resource Provider API,
 supplying runtime infrastructure services to execution plugins and
 transformations.
 
@@ -11,7 +11,7 @@ clients, caches, message brokers, ML endpoints, and compute resources.
 Pipeline authors declare logical resource requirements. Resource providers
 resolve those requirements into concrete runtime objects.
 
-This is Pipelantic's dependency-injection mechanism. The term resource
+This is ETLantic's dependency-injection mechanism. The term resource
 injection is preferred so it cannot be confused with pipeline graph
 dependencies.
 
@@ -86,7 +86,7 @@ An annotation-oriented form may also be used by implementation callables:
 ```python
 from typing import Annotated
 
-from pipelantic import Inject
+from etlantic import Inject
 
 Warehouse = Annotated[SqlDatabase, Inject("warehouse")]
 
@@ -143,7 +143,7 @@ async def provide_session(engine: DatabaseEngine):
 
 ## Resource Graph
 
-Providers may depend on other providers. Pipelantic builds a resource graph
+Providers may depend on other providers. ETLantic builds a resource graph
 separate from the pipeline data-flow graph, validates cycles, resolves shared
 sub-dependencies once per declared scope, and injects the final value.
 
@@ -178,7 +178,7 @@ graph.
 Providers should support both synchronous and asynchronous acquisition where
 appropriate.
 
-Pipelantic normalizes invocation so users do not manage event loops or
+ETLantic normalizes invocation so users do not manage event loops or
 resource wiring.
 
 ## Capabilities
@@ -198,7 +198,7 @@ Planning validates mandatory capabilities before execution.
 ## Error Handling
 
 Providers should translate infrastructure-specific exceptions into structured
-Pipelantic diagnostics containing:
+ETLantic diagnostics containing:
 
 - Resource identity
 - Pipeline identity

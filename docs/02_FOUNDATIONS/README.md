@@ -1,12 +1,12 @@
 # Foundations
 
-The Foundations section defines Pipelantic's product identity, architectural
+The Foundations section defines ETLantic's product identity, architectural
 boundaries, vocabulary, and documentation stability model.
 
 ## Recommended Order
 
 1. [Vision](VISION.md)
-2. [Why Pipelantic](WHY_PIPELANTIC.md)
+2. [Why ETLantic](WHY_ETLANTIC.md)
 3. [FastAPI Philosophy](FASTAPI_PHILOSOPHY.md)
 4. [Design Principles](DESIGN_PRINCIPLES.md)
 5. [Core Concepts](CORE_CONCEPTS.md)
@@ -17,7 +17,7 @@ boundaries, vocabulary, and documentation stability model.
 
 ## Foundation in One Sentence
 
-> Pipelantic uses typed Python declarations and three portable contract
+> ETLantic uses typed Python declarations and three portable contract
 > standards to build a validated logical pipeline, resolves that pipeline into
 > a deterministic `PipelinePlan`, and delegates realization to external
 > backends through plugins.
@@ -26,6 +26,6 @@ boundaries, vocabulary, and documentation stability model.
 
 - ODCS, DTCS, and DPCS own contract semantics.
 - ContractModel operationalizes data contracts.
-- Pipelantic owns typed authoring, validation, planning, and coordination.
+- ETLantic owns typed authoring, validation, planning, and coordination.
 - Plugins own backend adaptation.
 - External systems perform computation, scheduling, and persistence.

@@ -1,11 +1,11 @@
 # Release Process
 
-Pipelantic releases must coordinate the core package, Plugin SDK, generated
+ETLantic releases must coordinate the core package, Plugin SDK, generated
 artifacts, compatibility policy, and documentation.
 
 ## Versioning
 
-Pipelantic follows Semantic Versioning after 1.0:
+ETLantic follows Semantic Versioning after 1.0:
 
 - Patch: compatible fixes and documentation
 - Minor: backward-compatible capabilities
@@ -97,7 +97,7 @@ plugin to release simultaneously unless the SDK compatibility range changes.
 
 Official plugin releases should declare:
 
-- Supported Pipelantic versions
+- Supported ETLantic versions
 - Plugin SDK version
 - Backend versions
 - Capability changes

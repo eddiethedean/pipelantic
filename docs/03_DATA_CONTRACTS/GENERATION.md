@@ -2,7 +2,7 @@
 
 Generation is the process of producing portable artifacts from typed Python models.
 
-Pipelantic follows a **code-first** philosophy. Developers author data contracts, transformation contracts, and pipelines in Python. The framework generates standards-compliant artifacts, documentation, visualizations, and execution plans from those definitions.
+ETLantic follows a **code-first** philosophy. Developers author data contracts, transformation contracts, and pipelines in Python. The framework generates standards-compliant artifacts, documentation, visualizations, and execution plans from those definitions.
 
 ## Goals
 
@@ -20,7 +20,7 @@ Generation should:
 | Component | Responsibility |
 |-----------|----------------|
 | ContractModel | Generate and load ODCS data contracts |
-| Pipelantic | Discover models and orchestrate artifact generation |
+| ETLantic | Discover models and orchestrate artifact generation |
 | DTCS | Portable transformation contract format |
 | DPCS | Portable pipeline contract format |
 | Plugins | Optional generators for runtime-specific outputs |
@@ -71,7 +71,7 @@ class CustomerPipeline(Pipeline):
     ...
 ```
 
-Pipelantic discovers these definitions and generates portable artifacts.
+ETLantic discovers these definitions and generates portable artifacts.
 
 ## Generated Artifacts
 
@@ -111,7 +111,7 @@ This enables:
 
 ## Discovery
 
-Pipelantic should automatically discover referenced contracts.
+ETLantic should automatically discover referenced contracts.
 
 Conceptually:
 
@@ -177,4 +177,4 @@ Avoid:
 
 ## Next Step
 
-Continue with **LOADING.md** to learn how Pipelantic consumes existing contract artifacts and reconstructs typed models from them.
+Continue with **LOADING.md** to learn how ETLantic consumes existing contract artifacts and reconstructs typed models from them.

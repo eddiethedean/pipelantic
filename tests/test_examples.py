@@ -7,12 +7,12 @@ import json
 import sys
 from pathlib import Path
 
-from pipelantic import RunStatus
+from etlantic import RunStatus
 
 
 def test_quickstart_example() -> None:
     path = Path(__file__).parents[1] / "examples" / "quickstart.py"
-    spec = importlib.util.spec_from_file_location("pipelantic_quickstart", path)
+    spec = importlib.util.spec_from_file_location("etlantic_quickstart", path)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -32,7 +32,7 @@ def test_quickstart_example() -> None:
 
 def test_file_storage_examples(tmp_path: Path) -> None:
     path = Path(__file__).parents[1] / "examples" / "file_storage.py"
-    spec = importlib.util.spec_from_file_location("pipelantic_file_storage", path)
+    spec = importlib.util.spec_from_file_location("etlantic_file_storage", path)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)

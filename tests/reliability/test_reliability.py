@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pipelantic.reliability import (
+from etlantic.reliability import (
     FreshnessExpectation,
     IdempotencyDeclaration,
     MaterializationIntent,

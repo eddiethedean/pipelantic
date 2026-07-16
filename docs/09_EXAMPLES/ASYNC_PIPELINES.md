@@ -1,13 +1,13 @@
 # Async Pipelines
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example demonstrates how Pipelantic coordinates asynchronous and
+This example demonstrates how ETLantic coordinates asynchronous and
 synchronous work within one validated pipeline.
 
 Async execution is especially useful for I/O-bound operations such as:
@@ -21,7 +21,7 @@ Async execution is especially useful for I/O-bound operations such as:
 - Notifications
 - Concurrent independent branches
 
-Pipelantic allows pipeline authors to combine `async def` and ordinary
+ETLantic allows pipeline authors to combine `async def` and ordinary
 `def` implementations without manually managing event loops, thread pools, or
 callback scheduling.
 
@@ -90,7 +90,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class CustomerApiRecord(DataContractModel):
@@ -122,7 +122,7 @@ Polars, and the destination database.
 ```python
 # src/async_pipelines/transformations.py
 
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 from .contracts import (
     CustomerAccount,
@@ -189,14 +189,14 @@ def build_customer_profiles(
 
 The transformation remains synchronous and CPU-bound.
 
-Pipelantic coordinates it safely inside the async pipeline.
+ETLantic coordinates it safely inside the async pipeline.
 
 ## Step 4 — Define Async Source Implementations
 
 Conceptually, the source plugins expose async reads.
 
 ```python
-from pipelantic.sources import SourceReadContext
+from etlantic.sources import SourceReadContext
 
 
 async def read_customer_api(
@@ -233,7 +233,7 @@ Source behavior belongs in plugins and bindings rather than the pipeline class.
 ```python
 # src/async_pipelines/callbacks.py
 
-from pipelantic.callbacks import (
+from etlantic.callbacks import (
     PipelineFailureContext,
     PipelineSuccessContext,
     RetryContext,
@@ -272,14 +272,14 @@ async def report_failure(
     )
 ```
 
-Pipelantic invokes each callback according to its declaration style.
+ETLantic invokes each callback according to its declaration style.
 
 ## Step 6 — Define the Pipeline
 
 ```python
 # src/async_pipelines/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .callbacks import (
     log_retry,
@@ -330,7 +330,7 @@ asynchronous.
 ```python
 # src/async_pipelines/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 production = Profile(
@@ -462,7 +462,7 @@ customer_profiles:
 
 The two source reads are independent.
 
-Pipelantic may execute them concurrently:
+ETLantic may execute them concurrently:
 
 ```text
 ┌───────────────────┐
@@ -515,7 +515,7 @@ result = CustomerProfilePipeline.run(
 )
 ```
 
-Pipelantic may manage the event loop internally when safe.
+ETLantic may manage the event loop internally when safe.
 
 It should reject nested-loop misuse rather than attempting unsafe behavior.
 
@@ -535,7 +535,7 @@ The framework should distinguish:
 
 The Polars transformation is synchronous.
 
-Pipelantic may invoke it:
+ETLantic may invoke it:
 
 - Directly, when it is short and non-blocking for the execution context.
 - Through a worker thread.
@@ -592,7 +592,7 @@ async def enrich_customers(
     ...
 ```
 
-Pipelantic awaits it directly.
+ETLantic awaits it directly.
 
 Async transformations are most appropriate for I/O-bound enrichment rather than
 dataframe computation.
@@ -619,7 +619,7 @@ async with provider.acquire(...) as resource:
     ...
 ```
 
-Pipelantic should guarantee release on:
+ETLantic should guarantee release on:
 
 - Success
 - Failure
@@ -681,7 +681,7 @@ The profile may define:
 "maximum_concurrency": 8
 ```
 
-Pipelantic should apply limits to prevent:
+ETLantic should apply limits to prevent:
 
 - API overload
 - Database exhaustion
@@ -705,7 +705,7 @@ The scheduler should respect all active constraints.
 
 ## Backpressure
 
-When producers are faster than consumers, Pipelantic should avoid unbounded
+When producers are faster than consumers, ETLantic should avoid unbounded
 buffering.
 
 Possible strategies include:
@@ -756,7 +756,7 @@ The plan should document cancellation limitations.
 
 ## Structured Concurrency
 
-Pipelantic should prefer structured concurrency principles:
+ETLantic should prefer structured concurrency principles:
 
 - Child tasks belong to a pipeline or step scope.
 - Failures are collected predictably.
@@ -1255,7 +1255,7 @@ Async execution should enforce:
 - Use `arun()` in async applications.
 - Keep I/O in async plugins and resources.
 - Keep CPU-heavy work out of the event-loop thread.
-- Let Pipelantic coordinate sync and async implementations.
+- Let ETLantic coordinate sync and async implementations.
 - Use bounded concurrency.
 - Configure timeouts and retries explicitly.
 - Preserve resource cleanup on every exit path.
@@ -1281,7 +1281,7 @@ Avoid:
 
 ## Key Principle
 
-> Async pipelines let Pipelantic overlap independent I/O while safely
+> Async pipelines let ETLantic overlap independent I/O while safely
 > coordinating synchronous transformations, typed resources, callbacks,
 > retries, timeouts, cancellation, validation, and lineage through one
 > execution model.

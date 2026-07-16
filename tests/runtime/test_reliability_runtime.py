@@ -6,15 +6,15 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from pipelantic.exceptions import PipelineExecutionError
-from pipelantic.reliability import FreshnessExpectation, RetrySafetyDeclaration
-from pipelantic.reliability_runtime import (
+from etlantic.exceptions import PipelineExecutionError
+from etlantic.reliability import FreshnessExpectation, RetrySafetyDeclaration
+from etlantic.reliability_runtime import (
     assert_retry_safe,
     check_freshness,
     invalidation_targets,
     minimum_safe_repair,
 )
-from pipelantic.runtime.request import InvalidationMode
+from etlantic.runtime.request import InvalidationMode
 
 
 def test_freshness_check() -> None:

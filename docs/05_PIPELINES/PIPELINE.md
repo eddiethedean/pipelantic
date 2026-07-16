@@ -13,7 +13,7 @@ A pipeline answers one question:
 
 > How are transformations connected to produce a complete workflow?
 
-Pipelantic uses pipeline definitions to:
+ETLantic uses pipeline definitions to:
 
 - Validate graph structure
 - Verify contract compatibility
@@ -25,7 +25,7 @@ Pipelantic uses pipeline definitions to:
 ## Basic Example
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 class CustomerPipeline(Pipeline):
     raw: Source[RawCustomer] = Source(binding="customer_source")
@@ -71,7 +71,7 @@ Each connection is typed through data contracts.
 
 Pipelines form directed acyclic graphs (DAGs).
 
-Pipelantic derives graph topology from typed references rather than requiring
+ETLantic derives graph topology from typed references rather than requiring
 developers to construct graph objects manually.
 
 The planner identifies:
@@ -115,7 +115,7 @@ warehouse: Sink[Customer] = Sink(
 )
 ```
 
-Pipelantic validates sink compatibility before execution.
+ETLantic validates sink compatibility before execution.
 
 ## Planning
 
@@ -165,7 +165,7 @@ The generated DPCS artifact is the portable representation.
 
 ## Validation
 
-Pipelantic validates:
+ETLantic validates:
 
 - Graph correctness
 - Required sources
@@ -177,7 +177,7 @@ Pipelantic validates:
 
 ## Lineage
 
-Because every node and edge is typed, Pipelantic can automatically derive:
+Because every node and edge is typed, ETLantic can automatically derive:
 
 - End-to-end lineage
 - Dataset dependencies

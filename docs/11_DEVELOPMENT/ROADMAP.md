@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap sequences Pipelantic from a typed modeling library into a
+This roadmap sequences ETLantic from a typed modeling library into a
 stable, secure orchestration model and plugin platform.
 
 It is a direction and dependency plan, not a release-date commitment. Version
@@ -9,7 +9,7 @@ acceptance scenarios, documentation, tests, and security requirements pass.
 
 ## Product Outcome
 
-Pipelantic will provide one portable model for:
+ETLantic will provide one portable model for:
 
 - ContractModel-compatible, ODCS-aligned data contracts
 - Type-driven, DTCS-aligned transformations
@@ -20,7 +20,7 @@ Pipelantic will provide one portable model for:
 - Structured logging, lifecycle extension points, and normalized run reports
 - Contract, lineage, documentation, and visualization generation
 
-Pipelantic owns the logical model and coordination contracts. It does not
+ETLantic owns the logical model and coordination contracts. It does not
 become a dataframe engine, distributed scheduler, storage system, secret
 manager, or medallion framework.
 
@@ -177,7 +177,7 @@ by the initial end-to-end and SparkForge parity fixtures.
 ### Exit gate
 
 Code-first and contract-first inputs converge on one canonical logical model
-with explicit provenance and no domain semantics duplicated in Pipelantic.
+with explicit provenance and no domain semantics duplicated in ETLantic.
 
 ## 0.3 — Validation and Pipeline Plan IR
 
@@ -187,11 +187,11 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 
 - Unified top-level authoring primitives:
   `Data`, `Transformation`, and `Pipeline`
-- `Data` as Pipelantic's thin public facade over ContractModel, without
+- `Data` as ETLantic's thin public facade over ContractModel, without
   duplicating data-contract semantics or implementation
 - Compatibility acceptance for existing ContractModel subclasses wherever a
   `Data` type is accepted
-- Deprecation path for the uneven Pipelantic-facing `DataContractModel` name
+- Deprecation path for the uneven ETLantic-facing `DataContractModel` name
   before 1.0
 - Multi-phase structural, reference, semantic, policy, and capability validation
 - Named validation and quality-gate policies
@@ -232,7 +232,7 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 - A complete pipeline can be authored with one coherent import:
 
   ```python
-  from pipelantic import Data, Pipeline, Transformation
+  from etlantic import Data, Pipeline, Transformation
   ```
 
 - `Data`, `Transformation`, and `Pipeline` feel like three parts of one
@@ -323,7 +323,7 @@ the three top-level models.
 
 ### Exit gate
 
-The local runtime is a complete reference implementation of Pipelantic
+The local runtime is a complete reference implementation of ETLantic
 runtime semantics, not a simplified test-only path.
 
 ## 0.5 — Dataframe Execution
@@ -382,7 +382,7 @@ accidentally shaped around Polars.
   explicitly diagnosed unsupported types
 - Native Polars implementation invocation with sync and async callable support
 - Valid, invalid, and side-output production without losing row provenance
-- Deterministic translation of Polars failures into Pipelantic diagnostics and
+- Deterministic translation of Polars failures into ETLantic diagnostics and
   partial run reports
 
 #### Pandas compatibility plugin
@@ -429,7 +429,7 @@ accidentally shaped around Polars.
 #### Developer experience and assurance
 
 - Installation and compatibility documentation for supported Polars, Pandas,
-  PyArrow, Python, and Pipelantic versions
+  PyArrow, Python, and ETLantic versions
 - Runnable Polars and Pandas examples using the same pipeline definition and
   separate implementations
 - Plugin conformance kit covering discovery, planning, invocation, validation,
@@ -478,7 +478,7 @@ The release must support and test these paths:
 - Backend exceptions retain pipeline, step, transformation, implementation,
   engine, attempt, and source context without exposing dataframe values or
   secrets.
-- Installing `pipelantic` alone does not install or import a dataframe engine;
+- Installing `etlantic` alone does not install or import a dataframe engine;
   installing either supported plugin does not require the other.
 - The documented Polars and Pandas examples run in CI from clean environments.
 
@@ -568,7 +568,7 @@ The following are not part of this milestone:
 #### Safe compilation and execution
 
 - SQL-to-SQL execution whose eligible intermediate relations remain in the
-  database and are never fetched into the Pipelantic process
+  database and are never fetched into the ETLantic process
 - Dialect-owned identifier quoting and validation; values use driver parameter
   binding and are never interpolated into statement text
 - Separate compiled statement text, redacted parameter metadata, and runtime
@@ -672,7 +672,7 @@ The release must support and test these paths:
 - Plans, logs, diagnostics, compiled artifacts, and reports contain no
   credentials or bound secret values, including on driver and compiler failure
   paths.
-- Installing `pipelantic` alone installs and imports no SQL driver, ORM, or
+- Installing `etlantic` alone installs and imports no SQL driver, ORM, or
   database client; the reference plugin passes the published dialect
   conformance suite in a clean environment.
 
@@ -784,7 +784,7 @@ alternate source of pipeline truth.
 - Provider protocols for quality history, statistical observations,
   reconciliation evidence, and environment inventories
 - Cross-backend parity and write-semantics conformance suites
-- Initial `pipelantic-sqlmodel` package, model-generation CLI, metadata
+- Initial `etlantic-sqlmodel` package, model-generation CLI, metadata
   comparison, and integration conformance suite
 - Language-server foundations for workspace discovery, incremental document
   indexing, source maps, diagnostic publication, and graph previews
@@ -796,7 +796,7 @@ alternate source of pipeline truth.
   selection, and generated artifacts explicit rather than relying on hidden
   kernel state
 - A canonical, vendor-neutral set of AI coding workflows for inspecting,
-  validating, planning, testing, documenting, and safely modifying Pipelantic
+  validating, planning, testing, documenting, and safely modifying ETLantic
   projects
 - Generators for repository guidance and workflow files used by Codex, Claude
   Code, and Cursor, including `AGENTS.md`, `CLAUDE.md`, Codex `SKILL.md`
@@ -826,7 +826,7 @@ alternate source of pipeline truth.
 - A run report can be persisted, retrieved, rendered, and compared without
   backend-specific classes.
 - An editor integration can consume public commands and schemas without
-  importing Pipelantic internals or executing a pipeline during analysis.
+  importing ETLantic internals or executing a pipeline during analysis.
 - A notebook can inspect and render a pipeline without installing an execution
   backend, and restarting the kernel does not change the serialized model or
   plan.
@@ -856,8 +856,8 @@ Plugin SDK have stable integration surfaces.
 
 ### Deliver
 
-- SparkForge-to-Pipelantic adapter
-- Mapping of medallion steps to ordinary Pipelantic nodes and profiles
+- SparkForge-to-ETLantic adapter
+- Mapping of medallion steps to ordinary ETLantic nodes and profiles
 - Mapping of debug sessions to run selections and intents
 - Mapping of direct step results to `OutputRef` and `ArtifactRef`
 - Mapping of validation thresholds to named quality-gate policies
@@ -871,13 +871,13 @@ Plugin SDK have stable integration surfaces.
 - Existing representative SparkForge pipelines generate equivalent dependency
   closures, execution groups, validation decisions, writes, and run summaries.
 - SparkForge retains medallion terminology and defaults in its own package.
-- Pipelantic receives no bronze, silver, or gold concepts.
+- ETLantic receives no bronze, silver, or gold concepts.
 - SparkForge can progressively replace its SQL and Spark engines without an
   all-at-once user migration.
 
 ### Exit gate
 
-SparkForge can depend on Pipelantic as its underlying model, planner, and
+SparkForge can depend on ETLantic as its underlying model, planner, and
 coordination engine while remaining the medallion-focused facade.
 
 See [SparkForge Feature Adoption](SPARKFORGE_ADOPTION.md) for the detailed
@@ -924,11 +924,11 @@ The release candidate must demonstrate:
    redaction behavior.
 10. Plugin conformance and production trust-policy enforcement.
 11. Security-boundary preservation through planning and optimization.
-12. A representative SparkForge pipeline using Pipelantic underneath.
+12. A representative SparkForge pipeline using ETLantic underneath.
 
 ### Exit gate
 
-Pipelantic 1.0 ships only when:
+ETLantic 1.0 ships only when:
 
 - Typed authoring, contract interoperability, validation, planning, execution,
   reporting, and plugin coordination work together end to end.
@@ -937,11 +937,11 @@ Pipelantic 1.0 ships only when:
   automated verification, and documented residual risk.
 - The public examples describe tested behavior rather than aspirations.
 - SparkForge migration has proved the core abstractions without moving
-  medallion semantics into Pipelantic.
+  medallion semantics into ETLantic.
 
 ## 1.x Strategy
 
-The 1.x series expands Pipelantic around the stable 1.0 model without turning
+The 1.x series expands ETLantic around the stable 1.0 model without turning
 the core into a server, catalog, scheduler, IDE, or AI platform.
 
 Each minor release should:
@@ -956,7 +956,7 @@ Each minor release should:
 
 Deliver:
 
-- separate `pipelantic-fastapi` distribution;
+- separate `etlantic-fastapi` distribution;
 - embeddable router and standalone application factory;
 - typed discovery, validation, planning, run submission, status, cancellation,
   report, artifact-metadata, and lineage endpoints;
@@ -969,7 +969,7 @@ Deliver:
   clients;
 - dependency adapters for identity, tenant, policy, idempotency, and request
   context;
-- HTTP middleware guidance distinct from Pipelantic runtime middleware;
+- HTTP middleware guidance distinct from ETLantic runtime middleware;
 - OpenAPI 3.1 schema with stable operation IDs and client-generation fixtures;
 - SSE run-event streaming and optional experimental WebSockets;
 - OpenAPI callbacks and webhooks generated from outbound event declarations;
@@ -1253,7 +1253,7 @@ Deliver:
 
 - read-only machine-consumable inspection APIs for models, contracts, lineage,
   diagnostics, plans, capabilities, and run history;
-- a versioned, vendor-neutral Pipelantic AI workflow catalog;
+- a versioned, vendor-neutral ETLantic AI workflow catalog;
 - maintained skill packs for Codex and Claude Code plus scoped Cursor rules and
   commands for explaining pipelines, scaffolding models, diagnosing wiring,
   generating contracts, creating conformance tests, reviewing security, and
@@ -1283,7 +1283,7 @@ Deliver:
 - explicit human approval before mutation, submission, secret access, or
   external communication;
 - optional agent/tool adapters in separate packages, with no Claude, OpenAI, or
-  Cursor SDK dependency in Pipelantic core.
+  Cursor SDK dependency in ETLantic core.
 
 Acceptance:
 
@@ -1327,7 +1327,7 @@ These remain candidates rather than promised release numbers:
 
 ## SparkForge Replacement Gate
 
-Pipelantic is ready to replace SparkForge's duplicated underlying engines
+ETLantic is ready to replace SparkForge's duplicated underlying engines
 only when it preserves these behaviors in domain-neutral form:
 
 - selective and interactive execution
@@ -1341,11 +1341,11 @@ only when it preserves these behaviors in domain-neutral form:
 - SQL, PySpark, Delta, and orchestration capabilities supplied through plugins
 - semantic parity tests for representative SparkForge pipelines
 
-This gate does not require Pipelantic to understand medallion layers.
+This gate does not require ETLantic to understand medallion layers.
 
 ## Explicit Non-Goals
 
-Pipelantic does not plan to become:
+ETLantic does not plan to become:
 
 - A proprietary distributed scheduler
 - A dataframe or SQL engine
@@ -1359,7 +1359,7 @@ Pipelantic does not plan to become:
 
 ## Prioritization Rule
 
-A proposed feature belongs in Pipelantic when it strengthens portable
+A proposed feature belongs in ETLantic when it strengthens portable
 modeling, static analysis, deterministic planning, lifecycle coordination,
 result normalization, or plugin interoperability.
 
@@ -1369,7 +1369,7 @@ Use this ownership test:
 |---|---|
 | Meaning of data, transformation, or pipeline contracts | ODCS, DTCS, or DPCS |
 | Operationalizing data contracts | ContractModel |
-| Portable pipeline model, planner, and coordination protocols | Pipelantic |
+| Portable pipeline model, planner, and coordination protocols | ETLantic |
 | Backend execution mechanics | Execution plugins and providers |
 | Medallion conventions and migration experience | SparkForge |
 

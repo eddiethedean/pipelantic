@@ -1,17 +1,17 @@
-<div class="pipelantic-hero">
-  <div class="pipelantic-hero__content">
-    <h1>Pipelantic</h1>
+<div class="etlantic-hero">
+  <div class="etlantic-hero__content">
+    <h1>ETLantic</h1>
     <p>Typed, contract-driven data pipeline modeling for Python.</p>
-    <div class="pipelantic-hero__actions">
+    <div class="etlantic-hero__actions">
       <a class="md-button md-button--primary" href="01_GETTING_STARTED/QUICKSTART/">Quickstart</a>
       <a class="md-button" href="01_GETTING_STARTED/CAPABILITIES/">Capabilities</a>
     </div>
   </div>
 </div>
 
-# Pipelantic Documentation
+# ETLantic Documentation
 
-Pipelantic is a Python framework for defining typed, contract-driven data
+ETLantic is a Python framework for defining typed, contract-driven data
 pipelines and coordinating their execution through the tools users already
 choose.
 
@@ -20,7 +20,7 @@ Its central idea is simple:
 > Define data, transformations, and pipelines with typed Python classes.
 > Validate and plan them once. Execute them through interchangeable backends.
 
-Pipelantic is inspired by FastAPI's type-driven developer experience, but it
+ETLantic is inspired by FastAPI's type-driven developer experience, but it
 does not turn ETL into a web API metaphor. It applies the same principle—types
 as executable interface declarations—to data engineering.
 
@@ -29,7 +29,7 @@ as executable interface declarations—to data engineering.
 **0.6.0** ships validation, profiles, an immutable secret-free
 `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
-and Pandas plugins, and a versioned SQL protocol with the `pipelantic-sql`
+and Pandas plugins, and a versioned SQL protocol with the `etlantic-sql`
 PostgreSQL reference plugin.
 
 Many chapters still describe the intended 1.0 product. Examples beyond the
@@ -40,7 +40,7 @@ is already available. Start with
 ## Thirty-Second Example
 
 ```python
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -76,7 +76,7 @@ class CustomerPipeline(Pipeline):
     )
 ```
 
-From these declarations, Pipelantic can derive:
+From these declarations, ETLantic can derive:
 
 - ODCS data contracts
 - A DTCS transformation contract
@@ -86,7 +86,7 @@ From these declarations, Pipelantic can derive:
 - A deterministic, secret-free `PipelinePlan` (0.3.0)
 - A local Python runtime and structured run report (0.4.0)
 - Optional Polars and Pandas dataframe plugins (0.5.0)
-- Optional SQL execution via `pipelantic-sql` (0.6.0)
+- Optional SQL execution via `etlantic-sql` (0.6.0)
 
 Memory, callable, JSON, CSV, and no-write storage are included in core.
 Spark and external orchestration plugins arrive later.
@@ -107,7 +107,7 @@ def normalize_customers_sql(customers):
     ...
 ```
 
-Install `pipelantic-polars` / `pipelantic-pandas` / `pipelantic-sql` for
+Install `etlantic-polars` / `etlantic-pandas` / `etlantic-sql` for
 engines; later milestones may add PySpark, remote, or other implementations.
 
 ## The Architecture in One View
@@ -135,14 +135,14 @@ Typed Python authoring or portable contracts
       Plugins   Airflow/SQL  Docs/graphs
 ```
 
-Pipelantic owns modeling, validation, planning, and coordination.
+ETLantic owns modeling, validation, planning, and coordination.
 
 Standards own contract meaning. ContractModel owns data-contract
 operationalization. Plugins and external systems perform the work.
 
 ## The Three Contract Authorities
 
-Pipelantic intentionally recognizes only three top-level contract families:
+ETLantic intentionally recognizes only three top-level contract families:
 
 | Contract | Authority | Answers |
 |---|---|---|
@@ -167,7 +167,7 @@ implementation or runtime concepts—not additional contract standards.
 
 ### I want to understand the idea
 
-1. [Manifesto](PIPELANTIC_MANIFESTO.md)
+1. [Manifesto](ETLANTIC_MANIFESTO.md)
 2. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md)
 3. [Core Concepts](02_FOUNDATIONS/CORE_CONCEPTS.md)
 4. [Architecture](02_FOUNDATIONS/ARCHITECTURE.md)
@@ -191,13 +191,13 @@ implementation or runtime concepts—not additional contract standards.
 
 ### I want runnable examples
 
-- [examples/quickstart.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/quickstart.py) — local runtime
-- [examples/file_storage.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/file_storage.py) — JSON/CSV storage
-- [examples/dataframe_parity.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/dataframe_parity.py) — Polars/Pandas
-- [examples/sql_to_sql.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_to_sql.py) — SQL (`pipelantic-sql`)
-- [examples/sql_boundary_hybrid.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_boundary_hybrid.py) — SQL → Python boundary
-- [examples/sql_transactional_write.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_transactional_write.py) — insert-select publication
-- [examples/sql_failure_recovery.py](https://github.com/eddiethedean/pipelantic/blob/main/examples/sql_failure_recovery.py) — unsupported merge fails closed
+- [examples/quickstart.py](https://github.com/eddiethedean/etlantic/blob/main/examples/quickstart.py) — local runtime
+- [examples/file_storage.py](https://github.com/eddiethedean/etlantic/blob/main/examples/file_storage.py) — JSON/CSV storage
+- [examples/dataframe_parity.py](https://github.com/eddiethedean/etlantic/blob/main/examples/dataframe_parity.py) — Polars/Pandas
+- [examples/sql_to_sql.py](https://github.com/eddiethedean/etlantic/blob/main/examples/sql_to_sql.py) — SQL (`etlantic-sql`)
+- [examples/sql_boundary_hybrid.py](https://github.com/eddiethedean/etlantic/blob/main/examples/sql_boundary_hybrid.py) — SQL → Python boundary
+- [examples/sql_transactional_write.py](https://github.com/eddiethedean/etlantic/blob/main/examples/sql_transactional_write.py) — insert-select publication
+- [examples/sql_failure_recovery.py](https://github.com/eddiethedean/etlantic/blob/main/examples/sql_failure_recovery.py) — unsupported merge fails closed
 
 ### I want design studies (not installable)
 
@@ -245,7 +245,7 @@ These pages describe intended 1.0 workflows. They are **not** current API guides
 
 ## Non-Goals
 
-Pipelantic is not intended to become:
+ETLantic is not intended to become:
 
 - A dataframe engine
 - A distributed scheduler

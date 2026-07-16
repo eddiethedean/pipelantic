@@ -4,10 +4,10 @@
 > AWS Secrets Manager, Vault, keyring, and cloud identity providers are
 > **future design**—do not configure them yet.
 
-Pipelantic treats secrets as runtime dependencies that are referenced during
+ETLantic treats secrets as runtime dependencies that are referenced during
 configuration and resolved only inside an authorized execution boundary.
 
-Pipelantic is not a secret store. Plans stay secret-free: they may contain a
+ETLantic is not a secret store. Plans stay secret-free: they may contain a
 `SecretRef`, never a resolved value. Values must not appear in contracts,
 `PipelinePlan`, logs, diagnostics, events, reports, caches, or tracebacks.
 
@@ -16,7 +16,7 @@ Pipelantic is not a secret store. Plans stay secret-free: they may contain a
 ### Secret references
 
 ```python
-from pipelantic import SecretRef
+from etlantic import SecretRef
 
 warehouse_password = SecretRef(
     provider="ci-secrets",
@@ -34,11 +34,11 @@ warehouse_password = SecretRef(
 ### Environment provider
 
 ```python
-from pipelantic.secrets import EnvSecretProvider
+from etlantic.secrets import EnvSecretProvider
 
-provider = EnvSecretProvider(prefix="PIPELANTIC_SECRET_")
+provider = EnvSecretProvider(prefix="ETLANTIC_SECRET_")
 # Resolves SecretRef(name="WAREHOUSE_PASSWORD") from
-# PIPELANTIC_SECRET_WAREHOUSE_PASSWORD
+# ETLANTIC_SECRET_WAREHOUSE_PASSWORD
 ```
 
 Use environment variables for CI and local smoke tests. Prefer a real secret
@@ -47,7 +47,7 @@ manager in production once provider plugins ship.
 ### Mounted-file provider
 
 ```python
-from pipelantic.secrets import MountedFileSecretProvider
+from etlantic.secrets import MountedFileSecretProvider
 
 provider = MountedFileSecretProvider(root="/var/run/secrets")
 # Resolves SecretRef(name="warehouse_password") from a file under root
@@ -90,6 +90,6 @@ design) for the intended plugin shape.
 ## See Also
 
 - [Security Model](../02_FOUNDATIONS/SECURITY.md)
-- [Security policy](https://github.com/eddiethedean/pipelantic/blob/main/SECURITY.md)
+- [Security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md)
 - [Local Python](LOCAL_PYTHON.md)
 - [Compatibility](../10_REFERENCE/COMPATIBILITY.md)

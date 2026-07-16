@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const banner = document.createElement("div");
   banner.className = "admonition warning";
   banner.innerHTML =
-    '<p class="admonition-title">Future design—not a Pipelantic 0.6 API guide</p>' +
+    '<p class="admonition-title">Future design—not a ETLantic 0.6 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +
     "Use Current Capabilities, the API reference, and the CLI reference for shipped behavior.</p>";
   article.prepend(banner);

@@ -1,10 +1,10 @@
 # SQL Plugin
 
-**Status: shipped in 0.6.0** (`pipelantic.sql/1`). The reference plugin is
-`pipelantic-sql` (PostgreSQL). Discover plugins via the
-`pipelantic.sql_plugins` entry point.
+**Status: shipped in 0.6.0** (`etlantic.sql/1`). The reference plugin is
+`etlantic-sql` (PostgreSQL). Discover plugins via the
+`etlantic.sql_plugins` entry point.
 
-A **SQL Plugin** implements the Pipelantic SQL Plugin API for a specific SQL
+A **SQL Plugin** implements the ETLantic SQL Plugin API for a specific SQL
 execution environment.
 
 SQL plugins compile and execute eligible transformation regions inside relational
@@ -120,12 +120,12 @@ class SqlPlugin:
 ```
 
 The exact public SDK will evolve, but SQL plugins should expose stable,
-structured operations rather than requiring Pipelantic to invoke private
+structured operations rather than requiring ETLantic to invoke private
 database-library internals.
 
 ## Logical SQL Representation
 
-Pipelantic should define or adopt a safe logical SQL representation.
+ETLantic should define or adopt a safe logical SQL representation.
 
 A SQL implementation should return structured expressions rather than use raw
 string concatenation as the primary interface.
@@ -164,7 +164,7 @@ def build_customer_summary(
 
 Possible implementation foundations include:
 
-- Pipelantic's own SQL expression IR
+- ETLantic's own SQL expression IR
 - SQLAlchemy Core
 - A supported relational algebra library
 - A carefully constrained adapter interface
@@ -256,7 +256,7 @@ SqlCapabilities(
 )
 ```
 
-Advertise only what the plugin actually implements. The 0.6 `pipelantic-sql`
+Advertise only what the plugin actually implements. The 0.6 `etlantic-sql`
 reference sets `sql_merge=False` and uses durable run-scoped staging tables
 rather than session TEMP for intermediates.
 
@@ -727,7 +727,7 @@ A SQL plugin may support:
 - Asynchronous drivers
 - Both
 
-Pipelantic should normalize invocation while respecting driver constraints.
+ETLantic should normalize invocation while respecting driver constraints.
 
 A synchronous database client may run through an appropriate thread or worker
 strategy when used inside an asynchronous execution environment.
@@ -905,7 +905,7 @@ Requirements include:
 Conceptually:
 
 ```python
-from pipelantic.plugins import register_sql_plugin
+from etlantic.plugins import register_sql_plugin
 
 
 register_sql_plugin(
@@ -914,13 +914,13 @@ register_sql_plugin(
 ```
 
 Normal deployments should prefer automatic discovery through package entry
-points or the standard Pipelantic plugin registry.
+points or the standard ETLantic plugin registry.
 
 ## Package Naming
 
 Shipped in 0.6.0:
 
-- `pipelantic-sql` — PostgreSQL reference plugin
+- `etlantic-sql` — PostgreSQL reference plugin
 
 Additional dialect packages (for example DuckDB, Snowflake, BigQuery) may
 follow the same protocol later; they are not part of this release.
@@ -930,7 +930,7 @@ follow the same protocol later; they are not part of this release.
 Every SQL plugin should publish:
 
 - Plugin version
-- Supported Pipelantic version
+- Supported ETLantic version
 - Supported Plugin SDK version
 - Supported DTCS version
 - Supported DPCS version

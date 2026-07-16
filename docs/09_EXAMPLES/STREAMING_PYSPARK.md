@@ -1,18 +1,18 @@
 # Streaming PySpark
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that consumes customer
+This example builds a complete ETLantic pipeline that consumes customer
 order events from Kafka with PySpark Structured Streaming, validates the events
 against typed contracts, applies event-time aggregation with watermarks, and
 publishes rolling customer summaries to Delta Lake.
 
-The example demonstrates how Pipelantic extends the same portable contracts,
+The example demonstrates how ETLantic extends the same portable contracts,
 transformations, planning, validation, lineage, and execution model used for
 batch pipelines into unbounded streaming workloads.
 
@@ -86,7 +86,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class OrderEvent(DataContractModel):
@@ -120,7 +120,7 @@ These contracts are independent of Kafka, Spark, and Delta Lake.
 ## Step 2 — Define the Transformation Contract
 
 ```python
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 
 class AggregateCustomerOrders(Transformation):
@@ -140,7 +140,7 @@ syntax.
 ```python
 from pyspark.sql import functions as F
 
-from pipelantic.pyspark import SparkDataFrame
+from etlantic.pyspark import SparkDataFrame
 
 from .contracts import CustomerOrderWindow, OrderEvent
 from .transformations import AggregateCustomerOrders
@@ -203,7 +203,7 @@ The implementation builds a streaming logical plan and does not start the query.
 ## Step 4 — Define the Streaming Pipeline
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import (
     CustomerOrderWindow,
@@ -241,7 +241,7 @@ validation model.
 ## Step 5 — Define the Streaming Profile
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 
 production = Profile(
@@ -297,7 +297,7 @@ production = Profile(
         },
         "checkpoints": {
             "provider": "cloud-storage",
-            "root": "s3://company-checkpoints/pipelantic/",
+            "root": "s3://company-checkpoints/etlantic/",
         },
     },
 )
@@ -703,7 +703,7 @@ Changing:
 
 may make existing checkpoints incompatible.
 
-Pipelantic should detect known incompatibilities before restart.
+ETLantic should detect known incompatibilities before restart.
 
 ## Restart and Recovery
 
@@ -1122,7 +1122,7 @@ Avoid:
 
 ## Key Principle
 
-> Streaming PySpark execution extends Pipelantic to unbounded event-time
+> Streaming PySpark execution extends ETLantic to unbounded event-time
 > workflows while preserving typed contracts, explicit watermarks, bounded
 > state, durable recovery, lineage, validation, and sink guarantees.
 

@@ -2,7 +2,7 @@
 
 ## Why FastAPI?
 
-Pipelantic is heavily inspired by FastAPI---not because it serves
+ETLantic is heavily inspired by FastAPI---not because it serves
 HTTP APIs, but because it demonstrates how Python's type system can
 become the foundation of an exceptional developer experience.
 
@@ -11,13 +11,13 @@ Python classes and type annotations while the framework automatically
 provides validation, documentation, editor support, and runtime
 behavior.
 
-Pipelantic applies that same philosophy to data engineering.
+ETLantic applies that same philosophy to data engineering.
 
 ## The Central Idea
 
 FastAPI asks developers to describe an API.
 
-Pipelantic asks developers to describe a pipeline.
+ETLantic asks developers to describe a pipeline.
 
 Everything that can be derived from those descriptions should be derived
 automatically.
@@ -34,7 +34,7 @@ Documentation
 Runtime Routing
 
 
-Pipelantic
+ETLantic
 
 Python Types
       │
@@ -53,7 +53,7 @@ its design philosophy.
 
 ## Types Are the Source of Truth
 
-Pipelantic avoids duplicate configuration whenever possible.
+ETLantic avoids duplicate configuration whenever possible.
 
 Instead of maintaining Python code, YAML, diagrams, and documentation
 independently, developers define strongly typed Python models.
@@ -69,7 +69,7 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 ```
 
-From these annotations Pipelantic can infer:
+From these annotations ETLantic can infer:
 
 -   transformation inputs
 -   transformation outputs
@@ -106,7 +106,7 @@ transformations. It does not dictate how they are scheduled or executed.
 
 ## Minimize Boilerplate
 
-A guiding principle of Pipelantic is:
+A guiding principle of ETLantic is:
 
 > Never ask the developer to repeat information that can be inferred
 > safely.
@@ -123,7 +123,7 @@ Examples include:
 FastAPI allows developers to write either `def` or `async def` endpoint
 functions.
 
-Pipelantic adopts the same experience for transformation
+ETLantic adopts the same experience for transformation
 implementations, callbacks, and resources.
 
 ``` python
@@ -156,9 +156,9 @@ possible:
 These capabilities emerge from the model rather than requiring
 additional configuration.
 
-## Pipelantic Is Not FastAPI for ETL
+## ETLantic Is Not FastAPI for ETL
 
-Pipelantic is inspired by FastAPI's philosophy, not limited by its
+ETLantic is inspired by FastAPI's philosophy, not limited by its
 domain.
 
 It introduces concepts unique to data engineering:
@@ -180,7 +180,7 @@ Every new feature should answer a simple question:
 > Does this make authoring typed, contract-driven pipelines simpler,
 > clearer, or more expressive?
 
-If the answer is yes, it probably belongs in Pipelantic.
+If the answer is yes, it probably belongs in ETLantic.
 
 If it concerns execution mechanics alone, it likely belongs in an
 execution plugin instead.
@@ -188,4 +188,4 @@ execution plugin instead.
 ## Next Step
 
 Continue with **DESIGN_PRINCIPLES.md** to learn the architectural rules
-that guide every Pipelantic design decision.
+that guide every ETLantic design decision.

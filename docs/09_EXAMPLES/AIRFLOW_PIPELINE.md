@@ -1,13 +1,13 @@
 # Airflow Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that validates and plans a
+This example builds a complete ETLantic pipeline that validates and plans a
 typed data workflow, then compiles the resulting Pipeline Plan into an Apache
 Airflow DAG.
 
@@ -95,7 +95,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -118,7 +118,7 @@ The contracts are independent of Airflow.
 ```python
 # src/airflow_pipeline/transformations.py
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -176,7 +176,7 @@ The Polars plugin executes the transformation.
 ```python
 # src/airflow_pipeline/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, RawCustomer
 from .transformations import NormalizeCustomers
@@ -205,7 +205,7 @@ The pipeline contains no `DAG`, `Operator`, `TaskGroup`, or Airflow decorator.
 ```python
 # src/airflow_pipeline/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 production = Profile(
@@ -388,7 +388,7 @@ customer_airflow_pipeline
     └── publish_customers
 ```
 
-Each Airflow task should retain the corresponding stable Pipelantic identity.
+Each Airflow task should retain the corresponding stable ETLantic identity.
 
 ## Example Generated DAG Module
 
@@ -397,7 +397,7 @@ A generated module may resemble:
 ```python
 from airflow import DAG
 
-from pipelantic_airflow import load_compiled_pipeline
+from etlantic_airflow import load_compiled_pipeline
 
 
 dag: DAG = load_compiled_pipeline(
@@ -413,7 +413,7 @@ Another plugin implementation may emit a fully expanded DAG module.
 
 ## Task Mapping
 
-Pipelantic steps may compile into:
+ETLantic steps may compile into:
 
 - Python tasks
 - Deferrable operators
@@ -510,7 +510,7 @@ Unsupported mandatory semantics should fail compilation.
 
 ## Callbacks
 
-Pipelantic callbacks may map to:
+ETLantic callbacks may map to:
 
 - Task failure callbacks
 - Task retry callbacks
@@ -538,7 +538,7 @@ The Airflow plugin should preserve both branches and their dependencies.
 
 Airflow should not own resource semantics.
 
-The compiled tasks use Pipelantic Resource Providers for:
+The compiled tasks use ETLantic Resource Providers for:
 
 - Object storage
 - Databases
@@ -884,7 +884,7 @@ Deployment is outside the portable pipeline model.
 
 The Airflow plugin should publish compatibility for:
 
-- Pipelantic
+- ETLantic
 - Plugin SDK
 - Airflow
 - Python
@@ -951,7 +951,7 @@ The plugin may emit or link:
 - Worker identity
 - External job references
 
-These supplement Pipelantic's structured execution events.
+These supplement ETLantic's structured execution events.
 
 ## Lineage
 
@@ -1022,7 +1022,7 @@ Avoid:
 
 ## Key Principle
 
-> Airflow is an orchestration target for Pipelantic. The Airflow plugin
+> Airflow is an orchestration target for ETLantic. The Airflow plugin
 > compiles a validated Pipeline Plan into a DAG while preserving contracts,
 > dependencies, retries, failure semantics, lineage, and observable behavior.
 

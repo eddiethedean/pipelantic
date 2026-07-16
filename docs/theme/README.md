@@ -1,6 +1,6 @@
-# Pipelantic Visual Theme
+# ETLantic Visual Theme
 
-Pipelantic uses a restrained nautical-cartography theme for visual identity.
+ETLantic uses a restrained nautical-cartography theme for visual identity.
 The theme affects imagery, color, shape, and layout. Product terminology remains
 technical and direct.
 
@@ -22,11 +22,11 @@ voyage, vessel, cargo, harbor, or similar substitutes.
 
 | Asset | Purpose |
 |---|---|
-| `assets/pipelantic-logo.svg` | Canonical scalable logo |
-| `assets/pipelantic-favicon.svg` | Simplified small-size mark |
-| `assets/pipelantic-logo.png` | Transparent raster logo |
-| `assets/pipelantic-banner.png` | README and documentation hero |
-| `assets/pipelantic-logo-source.png` | Generated source; not for publication |
+| `assets/etlantic-logo.svg` | Canonical scalable logo |
+| `assets/etlantic-favicon.svg` | Simplified small-size mark |
+| `assets/etlantic-logo.png` | Transparent raster logo |
+| `assets/etlantic-banner.png` | README and documentation hero |
+| `assets/etlantic-logo-source.png` | Generated source; not for publication |
 
 The SVG mark is canonical for documentation and application chrome. The
 transparent PNG is available for platforms that require raster artwork.

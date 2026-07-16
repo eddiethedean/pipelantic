@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pipelantic.profile import (
+from etlantic.profile import (
     development_profile,
     load_profile,
     production_profile,
     resolve_profile,
     write_profile,
 )
-from pipelantic.secrets import SecretRef
+from etlantic.secrets import SecretRef
 
 
 def test_profile_templates() -> None:

@@ -1,21 +1,21 @@
-site_name: Pipelantic
+site_name: ETLantic
 site_description: Typed, contract-driven data pipeline modeling for Python.
-site_url: https://pipelantic.readthedocs.io/
-repo_url: https://github.com/eddiethedean/pipelantic
-repo_name: eddiethedean/pipelantic
+site_url: https://etlantic.readthedocs.io/
+repo_url: https://github.com/eddiethedean/etlantic
+repo_name: eddiethedean/etlantic
 edit_uri: edit/main/docs/
 docs_dir: docs
 
 theme:
   name: material
-  logo: theme/assets/pipelantic-logo.svg
-  favicon: theme/assets/pipelantic-favicon.svg
+  logo: theme/assets/etlantic-logo.svg
+  favicon: theme/assets/etlantic-favicon.svg
   font:
     text: Inter
     code: IBM Plex Mono
   palette:
     - media: "(prefers-color-scheme: light)"
-      scheme: pipelantic-light
+      scheme: etlantic-light
       primary: custom
       accent: custom
       toggle:
@@ -42,7 +42,7 @@ theme:
     - toc.follow
 
 extra_css:
-  - theme/stylesheets/pipelantic.css
+  - theme/stylesheets/etlantic.css
 
 extra_javascript:
   - theme/javascripts/status-banner.js
@@ -103,7 +103,7 @@ nav:
   - Foundations:
       - Overview: 02_FOUNDATIONS/README.md
       - Vision: 02_FOUNDATIONS/VISION.md
-      - Why Pipelantic: 02_FOUNDATIONS/WHY_PIPELANTIC.md
+      - Why ETLantic: 02_FOUNDATIONS/WHY_ETLANTIC.md
       - FastAPI Philosophy: 02_FOUNDATIONS/FASTAPI_PHILOSOPHY.md
       - Design Principles: 02_FOUNDATIONS/DESIGN_PRINCIPLES.md
       - Core Concepts: 02_FOUNDATIONS/CORE_CONCEPTS.md
@@ -249,4 +249,4 @@ nav:
       - Overview: specifications/README.md
       - DTCS: specifications/DTCS_SPEC.md
       - DPCS: specifications/DPCS_SPEC.md
-  - Manifesto: PIPELANTIC_MANIFESTO.md
+  - Manifesto: ETLANTIC_MANIFESTO.md

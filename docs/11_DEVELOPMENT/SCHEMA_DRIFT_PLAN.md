@@ -6,7 +6,7 @@ Source schemas change independently of pipeline code. Some changes violate a
 data contract, while others remain contract-compatible but still matter to ETL
 developers, operators, and downstream consumers.
 
-Pipelantic should make those changes visible, explain their impact, preserve
+ETLantic should make those changes visible, explain their impact, preserve
 their history, and coordinate an explicit response. It must not silently alter
 the authoritative data contract.
 
@@ -30,12 +30,12 @@ This distinction detects:
   observations remain contract-compatible.
 
 ContractModel remains authoritative for data-contract diff and compatibility
-semantics. Pipelantic owns observation, normalization, history, policies,
+semantics. ETLantic owns observation, normalization, history, policies,
 lineage-aware impact analysis, reporting, and workflow coordination.
 
 ## Goals
 
-Pipelantic should:
+ETLantic should:
 
 1. observe schemas through explicit, capability-bearing backend operations;
 2. normalize backend schemas into a stable comparison representation;
@@ -53,7 +53,7 @@ Pipelantic should:
 
 ## Non-Goals
 
-Pipelantic will not:
+ETLantic will not:
 
 - create a fourth top-level contract type;
 - redefine ODCS or ContractModel compatibility semantics;
@@ -122,7 +122,7 @@ A change set compares two identified schema states and includes:
 
 ### Impact levels
 
-Pipelantic should use a richer impact vocabulary:
+ETLantic should use a richer impact vocabulary:
 
 ```python
 class DriftImpact(str, Enum):
@@ -252,7 +252,7 @@ Planned providers:
 - canonical files suitable for Git and CI;
 - local development storage;
 - SQL or object-storage history;
-- Pipelantic registry integration;
+- ETLantic registry integration;
 - adapters for external catalogs and contract registries.
 
 The system must distinguish:
@@ -268,7 +268,7 @@ Acknowledging drift must never rewrite contract history.
 
 ## Lineage-Aware Impact Analysis
 
-Pipelantic should trace a changed source field through:
+ETLantic should trace a changed source field through:
 
 ```text
 Source field
@@ -294,7 +294,7 @@ allows precise impact classifications.
 
 ## Remediation Workflows
 
-Pipelantic should support reviewable remediation without hiding changes.
+ETLantic should support reviewable remediation without hiding changes.
 
 ### Adapters
 
@@ -329,14 +329,14 @@ source-system correction and the later confirming observation.
 Planned CLI commands:
 
 ```text
-pipelantic schema inspect
-pipelantic schema check
-pipelantic schema diff
-pipelantic schema history
-pipelantic schema impact
-pipelantic schema acknowledge
-pipelantic schema propose
-pipelantic schema monitor
+etlantic schema inspect
+etlantic schema check
+etlantic schema diff
+etlantic schema history
+etlantic schema impact
+etlantic schema acknowledge
+etlantic schema propose
+etlantic schema monitor
 ```
 
 Every command should support structured JSON output. Live inspection and
@@ -454,6 +454,6 @@ The feature is successful when an ETL developer can answer:
 
 The core principle is:
 
-> Pipelantic records what was declared, what was observed, what changed, who is
+> ETLantic records what was declared, what was observed, what changed, who is
 > affected, and what decision was made—without silently redefining the
 > contract.

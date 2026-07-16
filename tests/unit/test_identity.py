@@ -1,6 +1,6 @@
 """Unit tests for identity helpers."""
 
-from pipelantic.identity import (
+from etlantic.identity import (
     contract_id,
     identity_slug,
     implementation_id,

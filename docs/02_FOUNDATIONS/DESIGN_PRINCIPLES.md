@@ -1,14 +1,14 @@
 # Design Principles
 
 These principles guide every architectural and API decision in
-Pipelantic. They are intended to keep the framework focused,
+ETLantic. They are intended to keep the framework focused,
 predictable, and consistent as it evolves.
 
 ## 1. Types Are the Source of Truth
 
 Python type annotations define pipeline interfaces.
 
-From those types, Pipelantic should infer contracts, validation
+From those types, ETLantic should infer contracts, validation
 rules, documentation, and editor tooling whenever possible.
 
 Developers should not have to describe the same interface multiple
@@ -18,11 +18,11 @@ times.
 
 ## 2. Model Before You Execute
 
-Pipelantic models **what** a pipeline is.
+ETLantic models **what** a pipeline is.
 
 Execution engines determine **how** that pipeline runs.
 
-Modeling concerns belong in Pipelantic.
+Modeling concerns belong in ETLantic.
 
 Execution concerns belong in plugins.
 
@@ -45,21 +45,21 @@ Python classes are the preferred authoring experience.
 Portable contract documents are generated from those classes whenever
 practical.
 
-Pipelantic should also support loading existing contracts, but
+ETLantic should also support loading existing contracts, but
 generated artifacts should remain faithful to the source model.
 
 ------------------------------------------------------------------------
 
 ## 5. Embrace Open Standards
 
-Pipelantic builds on open specifications rather than proprietary
+ETLantic builds on open specifications rather than proprietary
 formats.
 
 -   ODCS for data contracts
 -   DTCS for transformation contracts
 -   DPCS for pipeline contracts
 
-Where an established standard exists, Pipelantic should integrate
+Where an established standard exists, ETLantic should integrate
 with it rather than reinvent it.
 
 ------------------------------------------------------------------------
@@ -90,7 +90,7 @@ Clear diagnostics are preferred over runtime surprises.
 
 ## 8. Keep the Core Small
 
-Pipelantic should provide a stable modeling core.
+ETLantic should provide a stable modeling core.
 
 Execution engines, storage systems, orchestration platforms, and
 integrations should be implemented as plugins.
@@ -101,7 +101,7 @@ A small core is easier to learn, test, and evolve.
 
 ## 9. Async Without Complexity
 
-Pipelantic is asynchronous internally.
+ETLantic is asynchronous internally.
 
 Users may write either synchronous (`def`) or asynchronous (`async def`)
 implementations.
@@ -142,7 +142,7 @@ Contracts and models should outlive any individual runtime technology.
 
 ## 12. Optimize for Developer Experience
 
-Pipelantic should feel natural to Python developers.
+ETLantic should feel natural to Python developers.
 
 Good defaults, strong typing, meaningful errors, autocomplete, and
 generated documentation are not optional---they are part of the
@@ -155,7 +155,7 @@ framework's value.
 Backends may fuse, expand, or reorder physical execution units when semantics
 permit it.
 
-Pipelantic must retain mappings to the original logical sources, steps,
+ETLantic must retain mappings to the original logical sources, steps,
 ports, contracts, and sinks so lineage, diagnostics, documentation, and failure
 attribution remain understandable.
 
@@ -165,7 +165,7 @@ attribution remain understandable.
 
 Plugins must explicitly declare what they support.
 
-Pipelantic should fail during planning when a selected backend cannot
+ETLantic should fail during planning when a selected backend cannot
 preserve required behavior. It must not silently approximate transactions,
 streaming guarantees, retries, quality gates, or failure semantics.
 
@@ -216,10 +216,10 @@ implemented as a plugin instead.
 
 ## Relationship to Other Documents
 
-- [Pipelantic Manifesto](../PIPELANTIC_MANIFESTO.md) defines the
+- [ETLantic Manifesto](../ETLANTIC_MANIFESTO.md) defines the
   project's philosophy.
 - [Vision](VISION.md) defines where the project is headed.
-- [Why Pipelantic](WHY_PIPELANTIC.md) explains why the project exists.
+- [Why ETLantic](WHY_ETLANTIC.md) explains why the project exists.
 - [FastAPI Philosophy](FASTAPI_PHILOSOPHY.md) explains the design inspiration.
 
 These design principles translate those ideas into practical

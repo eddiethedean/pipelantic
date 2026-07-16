@@ -6,7 +6,7 @@ import warnings
 
 from contractmodel import ContractModel
 
-from pipelantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
 
 
 class Customer(Data):
@@ -32,7 +32,7 @@ def test_data_is_contract_model() -> None:
 def test_datacontractmodel_deprecated() -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        from pipelantic import DataContractModel
+        from etlantic import DataContractModel
 
         assert DataContractModel is Data
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)

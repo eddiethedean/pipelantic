@@ -3,7 +3,7 @@
 Compilation is the process of transforming a validated **Pipeline Plan** into an
 optimized, executable representation for a specific execution backend.
 
-Unlike traditional programming language compilers, Pipelantic compilation
+Unlike traditional programming language compilers, ETLantic compilation
 does not change the meaning of a pipeline. Instead, it translates a portable
 `PipelinePlan` into a backend-specific artifact while preserving the semantics
 defined by ODCS, DTCS, and DPCS.
@@ -64,7 +64,7 @@ Compilation performs this translation.
 
 ## Intermediate Representation
 
-The Pipeline Plan acts as Pipelantic's canonical IR.
+The Pipeline Plan acts as ETLantic's canonical IR.
 
 It contains:
 
@@ -82,7 +82,7 @@ Every compiler consumes the same IR.
 
 ## Compilation Targets
 
-Pipelantic may compile to:
+ETLantic may compile to:
 
 - Local Python
 - Airflow
@@ -150,7 +150,7 @@ Typical causes include:
 
 Compilation is performed by execution plugins.
 
-Pipelantic defines the compilation interface.
+ETLantic defines the compilation interface.
 
 Plugins implement backend-specific compilation strategies.
 

@@ -1,15 +1,15 @@
 # Lineage
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
     Mermaid are not shipped in 0.5. For diagrams today, use
     `Pipeline.to_mermaid()`.
 
 
-Data lineage describes how data moves through a Pipelantic pipeline, from its
+Data lineage describes how data moves through a ETLantic pipeline, from its
 original sources to its published outputs.
 
-Because Pipelantic constructs a validated **Pipeline Plan** before execution,
+Because ETLantic constructs a validated **Pipeline Plan** before execution,
 lineage is derived from the pipeline's logical semantics rather than runtime
 implementation details. This makes lineage deterministic, portable, and
 independent of the execution backend.
@@ -50,7 +50,7 @@ logical lineage established by the Pipeline Plan.
 
 ## Lineage Model
 
-Pipelantic derives lineage from:
+ETLantic derives lineage from:
 
 - Sources
 - Data contracts (ODCS)
@@ -78,7 +78,7 @@ Transformation B  Transformation C
 
 ## Types of Lineage
 
-Pipelantic supports multiple logical views.
+ETLantic supports multiple logical views.
 
 ### Dataset Lineage
 
@@ -172,11 +172,11 @@ Avoid:
 ## Key Principle
 
 > Lineage is a semantic property of a pipeline, not an implementation detail.
-> Pipelantic derives lineage from the validated Pipeline Plan so every
+> ETLantic derives lineage from the validated Pipeline Plan so every
 > execution backend, visualization, and documentation tool shares the same
 > consistent view of data provenance.
 
 ## Next Step
 
-Continue with **MERMAID.md** to learn how Pipelantic renders lineage and
+Continue with **MERMAID.md** to learn how ETLantic renders lineage and
 pipeline graphs using Mermaid diagrams.

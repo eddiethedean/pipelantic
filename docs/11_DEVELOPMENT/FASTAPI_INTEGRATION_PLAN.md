@@ -1,9 +1,9 @@
 # FastAPI Integration Plan
 
-Pipelantic's FastAPI integration exposes typed pipeline operations through an
+ETLantic's FastAPI integration exposes typed pipeline operations through an
 ordinary FastAPI application without making HTTP part of pipeline semantics.
 
-The integration belongs in a separate `pipelantic-fastapi` package. Pipelantic
+The integration belongs in a separate `etlantic-fastapi` package. ETLantic
 core remains usable without FastAPI, Starlette, an ASGI server, or an HTTP
 deployment.
 
@@ -13,12 +13,12 @@ The integration should let applications:
 
 - expose pipeline discovery, validation, planning, submission, status,
   cancellation, reports, artifacts, and lineage as typed HTTP operations;
-- reuse Pipelantic and Pydantic models as request and response schemas;
+- reuse ETLantic and Pydantic models as request and response schemas;
 - generate an OpenAPI 3.1 description and client SDKs;
 - stream run events through Server-Sent Events (SSE) and optionally WebSockets;
 - map FastAPI lifespan, middleware, dependencies, security, callbacks, and
-  webhooks onto explicit Pipelantic integration boundaries;
-- embed selected Pipelantic routers into an existing FastAPI application;
+  webhooks onto explicit ETLantic integration boundaries;
+- embed selected ETLantic routers into an existing FastAPI application;
 - deploy a standalone control API when desired.
 
 It should not:
@@ -29,19 +29,19 @@ It should not:
 - return secret values, live backend objects, or unbounded data artifacts;
 - make HTTP routes the source of truth for pipeline definitions.
 
-An optional `pipelantic-sqlmodel` integration may provide typed reference
+An optional `etlantic-sqlmodel` integration may provide typed reference
 implementations for registry, run, report, event, observation, approval, and
-state stores. FastAPI and SQLModel remain adapters around Pipelantic's public
+state stores. FastAPI and SQLModel remain adapters around ETLantic's public
 provider protocols.
 
 ## Package Boundary
 
 ```text
-pipelantic
+etlantic
     typed models, plans, run requests, reports, events
         ▲
         │
-pipelantic-fastapi
+etlantic-fastapi
     routers, auth adapters, OpenAPI, streaming, request context
         ▲
         │
@@ -51,18 +51,18 @@ FastAPI / Starlette / ASGI server
 Candidate installation:
 
 ```bash
-pip install pipelantic-fastapi
+pip install etlantic-fastapi
 ```
 
 ## Application Factory
 
 ```python
 from fastapi import FastAPI
-from pipelantic_fastapi import PipelanticAPI
+from etlantic_fastapi import ETLanticAPI
 
 app = FastAPI()
 
-pipelines = PipelanticAPI(
+pipelines = ETLanticAPI(
     registry=registry,
     run_store=run_store,
     submitter=submitter,
@@ -113,7 +113,7 @@ FastAPI lifespan should initialize and close integration-wide components:
 - policy and identity adapters;
 - observability exporters.
 
-Pipeline runtime lifespan remains owned by Pipelantic. The API lifespan manages
+Pipeline runtime lifespan remains owned by ETLantic. The API lifespan manages
 the control-plane adapter, not every individual run.
 
 When SQLModel persistence is selected, lifespan may create engines and session
@@ -132,7 +132,7 @@ FastAPI dependencies should supply request-scoped control-plane concerns:
 - run-store client;
 - rate-limit decision.
 
-Pipelantic Resource Providers remain runtime dependencies for pipeline work.
+ETLantic Resource Providers remain runtime dependencies for pipeline work.
 FastAPI's dependency graph must not become the pipeline resource graph.
 
 An optional SQLModel dependency may yield a request-scoped control-plane
@@ -156,12 +156,12 @@ FastAPI or Starlette middleware should cover HTTP concerns:
 - rate limiting through an approved integration;
 - security headers.
 
-Pipelantic middleware continues to wrap planning and execution operations. The
+ETLantic middleware continues to wrap planning and execution operations. The
 two middleware systems may exchange context but have different scopes.
 
 ### OpenAPI Callbacks and Webhooks
 
-Pipelantic outbound event declarations can generate OpenAPI callbacks or
+ETLantic outbound event declarations can generate OpenAPI callbacks or
 webhook descriptions for:
 
 - run completed;
@@ -170,7 +170,7 @@ webhook descriptions for:
 - validation gate rejected;
 - artifact published.
 
-The OpenAPI document describes payloads and destinations; Pipelantic's outbound
+The OpenAPI document describes payloads and destinations; ETLantic's outbound
 event provider performs delivery under network and secret policy.
 
 ## Run Submission
@@ -213,7 +213,7 @@ Every stream needs:
 
 ## OpenAPI and Client Generation
 
-Pipelantic should produce stable operation identifiers and reusable schemas so
+ETLantic should produce stable operation identifiers and reusable schemas so
 OpenAPI client generators create understandable methods.
 
 OpenAPI extensions may link:
@@ -288,10 +288,10 @@ The integration suite should cover:
 
 ## Dependency Strategy
 
-`pipelantic-fastapi` should depend on:
+`etlantic-fastapi` should depend on:
 
 - `fastapi`;
-- Pipelantic core;
+- ETLantic core;
 - optional `uvicorn` only for standalone serving extras;
 - optional SSE, authentication, and rate-limit packages selected after focused
   evaluation.
@@ -313,5 +313,5 @@ depending on their internals.
 
 ## Key Principle
 
-> FastAPI exposes Pipelantic's typed control plane. It does not become the
+> FastAPI exposes ETLantic's typed control plane. It does not become the
 > pipeline runtime, scheduler, or source of pipeline semantics.

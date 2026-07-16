@@ -1,16 +1,16 @@
 # OpenAPI for Pipelines
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
     Mermaid are not shipped in 0.5. For diagrams today, use
     `Pipeline.to_mermaid()`.
 
 
-Pipelantic can generate an **OpenAPI-inspired interface description for data
+ETLantic can generate an **OpenAPI-inspired interface description for data
 pipelines**.
 
 Just as OpenAPI provides a machine-readable description of HTTP APIs, this
-proposed Pipelantic artifact describes *what a pipeline accepts, what it
+proposed ETLantic artifact describes *what a pipeline accepts, what it
 produces, and how it behaves* without exposing implementation details.
 
 It is not OpenAPI and is not a fourth contract standard. ODCS, DTCS, and DPCS
@@ -68,7 +68,7 @@ OpenAPI answers questions such as:
 - What parameters are accepted?
 - What schemas are exchanged?
 
-Pipelantic answers analogous questions:
+ETLantic answers analogous questions:
 
 - What sources exist?
 - What parameters are accepted?
@@ -105,7 +105,7 @@ contracts:
     - customer-curation
 ```
 
-The actual schema is defined by Pipelantic and evolves independently.
+The actual schema is defined by ETLantic and evolves independently.
 
 ## Public Interface
 
@@ -169,7 +169,7 @@ Generation should consume the validated Pipeline Plan.
 
 Every generated specification should declare:
 
-- Pipelantic version
+- ETLantic version
 - Specification version
 - Pipeline version
 - Referenced contract versions
@@ -218,7 +218,7 @@ Avoid:
 
 ## Comparison
 
-| HTTP APIs | Pipelantic |
+| HTTP APIs | ETLantic |
 |-----------|---------------|
 | OpenAPI | Pipeline interface description |
 | Endpoint | Pipeline |
@@ -245,7 +245,7 @@ Future versions may support:
 > machine-readable
 > description of a pipeline's public interface. Like OpenAPI, it documents the
 > contract—not the implementation—and is generated directly from
-> Pipelantic's canonical models.
+> ETLantic's canonical models.
 
 ## Next Step
 

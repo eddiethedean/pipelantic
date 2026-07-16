@@ -1,0 +1,129 @@
+:root {
+  --etlantic-abyss: #071a2b;
+  --etlantic-atlantic: #0d3b5e;
+  --etlantic-cyan: #27d3e2;
+  --etlantic-mint: #63e6be;
+  --etlantic-brass: #d6a84b;
+  --etlantic-coral: #ff6b5e;
+  --etlantic-sailcloth: #eaf1ed;
+  --etlantic-fog: #9cb2be;
+}
+
+[data-md-color-scheme="etlantic-light"] {
+  --md-primary-fg-color: var(--etlantic-abyss);
+  --md-primary-fg-color--light: var(--etlantic-atlantic);
+  --md-primary-fg-color--dark: #04111d;
+  --md-accent-fg-color: #078a96;
+  --md-typeset-a-color: #087f8a;
+  --md-default-bg-color: #fbfdfc;
+  --md-code-bg-color: #eef5f5;
+}
+
+[data-md-color-scheme="slate"] {
+  color-scheme: dark;
+  --md-primary-fg-color: var(--etlantic-abyss);
+  --md-primary-fg-color--light: var(--etlantic-atlantic);
+  --md-primary-fg-color--dark: #030d16;
+  --md-primary-bg-color: var(--etlantic-sailcloth);
+  --md-primary-bg-color--light: rgba(234, 241, 237, 0.72);
+  --md-accent-fg-color: var(--etlantic-mint);
+  --md-accent-fg-color--transparent: rgba(99, 230, 190, 0.12);
+  --md-accent-bg-color: var(--etlantic-abyss);
+  --md-accent-bg-color--light: rgba(7, 26, 43, 0.72);
+  --md-default-fg-color: rgba(234, 241, 237, 0.9);
+  --md-default-fg-color--light: rgba(196, 215, 216, 0.72);
+  --md-default-fg-color--lighter: rgba(156, 178, 190, 0.46);
+  --md-default-fg-color--lightest: rgba(156, 178, 190, 0.16);
+  --md-typeset-color: var(--md-default-fg-color);
+  --md-typeset-a-color: var(--etlantic-cyan);
+  --md-default-bg-color: #061521;
+  --md-default-bg-color--light: rgba(6, 21, 33, 0.72);
+  --md-default-bg-color--lighter: rgba(6, 21, 33, 0.42);
+  --md-default-bg-color--lightest: rgba(6, 21, 33, 0.18);
+  --md-code-fg-color: #d9e7e5;
+  --md-code-bg-color: #0a2233;
+  --md-code-bg-color--light: rgba(10, 34, 51, 0.9);
+  --md-code-bg-color--lighter: rgba(10, 34, 51, 0.54);
+  --md-admonition-fg-color: var(--md-default-fg-color);
+  --md-admonition-bg-color: #0a2233;
+  --md-typeset-table-color: rgba(196, 215, 216, 0.18);
+  --md-typeset-table-color--light: rgba(196, 215, 216, 0.06);
+  --md-footer-bg-color: #030d16;
+  --md-footer-bg-color--dark: #020911;
+}
+
+.md-header {
+  background: linear-gradient(90deg, var(--etlantic-abyss), var(--etlantic-atlantic));
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 2rem;
+  width: 2rem;
+}
+
+.md-tabs {
+  background-color: var(--etlantic-abyss);
+}
+
+.etlantic-hero {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 2rem;
+  min-height: 17rem;
+  border: 1px solid rgba(39, 211, 226, 0.3);
+  border-radius: 0.8rem;
+  background:
+    linear-gradient(90deg, rgba(7, 26, 43, 0.92), rgba(7, 26, 43, 0.15)),
+    url("../assets/etlantic-banner.png") center / cover;
+  box-shadow: 0 1rem 2.5rem rgba(3, 13, 22, 0.22);
+}
+
+.etlantic-hero__content {
+  position: relative;
+  max-width: 35rem;
+  padding: 3rem;
+  color: var(--etlantic-sailcloth);
+}
+
+.etlantic-hero__content h1 {
+  margin: 0 0 0.6rem;
+  color: white;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.etlantic-hero__content p {
+  color: #c9dadc;
+  font-size: 1.05rem;
+}
+
+.etlantic-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.etlantic-hero__actions .md-button--primary {
+  border-color: var(--etlantic-mint);
+  background-color: var(--etlantic-mint);
+  color: var(--etlantic-abyss);
+}
+
+.md-typeset h2 {
+  border-bottom: 1px solid rgba(39, 211, 226, 0.25);
+  padding-bottom: 0.25rem;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .etlantic-hero {
+    min-height: 21rem;
+    background-position: 42% center;
+  }
+
+  .etlantic-hero__content {
+    padding: 2rem;
+    background: rgba(7, 26, 43, 0.75);
+  }
+}

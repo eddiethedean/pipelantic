@@ -6,7 +6,7 @@ import csv
 import json
 from pathlib import Path
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -16,7 +16,7 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.registry import BindingDescriptor, PlanningContext
+from etlantic.registry import BindingDescriptor, PlanningContext
 
 
 class Row(Data):

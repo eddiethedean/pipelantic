@@ -1,4 +1,4 @@
-"""Local runtime acceptance tests for Pipelantic 0.4."""
+"""Local runtime acceptance tests for ETLantic 0.4."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -23,9 +23,9 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.registry import BindingDescriptor, PlanningContext
-from pipelantic.secrets.env import EnvSecretProvider
-from pipelantic.secrets.value import SecretSerializationError
+from etlantic.registry import BindingDescriptor, PlanningContext
+from etlantic.secrets.env import EnvSecretProvider
+from etlantic.secrets.value import SecretSerializationError
 
 
 class Row(Data):
@@ -166,7 +166,7 @@ def test_secret_value_redaction(monkeypatch: pytest.MonkeyPatch) -> None:
     provider = EnvSecretProvider()
     import anyio
 
-    from pipelantic.secrets.provider import SecretResolutionContext
+    from etlantic.secrets.provider import SecretResolutionContext
 
     async def _resolve() -> SecretValue:
         return await provider.resolve(

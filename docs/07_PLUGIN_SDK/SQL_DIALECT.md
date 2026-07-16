@@ -1,10 +1,10 @@
 # SQL Dialect
 
-**Status: shipped in 0.6.0** as part of `pipelantic.sql/1`. The reference
-dialect path is PostgreSQL via `pipelantic-sql`. SQLite may be used for demos;
+**Status: shipped in 0.6.0** as part of `etlantic.sql/1`. The reference
+dialect path is PostgreSQL via `etlantic-sql`. SQLite may be used for demos;
 it is not a full conformance target.
 
-A **SQL Dialect** defines the database-specific rules used by a Pipelantic
+A **SQL Dialect** defines the database-specific rules used by a ETLantic
 SQL Plugin to compile logical SQL expressions into valid, semantically
 equivalent SQL for a target database.
 
@@ -79,7 +79,7 @@ Differences include:
 - Parameter styles
 
 The dialect layer prevents these differences from leaking into portable
-Pipelantic contracts.
+ETLantic contracts.
 
 ## Dialect Identity
 
@@ -151,7 +151,7 @@ SqlDialectCapabilities(
 ```
 
 Capabilities should describe support, limitations, and any version-dependent
-behavior. The 0.6 `pipelantic-sql` reference advertises `sql_merge=False`.
+behavior. The 0.6 `etlantic-sql` reference advertises `sql_merge=False`.
 
 ## Feature Levels
 
@@ -393,7 +393,7 @@ Examples include:
 - Numeric parameters
 - Driver-native bind objects
 
-The dialect or driver adapter should translate Pipelantic's logical
+The dialect or driver adapter should translate ETLantic's logical
 parameters into the required format.
 
 ## Expression Compilation
@@ -608,7 +608,7 @@ The dialect should describe:
 - Concurrency behavior
 - Return values
 
-A generic Pipelantic merge strategy should compile only when equivalent
+A generic ETLantic merge strategy should compile only when equivalent
 semantics can be guaranteed.
 
 ## Table Creation
@@ -681,7 +681,7 @@ Examples include:
 - Serializable
 - Snapshot
 
-Pipelantic should request logical isolation requirements rather than
+ETLantic should request logical isolation requirements rather than
 hard-code vendor syntax.
 
 ## Locking
@@ -778,7 +778,7 @@ management.
 
 ## Metadata Normalization
 
-Database metadata should be normalized into Pipelantic structures.
+Database metadata should be normalized into ETLantic structures.
 
 The core should not depend on vendor-specific catalog row formats.
 
@@ -999,7 +999,7 @@ Tests should emphasize observable semantics over formatting.
 A possible package layout:
 
 ```text
-pipelantic_sql/
+etlantic_sql/
 ├── dialects/
 │   ├── base.py
 │   ├── sqlite.py
@@ -1044,7 +1044,7 @@ Avoid:
 
 ## Key Principle
 
-> A SQL Dialect translates Pipelantic's logical SQL semantics into
+> A SQL Dialect translates ETLantic's logical SQL semantics into
 > database-specific syntax while making every capability, limitation, type
 > mapping, and portability tradeoff explicit.
 

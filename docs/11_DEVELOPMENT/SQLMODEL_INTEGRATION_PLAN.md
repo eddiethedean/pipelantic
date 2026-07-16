@@ -4,21 +4,21 @@
 
 SQLModel combines Pydantic models with SQLAlchemy table models through standard
 Python type annotations. That developer experience aligns strongly with
-Pipelantic and its planned FastAPI control plane.
+ETLantic and its planned FastAPI control plane.
 
-Pipelantic should support SQLModel as an optional integration in three places:
+ETLantic should support SQLModel as an optional integration in three places:
 
 1. generating or adapting relational table models from `Data` contracts;
 2. implementing typed SQL-backed control-plane providers;
 3. reducing duplication between FastAPI schemas and persistence models.
 
-SQLModel should not replace Pipelantic's domain models, ContractModel,
+SQLModel should not replace ETLantic's domain models, ContractModel,
 SQLAlchemy Core-based SQL execution, or provider protocols.
 
 ## Architectural Boundary
 
 ```text
-ContractModel / Pipelantic Data
+ContractModel / ETLantic Data
     authoritative logical data contract
                  │
                  ├── optional generation or adaptation
@@ -26,13 +26,13 @@ ContractModel / Pipelantic Data
           SQLModel table model
     relational application representation
 
-Pipelantic provider protocols
+ETLantic provider protocols
                  │
                  ├── optional reference implementation
                  ▼
        SQLModel-backed persistence
 
-Pipelantic SQL execution plugin
+ETLantic SQL execution plugin
                  │
                  ▼
         SQLAlchemy Core / dialect
@@ -54,14 +54,14 @@ The integration should:
   schemas;
 - provide typed reference stores for registries, runs, reports, events, schema
   observations, reliability evidence, approvals, and incremental state;
-- share appropriate Pydantic schemas with `pipelantic-fastapi`;
+- share appropriate Pydantic schemas with `etlantic-fastapi`;
 - preserve editor completion and static typing;
 - use explicit migrations and transactional repositories;
 - remain optional and replaceable.
 
 ## Non-Goals
 
-Pipelantic will not:
+ETLantic will not:
 
 - make SQLModel a core dependency;
 - require users to model warehouse tables as ORM entities;
@@ -78,7 +78,7 @@ Pipelantic will not:
 A separate integration package is preferred:
 
 ```text
-pipelantic-sqlmodel
+etlantic-sqlmodel
 ├── contract adapters
 ├── model generation
 ├── metadata inspection
@@ -91,10 +91,10 @@ pipelantic-sqlmodel
 Candidate installation:
 
 ```bash
-pip install pipelantic-sqlmodel
+pip install etlantic-sqlmodel
 ```
 
-The package may depend on SQLModel, Pipelantic, an explicitly selected database
+The package may depend on SQLModel, ETLantic, an explicitly selected database
 driver, and Alembic in a migration extra or application dependency.
 
 ## Contract and Table Model Mapping
@@ -124,7 +124,7 @@ Generation should create reviewable Python source rather than hidden dynamic
 classes for production use.
 
 ```python
-from pipelantic_sqlmodel import generate_model
+from etlantic_sqlmodel import generate_model
 
 result = generate_model(
     Customer,
@@ -164,7 +164,7 @@ database-only fields must not leak into public API schemas.
 
 ## Control-Plane Persistence
 
-SQLModel is a good candidate for reference implementations of Pipelantic's
+SQLModel is a good candidate for reference implementations of ETLantic's
 provider protocols:
 
 - pipeline and contract registry;
@@ -183,15 +183,15 @@ transactions.
 
 ## FastAPI Integration
 
-`pipelantic-fastapi` may offer an optional SQLModel persistence bundle:
+`etlantic-fastapi` may offer an optional SQLModel persistence bundle:
 
 ```python
-from pipelantic_fastapi import PipelanticAPI
-from pipelantic_sqlmodel import SQLModelControlPlane
+from etlantic_fastapi import ETLanticAPI
+from etlantic_sqlmodel import SQLModelControlPlane
 
 control_plane = SQLModelControlPlane.from_url(database_url)
 
-api = PipelanticAPI(
+api = ETLanticAPI(
     registry=control_plane.registry,
     run_store=control_plane.runs,
     report_store=control_plane.reports,
@@ -216,7 +216,7 @@ source = Source[Customer](
 )
 ```
 
-The adapter should translate table metadata into Pipelantic's SQL relation and
+The adapter should translate table metadata into ETLantic's SQL relation and
 binding models. The SQL plugin continues to use SQLAlchemy Core and dialect
 capabilities for query construction, transactions, execution, compilation,
 write intents, inspection, and reconciliation.
@@ -284,7 +284,7 @@ The integration must:
 - prohibit automatic schema creation or destructive migration in production;
 - audit migrations, approvals, state changes, and administrative writes;
 - avoid embedding session, engine, metadata, or ORM state in serialized
-  Pipelantic models.
+  ETLantic models.
 
 ## Testing
 
@@ -319,7 +319,7 @@ The integration conformance suite should cover:
 
 ## Decision
 
-Pipelantic should incorporate SQLModel as:
+ETLantic should incorporate SQLModel as:
 
 > An optional typed bridge between contracts, relational application models,
 > FastAPI schemas, and reference persistence providers.

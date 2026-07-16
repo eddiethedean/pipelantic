@@ -1,6 +1,6 @@
 # Development
 
-This section defines how Pipelantic is designed, tested, contributed to, and
+This section defines how ETLantic is designed, tested, contributed to, and
 released.
 
 ## Contributor essentials

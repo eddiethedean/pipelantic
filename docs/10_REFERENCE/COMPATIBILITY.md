@@ -1,6 +1,6 @@
 # Compatibility Matrix
 
-This table describes the declared compatibility of Pipelantic 0.6.0.
+This table describes the declared compatibility of ETLantic 0.6.0.
 
 | Surface | Supported range or version |
 |---|---|
@@ -9,12 +9,12 @@ This table describes the declared compatibility of Pipelantic 0.6.0.
 | ContractModel | `>=0.1.2` |
 | DTCS toolkit | `>=0.11,<1` |
 | DPCS toolkit | `>=0.13,<1` |
-| Pipeline plan schema | `pipelantic.plan/1` |
-| Dataframe protocol | `pipelantic.dataframe/1` |
-| SQL protocol | `pipelantic.sql/1` |
-| Polars plugin | `pipelantic-polars==0.6.0` |
-| Pandas plugin | `pipelantic-pandas==0.6.0` |
-| SQL plugin | `pipelantic-sql==0.6.0` |
+| Pipeline plan schema | `etlantic.plan/1` |
+| Dataframe protocol | `etlantic.dataframe/1` |
+| SQL protocol | `etlantic.sql/1` |
+| Polars plugin | `etlantic-polars==0.6.0` |
+| Pandas plugin | `etlantic-pandas==0.6.0` |
+| SQL plugin | `etlantic-sql==0.6.0` |
 | Package stability | Alpha |
 | Plugin SDK stability | Protocol stable within 0.6; third-party SDK still evolving |
 

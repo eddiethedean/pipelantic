@@ -1,13 +1,13 @@
 # End-to-End Pipeline Example
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example demonstrates the complete Pipelantic lifecycle from initial
+This example demonstrates the complete ETLantic lifecycle from initial
 authoring through execution, validation, documentation, publication, and
 governance.
 
@@ -157,7 +157,7 @@ Execution Documentation Contracts
 
 ## Key Principle
 
-> Every Pipelantic workflow—whether code-first or contract-first—should
+> Every ETLantic workflow—whether code-first or contract-first—should
 > converge on one validated, deterministic Pipeline Plan that becomes the
 > source for execution, documentation, governance, lineage, and portable
 > contract generation.

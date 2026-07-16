@@ -2,19 +2,19 @@
 
 ## Overview
 
-Pipelantic adopts the **Data Transformation Contract Standard (DTCS)** as the
+ETLantic adopts the **Data Transformation Contract Standard (DTCS)** as the
 canonical portable representation of transformation contracts.
 
-DTCS defines **what a transformation means**. Pipelantic provides the
+DTCS defines **what a transformation means**. ETLantic provides the
 Python-first authoring experience and generates DTCS artifacts from typed
 transformation classes.
 
 The DTCS specification is the normative definition of transformation semantics.
-This document explains how Pipelantic integrates with that specification.
+This document explains how ETLantic integrates with that specification.
 
 ---
 
-## Why Pipelantic Uses DTCS
+## Why ETLantic Uses DTCS
 
 Transformation logic should be portable.
 
@@ -30,7 +30,7 @@ DTCS provides a vendor-neutral representation of:
 - transformation identity
 - compatibility information
 
-Pipelantic treats DTCS as the portable artifact for transformation
+ETLantic treats DTCS as the portable artifact for transformation
 definitions.
 
 ---
@@ -44,7 +44,7 @@ Python Transformation
 Transformation
         │
         ▼
-Pipelantic
+ETLantic
         │
         ▼
 DTCS Artifact
@@ -53,7 +53,7 @@ DTCS Artifact
 Execution Planning
 ```
 
-Pipelantic owns the Python API.
+ETLantic owns the Python API.
 
 DTCS owns the portable transformation representation.
 
@@ -70,7 +70,7 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 ```
 
-Pipelantic generates the corresponding DTCS artifact.
+ETLantic generates the corresponding DTCS artifact.
 
 In a code-first project, the Python class remains the authoring source of
 truth.
@@ -79,7 +79,7 @@ truth.
 
 ## Contract-First Workflow
 
-Pipelantic may load existing DTCS artifacts and reconstruct transformation
+ETLantic may load existing DTCS artifacts and reconstruct transformation
 definitions through its public loading APIs.
 
 Whether authored in Python or imported from DTCS, transformations participate
@@ -104,7 +104,7 @@ control and reproduced in CI.
 
 ## Validation
 
-Pipelantic validates transformation contracts before execution.
+ETLantic validates transformation contracts before execution.
 
 Examples include:
 
@@ -132,7 +132,7 @@ Typical metadata includes:
 - owner
 - tags
 
-Compatibility decisions should follow the DTCS specification and Pipelantic's
+Compatibility decisions should follow the DTCS specification and ETLantic's
 planning rules.
 
 ---
@@ -176,13 +176,13 @@ DPCS
   Pipeline Contracts
 ```
 
-Pipelantic unifies these standards through strongly typed Python models.
+ETLantic unifies these standards through strongly typed Python models.
 
 ---
 
 ## Design Principles
 
-Pipelantic follows these principles when integrating with DTCS:
+ETLantic follows these principles when integrating with DTCS:
 
 - Python classes are the preferred authoring interface.
 - DTCS is the portable artifact.
@@ -198,5 +198,5 @@ Pipelantic follows these principles when integrating with DTCS:
 For the normative definition of DTCS, refer to the
 [DTCS 1.0 Specification](../specifications/DTCS_SPEC.md).
 
-This document describes **how Pipelantic integrates with DTCS**, not the DTCS
+This document describes **how ETLantic integrates with DTCS**, not the DTCS
 specification itself.

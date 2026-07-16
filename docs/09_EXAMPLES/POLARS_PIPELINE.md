@@ -1,17 +1,17 @@
 # Polars Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads customer data
+This example builds a complete ETLantic pipeline that reads customer data
 from CSV, executes transformations with Polars, validates the output against
 typed data contracts, and writes the curated result to Parquet.
 
-The example demonstrates Polars as Pipelantic's recommended reference
+The example demonstrates Polars as ETLantic's recommended reference
 dataframe backend while keeping the logical pipeline independent of Polars
 itself.
 
@@ -101,7 +101,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -126,7 +126,7 @@ They do not depend on Polars, CSV, Parquet, or local execution.
 ```python
 # src/polars_pipeline/transformations.py
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -185,7 +185,7 @@ materialization.
 
 ## LazyFrame vs. DataFrame
 
-Pipelantic should prefer `pl.LazyFrame` inside Polars execution regions.
+ETLantic should prefer `pl.LazyFrame` inside Polars execution regions.
 
 Benefits include:
 
@@ -202,7 +202,7 @@ A `pl.DataFrame` implementation may still be supported for compatibility.
 ```python
 # src/polars_pipeline/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, RawCustomer
 from .transformations import NormalizeCustomers
@@ -232,7 +232,7 @@ The pipeline contains no Polars-specific types or paths.
 ```python
 # src/polars_pipeline/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -367,7 +367,7 @@ result = await CustomerPolarsPipeline.arun(
 
 The Polars implementation itself may remain synchronous.
 
-Pipelantic handles invocation inside the async execution system.
+ETLantic handles invocation inside the async execution system.
 
 ## Expected Output
 
@@ -388,7 +388,7 @@ Polars may optimize the lazy plan through:
 - Streaming execution where supported
 - Join optimization
 
-Pipelantic should preserve these opportunities by avoiding premature
+ETLantic should preserve these opportunities by avoiding premature
 collection.
 
 ## Materialization
@@ -642,7 +642,7 @@ Potential failures include:
 - Sink write failures
 - Permission failures
 
-Plugins should translate backend exceptions into structured Pipelantic
+Plugins should translate backend exceptions into structured ETLantic
 diagnostics.
 
 ## Retry and Idempotency
@@ -917,7 +917,7 @@ Avoid:
 
 ## Key Principle
 
-> Polars is Pipelantic's recommended reference dataframe backend, not a
+> Polars is ETLantic's recommended reference dataframe backend, not a
 > modeling dependency. It provides high-performance, lazy, expression-based
 > execution while preserving portable contracts, validation, lineage, and
 > pipeline semantics.

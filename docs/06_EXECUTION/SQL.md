@@ -3,20 +3,20 @@
 SQL plugins execute eligible transformations inside a database while preserving
 logical semantics from DTCS and the Pipeline Plan.
 
-**Status: shipped in 0.6.0** via the `pipelantic-sql` PostgreSQL reference
+**Status: shipped in 0.6.0** via the `etlantic-sql` PostgreSQL reference
 plugin. SQLite is supported for local demos only.
 
-Pipelantic does **not** depend on database drivers. Install the plugin
+ETLantic does **not** depend on database drivers. Install the plugin
 separately:
 
 ```bash
-pip install pipelantic-sql
-export PIPELANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/pipelantic
+pip install etlantic-sql
+export ETLANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/etlantic
 ```
 
 ## Protocol
 
-The versioned protocol is `pipelantic.sql/1`. Plugins compile typed expressions
+The versioned protocol is `etlantic.sql/1`. Plugins compile typed expressions
 and write intents, execute against relations, and report capabilities. The local
 orchestrator consumes the resolved `PipelinePlan` without reselecting an
 engine.
@@ -24,8 +24,8 @@ engine.
 ## Profile and implementations
 
 ```python
-from pipelantic import Profile
-from pipelantic.sql import RelationRef, col, concat, select
+from etlantic import Profile
+from etlantic.sql import RelationRef, col, concat, select
 
 Profile(name="sql-prod", sql_engine="sql")
 
@@ -39,17 +39,17 @@ def normalize_sql(customers: RelationRef):
 ```
 
 Select the engine with `Profile.sql_engine = "sql"`. Plugins are discovered
-through the `pipelantic.sql_plugins` entry point.
+through the `etlantic.sql_plugins` entry point.
 
 ## SQL→SQL without Python fetch
 
-When adjacent SQL steps and sinks share a database, Pipelantic fuses execution
+When adjacent SQL steps and sinks share a database, ETLantic fuses execution
 so intermediate rows are not materialized in Python.
 
 ## Capabilities
 
 Plugins publish capabilities such as transactions, catalog inspection, and
-atomic rename/swap. The 0.6 `pipelantic-sql` reference plugin does **not**
+atomic rename/swap. The 0.6 `etlantic-sql` reference plugin does **not**
 advertise `MERGE` (`sql_merge=False`); requiring merge fails closed at planning.
 Unsupported requirements fail at validation or planning (fail closed).
 

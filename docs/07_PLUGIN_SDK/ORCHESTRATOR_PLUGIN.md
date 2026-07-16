@@ -1,6 +1,6 @@
 # Orchestrator Plugin
 
-An **Orchestrator Plugin** implements the Pipelantic Orchestrator Plugin API
+An **Orchestrator Plugin** implements the ETLantic Orchestrator Plugin API
 for a workflow orchestration platform.
 
 Orchestrator plugins are responsible for coordinating execution of a validated
@@ -143,7 +143,7 @@ Events should reference stable pipeline and step identities.
 
 ## Error Handling
 
-Backend-specific exceptions should be translated into Pipelantic diagnostics.
+Backend-specific exceptions should be translated into ETLantic diagnostics.
 
 Diagnostics should preserve:
 
@@ -169,7 +169,7 @@ Avoid:
 - Executing transformations directly.
 - Embedding dataframe logic.
 - Ignoring unsupported capabilities.
-- Exposing orchestrator APIs through public Pipelantic interfaces.
+- Exposing orchestrator APIs through public ETLantic interfaces.
 
 ## Key Principle
 
@@ -179,5 +179,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **STORAGE_PLUGIN.md** to learn how Pipelantic integrates with
+Continue with **STORAGE_PLUGIN.md** to learn how ETLantic integrates with
 persistent storage systems through the Plugin SDK.

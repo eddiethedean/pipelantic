@@ -1,16 +1,16 @@
 # Your First Pipeline
 
-> **Status: Available in Pipelantic 0.6.0.** This tutorial uses the local
+> **Status: Available in ETLantic 0.6.0.** This tutorial uses the local
 > Python runtime and in-memory storage. It does not require a dataframe or SQL
 > plugin.
 
 This tutorial explains the pieces of the runnable quickstart and shows how to
-inspect the artifacts Pipelantic creates.
+inspect the artifacts ETLantic creates.
 
 ## Define data contracts
 
 ```python
-from pipelantic import Data
+from etlantic import Data
 
 
 class RawCustomer(Data):
@@ -30,7 +30,7 @@ artifacts.
 ## Define a transformation contract
 
 ```python
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 
 class NormalizeCustomers(Transformation):
@@ -61,7 +61,7 @@ The built-in development profile selects local Python implementations.
 ## Connect the pipeline
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerPipeline(Pipeline):
@@ -112,7 +112,7 @@ regions without reading data or resolving secret values.
 ## Run
 
 ```python
-from pipelantic import PipelineRuntime
+from etlantic import PipelineRuntime
 
 runtime = PipelineRuntime()
 runtime.memory.seed(
@@ -136,15 +136,15 @@ Expected output:
 Ada Lovelace
 ```
 
-Use `await CustomerPipeline.arun(...)` when calling Pipelantic from an existing
+Use `await CustomerPipeline.arun(...)` when calling ETLantic from an existing
 async application.
 
 ## Current boundary
 
 This tutorial stays on the local Python runtime with memory, callable, JSON,
 CSV, and no-write storage. Optional Polars and Pandas dataframe plugins are
-available in 0.5 via `pipelantic-polars` / `pipelantic-pandas`. SQL is available
-in 0.6 via `pipelantic-sql`. Spark and external orchestrators remain future
+available in 0.5 via `etlantic-polars` / `etlantic-pandas`. SQL is available
+in 0.6 via `etlantic-sql`. Spark and external orchestrators remain future
 plugin designs.
 
 Continue with [Project Structure](PROJECT_STRUCTURE.md) or run the complete

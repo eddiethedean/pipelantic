@@ -1,12 +1,12 @@
 # Execution
 
-Execution is the final stage of the Pipelantic lifecycle.
+Execution is the final stage of the ETLantic lifecycle.
 
 After a pipeline has been modeled, validated, and planned, an execution plugin
 realizes the resulting **Pipeline Plan** using a specific runtime such as local
 Python, Polars, Airflow, Dagster, Prefect, or another supported backend.
 
-Pipelantic intentionally separates execution from modeling. The core library
+ETLantic intentionally separates execution from modeling. The core library
 coordinates execution from a resolved `PipelinePlan`, while plugins and
 external systems perform backend-specific work.
 
@@ -53,7 +53,7 @@ pipeline definitions directly.
 
 ## Core Philosophy
 
-Pipelantic owns:
+ETLantic owns:
 
 - Modeling
 - Validation
@@ -71,7 +71,7 @@ Plugins and external runtimes own:
 - Resource allocation
 - Runtime integration
 
-Pipelantic still owns the common execution state model, diagnostics,
+ETLantic still owns the common execution state model, diagnostics,
 logical-identity propagation, callback policy, and result normalization.
 
 This separation allows the same pipeline to execute on multiple runtimes while
@@ -79,7 +79,7 @@ preserving identical observable semantics.
 
 ## Supported Execution Models
 
-Pipelantic is designed to support:
+ETLantic is designed to support:
 
 - Local execution
 - Batch execution

@@ -6,7 +6,7 @@ import os
 
 from sqlalchemy import text
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -17,13 +17,13 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.registry import (
+from etlantic.registry import (
     BindingDescriptor,
     PlanningContext,
     builtin_stub_registry,
 )
-from pipelantic.sql import RelationRef, col, select
-from pipelantic.sql.discovery import register_discovered_plugins
+from etlantic.sql import RelationRef, col, select
+from etlantic.sql.discovery import register_discovered_plugins
 
 
 class Row(Data):
@@ -59,8 +59,8 @@ class HybridPipeline(Pipeline):
 
 
 def main() -> None:
-    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
+    os.environ.setdefault("ETLANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    from etlantic_sql import create_plugin
 
     plugin = create_plugin()
     engine = plugin._get_engine()

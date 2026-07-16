@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://etlantic.dev/schemas/pipeline-plan.json",
+  "title": "ETLantic PipelinePlan",
+  "type": "object",
+  "required": [
+    "schema",
+    "plan_id",
+    "pipeline_id",
+    "pipeline_name",
+    "profile_name",
+    "fingerprint",
+    "logical_graph"
+  ],
+  "properties": {
+    "schema": { "const": "etlantic.plan/1" },
+    "plan_id": { "type": "string" },
+    "pipeline_id": { "type": "string" },
+    "pipeline_name": { "type": "string" },
+    "profile_name": { "type": "string" },
+    "fingerprint": { "type": "string", "minLength": 16 },
+    "logical_graph": { "type": "object" },
+    "regions": { "type": "array" },
+    "physical_units": { "type": "array" },
+    "logical_to_physical": { "type": "object" },
+    "implementations": { "type": "object" },
+    "bindings": { "type": "object" },
+    "resource_refs": { "type": "object" },
+    "materialization_boundaries": { "type": "array" },
+    "output_resolutions": { "type": "array" },
+    "capability_decisions": { "type": "array" },
+    "selected_nodes": { "type": ["array", "null"] },
+    "security_domain": { "type": "string" },
+    "contract_versions": { "type": "object" },
+    "plugin_versions": { "type": "object" },
+    "intents": { "type": "object" },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": true
+}

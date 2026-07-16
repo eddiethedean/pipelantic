@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://etlantic.dev/schemas/project-config.json",
+  "title": "ETLantic Project Configuration",
+  "type": "object",
+  "properties": {
+    "project": { "type": "string" },
+    "default_profile": { "type": "string" },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": { "$ref": "profile.schema.json" }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": true
+}

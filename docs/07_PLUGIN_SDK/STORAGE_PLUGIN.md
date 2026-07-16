@@ -1,6 +1,6 @@
 # Storage Plugin
 
-A **Storage Plugin** implements the Pipelantic Storage Plugin API for a
+A **Storage Plugin** implements the ETLantic Storage Plugin API for a
 persistent storage technology.
 
 Storage plugins translate the logical `Source` and `Sink` bindings contained in
@@ -124,7 +124,7 @@ Planning verifies required capabilities before execution.
 ## Error Handling
 
 Storage-specific exceptions should be translated into structured
-Pipelantic diagnostics.
+ETLantic diagnostics.
 
 Diagnostics should preserve:
 
@@ -153,7 +153,7 @@ Avoid:
 
 ## Key Principle
 
-> A storage plugin provides persistence for Pipelantic by translating logical
+> A storage plugin provides persistence for ETLantic by translating logical
 > source and sink bindings into backend-specific operations while preserving the
 > portable semantics of pipeline contracts.
 

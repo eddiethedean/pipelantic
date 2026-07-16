@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -18,19 +18,19 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.dataframe.discovery import discover_dataframe_plugins
-from pipelantic.dataframe.protocol import (
+from etlantic.dataframe.discovery import discover_dataframe_plugins
+from etlantic.dataframe.protocol import (
     DataframeExecutionContext,
     DataframeValidationOutcome,
     DataframeValidationPolicy,
     ValidationDecision,
 )
-from pipelantic.plan import plan_pipeline
-from pipelantic.plan.artifacts import ArtifactRef, ArtifactStrategy
-from pipelantic.profile import Profile
-from pipelantic.registry import PlanningContext
-from pipelantic.runtime.artifacts import ArtifactStore
-from pipelantic.schema_drift import normalize_schema_from_fields
+from etlantic.plan import plan_pipeline
+from etlantic.plan.artifacts import ArtifactRef, ArtifactStrategy
+from etlantic.profile import Profile
+from etlantic.registry import PlanningContext
+from etlantic.runtime.artifacts import ArtifactStore
+from etlantic.schema_drift import normalize_schema_from_fields
 
 polars = pytest.importorskip("polars")
 
@@ -177,8 +177,8 @@ def test_multi_output_port_collect_and_validation() -> None:
 
 @pytest.mark.polars
 def test_schema_observation_uses_frame_inspect() -> None:
-    from pipelantic.runtime.orchestrator import _observe_records_schema
-    from pipelantic_polars import create_plugin
+    from etlantic.runtime.orchestrator import _observe_records_schema
+    from etlantic_polars import create_plugin
 
     plugin = create_plugin()
     frame = polars.DataFrame({"customer_id": [1], "full_name": ["Ada Lovelace"]})
@@ -196,7 +196,7 @@ def test_schema_observation_uses_frame_inspect() -> None:
 
 @pytest.mark.polars
 def test_quarantine_populates_invalid_channel() -> None:
-    from pipelantic_polars import create_plugin
+    from etlantic_polars import create_plugin
 
     plugin = create_plugin()
     context = DataframeExecutionContext(
@@ -247,7 +247,7 @@ def test_durable_store_rejects_native_frames() -> None:
 
 @pytest.mark.polars
 def test_lazyframe_dtype_mismatch_fail_closed() -> None:
-    from pipelantic_polars import create_plugin
+    from etlantic_polars import create_plugin
 
     plugin = create_plugin()
     context = DataframeExecutionContext(

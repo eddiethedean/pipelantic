@@ -8,7 +8,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from pipelantic.cli import _build_selection, app
+from etlantic.cli import _build_selection, app
 
 runner = CliRunner(env={"NO_COLOR": "1", "TERM": "dumb"})
 _ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
@@ -34,7 +34,7 @@ def test_cli_validate_and_plan() -> None:
         app, ["plan", target, "--profile", "local", "--format", "json"]
     )
     assert result.exit_code == 0, result.stderr
-    assert "pipelantic.plan/1" in result.stdout
+    assert "etlantic.plan/1" in result.stdout
 
 
 def test_cli_plan_explain() -> None:

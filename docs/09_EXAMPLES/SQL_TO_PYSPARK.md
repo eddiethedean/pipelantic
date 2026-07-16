@@ -1,13 +1,13 @@
 # SQL to PySpark
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads typed datasets
+This example builds a complete ETLantic pipeline that reads typed datasets
 from SQL, executes transformations with PySpark, and publishes the resulting
 distributed dataset through a Spark-compatible sink.
 
@@ -26,7 +26,7 @@ PySpark Transformation Region
 Spark-Compatible Sink
 ```
 
-Pipelantic keeps the source contracts, transformation contracts, pipeline
+ETLantic keeps the source contracts, transformation contracts, pipeline
 topology, validation, and lineage portable. The execution profile selects the
 SQL source plugin, PySpark transformation backend, Spark Provider, and sink
 implementation.
@@ -164,7 +164,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class Customer(DataContractModel):
@@ -207,7 +207,7 @@ The contracts remain independent of SQL and Spark.
 
 from typing import Literal
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, CustomerOrderSummary, Order
 
@@ -233,7 +233,7 @@ PySpark, Polars, or another backend.
 
 from pyspark.sql import functions as F
 
-from pipelantic.pyspark import SparkDataFrame
+from etlantic.pyspark import SparkDataFrame
 
 from .contracts import Customer, CustomerOrderSummary, Order
 from .transformations import BuildCustomerOrderSummary
@@ -303,7 +303,7 @@ The implementation should preserve:
 ```python
 # src/sql_to_pyspark/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, CustomerOrderSummary, Order
 from .transformations import BuildCustomerOrderSummary
@@ -337,7 +337,7 @@ The pipeline remains declarative and backend-independent.
 ```python
 # src/sql_to_pyspark/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local_spark = Profile(
@@ -540,7 +540,7 @@ Sink action:
 
 The JDBC read is a materialization boundary between SQL and Spark.
 
-Pipelantic should make the boundary explicit.
+ETLantic should make the boundary explicit.
 
 ```text
 SQL Relation
@@ -667,7 +667,7 @@ result = await CustomerOrderSparkPipeline.arun(
 )
 ```
 
-Pipelantic coordinates the Spark session and execution lifecycle.
+ETLantic coordinates the Spark session and execution lifecycle.
 
 ## Expected Output
 
@@ -1285,7 +1285,7 @@ The pipeline author does not rewrite the logical workflow.
 ## Key Principle
 
 > SQL-to-PySpark execution uses SQL systems as typed data sources and Spark as
-> the distributed transformation engine. Pipelantic makes the backend
+> the distributed transformation engine. ETLantic makes the backend
 > transition explicit while preserving portable contracts, validation,
 > planning, lineage, diagnostics, and observable results.
 

@@ -2,21 +2,21 @@
 
 ## Core remains driver-free
 
-Installing `pipelantic` alone does not install database drivers or SQLAlchemy.
+Installing `etlantic` alone does not install database drivers or SQLAlchemy.
 Add the SQL backend explicitly:
 
 ```bash
-pip install pipelantic-sql
-# or: pip install 'pipelantic[sql]'
+pip install etlantic-sql
+# or: pip install 'etlantic[sql]'
 ```
 
 Configure a connection URL (PostgreSQL is the reference; SQLite works for
 local demos):
 
 ```bash
-export PIPELANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/pipelantic
+export ETLANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/etlantic
 # or for a local demo:
-export PIPELANTIC_SQL_URL=sqlite+pysqlite:///:memory:
+export ETLANTIC_SQL_URL=sqlite+pysqlite:///:memory:
 ```
 
 ## Implementation engines
@@ -34,8 +34,8 @@ def normalize_polars(rows: pl.DataFrame) -> pl.DataFrame: ...
 SQL implementations use `"sql"` and receive `RelationRef` inputs:
 
 ```python
-from pipelantic import Profile, col, concat, select
-from pipelantic.sql import RelationRef
+from etlantic import Profile, col, concat, select
+from etlantic.sql import RelationRef
 
 @Normalize.implementation("sql")
 def normalize_sql(customers: RelationRef):

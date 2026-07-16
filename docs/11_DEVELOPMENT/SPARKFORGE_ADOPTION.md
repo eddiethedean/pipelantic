@@ -1,10 +1,10 @@
 # SparkForge Feature Adoption
 
-This document records which ideas Pipelantic should carry forward from
+This document records which ideas ETLantic should carry forward from
 [SparkForge](https://github.com/eddiethedean/sparkforge), where those ideas
 belong, and which implementation patterns should not be repeated.
 
-SparkForge remains the user-facing medallion pipeline builder. Pipelantic is
+SparkForge remains the user-facing medallion pipeline builder. ETLantic is
 intended to become its typed, backend-independent modeling, planning, and
 coordination engine.
 
@@ -21,7 +21,7 @@ SparkForge
 └── user-facing builder
           │
           ▼
-Pipelantic
+ETLantic
 ├── typed pipeline graph
 ├── validation and diagnostics
 ├── run selection and planning
@@ -39,7 +39,7 @@ Execution plugins and providers
 └── observability
 ```
 
-Pipelantic must not introduce bronze, silver, gold, or medallion semantics
+ETLantic must not introduce bronze, silver, gold, or medallion semantics
 into its core model. SparkForge maps those concepts onto ordinary
 `Source`, `Step`, `Transformation`, `Sink`, profile, and policy objects.
 
@@ -47,7 +47,7 @@ into its core model. SparkForge maps those concepts onto ordinary
 
 SparkForge contains several valuable product behaviors, but they are spread
 across Spark-specific, SQL-specific, base, writer, monitoring, and compatibility
-packages. Pipelantic should preserve the behavior while replacing the
+packages. ETLantic should preserve the behavior while replacing the
 fragmented implementation with stable logical models and capability-based
 plugins.
 
@@ -71,10 +71,10 @@ The highest-value features to adopt are:
 
 ## Adoption Matrix
 
-| SparkForge capability | Pipelantic disposition | Target owner | Priority |
+| SparkForge capability | ETLantic disposition | Target owner | Priority |
 |---|---|---|---|
-| Automatic dependency ordering | Adopt and generalize | Pipelantic planner | Required |
-| Cycle detection | Adopt with diagnostics | Pipelantic validation | Required |
+| Automatic dependency ordering | Adopt and generalize | ETLantic planner | Required |
+| Cycle detection | Adopt with diagnostics | ETLantic validation | Required |
 | Automatic cycle breaking | Reject | — | Never |
 | Run until a step | Adopt | Run selection and local orchestration | Required |
 | Run one step | Adopt | Run selection and local orchestration | Required |
@@ -84,8 +84,8 @@ The highest-value features to adopt are:
 | Per-run parameter overrides | Adopt | Run request | Required |
 | Skip writes while debugging | Adopt as materialization policy | Planner and plugins | Required |
 | Initial, incremental, full-refresh, validation-only modes | Generalize as run intents | Execution model | Required |
-| Incremental watermark column | Generalize as state strategy | Pipelantic plus storage plugins | Required |
-| Validation thresholds | Adopt as named quality policies | ContractModel integration and Pipelantic gates | Required |
+| Incremental watermark column | Generalize as state strategy | ETLantic plus storage plugins | Required |
+| Validation thresholds | Adopt as named quality policies | ContractModel integration and ETLantic gates | Required |
 | Valid and invalid row outputs | Adopt as typed validation artifacts | ContractModel and execution plugins | Required |
 | String validation-rule shorthand | Do not put in core | ContractModel adapters or compatibility layer | Optional |
 | Development, test, and production presets | Adopt as profile templates | Profiles | Recommended |
@@ -112,7 +112,7 @@ SparkForge's `PipelineDebugSession` provides unusually useful workflows:
 - override a transformation or validation rules for one debug run
 - suppress writes while inspecting intermediate output
 
-These behaviors should become a backend-independent Pipelantic feature rather
+These behaviors should become a backend-independent ETLantic feature rather
 than a Spark notebook utility.
 
 ### Proposed model
@@ -170,7 +170,7 @@ One of SparkForge's most useful behaviors is that a transformation can consume
 the result already produced by an earlier step. It does not have to identify
 and reread the upstream step's entire persisted table.
 
-Pipelantic should make this a foundational graph concept:
+ETLantic should make this a foundational graph concept:
 
 ```python
 normalized = NormalizeCustomers.step(
@@ -206,7 +206,7 @@ Forcing every intermediate through a table would:
 
 ### Logical and physical references
 
-Pipelantic should distinguish:
+ETLantic should distinguish:
 
 ```text
 OutputRef
@@ -282,7 +282,7 @@ ArtifactKey(
 ```
 
 The context should hold artifact handles and metadata, not a loose dictionary
-of engine-specific dataframes. This gives Pipelantic consistent behavior
+of engine-specific dataframes. This gives ETLantic consistent behavior
 across local, SQL, Spark, Airflow, and future backends.
 
 ### Reuse and invalidation
@@ -300,7 +300,7 @@ execution, caching, materialization, and lineage.
 ## 3. Run Intents
 
 SparkForge exposes initial, incremental, full-refresh, and validation-only
-execution. Pipelantic should preserve the use cases without encoding
+execution. ETLantic should preserve the use cases without encoding
 medallion-specific behavior.
 
 ```python
@@ -332,7 +332,7 @@ diagnostic for a third.
 SparkForge's `incremental_col` demonstrates a valuable capability but couples
 incremental semantics to a column and engine implementation.
 
-Pipelantic should define a small state model:
+ETLantic should define a small state model:
 
 ```python
 IncrementalStrategy.watermark(
@@ -372,7 +372,7 @@ validation rates, and compares them with configurable thresholds. This should be
 preserved, but ContractModel remains the authority for operationalizing data
 contracts.
 
-Pipelantic should coordinate a quality gate:
+ETLantic should coordinate a quality gate:
 
 ```python
 QualityGate(
@@ -411,7 +411,7 @@ Important design rules:
 
 SparkForge includes topological ordering, cycle detection, dependency
 statistics, parallel candidates, cached analysis, and recommendations.
-Pipelantic already treats planning as compilation; it should make this
+ETLantic already treats planning as compilation; it should make this
 analysis visible and structured.
 
 ```python
@@ -434,7 +434,7 @@ PMPLAN214: Three downstream nodes reuse "normalized"; consider persistence.
 PMGRAPH001: Circular dependency detected: a -> b -> a.
 ```
 
-Pipelantic must never automatically break a dependency cycle. A cycle changes
+ETLantic must never automatically break a dependency cycle. A cycle changes
 the declared meaning of the pipeline and therefore requires an error or a
 domain-supported iterative construct.
 
@@ -442,9 +442,9 @@ domain-supported iterative construct.
 
 SparkForge records run identity, mode, timestamps, step timing, row counts,
 validation rates, table information, failures, warnings, and recommendations.
-This is a strong foundation for Pipelantic's normalized result model.
+This is a strong foundation for ETLantic's normalized result model.
 
-Pipelantic should standardize:
+ETLantic should standardize:
 
 ```python
 PipelineRunResult
@@ -482,7 +482,7 @@ than live inside a storage-specific log writer.
 ### Structured logging
 
 SparkForge's pipeline logger and writer demonstrate the usefulness of consistent
-run and step context. Pipelantic should standardize structured log records
+run and step context. ETLantic should standardize structured log records
 with:
 
 - pipeline, plan, run, step, and attempt identifiers
@@ -498,7 +498,7 @@ not replace them.
 ## 8. Profile Templates
 
 SparkForge's development, test, and production factories are useful because
-they give users safe starting points. Pipelantic should offer profile
+they give users safe starting points. ETLantic should offer profile
 templates without hiding their resolved values.
 
 ```python
@@ -522,7 +522,7 @@ The resolved profile must be inspectable and serializable with secrets removed.
 ## 9. Retry, Write, and Materialization Policies
 
 SparkForge exposes append, overwrite, merge, ignore, retry counts, and retry
-delays. Pipelantic should model the portable intent and delegate mechanics.
+delays. ETLantic should model the portable intent and delegate mechanics.
 
 ```python
 WriteIntent.append()
@@ -548,7 +548,7 @@ fusion, and durable writes are all forms of the same planning decision.
 ## 10. Backend Parity and Conformance
 
 SparkForge's split into Spark and SQL builders is the main architecture to
-avoid. Pipelantic should retain one logical pipeline and test backend
+avoid. ETLantic should retain one logical pipeline and test backend
 implementations against the same semantic fixtures.
 
 The Plugin SDK conformance suite should verify:
@@ -562,14 +562,14 @@ The Plugin SDK conformance suite should verify:
 - logical step identity through fused execution
 - deterministic plan and result serialization
 
-A lightweight fake backend remains valuable for unit tests, but Pipelantic
+A lightweight fake backend remains valuable for unit tests, but ETLantic
 should not silently swap real and mock runtimes through import detection.
 Backend choice must be explicit in the profile or test fixture.
 
 ## Capabilities That Stay in Plugins
 
 The following SparkForge features are valuable but do not belong in
-Pipelantic core:
+ETLantic core:
 
 - Spark dataframe expressions and Catalyst behavior
 - SQLAlchemy, Moltres, and dialect-specific query conversion
@@ -580,7 +580,7 @@ Pipelantic core:
 - database transactions and isolation levels
 - Spark cluster and session configuration
 
-Pipelantic may model the required capability and normalized result. The
+ETLantic may model the required capability and normalized result. The
 plugin implements it.
 
 ## Capabilities That Stay in SparkForge
@@ -610,11 +610,11 @@ QualityGate(...)
 Sink(...)
 ```
 
-and then delegate validation and planning to Pipelantic.
+and then delegate validation and planning to ETLantic.
 
 ## Patterns Not to Carry Forward
 
-Pipelantic should explicitly avoid:
+ETLantic should explicitly avoid:
 
 ### Separate builders per execution engine
 
@@ -644,28 +644,28 @@ transformation, but they cannot define the shared pipeline graph.
 
 ### Storage-specific observability core
 
-Pipelantic standardizes events and results. Providers persist and analyze
+ETLantic standardizes events and results. Providers persist and analyze
 them.
 
 ## Migration Strategy
 
 ### Phase 1 — Compatibility model
 
-- Define a mapping from every SparkForge step to Pipelantic logical nodes.
+- Define a mapping from every SparkForge step to ETLantic logical nodes.
 - Preserve current SparkForge user APIs.
-- Generate and inspect Pipelantic plans without changing execution.
+- Generate and inspect ETLantic plans without changing execution.
 - Compare dependency order, validation policies, and expected writes.
 
 ### Phase 2 — Shared results and diagnostics
 
-- Convert SparkForge execution output into Pipelantic result models.
-- Emit Pipelantic lifecycle events.
+- Convert SparkForge execution output into ETLantic result models.
+- Emit ETLantic lifecycle events.
 - Introduce stable diagnostic codes.
 - Run both reporting paths during migration.
 
-### Phase 3 — Pipelantic planning
+### Phase 3 — ETLantic planning
 
-- Let Pipelantic own graph validation and execution selection.
+- Let ETLantic own graph validation and execution selection.
 - Resolve SparkForge medallion conventions into explicit policies.
 - Compare generated plans with current SparkForge execution behavior.
 
@@ -682,10 +682,10 @@ them.
 - Delegate modeling, validation, planning, events, and results.
 - Add deprecation paths for legacy engine-specific extension points.
 
-## Required Pipelantic Deliverables
+## Required ETLantic Deliverables
 
 The following deliverables should be tracked before SparkForge can depend on
-Pipelantic as its engine:
+ETLantic as its engine:
 
 - [ ] `RunIntent`
 - [ ] `RunSelection`

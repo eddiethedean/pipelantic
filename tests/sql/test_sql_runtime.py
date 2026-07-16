@@ -1,4 +1,4 @@
-"""SQL plugin end-to-end tests (SQLite by default via PIPELANTIC_SQL_URL)."""
+"""SQL plugin end-to-end tests (SQLite by default via ETLANTIC_SQL_URL)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -17,16 +17,16 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.exceptions import PipelineValidationError
-from pipelantic.plan import explain_plan
-from pipelantic.registry import (
+from etlantic.exceptions import PipelineValidationError
+from etlantic.plan import explain_plan
+from etlantic.registry import (
     BindingDescriptor,
     PlanningContext,
     builtin_stub_registry,
 )
-from pipelantic.sql import RelationRef, col, concat, select
-from pipelantic.sql.discovery import register_discovered_plugins
-from pipelantic.testing import assert_sql_plugin_info, run_sql_conformance_suite
+from etlantic.sql import RelationRef, col, concat, select
+from etlantic.sql.discovery import register_discovered_plugins
+from etlantic.testing import assert_sql_plugin_info, run_sql_conformance_suite
 
 pytestmark = pytest.mark.sql
 
@@ -86,7 +86,7 @@ def test_sql_conformance(sql_plugin) -> None:
     run_sql_conformance_suite(sql_plugin)
     assert_sql_plugin_info(sql_plugin)
     # Dialect assertion when CI points at Postgres.
-    url = os.environ.get("PIPELANTIC_SQL_URL", "")
+    url = os.environ.get("ETLANTIC_SQL_URL", "")
     if url.startswith("postgresql"):
         assert sql_plugin.info.dialect == "postgresql"
 
@@ -139,7 +139,7 @@ def test_sql_to_sql_no_python_fetch(sql_plugin) -> None:
     plan = CustomerPipeline.plan(profile=profile, context=context)
     assert any(r.engine == "sql" for r in plan.regions)
     explanation = explain_plan(plan)
-    assert explanation.get("sql_protocol") == "pipelantic.sql/1"
+    assert explanation.get("sql_protocol") == "etlantic.sql/1"
 
     runtime = PipelineRuntime(registry=registry)
     runtime.register_sql_plugin("sql", sql_plugin)

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pipelantic import Data
-from pipelantic.schema_drift import (
+from etlantic import Data
+from etlantic.schema_drift import (
     DriftImpact,
     diff_normalized_schemas,
     normalize_schema_from_fields,

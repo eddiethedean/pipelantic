@@ -1,6 +1,6 @@
 # Design Decisions
 
-This document records product and API decisions that shape the Pipelantic
+This document records product and API decisions that shape the ETLantic
 developer experience. Detailed architectural records belong in
 [Architecture Decisions](ARCHITECTURE_DECISIONS.md).
 
@@ -17,7 +17,7 @@ Each decision should be marked:
 
 **Status:** Accepted
 
-Pipelantic uses Python annotations to declare transformation inputs, outputs,
+ETLantic uses Python annotations to declare transformation inputs, outputs,
 parameters, sources, and sinks.
 
 ```python
@@ -46,7 +46,7 @@ implementation concepts, not additional top-level contracts.
 
 **Status:** Accepted
 
-ContractModel remains focused on operationalizing data contracts. Pipelantic
+ContractModel remains focused on operationalizing data contracts. ETLantic
 consumes ContractModel-compatible models but does not broaden ContractModel into
 a universal contract framework.
 
@@ -64,7 +64,7 @@ Importing a pipeline must not execute it.
 **Status:** Accepted
 
 Pandas, Polars, SQL, PySpark, Airflow, and future systems are selected through
-plugins and profiles. Pipelantic does not require one runtime.
+plugins and profiles. ETLantic does not require one runtime.
 
 Polars may serve as the reference dataframe implementation while Pandas remains
 fully supported.
@@ -74,7 +74,7 @@ fully supported.
 **Status:** Accepted
 
 The runtime is async-first. Users and plugins may supply `def` or `async def`
-callables. Pipelantic normalizes invocation, concurrency, cancellation, and
+callables. ETLantic normalizes invocation, concurrency, cancellation, and
 cleanup.
 
 Both `run()` and `arun()` are provided, but `run()` must not unsafely nest event
@@ -104,7 +104,7 @@ skip, quarantine, or continue. The selected backend carries out the action.
 
 **Status:** Accepted
 
-Pipelantic's Python API is the primary code-first authoring experience.
+ETLantic's Python API is the primary code-first authoring experience.
 DPCS is the canonical portable pipeline contract. Environment bindings remain
 outside portable topology.
 
@@ -122,19 +122,19 @@ secret values.
 
 **Status:** Accepted for 0.3
 
-Pipelantic presents one coherent code-first authoring language:
+ETLantic presents one coherent code-first authoring language:
 
 ```python
-from pipelantic import Data, Pipeline, Transformation
+from etlantic import Data, Pipeline, Transformation
 ```
 
 `Data` is a thin facade over ContractModel, not a new data-contract
 implementation. ContractModel retains authority for data-contract semantics,
 validation, and ODCS operationalization. Existing ContractModel subclasses
-remain valid wherever Pipelantic accepts `Data`.
+remain valid wherever ETLantic accepts `Data`.
 
 Prefer a direct alias over subclassing unless a concrete integration hook
-requires a subclass. Deprecate the Pipelantic-facing `DataContractModel` name
+requires a subclass. Deprecate the ETLantic-facing `DataContractModel` name
 before 1.0.
 
 ## DD-011: SQL and PySpark Are Backends, Not New Models
@@ -216,7 +216,7 @@ normative semantics. Chapter detail alone does not imply implementation status.
 
 **Status:** Accepted
 
-Pipelantic provides separate runtime lifespan, execution middleware,
+ETLantic provides separate runtime lifespan, execution middleware,
 resource injection, lifecycle callbacks, and outbound event declarations.
 
 - Lifespan owns paired setup and cleanup.
@@ -225,7 +225,7 @@ resource injection, lifecycle callbacks, and outbound event declarations.
 - Callbacks respond to specific lifecycle outcomes.
 - Outbound events describe external notifications.
 
-Pipelantic adopts this separation from FastAPI's architecture without
+ETLantic adopts this separation from FastAPI's architecture without
 adopting HTTP request semantics.
 
 ## DD-021: Resource Injection Is Not Pipeline Dependency Wiring

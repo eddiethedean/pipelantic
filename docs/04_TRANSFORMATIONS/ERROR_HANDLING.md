@@ -1,9 +1,9 @@
 # Error Handling
 
-Error handling in Pipelantic is designed to make failures predictable,
+Error handling in ETLantic is designed to make failures predictable,
 typed, and portable across execution backends.
 
-Pipelantic distinguishes between **modeling errors**, **planning errors**,
+ETLantic distinguishes between **modeling errors**, **planning errors**,
 and **runtime errors**. The core framework coordinates how errors are reported,
 while execution plugins provide backend-specific details.
 
@@ -105,7 +105,7 @@ Retry decisions should be declarative.
 Conceptually:
 
 ```python
-from pipelantic import RetryAction
+from etlantic import RetryAction
 
 return RetryAction.retry(max_attempts=3)
 ```
@@ -125,7 +125,7 @@ Errors should provide:
 
 ## Logging
 
-Pipelantic should emit structured logs.
+ETLantic should emit structured logs.
 
 Sensitive values should be redacted according to contract metadata and profile
 settings.
@@ -150,10 +150,10 @@ Avoid:
 ## Key Principle
 
 > Errors are part of the execution model, not the transformation contract.
-> Pipelantic standardizes how failures are represented while plugins
+> ETLantic standardizes how failures are represented while plugins
 > determine how backend-specific failures are handled.
 
 ## Next Step
 
-Continue with [Async](ASYNC.md) to learn how Pipelantic preserves equivalent
+Continue with [Async](ASYNC.md) to learn how ETLantic preserves equivalent
 failure semantics for synchronous and asynchronous implementations.

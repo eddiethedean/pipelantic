@@ -118,7 +118,7 @@ class CustomerCurationPipeline(Pipeline):
 
 The parent pipeline must provide a compatible output.
 
-Pipelantic validates the connection before planning.
+ETLantic validates the connection before planning.
 
 ## Typed Outputs
 
@@ -174,7 +174,7 @@ numbers alone.
 
 ## Validation
 
-Pipelantic should validate subpipelines at two levels.
+ETLantic should validate subpipelines at two levels.
 
 ### Internal validation
 
@@ -202,7 +202,7 @@ Checks include:
 
 ## Planning
 
-During planning, Pipelantic may handle a subpipeline in one of two ways.
+During planning, ETLantic may handle a subpipeline in one of two ways.
 
 ### Preserve the boundary
 
@@ -265,7 +265,7 @@ reading every parent pipeline that consumes it.
 
 Subpipeline boundaries should preserve lineage.
 
-Pipelantic should support:
+ETLantic should support:
 
 - High-level lineage through the child pipeline
 - Expanded lineage through internal steps
@@ -296,7 +296,7 @@ Callbacks may exist at:
 - Child pipeline level
 - Parent pipeline level
 
-Pipelantic should invoke them in a deterministic order.
+ETLantic should invoke them in a deterministic order.
 
 A child pipeline's callbacks should remain associated with the child, while the
 parent may add broader operational handling.

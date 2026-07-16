@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pipelantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
-from pipelantic.runtime.request import RunSelection
+from etlantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic.runtime.request import RunSelection
 
 
 class Row(Data):

@@ -1,8 +1,8 @@
-![Pipelantic banner](https://raw.githubusercontent.com/eddiethedean/pipelantic/main/docs/theme/assets/pipelantic-banner.png)
+![ETLantic banner](https://raw.githubusercontent.com/eddiethedean/etlantic/main/docs/theme/assets/etlantic-banner.png)
 
-# Pipelantic
+# ETLantic
 
-[![Documentation Status](https://readthedocs.org/projects/pipelantic/badge/?version=latest)](https://pipelantic.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/etlantic/badge/?version=latest)](https://etlantic.readthedocs.io/en/latest/?badge=latest)
 
 Catch incompatible data-pipeline wiring before you process data.
 
@@ -18,17 +18,17 @@ plugins. Spark and Airflow compilation are not shipped.
 Requires Python 3.11 or newer.
 
 ```bash
-pip install pipelantic
+pip install etlantic
 # optional engines
-pip install pipelantic-polars
-pip install pipelantic-pandas
-pip install pipelantic-sql
+pip install etlantic-polars
+pip install etlantic-pandas
+pip install etlantic-sql
 ```
 
 Verify:
 
 ```bash
-python -c "import pipelantic; print(pipelantic.__version__)"
+python -c "import etlantic; print(etlantic.__version__)"
 ```
 
 ### Development
@@ -47,7 +47,7 @@ the `dev` dependency group (pytest, ruff, mkdocs) by default.
 
 ## Release
 
-Tag a version that matches `src/pipelantic/_version.py`, then push the tag:
+Tag a version that matches `src/etlantic/_version.py`, then push the tag:
 
 ```bash
 git tag v0.6.0
@@ -60,7 +60,7 @@ repository secret.
 ## Quick example
 
 ```python
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -129,13 +129,13 @@ Run the complete tested version at
 | Typed modeling, validation, contracts, and planning | Available |
 | Local Python execution and run reports | Available |
 | Memory, callable, JSON, CSV, and no-write storage | Available |
-| Polars and Pandas dataframe plugins | Available (`pipelantic-polars` / `pipelantic-pandas`) |
-| SQL plugin | Available (`pipelantic-sql`) |
+| Polars and Pandas dataframe plugins | Available (`etlantic-polars` / `etlantic-pandas`) |
+| SQL plugin | Available (`etlantic-sql`) |
 | Spark and Airflow plugins | Not yet available |
 
 ## Documentation
 
-- [Documentation site](https://pipelantic.readthedocs.io/)
+- [Documentation site](https://etlantic.readthedocs.io/)
 - [Getting Started](docs/01_GETTING_STARTED/README.md)
 - [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)

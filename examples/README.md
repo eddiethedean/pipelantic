@@ -1,6 +1,6 @@
 # Runnable Examples
 
-These examples use only APIs and dependencies shipped in Pipelantic 0.6.
+These examples use only APIs and dependencies shipped in ETLantic 0.6.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ storage bindings.
 ## Dataframe parity (Polars / Pandas)
 
 ```bash
-# requires pipelantic-polars / pipelantic-pandas
+# requires etlantic-polars / etlantic-pandas
 python examples/dataframe_parity.py polars
 python examples/dataframe_parity.py pandas
 ```
@@ -35,7 +35,7 @@ Runs the same logical pipeline against either dataframe plugin via
 ## SQL to SQL
 
 ```bash
-# requires pipelantic-sql
+# requires etlantic-sql
 python examples/sql_to_sql.py
 python examples/sql_boundary_hybrid.py
 python examples/sql_transactional_write.py
@@ -43,7 +43,7 @@ python examples/sql_failure_recovery.py
 ```
 
 Runs SQL-native pipelines. Defaults to in-memory SQLite for demos; set
-`PIPELANTIC_SQL_URL` for PostgreSQL.
+`ETLANTIC_SQL_URL` for PostgreSQL.
 
 Documentation pages for Spark, Airflow, and other future plugins are design
 material and are not runnable examples for the current release.

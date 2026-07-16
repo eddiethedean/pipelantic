@@ -1,6 +1,6 @@
 # Code-First Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
@@ -9,7 +9,7 @@
 
 This example demonstrates the complementary workflow to **CONTRACT_FIRST.md**.
 Instead of authoring ODCS, DTCS, and DPCS documents first, developers begin
-with strongly typed Python classes and allow Pipelantic to generate portable
+with strongly typed Python classes and allow ETLantic to generate portable
 contracts automatically.
 
 ## Philosophy
@@ -69,7 +69,7 @@ customer_pipeline/
 ```python
 from typing import Annotated
 from pydantic import Field
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 class RawCustomer(DataContractModel):
     customer_id: int
@@ -86,7 +86,7 @@ class Customer(DataContractModel):
 ## Transformation
 
 ```python
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 class NormalizeCustomers(Transformation):
     customers: Input[RawCustomer]
@@ -236,6 +236,6 @@ multiple languages.
 Code-first is ideal when Python is the primary authoring environment and
 developers want rapid iteration with strong typing.
 
-Both workflows intentionally converge to the same normalized Pipelantic,
+Both workflows intentionally converge to the same normalized ETLantic,
 Pipeline Plan, execution behavior, documentation, and portable contract
 artifacts.

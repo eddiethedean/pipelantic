@@ -18,7 +18,7 @@ A provider:
 - applies bounded cache and lease policy;
 - emits value-free audit events;
 - closes clients and revokes temporary credentials where supported;
-- translates vendor failures into stable Pipelantic diagnostics.
+- translates vendor failures into stable ETLantic diagnostics.
 
 A provider does not add values to plans, expose SDK clients to transformations,
 log request or response bodies, silently search other providers, or define
@@ -72,7 +72,7 @@ Planning may validate capability compatibility but must not call `resolve`.
 
 ## Reference Parsing
 
-Pipelantic provides a canonical, provider-neutral `SecretRef`. Provider-specific
+ETLantic provides a canonical, provider-neutral `SecretRef`. Provider-specific
 URI syntaxes may be accepted by adapters:
 
 ```text
@@ -111,12 +111,12 @@ leave a run using credentials beyond their known validity.
 
 | Distribution concept | Primary dependencies |
 |---|---|
-| `pipelantic-keyring` | `keyring` |
-| `pipelantic-secrets-aws` | `boto3`, optional `aws-secretsmanager-caching` |
-| `pipelantic-secrets-azure` | `azure-keyvault-secrets`, `azure-identity` |
-| `pipelantic-secrets-gcp` | `google-cloud-secret-manager` |
-| `pipelantic-secrets-vault` | `hvac` |
-| `pipelantic-secrets-1password` | `onepassword-sdk` |
+| `etlantic-keyring` | `keyring` |
+| `etlantic-secrets-aws` | `boto3`, optional `aws-secretsmanager-caching` |
+| `etlantic-secrets-azure` | `azure-keyvault-secrets`, `azure-identity` |
+| `etlantic-secrets-gcp` | `google-cloud-secret-manager` |
+| `etlantic-secrets-vault` | `hvac` |
+| `etlantic-secrets-1password` | `onepassword-sdk` |
 
 The core may ship simple environment and mounted-file providers if they remain
 explicitly selected and use only the standard library.

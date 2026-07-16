@@ -1,13 +1,13 @@
 # Multi-Output Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a Pipelantic pipeline with a transformation that produces
+This example builds a ETLantic pipeline with a transformation that produces
 multiple typed outputs.
 
 Multi-output transformations are useful when one logical operation naturally
@@ -102,7 +102,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -147,7 +147,7 @@ Each output has a distinct contract and purpose.
 ```python
 # src/multi_output/transformations.py
 
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 from .contracts import (
     Customer,
@@ -194,7 +194,7 @@ Named outputs make generated contracts, diagnostics, and lineage more stable.
 
 import polars as pl
 
-from pipelantic import TransformationOutputs
+from etlantic import TransformationOutputs
 
 from .transformations import ValidateAndNormalizeCustomers
 
@@ -282,7 +282,7 @@ Its purpose is to associate each returned dataset with its declared output name.
 
 ## Output Type Checking
 
-Pipelantic should verify that:
+ETLantic should verify that:
 
 - Every required output is returned.
 - No undeclared output is returned.
@@ -296,7 +296,7 @@ A missing `metrics` output should fail before downstream execution.
 ```python
 # src/multi_output/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import (
     Customer,
@@ -339,7 +339,7 @@ Each sink consumes one named output.
 ```python
 # src/multi_output/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -494,7 +494,7 @@ customer_export = ExportCustomers.step(
 )
 ```
 
-Pipelantic should preserve one output identity across all edges.
+ETLantic should preserve one output identity across all edges.
 
 ## Output Validation
 
@@ -529,7 +529,7 @@ Suppose:
 
 The transformation result is incomplete.
 
-By default, Pipelantic should fail the step because one declared output is
+By default, ETLantic should fail the step because one declared output is
 invalid.
 
 A profile may permit output-specific failure behavior only when the
@@ -537,7 +537,7 @@ transformation contract explicitly allows it.
 
 ## Required and Optional Outputs
 
-Pipelantic may eventually support optional outputs.
+ETLantic may eventually support optional outputs.
 
 Conceptually:
 
@@ -816,7 +816,7 @@ return TransformationOutputs(
 )
 ```
 
-Pipelantic should avoid evaluating each output through redundant Spark
+ETLantic should avoid evaluating each output through redundant Spark
 actions.
 
 Shared upstream plans should be reused or cached when beneficial.
@@ -1133,7 +1133,7 @@ Avoid:
 ## Key Principle
 
 > A multi-output transformation is one typed logical operation with several
-> stable, independently contract-governed results. Pipelantic preserves each
+> stable, independently contract-governed results. ETLantic preserves each
 > output's identity, validation, lineage, and downstream behavior without
 > requiring duplicate transformation execution.
 

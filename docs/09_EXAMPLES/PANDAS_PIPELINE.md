@@ -1,13 +1,13 @@
 # Pandas Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads customer data
+This example builds a complete ETLantic pipeline that reads customer data
 from CSV, executes transformations with Pandas, validates the output against
 typed data contracts, and writes the curated result to Parquet.
 
@@ -96,7 +96,7 @@ customer_id,first_name,last_name,email
 from typing import Annotated
 
 from pydantic import Field
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -115,7 +115,7 @@ class Customer(DataContractModel):
 ## Step 2 — Define the Transformation Contract
 
 ```python
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 
 class NormalizeCustomers(Transformation):
@@ -166,7 +166,7 @@ The implementation uses vectorized Pandas operations and avoids row-wise
 ## Step 4 — Define the Pipeline
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerPandasPipeline(Pipeline):
@@ -189,7 +189,7 @@ class CustomerPandasPipeline(Pipeline):
 ## Step 5 — Define the Local Profile
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -241,7 +241,7 @@ result = await CustomerPandasPipeline.arun(
 )
 ```
 
-Pipelantic handles sync invocation internally.
+ETLantic handles sync invocation internally.
 
 ## Expected Output
 
@@ -346,7 +346,7 @@ Potential failures include:
 - Missing Parquet dependencies
 - Sink write failures
 
-Plugins should translate backend exceptions into structured Pipelantic
+Plugins should translate backend exceptions into structured ETLantic
 diagnostics.
 
 ## Testing
@@ -469,11 +469,11 @@ Avoid:
 ## Key Principle
 
 > Pandas is a supported execution backend, not a modeling dependency.
-> Pipelantic preserves one portable transformation contract while allowing
+> ETLantic preserves one portable transformation contract while allowing
 > Pandas to serve compatibility-focused, in-memory, and ecosystem-integrated
 > workloads.
 
 ## Next Step
 
 Continue with **POLARS_PIPELINE.md** to implement the same logical workflow using
-Pipelantic's recommended high-performance dataframe backend.
+ETLantic's recommended high-performance dataframe backend.

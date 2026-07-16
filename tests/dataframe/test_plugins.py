@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -17,15 +17,15 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.plan import explain_plan, plan_pipeline
-from pipelantic.profile import Profile
-from pipelantic.registry import PlanningContext, builtin_stub_registry
+from etlantic.plan import explain_plan, plan_pipeline
+from etlantic.profile import Profile
+from etlantic.registry import PlanningContext, builtin_stub_registry
 
 
 @pytest.fixture
 def polars_plugin():
     pytest.importorskip("polars")
-    from pipelantic_polars import create_plugin
+    from etlantic_polars import create_plugin
 
     return create_plugin()
 
@@ -33,7 +33,7 @@ def polars_plugin():
 @pytest.fixture
 def pandas_plugin():
     pytest.importorskip("pandas")
-    from pipelantic_pandas import create_plugin
+    from etlantic_pandas import create_plugin
 
     return create_plugin()
 
@@ -214,8 +214,8 @@ def test_profile_switches_engine_pandas(pandas_plugin) -> None:
 def test_core_does_not_import_polars_at_import_time() -> None:
     import importlib
 
-    importlib.import_module("pipelantic.dataframe.arrow")
-    from pipelantic.dataframe.arrow import arrow_available
+    importlib.import_module("etlantic.dataframe.arrow")
+    from etlantic.dataframe.arrow import arrow_available
 
     assert isinstance(arrow_available(), bool)
 

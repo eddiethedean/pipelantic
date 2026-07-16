@@ -1,9 +1,9 @@
 # Airflow
 
-The Airflow plugin enables Pipelantic to execute validated **Pipeline Plans**
+The Airflow plugin enables ETLantic to execute validated **Pipeline Plans**
 using Apache Airflow.
 
-Pipelantic does not generate Airflow DAGs directly from Python pipeline
+ETLantic does not generate Airflow DAGs directly from Python pipeline
 definitions. Instead, it first validates and plans the pipeline, producing an
 implementation-independent `PipelinePlan`. The Airflow plugin then translates
 that plan into an Airflow DAG while preserving the semantics defined by DPCS.
@@ -155,7 +155,7 @@ Avoid:
 
 ## Key Principle
 
-> Airflow is an orchestration backend for Pipelantic, not a modeling
+> Airflow is an orchestration backend for ETLantic, not a modeling
 dependency. The Airflow plugin translates validated Pipeline Plans into Airflow
 DAGs while preserving the logical semantics defined by DPCS.
 

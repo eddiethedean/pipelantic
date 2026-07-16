@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from pipelantic.profile import Profile
-from pipelantic.registry import PlanningContext
-from pipelantic.sql import (
+from etlantic.profile import Profile
+from etlantic.registry import PlanningContext
+from etlantic.sql import (
     SQL_PROTOCOL_VERSION,
     RelationRef,
     col,
     concat,
     select,
 )
-from pipelantic.sql.helpers import is_safe_identifier, require_safe_identifier
+from etlantic.sql.helpers import is_safe_identifier, require_safe_identifier
 
 
 def test_relation_ref_parse() -> None:
@@ -38,7 +38,7 @@ def test_select_builder() -> None:
     )
     assert q.source.namespace == "public"
     assert q.to_dict()["kind"] == "select"
-    assert SQL_PROTOCOL_VERSION.startswith("pipelantic.sql/")
+    assert SQL_PROTOCOL_VERSION.startswith("etlantic.sql/")
 
 
 def test_planning_context_requests_sql_capabilities() -> None:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pipelantic adopts the **Data Pipeline Contract Standard (DPCS)** as the
+ETLantic adopts the **Data Pipeline Contract Standard (DPCS)** as the
 canonical portable representation of pipeline contracts.
 
 DPCS defines the logical structure of a pipeline, including its public
@@ -11,10 +11,10 @@ gates, failure semantics, lineage, compatibility, and orchestrator bindings.
 It remains independent of any workflow engine, runtime, storage system, or
 programming language.
 
-This document explains how Pipelantic integrates with DPCS. The normative
+This document explains how ETLantic integrates with DPCS. The normative
 specification remains in `docs/specifications/DPCS_SPEC.md`.
 
-## Why Pipelantic Uses DPCS
+## Why ETLantic Uses DPCS
 
 A pipeline definition should outlive the orchestrator that happens to execute it.
 
@@ -33,7 +33,7 @@ pipeline to be:
 - Documented and visualized
 - Exchanged between conforming implementations
 
-Pipelantic treats DPCS as the canonical artifact for a complete pipeline.
+ETLantic treats DPCS as the canonical artifact for a complete pipeline.
 
 ## Architectural Relationship
 
@@ -41,7 +41,7 @@ Pipelantic treats DPCS as the canonical artifact for a complete pipeline.
 Python Pipeline Class
         │
         ▼
-Pipelantic Introspection
+ETLantic Introspection
         │
         ▼
 Logical Pipeline Graph
@@ -59,7 +59,7 @@ Orchestrator Binding
 Execution Runtime
 ```
 
-Pipelantic owns the Python authoring experience, graph construction,
+ETLantic owns the Python authoring experience, graph construction,
 validation coordination, planning, and plugin integration.
 
 DPCS owns the portable semantic representation.
@@ -86,10 +86,10 @@ duplicating their semantics.
 
 ## Code-First Workflow
 
-Pipelantic recommends authoring pipelines with typed Python classes.
+ETLantic recommends authoring pipelines with typed Python classes.
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerPipeline(Pipeline):
@@ -107,7 +107,7 @@ class CustomerPipeline(Pipeline):
     )
 ```
 
-From this definition, Pipelantic can derive:
+From this definition, ETLantic can derive:
 
 - Pipeline identity
 - Public inputs and outputs
@@ -126,7 +126,7 @@ The generated DPCS document is the portable artifact.
 
 ## Contract-First Workflow
 
-Pipelantic should also load existing DPCS artifacts.
+ETLantic should also load existing DPCS artifacts.
 
 Conceptually:
 
@@ -136,7 +136,7 @@ CustomerPipeline = Pipeline.from_dpcs(
 )
 ```
 
-A loaded pipeline should expose the same normalized Pipelantic interface as
+A loaded pipeline should expose the same normalized ETLantic interface as
 an authored pipeline, provided all referenced contracts can be resolved.
 
 Contract-first loading should preserve:
@@ -185,7 +185,7 @@ Stable identities enable:
 
 DPCS defines a public pipeline boundary.
 
-Pipelantic should represent that boundary through typed pipeline inputs and
+ETLantic should represent that boundary through typed pipeline inputs and
 outputs.
 
 Conceptually:
@@ -203,7 +203,7 @@ Internal steps should not automatically become public API.
 
 ## Sources and Sinks
 
-Pipelantic sources and sinks map naturally to pipeline boundaries.
+ETLantic sources and sinks map naturally to pipeline boundaries.
 
 ```python
 raw: Source[RawCustomer] = Source(
@@ -227,7 +227,7 @@ semantics.
 
 ## Pipeline Steps
 
-Each Pipelantic step becomes a DPCS Pipeline Step.
+Each ETLantic step becomes a DPCS Pipeline Step.
 
 A step may represent:
 
@@ -261,7 +261,7 @@ The DTCS transformation contract remains independently versioned and reusable.
 
 ## Pipeline Graph
 
-Pipelantic derives a directed graph from typed connections.
+ETLantic derives a directed graph from typed connections.
 
 ```text
 Source[RawCustomer]
@@ -275,7 +275,7 @@ Sink[Customer]
 
 DPCS records logical dependencies, not a particular scheduling algorithm.
 
-Pipelantic should validate:
+ETLantic should validate:
 
 - Unique node identities
 - Valid edges
@@ -292,7 +292,7 @@ to the orchestrator or local execution plugin.
 
 DPCS distinguishes logical data movement from physical transport.
 
-Pipelantic should represent every data flow with:
+ETLantic should represent every data flow with:
 
 - Source endpoint
 - Destination endpoint
@@ -306,7 +306,7 @@ pipeline contract explicitly requires materialization.
 
 ## Control Flow
 
-Where supported by DPCS, Pipelantic may model control-flow semantics such
+Where supported by DPCS, ETLantic may model control-flow semantics such
 as:
 
 - Conditional branches
@@ -340,12 +340,12 @@ References should include:
 - Resolution information
 - Compatibility requirements
 
-Pipelantic should resolve required references before constructing a final
+ETLantic should resolve required references before constructing a final
 Pipeline Plan.
 
 ## Subpipelines
 
-A Pipelantic subpipeline maps to a Pipeline Step that references another DPCS
+A ETLantic subpipeline maps to a Pipeline Step that references another DPCS
 contract.
 
 ```python
@@ -371,7 +371,7 @@ steps.
 DPCS may express scheduling intent while remaining independent of scheduler
 implementation.
 
-Pipelantic may model portable concepts such as:
+ETLantic may model portable concepts such as:
 
 - Manual execution
 - Time-based intent
@@ -405,7 +405,7 @@ Examples include:
 - Resource isolation
 - Required plugin capabilities
 
-Pipelantic should validate these requirements against declared plugin and
+ETLantic should validate these requirements against declared plugin and
 orchestrator capabilities before binding.
 
 ## Quality Gates
@@ -432,7 +432,7 @@ the declared behavior.
 
 DPCS can describe portable failure behavior.
 
-Pipelantic should map its callbacks and declarative actions into DPCS where
+ETLantic should map its callbacks and declarative actions into DPCS where
 those behaviors are standardized.
 
 Examples include:
@@ -451,7 +451,7 @@ portable contract.
 
 ## Callbacks
 
-Callbacks may enrich Pipelantic runtime behavior.
+Callbacks may enrich ETLantic runtime behavior.
 
 Only callback behavior with defined portable semantics should be emitted into
 DPCS.
@@ -460,7 +460,7 @@ For example, a declarative retry or fail-pipeline action may be portable, while
 a callback that calls a specific internal notification service is an
 implementation binding.
 
-Pipelantic should distinguish:
+ETLantic should distinguish:
 
 - Contractual callback semantics
 - Environment-specific operational callbacks
@@ -486,7 +486,7 @@ They provide implementation-specific bindings and operational configuration.
 
 ## Pipeline Plan
 
-After loading or introspecting a pipeline, Pipelantic should construct a
+After loading or introspecting a pipeline, ETLantic should construct a
 validated, implementation-independent Pipeline Plan.
 
 The Pipeline Plan should preserve:
@@ -504,7 +504,7 @@ The Pipeline Plan should preserve:
 - Lineage
 - Extensions
 
-The Pipeline Plan acts as Pipelantic's semantic intermediate representation.
+The Pipeline Plan acts as ETLantic's semantic intermediate representation.
 
 It is not yet tied to Airflow, Dagster, Prefect, local Python, or another target.
 
@@ -525,7 +525,7 @@ OrchestratorCapabilities(
 )
 ```
 
-Pipelantic compares the Pipeline Plan requirements against these capabilities.
+ETLantic compares the Pipeline Plan requirements against these capabilities.
 
 Unsupported mandatory capabilities should fail planning or binding rather than
 being silently discarded.
@@ -571,7 +571,7 @@ pipeline semantics.
 
 ## Validation
 
-Pipelantic should validate DPCS semantics in phases.
+ETLantic should validate DPCS semantics in phases.
 
 ### Definition validation
 
@@ -677,7 +677,7 @@ Possible classifications include:
 - Conditionally compatible
 - Incompatible
 
-Pipelantic should use the normative DPCS compatibility model rather than
+ETLantic should use the normative DPCS compatibility model rather than
 inventing an unrelated rule system.
 
 ## Versioning
@@ -717,14 +717,14 @@ Breaking changes may include:
 - Changing failure semantics
 - Introducing unsupported mandatory execution requirements
 
-Pipelantic should generate compatibility diagnostics and migration guidance
+ETLantic should generate compatibility diagnostics and migration guidance
 where practical.
 
 ## Lineage
 
 DPCS lineage describes logical provenance across the pipeline.
 
-Pipelantic can derive lineage from:
+ETLantic can derive lineage from:
 
 - Source contracts
 - Step inputs and outputs
@@ -760,7 +760,7 @@ regardless of formatting or serialization.
 
 ## Extensions
 
-Pipelantic and organizations may define namespaced DPCS extensions.
+ETLantic and organizations may define namespaced DPCS extensions.
 
 Extensions may add metadata or behavior not yet standardized, but they must not
 redefine mandatory DPCS semantics.
@@ -772,7 +772,7 @@ binding.
 
 ## Registries
 
-Pipelantic may resolve DPCS artifacts through:
+ETLantic may resolve DPCS artifacts through:
 
 - Local files
 - Python packages
@@ -798,7 +798,7 @@ Pipeline contracts should not embed secrets.
 Runtime credentials should be supplied through external secret management,
 resources, bindings, or profiles.
 
-Pipelantic should support:
+ETLantic should support:
 
 - Artifact integrity verification
 - Safe extension processing
@@ -812,7 +812,7 @@ meaning.
 
 ## Conformance
 
-Pipelantic may eventually declare conformance across several DPCS roles:
+ETLantic may eventually declare conformance across several DPCS roles:
 
 - Parser
 - Validator
@@ -879,7 +879,7 @@ DPCS artifacts should reference external secret and resource providers.
 
 ## Key Principle
 
-> Pipelantic authors and plans pipelines in Python. DPCS preserves their
+> ETLantic authors and plans pipelines in Python. DPCS preserves their
 > logical meaning as portable contracts. Orchestrator plugins translate those
 > plans into runtime-specific artifacts without changing observable semantics.
 
@@ -888,5 +888,5 @@ DPCS artifacts should reference external secret and resource providers.
 For the normative definition of DPCS, see the
 [DPCS 1.0 Specification](../specifications/DPCS_SPEC.md).
 
-This document describes **how Pipelantic integrates with DPCS**. It does not
+This document describes **how ETLantic integrates with DPCS**. It does not
 replace or restate the full normative specification.

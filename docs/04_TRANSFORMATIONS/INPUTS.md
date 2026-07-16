@@ -4,7 +4,7 @@
 
 An input represents a logical dataset flowing into a transformation. The type
 parameter `T` must be a `Data` (or another supported contract
-type), allowing Pipelantic to validate compatibility before execution.
+type), allowing ETLantic to validate compatibility before execution.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Inputs answer a single question:
 
 > What data does this transformation require?
 
-By declaring inputs with type annotations, Pipelantic can infer:
+By declaring inputs with type annotations, ETLantic can infer:
 
 - Required upstream contracts
 - Pipeline graph edges
@@ -24,7 +24,7 @@ By declaring inputs with type annotations, Pipelantic can infer:
 ## Basic Example
 
 ```python
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 class NormalizeCustomers(Transformation):
     customers: Input[RawCustomer]
@@ -113,12 +113,12 @@ normalized = NormalizeCustomers.step(
 )
 ```
 
-Pipelantic validates that `raw.result` is compatible with the declared
+ETLantic validates that `raw.result` is compatible with the declared
 `Input[RawCustomer]`.
 
 ## Validation
 
-Before execution, Pipelantic validates:
+Before execution, ETLantic validates:
 
 - Input contract compatibility
 - Required inputs

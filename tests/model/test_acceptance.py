@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pipelantic import (
+from etlantic import (
     Input,
     Output,
     Parameter,

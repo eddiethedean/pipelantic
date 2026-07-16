@@ -1,10 +1,10 @@
 # Sources
 
-A `Source[T]` defines a typed entry point into a Pipelantic pipeline.
+A `Source[T]` defines a typed entry point into a ETLantic pipeline.
 
 Sources introduce data from external systems into the pipeline while declaring
 the logical contract of the records they produce. Like every other modeling
-primitive in Pipelantic, a source describes **what** data enters the
+primitive in ETLantic, a source describes **what** data enters the
 pipeline—not **how** it is retrieved.
 
 Execution plugins perform the actual reads.
@@ -15,7 +15,7 @@ A source answers one question:
 
 > Where does pipeline data begin?
 
-By declaring a source with a data contract, Pipelantic can:
+By declaring a source with a data contract, ETLantic can:
 
 - Validate incoming data
 - Build the pipeline graph
@@ -27,7 +27,7 @@ By declaring a source with a data contract, Pipelantic can:
 ## Basic Example
 
 ```python
-from pipelantic import Source
+from etlantic import Source
 
 customers = Source[RawCustomer](
     binding="customers_csv",
@@ -76,7 +76,7 @@ A profile or plugin resolves the binding into runtime-specific details.
 
 Source validation is typically the first runtime validation boundary.
 
-Pipelantic may validate:
+ETLantic may validate:
 
 - Contract compatibility
 - Required fields
@@ -89,7 +89,7 @@ Plugins may perform native validation or delegate to ContractModel.
 
 ## Planning
 
-During planning, Pipelantic resolves:
+During planning, ETLantic resolves:
 
 - Source bindings
 - Execution plugin
@@ -135,7 +135,7 @@ The generated artifact records:
 
 Sources form the roots of the pipeline lineage graph.
 
-Pipelantic can automatically derive:
+ETLantic can automatically derive:
 
 - Origin datasets
 - Downstream dependencies

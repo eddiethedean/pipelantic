@@ -1,6 +1,6 @@
 # Local Python
 
-> **Status: Available in Pipelantic 0.6.0.** Process-local execution of a
+> **Status: Available in ETLantic 0.6.0.** Process-local execution of a
 > `PipelinePlan` with registered Python and dataframe implementations.
 
 The local runtime executes validated **Pipeline Plans** in-process. It is the
@@ -31,7 +31,7 @@ The local runtime should:
 
 ## Philosophy
 
-Local execution should never bypass the Pipelantic lifecycle.
+Local execution should never bypass the ETLantic lifecycle.
 
 ```text
 Pipeline
@@ -100,7 +100,7 @@ async def normalize(...):
     ...
 ```
 
-Pipelantic automatically invokes the correct implementation style.
+ETLantic automatically invokes the correct implementation style.
 
 Developers should not manage event loops directly.
 
@@ -173,7 +173,7 @@ Avoid:
 
 ## Key Principle
 
-> Local Python is the reference execution backend for Pipelantic. It executes
+> Local Python is the reference execution backend for ETLantic. It executes
 validated Pipeline Plans directly within Python while preserving the same
 portable semantics expected from every orchestration plugin.
 

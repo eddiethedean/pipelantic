@@ -8,7 +8,7 @@ import pytest
 from contractmodel import DataContract
 from tests.conftest import Customer, RawCustomer
 
-from pipelantic import (
+from etlantic import (
     Input,
     Output,
     Pipeline,
@@ -22,9 +22,9 @@ from pipelantic import (
     write_contracts,
     write_odcs,
 )
-from pipelantic.interchange.dtcs import DtcsError, transformation_from_dtcs
-from pipelantic.interchange.policy import check_dtcs_version, check_odcs_version
-from pipelantic.interchange.security import UnsafeLoadError, read_text_bounded
+from etlantic.interchange.dtcs import DtcsError, transformation_from_dtcs
+from etlantic.interchange.policy import check_dtcs_version, check_odcs_version
+from etlantic.interchange.security import UnsafeLoadError, read_text_bounded
 
 
 class NormalizeCustomers(Transformation):
@@ -70,7 +70,7 @@ def test_contractmodel_odcs_workflow_unchanged(tmp_path: Path) -> None:
     assert set(restored.model_fields) == set(Customer.model_fields)
 
 
-def test_pipelantic_odcs_facades(tmp_path: Path) -> None:
+def test_etlantic_odcs_facades(tmp_path: Path) -> None:
     path = tmp_path / "raw.odcs.yaml"
     write_odcs(RawCustomer, path)
     loaded = load_data_contract(path)

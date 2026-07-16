@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -16,10 +16,10 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.plan import plan_from_json, plan_pipeline, plan_to_json
-from pipelantic.profile import Profile
-from pipelantic.registry import BindingDescriptor, builtin_stub_registry
-from pipelantic.secrets import SecretRef
+from etlantic.plan import plan_from_json, plan_pipeline, plan_to_json
+from etlantic.profile import Profile
+from etlantic.registry import BindingDescriptor, builtin_stub_registry
+from etlantic.secrets import SecretRef
 
 
 class Row(Data):

@@ -2,7 +2,7 @@
 
 Pipeline validation ensures that a pipeline is **correct before it executes**.
 
-One of Pipelantic's core design goals is to detect modeling mistakes during
+One of ETLantic's core design goals is to detect modeling mistakes during
 authoring and planning rather than allowing them to fail unpredictably at
 runtime. Validation is therefore a first-class feature, not an optional step.
 
@@ -19,7 +19,7 @@ Pipeline validation should:
 
 ## Validation Philosophy
 
-Pipelantic validates a pipeline in layers.
+ETLantic validates a pipeline in layers.
 
 ```text
 Python Pipeline
@@ -115,7 +115,7 @@ Mandatory unsupported capabilities should prevent execution.
 
 ## Validation Scope
 
-Pipelantic validates:
+ETLantic validates:
 
 - Pipeline metadata
 - Sources

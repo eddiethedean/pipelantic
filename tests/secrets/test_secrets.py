@@ -7,12 +7,12 @@ from pathlib import Path
 import anyio
 import pytest
 
-from pipelantic.exceptions import PipelineExecutionError
-from pipelantic.secrets.env import EnvSecretProvider
-from pipelantic.secrets.file import MountedFileSecretProvider
-from pipelantic.secrets.provider import SecretResolutionContext
-from pipelantic.secrets.ref import SecretRef
-from pipelantic.secrets.value import SecretSerializationError, SecretValue
+from etlantic.exceptions import PipelineExecutionError
+from etlantic.secrets.env import EnvSecretProvider
+from etlantic.secrets.file import MountedFileSecretProvider
+from etlantic.secrets.provider import SecretResolutionContext
+from etlantic.secrets.ref import SecretRef
+from etlantic.secrets.value import SecretSerializationError, SecretValue
 
 
 def test_env_provider_fail_closed() -> None:

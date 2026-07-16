@@ -1,4 +1,4 @@
-"""Shared SQL pytest fixtures — honor PIPELANTIC_SQL_URL when set."""
+"""Shared SQL pytest fixtures — honor ETLANTIC_SQL_URL when set."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import pytest
 def sql_plugin():
     """Create the reference SQL plugin using env URL (SQLite fallback)."""
     pytest.importorskip("sqlalchemy")
-    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
+    os.environ.setdefault("ETLANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    from etlantic_sql import create_plugin
 
     return create_plugin()

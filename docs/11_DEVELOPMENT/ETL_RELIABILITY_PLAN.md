@@ -7,7 +7,7 @@ result. Inputs may be stale or incomplete, retries may repeat side effects,
 backfills may overwrite the wrong partitions, two backend implementations may
 disagree, and an apparently successful load may not reconcile with its source.
 
-Pipelantic should model and coordinate these reliability concerns without
+ETLantic should model and coordinate these reliability concerns without
 becoming a scheduler, execution engine, storage system, or statistical
 monitoring platform.
 
@@ -109,7 +109,7 @@ Partition-completeness expectations should describe:
 
 ### Planning and runtime
 
-Pipelantic should support:
+ETLantic should support:
 
 - preflight freshness checks;
 - partition-manifest inspection;
@@ -259,7 +259,7 @@ independent control systems.
 
 ### Evidence
 
-Providers calculate backend-specific evidence. Pipelantic normalizes:
+Providers calculate backend-specific evidence. ETLantic normalizes:
 
 - compared subjects and snapshots;
 - metric definitions;
@@ -352,7 +352,7 @@ optimizer decisions changed.
 
 ### Tracked identity
 
-Pipelantic should fingerprint:
+ETLantic should fingerprint:
 
 - logical pipeline and contract revisions;
 - resolved profile;
@@ -387,7 +387,7 @@ One run may pass while quality gradually deteriorates.
 
 ### Metrics
 
-Pipelantic should normalize time-series evidence such as:
+ETLantic should normalize time-series evidence such as:
 
 - null, invalid, duplicate, and rejection rates;
 - record and partition counts;
@@ -398,7 +398,7 @@ Pipelantic should normalize time-series evidence such as:
 - freshness and completeness;
 - schema and statistical drift frequency.
 
-Providers store and query metric history. Pipelantic defines metric identity,
+Providers store and query metric history. ETLantic defines metric identity,
 dimensions, policy inputs, report summaries, and trend diagnostics.
 
 Initial trend analysis should use explainable rules such as thresholds, moving
@@ -448,18 +448,18 @@ defines a mandatory gate.
 Planned commands include:
 
 ```text
-pipelantic freshness check
-pipelantic partitions check
-pipelantic impact data
-pipelantic repair explain
-pipelantic repair plan
-pipelantic backfill plan
-pipelantic reconcile
-pipelantic implementations compare
-pipelantic plan diff
-pipelantic environment diff
-pipelantic quality trends
-pipelantic data-drift inspect
+etlantic freshness check
+etlantic partitions check
+etlantic impact data
+etlantic repair explain
+etlantic repair plan
+etlantic backfill plan
+etlantic reconcile
+etlantic implementations compare
+etlantic plan diff
+etlantic environment diff
+etlantic quality trends
+etlantic data-drift inspect
 ```
 
 The Python API, CLI, FastAPI integration, IDE, notebooks, and AI tooling should
@@ -551,7 +551,7 @@ Conformance testing should cover:
 
 ## Success Criteria
 
-Pipelantic succeeds when a developer can determine:
+ETLantic succeeds when a developer can determine:
 
 - Is the input fresh and complete?
 - What changed and what must be rebuilt?
@@ -566,6 +566,6 @@ Pipelantic succeeds when a developer can determine:
 
 The core principle is:
 
-> Pipelantic makes reliability intent explicit, turns runtime behavior into
+> ETLantic makes reliability intent explicit, turns runtime behavior into
 > comparable evidence, and plans safe recovery without owning the execution
 > engines that perform the work.

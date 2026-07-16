@@ -8,16 +8,16 @@ from pathlib import Path
 import pytest
 from tests.sql.test_sql_runtime import CustomerPipeline
 
-from pipelantic import Profile
-from pipelantic.plan import explain_plan
-from pipelantic.registry import (
+from etlantic import Profile
+from etlantic.plan import explain_plan
+from etlantic.registry import (
     BindingDescriptor,
     PlanningContext,
     builtin_stub_registry,
 )
-from pipelantic.sql.discovery import register_discovered_plugins
-from pipelantic.sql.expression import col
-from pipelantic.sql.protocol import RelationRef, SqlExecutionContext, SqlQuery
+from etlantic.sql.discovery import register_discovered_plugins
+from etlantic.sql.expression import col
+from etlantic.sql.protocol import RelationRef, SqlExecutionContext, SqlQuery
 
 pytestmark = pytest.mark.sql
 
@@ -29,8 +29,8 @@ def sql_plugin():
     pytest.importorskip("sqlalchemy")
     import os
 
-    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
+    os.environ.setdefault("ETLANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    from etlantic_sql import create_plugin
 
     return create_plugin()
 
@@ -55,7 +55,7 @@ def test_explain_plan_sql_golden_shape(sql_plugin) -> None:
     context = PlanningContext.create(profile, registry=registry)
     plan = CustomerPipeline.plan(profile=profile, context=context)
     explanation = explain_plan(plan)
-    assert explanation["sql_protocol"] == "pipelantic.sql/1"
+    assert explanation["sql_protocol"] == "etlantic.sql/1"
     assert explanation["sql_fusion"]
     # Dialect-sensitive compile fixture
     ctx = SqlExecutionContext(

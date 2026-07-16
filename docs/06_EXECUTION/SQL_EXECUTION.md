@@ -1,9 +1,9 @@
 # SQL Execution
 
-**Status: shipped in 0.6.0** for the `pipelantic-sql` PostgreSQL reference
+**Status: shipped in 0.6.0** for the `etlantic-sql` PostgreSQL reference
 plugin. SQLite is usable for local demos; it is not the conformance reference.
 
-The SQL Execution subsystem defines how Pipelantic executes validated
+The SQL Execution subsystem defines how ETLantic executes validated
 Pipeline Plans directly within SQL databases.
 
 Unlike dataframe execution backends, SQL execution compiles eligible
@@ -109,7 +109,7 @@ Typical operations include:
 - UPDATE
 - MERGE / UPSERT (only when the plugin advertises `sql_merge`)
 
-Support depends on plugin capabilities. The 0.6 `pipelantic-sql` reference
+Support depends on plugin capabilities. The 0.6 `etlantic-sql` reference
 plugin sets `sql_merge=False`; requiring merge fails closed at planning.
 
 ## Hybrid Execution
@@ -224,13 +224,13 @@ Avoid:
 
 ## Key Principle
 
-> SQL execution is a backend implementation of the Pipelantic execution
+> SQL execution is a backend implementation of the ETLantic execution
 model. It executes validated Pipeline Plans inside relational databases while
 preserving the same portable semantics available through every other execution
 backend.
 
 ## Next Step
 
-Continue with **SQL_PUSHDOWN.md** to learn how Pipelantic optimizes SQL
+Continue with **SQL_PUSHDOWN.md** to learn how ETLantic optimizes SQL
 execution through predicate, projection, aggregation, and join pushdown while
 preserving correctness.

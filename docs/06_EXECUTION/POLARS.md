@@ -1,13 +1,13 @@
 # Polars Plugin
 
 **Status: shipped in 0.5.0** as the reference dataframe backend
-(`pipelantic-polars`).
+(`etlantic-polars`).
 
 ## Install
 
 ```bash
-pip install pipelantic-polars
-pip install 'pipelantic-polars[arrow]'  # optional
+pip install etlantic-polars
+pip install 'etlantic-polars[arrow]'  # optional
 ```
 
 ## Behavior

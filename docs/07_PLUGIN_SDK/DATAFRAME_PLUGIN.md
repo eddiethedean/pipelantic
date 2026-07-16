@@ -1,9 +1,9 @@
 # Dataframe Plugin
 
-A **Dataframe Plugin** implements the Pipelantic Dataframe Plugin API for a
+A **Dataframe Plugin** implements the ETLantic Dataframe Plugin API for a
 specific dataframe engine.
 
-**Status: shipped in 0.5.0** (`pipelantic.dataframe/1`).
+**Status: shipped in 0.5.0** (`etlantic.dataframe/1`).
 
 ## Responsibilities
 
@@ -19,12 +19,12 @@ contract generation.
 
 ## Discovery
 
-Plugins register via the `pipelantic.dataframe_plugins` entry-point group.
+Plugins register via the `etlantic.dataframe_plugins` entry-point group.
 `PipelineRuntime` discovers installed plugins at construction time. You can
 also call `runtime.register_dataframe_plugin(engine, plugin)`.
 
 ## Conformance
 
-Use `pipelantic.testing.run_conformance_suite(plugin, engine=..., sample_rows=...)`
+Use `etlantic.testing.run_conformance_suite(plugin, engine=..., sample_rows=...)`
 to exercise discovery, materialization, validation, schema inspection, and
 ownership helpers.

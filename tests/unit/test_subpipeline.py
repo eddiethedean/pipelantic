@@ -1,6 +1,6 @@
 """Subpipeline embedding tests."""
 
-from pipelantic import Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic import Input, Output, Pipeline, Sink, Source, Transformation
 from tests.conftest import Customer, RawCustomer
 
 

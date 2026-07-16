@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from pipelantic.testing import run_conformance_suite
+from etlantic.testing import run_conformance_suite
 
 
 @pytest.mark.polars
 def test_polars_conformance() -> None:
     pytest.importorskip("polars")
-    from pipelantic_polars import create_plugin
+    from etlantic_polars import create_plugin
 
     run_conformance_suite(
         create_plugin(),
@@ -22,7 +22,7 @@ def test_polars_conformance() -> None:
 @pytest.mark.pandas
 def test_pandas_conformance() -> None:
     pytest.importorskip("pandas")
-    from pipelantic_pandas import create_plugin
+    from etlantic_pandas import create_plugin
 
     run_conformance_suite(
         create_plugin(),

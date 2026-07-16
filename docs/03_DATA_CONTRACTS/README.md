@@ -1,8 +1,8 @@
 # Data Contracts
 
-Data contracts are the foundation of every Pipelantic pipeline.
+Data contracts are the foundation of every ETLantic pipeline.
 
-They describe the structure, constraints, and meaning of the data that flows through sources, transformations, and sinks. In Pipelantic, data contracts are authored as **ContractModel-compatible Pydantic classes** and represented portably through the **Open Data Contract Standard (ODCS)**.
+They describe the structure, constraints, and meaning of the data that flows through sources, transformations, and sinks. In ETLantic, data contracts are authored as **ContractModel-compatible Pydantic classes** and represented portably through the **Open Data Contract Standard (ODCS)**.
 
 ## What This Section Covers
 
@@ -26,7 +26,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import Data, load_data_contract
+from etlantic import Data, load_data_contract
 
 
 class Customer(Data):
@@ -46,11 +46,11 @@ customer = Customer(
 )
 ```
 
-At the same time, ContractModel can operationalize the class as a data contract and expose the metadata Pipelantic needs.
+At the same time, ContractModel can operationalize the class as a data contract and expose the metadata ETLantic needs.
 
 ## Relationship to ContractModel
 
-Pipelantic does not replace ContractModel.
+ETLantic does not replace ContractModel.
 
 ContractModel remains responsible for:
 
@@ -62,7 +62,7 @@ ContractModel remains responsible for:
 - Data-contract compatibility
 - Data-contract-specific code generation
 
-Pipelantic consumes those contract classes and uses them to:
+ETLantic consumes those contract classes and uses them to:
 
 - Type transformation inputs and outputs
 - Validate pipeline wiring
@@ -77,7 +77,7 @@ The division is intentional:
 ContractModel
     Defines and operationalizes data contracts
 
-Pipelantic
+ETLantic
     Connects those contracts through transformations and pipelines
 ```
 
@@ -85,7 +85,7 @@ Pipelantic
 
 ODCS is the portable standard representation of a data contract.
 
-Pipelantic should not invent a competing data-contract format. Instead, ContractModel-compatible classes should generate ODCS-compliant documents whenever possible.
+ETLantic should not invent a competing data-contract format. Instead, ContractModel-compatible classes should generate ODCS-compliant documents whenever possible.
 
 ```text
 Python Data
@@ -106,7 +106,7 @@ The ODCS document is the preferred portable artifact.
 Transformation annotations reference data-contract classes directly:
 
 ```python
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 
 class NormalizeCustomers(Transformation):
@@ -114,7 +114,7 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 ```
 
-Pipelantic can use those annotations to determine:
+ETLantic can use those annotations to determine:
 
 - Which contract governs each input
 - Which contract governs each output
@@ -127,7 +127,7 @@ Pipelantic can use those annotations to determine:
 Sources and sinks also reference data-contract classes:
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerPipeline(Pipeline):
@@ -153,7 +153,7 @@ The transformation connects those two typed boundaries.
 
 ## Code-First and Contract-First Workflows
 
-Pipelantic should support both workflows.
+ETLantic should support both workflows.
 
 ### Code-first
 
@@ -190,7 +190,7 @@ Data may be validated at several points:
 3. After a transformation produces data
 4. Before a sink writes or publishes data
 
-Pipelantic coordinates when validation occurs.
+ETLantic coordinates when validation occurs.
 
 ContractModel performs the actual data-contract validation.
 
@@ -256,11 +256,11 @@ Read this section in the following order:
 - Data contracts are authored as ContractModel-compatible Pydantic classes.
 - ContractModel owns data-contract semantics and operational behavior.
 - ODCS is the canonical portable representation.
-- Pipelantic references contract classes directly through type annotations.
+- ETLantic references contract classes directly through type annotations.
 - Data-contract information should never be duplicated unnecessarily.
 - Validation should happen at clear pipeline boundaries.
 - Generated contracts should be deterministic and version-controllable.
 
 ## Next Step
 
-Continue with **DATACONTRACTMODEL.md** to learn how to define Pipelantic-ready data contracts using ContractModel-compatible Pydantic classes.
+Continue with **DATACONTRACTMODEL.md** to learn how to define ETLantic-ready data contracts using ContractModel-compatible Pydantic classes.

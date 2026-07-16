@@ -1,6 +1,6 @@
 # Security Policy
 
-Pipelantic 0.6.0 is an alpha release. Security reports concerning the
+ETLantic 0.6.0 is an alpha release. Security reports concerning the
 published package, contract loading, planning, local runtime, storage
 bindings, secret handling, dataframe and SQL plugins, documentation, or
 repository automation are welcome.

@@ -2,9 +2,9 @@
 
 ## Overview
 
-Pipelantic adopts the **Open Data Contract Standard (ODCS)** as its canonical portable representation for data contracts.
+ETLantic adopts the **Open Data Contract Standard (ODCS)** as its canonical portable representation for data contracts.
 
-Pipelantic does **not** redefine the ODCS specification.
+ETLantic does **not** redefine the ODCS specification.
 
 Instead, it provides a Python-first authoring experience built on **ContractModel**, which generates and consumes ODCS documents.
 
@@ -12,7 +12,7 @@ The authoritative ODCS specification is maintained by the Open Data Contract Sta
 
 ---
 
-## Why Pipelantic Uses ODCS
+## Why ETLantic Uses ODCS
 
 Data contracts should be portable.
 
@@ -26,13 +26,13 @@ ODCS provides a common, implementation-independent representation that can be:
 - consumed by governance tools
 - referenced by pipelines
 
-Pipelantic therefore treats ODCS as the canonical artifact for published data contracts.
+ETLantic therefore treats ODCS as the canonical artifact for published data contracts.
 
 ---
 
 ## Architectural Relationship
 
-Pipelantic intentionally separates responsibilities.
+ETLantic intentionally separates responsibilities.
 
 ```text
 Python Authoring
@@ -47,7 +47,7 @@ ContractModel
 ODCS Document
         │
         ▼
-Pipelantic
+ETLantic
 ```
 
 Each layer has a different purpose.
@@ -57,16 +57,16 @@ Each layer has a different purpose.
 | Pydantic | Python data modeling |
 | ContractModel | Operationalizes data contracts |
 | ODCS | Portable contract representation |
-| Pipelantic | Uses contracts to model pipelines |
+| ETLantic | Uses contracts to model pipelines |
 
 ---
 
 ## Code-First Workflow
 
-Pipelantic recommends a code-first workflow.
+ETLantic recommends a code-first workflow.
 
 ```python
-from pipelantic import Data, load_data_contract
+from etlantic import Data, load_data_contract
 
 class Customer(Data):
     customer_id: int
@@ -96,7 +96,7 @@ Customer = load_data_contract(
 )
 ```
 
-The resulting class behaves like any authored `Data` and can be referenced throughout Pipelantic.
+The resulting class behaves like any authored `Data` and can be referenced throughout ETLantic.
 
 ---
 
@@ -104,7 +104,7 @@ The resulting class behaves like any authored `Data` and can be referenced throu
 
 Many organizations already maintain published ODCS contracts.
 
-Pipelantic supports combining both approaches.
+ETLantic supports combining both approaches.
 
 ```text
 Existing ODCS
@@ -113,7 +113,7 @@ Existing ODCS
 ContractModel
         │
         ▼
-Pipelantic
+ETLantic
 
 Python Authored Models
         │
@@ -130,7 +130,7 @@ Both become equivalent pipeline types.
 
 ## Referencing ODCS from Pipelines
 
-Pipelantic never references YAML directly.
+ETLantic never references YAML directly.
 
 Instead, transformations and pipelines reference Python contract classes.
 
@@ -146,7 +146,7 @@ Those classes carry the metadata needed to identify the corresponding ODCS artif
 
 ## Contract Generation
 
-Pipelantic can discover every referenced contract.
+ETLantic can discover every referenced contract.
 
 ```python
 CustomerPipeline.write_contracts(
@@ -173,7 +173,7 @@ Generated ODCS documents should be deterministic so they can be reviewed in vers
 
 ## Contract Identity
 
-Pipelantic relies on ContractModel to expose stable contract identity.
+ETLantic relies on ContractModel to expose stable contract identity.
 
 Conceptually, every contract provides:
 
@@ -184,13 +184,13 @@ Conceptually, every contract provides:
 - schema
 - compatibility information
 
-Pipelantic uses this information for validation, documentation, lineage, and bundle generation.
+ETLantic uses this information for validation, documentation, lineage, and bundle generation.
 
 ---
 
 ## Validation
 
-Pipelantic coordinates validation.
+ETLantic coordinates validation.
 
 ContractModel validates data against ODCS-backed contracts.
 
@@ -207,7 +207,7 @@ When native validation is unavailable, plugins may fall back to ContractModel va
 
 ## Supported ODCS Features
 
-Pipelantic intends to support every feature that can be represented faithfully through ContractModel.
+ETLantic intends to support every feature that can be represented faithfully through ContractModel.
 
 Examples include:
 
@@ -228,15 +228,15 @@ Support ultimately depends on ContractModel's public API.
 
 ODCS may evolve over time.
 
-Pipelantic should preserve unknown or extension metadata whenever practical rather than discarding it.
+ETLantic should preserve unknown or extension metadata whenever practical rather than discarding it.
 
-This allows organizations to use organization-specific ODCS extensions without breaking Pipelantic.
+This allows organizations to use organization-specific ODCS extensions without breaking ETLantic.
 
 ---
 
 ## Version Compatibility
 
-Pipelantic should clearly document:
+ETLantic should clearly document:
 
 - supported ODCS versions
 - deprecated versions
@@ -245,19 +245,19 @@ Pipelantic should clearly document:
 
 Compatibility decisions belong to ContractModel's ODCS implementation.
 
-Pipelantic consumes those decisions.
+ETLantic consumes those decisions.
 
 ---
 
 ## Design Principles
 
-Pipelantic follows these principles when integrating with ODCS:
+ETLantic follows these principles when integrating with ODCS:
 
 - Python classes are the preferred authoring experience.
 - ODCS is the preferred portable artifact.
 - ContractModel owns ODCS semantics.
-- Pipelantic never duplicates the ODCS specification.
-- Pipelantic references contract classes rather than YAML.
+- ETLantic never duplicates the ODCS specification.
+- ETLantic references contract classes rather than YAML.
 - Generated artifacts should be deterministic.
 - Unknown ODCS extensions should be preserved whenever practical.
 
@@ -281,7 +281,7 @@ DTCS
 DPCS
 ```
 
-Pipelantic unifies all three through typed Python models.
+ETLantic unifies all three through typed Python models.
 
 ---
 
@@ -289,4 +289,4 @@ Pipelantic unifies all three through typed Python models.
 
 For the normative definition of ODCS, refer to the official Open Data Contract Standard specification maintained by the upstream project.
 
-This document describes **how Pipelantic integrates with ODCS**, not the ODCS specification itself.
+This document describes **how ETLantic integrates with ODCS**, not the ODCS specification itself.

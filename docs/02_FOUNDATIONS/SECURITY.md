@@ -1,10 +1,10 @@
 # Security Model
 
-Pipelantic coordinates contracts, Python code, plugins, credentials, data
+ETLantic coordinates contracts, Python code, plugins, credentials, data
 artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
-This chapter defines the proposed Pipelantic 1.0 threat model, trust
+This chapter defines the proposed ETLantic 1.0 threat model, trust
 boundaries, required controls, and production-readiness gates.
 
 ## Principles
@@ -25,7 +25,7 @@ boundaries, required controls, and production-readiness gates.
 
 ## Threat Model
 
-Pipelantic may process input from repository contributors, registries, CI
+ETLantic may process input from repository contributors, registries, CI
 artifacts, third-party plugins, environment configuration, remote
 orchestrators, data sources, and notification destinations.
 
@@ -91,7 +91,7 @@ The analysis boundary must not require runtime privileges.
 Portable artifacts should use data-only formats such as JSON, TOML, safely
 configured YAML, or justified schema-based binary formats.
 
-Pipelantic must not deserialize untrusted:
+ETLantic must not deserialize untrusted:
 
 - `pickle`
 - `dill`
@@ -181,8 +181,8 @@ Production profiles should support:
 [plugins.security]
 discovery = "allowlist"
 allowed = [
-  "pipelantic-polars",
-  "pipelantic-airflow",
+  "etlantic-polars",
+  "etlantic-airflow",
 ]
 require_pinned_versions = true
 ```
@@ -233,7 +233,7 @@ reveal only inside an authorized provider boundary.
 Callables receive only declared resources. Middleware and callbacks must not
 acquire undeclared privileged services.
 
-Pipelantic uses a dedicated Secret Provider protocol rather than treating
+ETLantic uses a dedicated Secret Provider protocol rather than treating
 plaintext environment variables as its universal secrets API. Profiles and
 plans contain `SecretRef` identifiers only. Resolution occurs after the
 execution boundary begins, and only the Resource Provider constructing the
@@ -258,7 +258,7 @@ Transformations, validators, callbacks, middleware, lifespan handlers, and
 provider functions are trusted executable Python unless run behind an external
 isolation boundary.
 
-Pipelantic cannot safely sandbox arbitrary Python in-process.
+ETLantic cannot safely sandbox arbitrary Python in-process.
 
 Production execution should use:
 
@@ -293,7 +293,7 @@ Optional SQLModel persistence and model-generation integrations must:
 
 - keep control-plane credentials separate from pipeline-data credentials;
 - expose provider protocols rather than sessions, engines, metadata, or ORM
-  instances through Pipelantic core;
+  instances through ETLantic core;
 - use separate request, persistence, and response models when protected or
   database-only fields exist;
 - prevent mass assignment of identity, tenant, policy, approval, secret
@@ -504,7 +504,7 @@ code, invoke commands, and connect to external tools. Their instruction files
 are guidance, not a security boundary, and never prove that an action is
 authorized.
 
-Pipelantic-generated skills, rules, commands, context bundles, and MCP tools
+ETLantic-generated skills, rules, commands, context bundles, and MCP tools
 must:
 
 - use one vendor-neutral workflow definition as their source;
@@ -526,7 +526,7 @@ must:
   compatibility analysis, and policy checks;
 - prohibit generated guidance from weakening sandbox, network, plugin,
   resolver, or secret-provider policies;
-- keep model-vendor SDKs and credentials outside Pipelantic core.
+- keep model-vendor SDKs and credentials outside ETLantic core.
 
 Agent output remains an untrusted proposal until normal validation, testing,
 security review, and human approval succeed.
@@ -565,7 +565,7 @@ Core and plugin releases should use:
 
 ## Multi-Tenancy
 
-Pipelantic must not claim in-process tenant isolation.
+ETLantic must not claim in-process tenant isolation.
 
 Strong isolation requires separate identities, artifact namespaces, cache
 namespaces, secret scopes, quotas, and execution environments. Context
@@ -653,7 +653,7 @@ The repository should publish:
 
 ## Security Release Gate
 
-Pipelantic is not production-ready until:
+ETLantic is not production-ready until:
 
 - the threat model is reviewed
 - mandatory controls have implementation owners and tests
@@ -673,12 +673,12 @@ Verification should draw from the OWASP Top Ten for risk awareness and OWASP
 ASVS for testable controls, with specialized guidance for unsafe
 deserialization and server-side request forgery.
 
-These sources inform Pipelantic's controls; Pipelantic is not itself a
+These sources inform ETLantic's controls; ETLantic is not itself a
 web application framework.
 
 ## Key Principle
 
-> Pipelantic may coordinate privileged execution, but analysis stays
+> ETLantic may coordinate privileged execution, but analysis stays
 > unprivileged, authority stays explicit, exposure stays minimal, and no
 > optimization or fallback may weaken a declared security boundary.
 

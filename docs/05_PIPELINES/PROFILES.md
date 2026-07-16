@@ -7,7 +7,7 @@ Profiles supply environment-specific configuration without changing the logical
 meaning of a pipeline. They bridge the gap between portable pipeline contracts
 and concrete runtime infrastructure.
 
-Pipelantic separates **what a pipeline does** from **how and where it
+ETLantic separates **what a pipeline does** from **how and where it
 executes**.
 
 ## Goals
@@ -70,7 +70,7 @@ Profiles also must not:
 ## Example
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 production = Profile(
     name="production",
@@ -85,7 +85,7 @@ sql_prod = Profile(
 
 Use `dataframe_engine` for Polars/Pandas/local implementations. Use
 `sql_engine="sql"` when SQL implementations and bindings should run through a
-SQL plugin (`pipelantic-sql`). Do not set `dataframe_engine` to `"sql"`.
+SQL plugin (`etlantic-sql`). Do not set `dataframe_engine` to `"sql"`.
 
 Planning uses the selected profile when generating a Pipeline Plan.
 
@@ -274,4 +274,4 @@ without changing their semantics.
 ## Next Step
 
 Continue with [Contract Generation](CONTRACT_GENERATION.md) to learn how
-Pipelantic generates portable ODCS, DTCS, and DPCS artifacts.
+ETLantic generates portable ODCS, DTCS, and DPCS artifacts.

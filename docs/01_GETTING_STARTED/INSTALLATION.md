@@ -1,6 +1,6 @@
 # Installation
 
-Pipelantic 0.6.0 provides the typed modeling kernel, contract interoperability
+ETLantic 0.6.0 provides the typed modeling kernel, contract interoperability
 (ODCS/DTCS/DPCS), multi-phase validation, profiles, deterministic planning,
 a local runtime that executes plans with Python callables, in-memory
 artifacts, and stdlib JSON/CSV bindings, plus optional Polars, Pandas, and
@@ -9,7 +9,7 @@ SQL plugins. Spark/orchestration plugins arrive in later milestones.
 ## Requirements
 
 - Python 3.11 or newer
-- ContractModel as a companion package (installed automatically with Pipelantic)
+- ContractModel as a companion package (installed automatically with ETLantic)
 
 [uv](https://docs.astral.sh/uv/) is recommended for contributors and lockfile
 workflows. Adopters can install with plain `pip`.
@@ -18,19 +18,19 @@ workflows. Adopters can install with plain `pip`.
 
 ```bash
 python3.11 -m pip install --upgrade pip
-python3.11 -m pip install pipelantic
+python3.11 -m pip install etlantic
 ```
 
 Or with uv:
 
 ```bash
-uv add pipelantic
+uv add etlantic
 ```
 
 Verify the installed version matches these docs (0.6.0 or newer):
 
 ```bash
-python -c "import pipelantic; print(pipelantic.__version__)"
+python -c "import etlantic; print(etlantic.__version__)"
 ```
 
 ### Optional dataframe and SQL plugins
@@ -39,22 +39,22 @@ Core never installs Polars, Pandas, or database drivers. Add engines
 explicitly:
 
 ```bash
-pip install pipelantic-polars    # Polars reference plugin
-pip install pipelantic-pandas    # Pandas compatibility plugin
-pip install pipelantic-sql       # PostgreSQL SQL reference plugin
+pip install etlantic-polars    # Polars reference plugin
+pip install etlantic-pandas    # Pandas compatibility plugin
+pip install etlantic-sql       # PostgreSQL SQL reference plugin
 # or extras:
-pip install 'pipelantic[polars]'
-pip install 'pipelantic[pandas]'
-pip install 'pipelantic[dataframes]'
-pip install 'pipelantic[sql]'
+pip install 'etlantic[polars]'
+pip install 'etlantic[pandas]'
+pip install 'etlantic[dataframes]'
+pip install 'etlantic[sql]'
 ```
 
 For SQL, set a connection URL (PostgreSQL is the reference; SQLite is demo-only):
 
 ```bash
-export PIPELANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/pipelantic
+export ETLANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/etlantic
 # or for a local demo:
-export PIPELANTIC_SQL_URL=sqlite+pysqlite:///:memory:
+export ETLANTIC_SQL_URL=sqlite+pysqlite:///:memory:
 ```
 
 Select SQL with `Profile(sql_engine="sql")`. The 0.6 reference plugin does not
@@ -66,13 +66,13 @@ extras expecting those backends.
 ## Upgrade
 
 ```bash
-python -m pip install --upgrade pipelantic
+python -m pip install --upgrade etlantic
 # or
-uv lock --upgrade-package pipelantic
+uv lock --upgrade-package etlantic
 ```
 
 Review the
-[changelog](https://github.com/eddiethedean/pipelantic/blob/main/CHANGELOG.md)
+[changelog](https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md)
 and [Migration 0.5 → 0.6](../11_DEVELOPMENT/MIGRATION_0_5_TO_0_6.md) before
 upgrading between 0.x releases because breaking changes remain possible.
 
@@ -81,8 +81,8 @@ upgrading between 0.x releases because breaking changes remain possible.
 Contributors need [uv](https://docs.astral.sh/uv/):
 
 ```bash
-git clone https://github.com/eddiethedean/pipelantic.git
-cd pipelantic
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
 uv sync
 uv run pytest
 uv run ruff check .
@@ -111,10 +111,10 @@ group (pytest, ruff, mkdocs). The lockfile `uv.lock` pins exact versions.
 pyproject.toml
 uv.lock
 .python-version
-src/pipelantic/
-packages/pipelantic-polars/
-packages/pipelantic-pandas/
-packages/pipelantic-sql/
+src/etlantic/
+packages/etlantic-polars/
+packages/etlantic-pandas/
+packages/etlantic-sql/
 tests/
 examples/
 docs/
@@ -128,7 +128,7 @@ unsupported backend examples.
 
 ## Dependency Philosophy
 
-Pipelantic keeps the core install small. Dataframe engines, SQL drivers,
+ETLantic keeps the core install small. Dataframe engines, SQL drivers,
 orchestrators, and storage clients belong in optional plugins—not the base
 package.
 

@@ -9,7 +9,7 @@ import pytest
 from contractmodel import ContractModel
 from tests.conftest import Customer, RawCustomer
 
-from pipelantic import (
+from etlantic import (
     Input,
     Output,
     Parameter,
@@ -24,10 +24,10 @@ from pipelantic import (
     write_contracts,
     write_odcs,
 )
-from pipelantic.interchange.bundle import BundleError
-from pipelantic.interchange.diff import diff_transformations
-from pipelantic.interchange.dtcs import transformation_from_dtcs
-from pipelantic.interchange.odcs import dtcs_type_for_logical_type
+from etlantic.interchange.bundle import BundleError
+from etlantic.interchange.diff import diff_transformations
+from etlantic.interchange.dtcs import transformation_from_dtcs
+from etlantic.interchange.odcs import dtcs_type_for_logical_type
 
 
 class Event(ContractModel):
@@ -189,7 +189,7 @@ def test_from_dtcs_accepts_odcs_prefixed_registry_keys() -> None:
 def test_diff_pipelines_fails_closed_on_incompatible_category(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import pipelantic.interchange.diff as diff_mod
+    import etlantic.interchange.diff as diff_mod
 
     monkeypatch.setattr(
         diff_mod.dpcs,

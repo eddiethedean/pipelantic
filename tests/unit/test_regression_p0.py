@@ -6,7 +6,7 @@ from types import MappingProxyType
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Input,
     Output,
     Parameter,
@@ -15,8 +15,8 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.model import LogicalGraph, Node, NodeKind
-from pipelantic.refs import OutputRef
+from etlantic.model import LogicalGraph, Node, NodeKind
+from etlantic.refs import OutputRef
 from tests.conftest import Customer, RawCustomer
 
 
@@ -136,7 +136,7 @@ def test_cyclic_subpipeline_nesting_is_diagnostic() -> None:
         raw: Source[RawCustomer] = Source(binding="raw")
         out: Sink[RawCustomer] = Sink(input=raw.result, binding="out")
 
-    from pipelantic.pipeline import _building_graphs
+    from etlantic.pipeline import _building_graphs
 
     Pipe._cached_graph = None
     Pipe._graph_build_error = None

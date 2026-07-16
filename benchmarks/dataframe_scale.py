@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -16,7 +16,7 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.registry import PlanningContext
+from etlantic.registry import PlanningContext
 
 
 class Row(Data):

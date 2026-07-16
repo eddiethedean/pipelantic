@@ -17,7 +17,7 @@ def version_from(path: Path, pattern: str) -> str:
 
 def main() -> None:
     package_version = version_from(
-        ROOT / "src/pipelantic/_version.py", r'__version__ = "([^"]+)"'
+        ROOT / "src/etlantic/_version.py", r'__version__ = "([^"]+)"'
     )
     project_version = version_from(ROOT / "pyproject.toml", r'(?m)^version = "([^"]+)"')
     if package_version != project_version:
@@ -44,18 +44,18 @@ def main() -> None:
 
     banned_phrases = [
         "does not ship Pandas or Polars",
-        "Pandas, Polars, SQL, Spark, and Airflow plugins are not published as part of\nPipelantic 0.4",
+        "Pandas, Polars, SQL, Spark, and Airflow plugins are not published as part of\nETLantic 0.4",
         "Future plugins may add Pandas, Polars",
         "Pandas and Polars pipelines | Future plugin design",
         "Pandas, Polars, SQL, Spark, and Airflow plugins | Not yet available",
         "SQL, Spark, and Airflow plugins | Not yet available",
         "SQL compilation or execution | Future design (0.6)",
         "SQL, Spark, and Airflow compilation are not shipped",
-        "These examples use only APIs and dependencies shipped in Pipelantic 0.4",
-        "These examples use only APIs and dependencies shipped in Pipelantic 0.5",
-        "Available in Pipelantic 0.4.0",
-        "not a Pipelantic 0.4 API guide",
-        "not a Pipelantic 0.5 API guide",
+        "These examples use only APIs and dependencies shipped in ETLantic 0.4",
+        "These examples use only APIs and dependencies shipped in ETLantic 0.5",
+        "Available in ETLantic 0.4.0",
+        "not a ETLantic 0.4 API guide",
+        "not a ETLantic 0.5 API guide",
         "Dataframe, SQL, Spark, and external orchestration chapters remain accepted",
         "plan.to_mermaid()",
         "lightweight production workloads",
@@ -101,13 +101,13 @@ def main() -> None:
         if path.name == "README.md":
             continue
         text = path.read_text(encoding="utf-8")
-        if "Future design—not a Pipelantic 0.6 API guide" not in text:
+        if "Future design—not a ETLantic 0.6 API guide" not in text:
             raise SystemExit(f"{path} missing Future design admonition")
 
     banner_js = (ROOT / "docs/theme/javascripts/status-banner.js").read_text(
         encoding="utf-8"
     )
-    if "Future design—not a Pipelantic 0.6 API guide" not in banner_js:
+    if "Future design—not a ETLantic 0.6 API guide" not in banner_js:
         raise SystemExit("status-banner.js missing 0.6 future-design banner text")
 
     start = banner_js.find("futureExecutionPages = [")
@@ -149,9 +149,9 @@ def main() -> None:
 
     # Plugin package versions must match core.
     for plugin_pyproject in (
-        ROOT / "packages/pipelantic-polars/pyproject.toml",
-        ROOT / "packages/pipelantic-pandas/pyproject.toml",
-        ROOT / "packages/pipelantic-sql/pyproject.toml",
+        ROOT / "packages/etlantic-polars/pyproject.toml",
+        ROOT / "packages/etlantic-pandas/pyproject.toml",
+        ROOT / "packages/etlantic-sql/pyproject.toml",
     ):
         plugin_version = version_from(plugin_pyproject, r'(?m)^version = "([^"]+)"')
         if plugin_version != package_version:

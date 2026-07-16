@@ -1,6 +1,6 @@
 # Coding Standards
 
-Pipelantic code should be explicit, typed, testable, and approachable to
+ETLantic code should be explicit, typed, testable, and approachable to
 Python developers familiar with Pydantic and FastAPI-style APIs.
 
 ## Python
@@ -97,7 +97,7 @@ Never:
 ## Public and Internal APIs
 
 The package root exposes only common, stable authoring APIs. Advanced public
-interfaces belong in named modules such as `pipelantic.sdk`.
+interfaces belong in named modules such as `etlantic.sdk`.
 
 Internal names begin with `_` and may change without compatibility guarantees.
 

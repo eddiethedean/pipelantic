@@ -1,6 +1,6 @@
 # Resource Providers
 
-Resource providers give Pipelantic access to runtime resources required
+Resource providers give ETLantic access to runtime resources required
 to execute a Pipeline Plan.
 
 Unlike storage plugins, which persist data, resource providers expose reusable
@@ -125,7 +125,7 @@ Execution plugins coordinate resource lifecycles.
 
 Resources may expose synchronous or asynchronous interfaces.
 
-Pipelantic normalizes access so execution plugins invoke resources
+ETLantic normalizes access so execution plugins invoke resources
 consistently regardless of implementation style.
 
 ## Capabilities

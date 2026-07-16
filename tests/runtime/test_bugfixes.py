@@ -7,7 +7,7 @@ from typing import Annotated
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Inject,
     Input,
@@ -23,15 +23,15 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.lifecycle.callbacks import FailureAction
-from pipelantic.registry import BindingDescriptor, PlanningContext
-from pipelantic.runtime.request import MaterializationPolicy
-from pipelantic.schema_drift import (
+from etlantic.lifecycle.callbacks import FailureAction
+from etlantic.registry import BindingDescriptor, PlanningContext
+from etlantic.runtime.request import MaterializationPolicy
+from etlantic.schema_drift import (
     SchemaObservation,
     normalize_schema_from_fields,
     normalize_schema_from_model,
 )
-from pipelantic.schema_policy import DriftAction, evaluate_drift
+from etlantic.schema_policy import DriftAction, evaluate_drift
 
 
 class Row(Data):
@@ -282,7 +282,7 @@ def test_middleware_order_observable() -> None:
 
 
 def test_redact_message_in_report() -> None:
-    from pipelantic.runtime.logging import redact_message
+    from etlantic.runtime.logging import redact_message
 
     assert "password=***" in redact_message("failed password=hunter2 for user")
     assert "hunter2" not in redact_message("token=hunter2")

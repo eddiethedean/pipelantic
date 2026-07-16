@@ -1,20 +1,20 @@
 # SQL to SQL
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. Prefer the runnable examples under
-    `examples/sql_*.py` (requires `pipelantic-sql`) for shipped 0.6 behavior.
+    `examples/sql_*.py` (requires `etlantic-sql`) for shipped 0.6 behavior.
     Use `Profile(sql_engine="sql")` — not a `transformation_engine` field.
     The 0.6 reference plugin does not implement `MERGE`. Use Current
     Capabilities, the API reference, and the CLI reference for the current
     boundary.
 
 
-This example builds a complete Pipelantic pipeline that reads customer and
+This example builds a complete ETLantic pipeline that reads customer and
 order data from SQL, performs the transformation **inside the database**, and
 writes the resulting customer metrics to another SQL table.
 
 The example demonstrates SQL-native execution as the preferred strategy for
-SQL-to-SQL pipelines. Pipelantic keeps the logical transformation portable,
+SQL-to-SQL pipelines. ETLantic keeps the logical transformation portable,
 while the planner selects the SQL implementation when the database and dialect
 can preserve the required semantics.
 
@@ -141,7 +141,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class Customer(DataContractModel):
@@ -184,7 +184,7 @@ They do not depend on:
 
 from typing import Literal
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, CustomerOrderSummary, Order
 
@@ -213,7 +213,7 @@ unstructured string.
 ```python
 # src/sql_to_sql/sql_implementations.py
 
-from pipelantic.sql import (
+from etlantic.sql import (
     SqlQuery,
     RelationRef,
     coalesce,
@@ -288,10 +288,10 @@ The important requirements are:
 
 ## Raw SQL Escape Hatch
 
-Pipelantic may also support raw SQL for advanced or database-specific cases.
+ETLantic may also support raw SQL for advanced or database-specific cases.
 
 ```python
-from pipelantic.sql import RawSqlQuery
+from etlantic.sql import RawSqlQuery
 
 
 @BuildCustomerOrderSummary.implementation(
@@ -389,7 +389,7 @@ Both implementations satisfy the same DTCS transformation contract.
 ```python
 # src/sql_to_sql/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, CustomerOrderSummary, Order
 from .transformations import BuildCustomerOrderSummary
@@ -423,7 +423,7 @@ The pipeline remains independent of SQL syntax and database configuration.
 ```python
 # src/sql_to_sql/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local_sql = Profile(
@@ -908,7 +908,7 @@ Polars-only transformation
 SQL sink
 ```
 
-Pipelantic should minimize physical transitions while preserving semantics.
+ETLantic should minimize physical transitions while preserving semantics.
 
 ## Step 13 — Generate Contracts
 
@@ -1376,9 +1376,9 @@ The pipeline author does not rewrite the pipeline to choose among them.
 
 ## Key Principle
 
-> When a pipeline begins and ends in SQL, Pipelantic should prefer executing
+> When a pipeline begins and ends in SQL, ETLantic should prefer executing
 > eligible transformations inside SQL. The database performs the work, while
-> Pipelantic preserves portable contracts, validation, lineage, diagnostics,
+> ETLantic preserves portable contracts, validation, lineage, diagnostics,
 > and fallback behavior.
 
 ## Next Step

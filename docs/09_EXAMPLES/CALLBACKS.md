@@ -1,13 +1,13 @@
 # Callbacks
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example demonstrates how Pipelantic wires callback functions into a
+This example demonstrates how ETLantic wires callback functions into a
 typed pipeline for invalid data, source failures, transformation failures, sink
 failures, retries, and final pipeline outcomes.
 
@@ -15,7 +15,7 @@ Callbacks are part of the execution policy around a pipeline. They observe or
 respond to events without redefining the pipeline's core data contracts,
 transformation semantics, or graph topology.
 
-Pipelantic supports both synchronous callbacks declared with `def` and
+ETLantic supports both synchronous callbacks declared with `def` and
 asynchronous callbacks declared with `async def`. The framework invokes each
 callback correctly without requiring users to manage event loops, threads, or
 worker pools manually.
@@ -100,7 +100,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -137,7 +137,7 @@ class RejectedCustomer(DataContractModel):
 ```python
 # src/callbacks_example/transformations.py
 
-from pipelantic import Input, Output, Transformation
+from etlantic import Input, Output, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -219,7 +219,7 @@ A synchronous invalid-data callback:
 ```python
 # src/callbacks_example/callbacks.py
 
-from pipelantic.callbacks import InvalidDataContext
+from etlantic.callbacks import InvalidDataContext
 
 
 def record_invalid_customer(
@@ -241,7 +241,7 @@ explicitly supports returning an action.
 Some callbacks may return a typed action.
 
 ```python
-from pipelantic.callbacks import (
+from etlantic.callbacks import (
     InvalidDataAction,
     InvalidDataContext,
 )
@@ -264,7 +264,7 @@ Typed actions are safer than returning strings such as `"continue"` or
 ## Step 6 — Define an Async Notification Callback
 
 ```python
-from pipelantic.callbacks import WriteFailureContext
+from etlantic.callbacks import WriteFailureContext
 
 
 async def notify_write_failure(
@@ -280,14 +280,14 @@ async def notify_write_failure(
     )
 ```
 
-Pipelantic detects `async def` automatically and awaits it.
+ETLantic detects `async def` automatically and awaits it.
 
 The user does not manage an event loop.
 
 ## Step 7 — Define a Retry Callback
 
 ```python
-from pipelantic.callbacks import RetryContext
+from etlantic.callbacks import RetryContext
 
 
 def log_retry(
@@ -308,7 +308,7 @@ It should not mutate the attempt counter or sleep manually.
 ## Step 8 — Define a Transformation Failure Callback
 
 ```python
-from pipelantic.callbacks import (
+from etlantic.callbacks import (
     FailureAction,
     TransformationFailureContext,
 )
@@ -344,7 +344,7 @@ A callback cannot force an unsafe retry.
 ## Step 9 — Define a Read Failure Callback
 
 ```python
-from pipelantic.callbacks import (
+from etlantic.callbacks import (
     FailureAction,
     ReadFailureContext,
 )
@@ -364,7 +364,7 @@ The execution layer validates the returned action against the active policy.
 ## Step 10 — Define Pipeline Outcome Callbacks
 
 ```python
-from pipelantic.callbacks import (
+from etlantic.callbacks import (
     PipelineFailureContext,
     PipelineSuccessContext,
 )
@@ -399,7 +399,7 @@ async def report_pipeline_failure(
 ```python
 # src/callbacks_example/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .callbacks import (
     handle_invalid_customers,
@@ -459,7 +459,7 @@ The important design goals are:
 ```python
 # src/callbacks_example/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -505,7 +505,7 @@ They should not construct infrastructure clients directly.
 
 ## Callback Resource Injection
 
-Pipelantic may inject typed resources:
+ETLantic may inject typed resources:
 
 ```python
 async def notify_write_failure(
@@ -669,7 +669,7 @@ Pipeline outcome callbacks run only after the pipeline reaches a terminal state.
 
 ## Before and After Callbacks
 
-Pipelantic may support lifecycle callbacks such as:
+ETLantic may support lifecycle callbacks such as:
 
 - `before_pipeline`
 - `after_pipeline`
@@ -972,7 +972,7 @@ The callback failure policy is "warn", so pipeline failure handling continued.
 
 ## Observability
 
-Pipelantic should emit callback events such as:
+ETLantic should emit callback events such as:
 
 - Callback scheduled
 - Callback started
@@ -1121,7 +1121,7 @@ events with datasets.
 - Type every callback context.
 - Use typed actions for decisions.
 - Keep callback registration explicit.
-- Let Pipelantic invoke sync and async callbacks.
+- Let ETLantic invoke sync and async callbacks.
 - Inject infrastructure through Resource Providers.
 - Keep invalid data in typed outputs.
 - Use stable event IDs for idempotency.
@@ -1148,7 +1148,7 @@ Avoid:
 
 ## Key Principle
 
-> Callbacks extend Pipelantic's execution lifecycle with typed, observable,
+> Callbacks extend ETLantic's execution lifecycle with typed, observable,
 > sync-or-async behavior while leaving pipeline data flow, contracts, and
 > transformation semantics unchanged.
 

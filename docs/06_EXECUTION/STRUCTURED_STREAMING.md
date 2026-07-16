@@ -1,6 +1,6 @@
 # Structured Streaming
 
-Structured Streaming is Pipelantic's execution model for unbounded data using
+Structured Streaming is ETLantic's execution model for unbounded data using
 Apache Spark Structured Streaming. It allows the same validated Pipeline Plans
 used for batch execution to process continuously arriving events while
 preserving contracts, transformation semantics, lineage, and validation.
@@ -251,7 +251,7 @@ Avoid:
 
 ## Key Principle
 
-> Structured Streaming extends Pipelantic's execution model to unbounded
+> Structured Streaming extends ETLantic's execution model to unbounded
 > datasets while preserving portable contracts, validation, lineage,
 > diagnostics, and transformation semantics.
 

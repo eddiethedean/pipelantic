@@ -1,16 +1,16 @@
 # Graphviz
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
     Mermaid are not shipped in 0.5. For diagrams today, use
     `Pipeline.to_mermaid()`.
 
 
-Pipelantic can generate **Graphviz** diagrams from a validated Pipeline Plan.
+ETLantic can generate **Graphviz** diagrams from a validated Pipeline Plan.
 
 Graphviz is well suited for complex pipeline graphs, detailed lineage views,
 publication-quality diagrams, and programmatic export to formats such as SVG,
-PNG, and PDF. Like every Pipelantic visualization, Graphviz output is derived
+PNG, and PDF. Like every ETLantic visualization, Graphviz output is derived
 from the canonical Pipeline Plan rather than handwritten diagram source.
 
 ## Purpose
@@ -158,7 +158,7 @@ friendly to version control.
 
 ## Layout
 
-Pipelantic may support Graphviz layout engines such as:
+ETLantic may support Graphviz layout engines such as:
 
 - `dot` for directed graphs
 - `neato` for relationship graphs
@@ -206,7 +206,7 @@ This minimizes unnecessary version-control changes.
 
 ## Large Pipelines
 
-For large graphs, Pipelantic should support:
+For large graphs, ETLantic should support:
 
 - Filtering by source or sink
 - Limiting traversal depth
@@ -245,7 +245,7 @@ review documents.
 
 ## Mermaid and Graphviz
 
-Pipelantic should support both formats.
+ETLantic should support both formats.
 
 ### Mermaid
 
@@ -294,6 +294,6 @@ Avoid:
 
 ## Next Step
 
-Continue with **HTML.md** to learn how Pipelantic can generate navigable,
+Continue with **HTML.md** to learn how ETLantic can generate navigable,
 self-contained pipeline documentation from contracts, lineage, diagnostics, and
 visualizations.

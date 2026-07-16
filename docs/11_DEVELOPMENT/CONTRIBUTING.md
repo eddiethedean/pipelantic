@@ -1,17 +1,17 @@
 # Contributing
 
-Pipelantic welcomes contributions to documentation, typed authoring APIs,
+ETLantic welcomes contributions to documentation, typed authoring APIs,
 validation, planning, plugins, tests, and examples.
 
 Preserve the boundaries established in the manifesto and foundations
-documentation: Pipelantic owns the logical model; plugins own execution;
+documentation: ETLantic owns the logical model; plugins own execution;
 standards own semantics.
 
 ## Before You Start
 
 Read:
 
-- [Manifesto](../PIPELANTIC_MANIFESTO.md)
+- [Manifesto](../ETLANTIC_MANIFESTO.md)
 - [Design Principles](../02_FOUNDATIONS/DESIGN_PRINCIPLES.md)
 - [Architecture](../02_FOUNDATIONS/ARCHITECTURE.md)
 - [Design Decisions](DESIGN_DECISIONS.md)
@@ -25,14 +25,14 @@ Ask:
 3. Is it data-contract operational behavior that belongs in ContractModel?
 4. Is it contract meaning that belongs in ODCS, DTCS, or DPCS?
 
-Pipelantic owns the logical model. Plugins own execution. Standards own
+ETLantic owns the logical model. Plugins own execution. Standards own
 semantics.
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/eddiethedean/pipelantic.git
-cd pipelantic
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
 uv sync
 uv run pytest
 uv run ruff check .
@@ -90,7 +90,7 @@ Documentation should:
 - Distinguish proposed APIs from implemented APIs
 - Link to normative standards instead of duplicating them
 - Include executable examples where possible
-- Avoid claiming that Pipelantic executes work owned by plugins
+- Avoid claiming that ETLantic executes work owned by plugins
 
 See [Documentation Contributions](DOCUMENTATION.md) for page-status labels,
 current-version rules, and CI checks.

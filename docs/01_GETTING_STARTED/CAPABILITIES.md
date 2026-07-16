@@ -1,6 +1,6 @@
 # Current Capabilities and Limitations
 
-Pipelantic 0.6.0 is an alpha release. This page is the shortest answer to
+ETLantic 0.6.0 is an alpha release. This page is the shortest answer to
 "What can I use today?"
 
 ## Available in 0.6
@@ -16,12 +16,12 @@ Pipelantic 0.6.0 is an alpha release. This page is the shortest answer to
 | Memory, callable, JSON, CSV, and no-write storage | Available |
 | Run reports, structured logging, and local debugging | Available |
 | Runtime secret references and env/file providers | Available |
-| Dataframe execution protocol (`pipelantic.dataframe/1`) | Available |
-| Polars plugin (eager + lazy preservation) | Available (`pipelantic-polars`) |
-| Pandas plugin (eager compatibility) | Available (`pipelantic-pandas`) |
+| Dataframe execution protocol (`etlantic.dataframe/1`) | Available |
+| Polars plugin (eager + lazy preservation) | Available (`etlantic-polars`) |
+| Pandas plugin (eager compatibility) | Available (`etlantic-pandas`) |
 | Optional Arrow interchange | Available when PyArrow is installed |
-| SQL execution protocol (`pipelantic.sql/1`) | Available |
-| SQL plugin (PostgreSQL reference) | Available (`pipelantic-sql`) |
+| SQL execution protocol (`etlantic.sql/1`) | Available |
+| SQL plugin (PostgreSQL reference) | Available (`etlantic-sql`) |
 | Mermaid diagrams (`Pipeline.to_mermaid`) | Available |
 
 ## Not included in 0.6
@@ -38,12 +38,12 @@ Pipelantic 0.6.0 is an alpha release. This page is the shortest answer to
 ## Install matrix
 
 ```bash
-pip install pipelantic                 # core only — no engines
-pip install pipelantic-polars          # Polars reference plugin
-pip install pipelantic-pandas          # Pandas compatibility plugin
-pip install pipelantic-sql             # PostgreSQL SQL reference plugin
-pip install 'pipelantic[sql]'          # same as pipelantic-sql via extra
-pip install 'pipelantic-polars[arrow]' # optional PyArrow
+pip install etlantic                 # core only — no engines
+pip install etlantic-polars          # Polars reference plugin
+pip install etlantic-pandas          # Pandas compatibility plugin
+pip install etlantic-sql             # PostgreSQL SQL reference plugin
+pip install 'etlantic[sql]'          # same as etlantic-sql via extra
+pip install 'etlantic-polars[arrow]' # optional PyArrow
 ```
 
 Core never imports Polars, Pandas, PyArrow, NumPy, or database drivers.

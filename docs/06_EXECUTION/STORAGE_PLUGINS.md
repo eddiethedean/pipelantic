@@ -1,6 +1,6 @@
 # Storage Plugins
 
-Storage plugins provide Pipelantic with a portable way to read from and write
+Storage plugins provide ETLantic with a portable way to read from and write
 to persistent storage systems.
 
 Rather than embedding storage-specific APIs into pipeline definitions, storage
@@ -56,7 +56,7 @@ They are **not** responsible for:
 
 ## Supported Storage Systems
 
-Pipelantic is designed to support plugins for:
+ETLantic is designed to support plugins for:
 
 - Local files
 - CSV
@@ -168,7 +168,7 @@ Avoid:
 
 ## Key Principle
 
-> Storage plugins provide the physical persistence layer for Pipelantic while
+> Storage plugins provide the physical persistence layer for ETLantic while
 preserving the portable, storage-independent semantics defined by pipeline,
 transformation, and data contracts.
 

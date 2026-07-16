@@ -6,17 +6,17 @@ the Pipeline Plan.
 
 **Status: shipped in 0.5.0** for Polars and Pandas.
 
-Pipelantic does **not** depend on a dataframe library. Install plugins
+ETLantic does **not** depend on a dataframe library. Install plugins
 separately:
 
 ```bash
-pip install pipelantic-polars
-pip install pipelantic-pandas
+pip install etlantic-polars
+pip install etlantic-pandas
 ```
 
 ## Protocol
 
-The versioned protocol is `pipelantic.dataframe/1`. Plugins implement
+The versioned protocol is `etlantic.dataframe/1`. Plugins implement
 materialize → invoke → normalize → validate → metrics → cleanup. The local
 orchestrator consumes the resolved `PipelinePlan` without reselecting an
 engine.

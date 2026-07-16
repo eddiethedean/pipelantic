@@ -1,6 +1,6 @@
 """Graph validation and Mermaid tests."""
 
-from pipelantic import Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic import Input, Output, Pipeline, Sink, Source, Transformation
 from tests.conftest import Customer, RawCustomer
 
 
@@ -40,8 +40,8 @@ def test_cycle_diagnostic() -> None:
     # the public graph and then checking acyclic happy path is valid.
     assert Pipe.validate().valid
 
-    from pipelantic.model import Edge, LogicalGraph, Node, NodeKind
-    from pipelantic.validation import _detect_cycles
+    from etlantic.model import Edge, LogicalGraph, Node, NodeKind
+    from etlantic.validation import _detect_cycles
 
     graph = LogicalGraph(
         pipeline_id="test:Cycle",

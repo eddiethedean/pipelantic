@@ -1,19 +1,19 @@
 # Dependency Strategy
 
-This document records the recommended third-party packages for Pipelantic,
+This document records the recommended third-party packages for ETLantic,
 where they should be used, and which architectural boundaries they must not
 cross.
 
 The recommendations are based on project maturity, maintenance activity,
 typing and API quality, security posture, dependency weight, ecosystem
-adoption, and fit with Pipelantic's public design.
+adoption, and fit with ETLantic's public design.
 
 Versions must be selected and locked when implementation begins. The ranges in
 this document describe compatibility intent, not final pins.
 
 ## Policy
 
-Pipelantic should prefer:
+ETLantic should prefer:
 
 1. the Python standard library when it provides a sufficient stable API;
 2. a small hard-dependency set for behavior central to every installation;
@@ -45,7 +45,7 @@ The base installation should remain intentionally small.
 
 ### ContractModel
 
-Pipelantic should depend on ContractModel's public data-contract interfaces
+ETLantic should depend on ContractModel's public data-contract interfaces
 rather than duplicating its Pydantic and ODCS operational behavior.
 
 This dependency must remain one-directional:
@@ -54,17 +54,17 @@ This dependency must remain one-directional:
 ContractModel
       ▲
       │
-Pipelantic
+ETLantic
 ```
 
-ContractModel must never import Pipelantic.
+ContractModel must never import ETLantic.
 
-If ContractModel's public integration surface is not stable when Pipelantic
+If ContractModel's public integration surface is not stable when ETLantic
 implementation begins, isolate it behind a small internal adapter until it is.
 
 ### Pydantic
 
-Pydantic is justified as a hard dependency because Pipelantic's documented
+Pydantic is justified as a hard dependency because ETLantic's documented
 authoring experience already treats Python types as the modeling language.
 Pydantic provides production-grade type-driven validation, serialization, and
 JSON Schema generation.
@@ -82,7 +82,7 @@ Do not use Pydantic models as mutable runtime state containers. Prefer frozen
 models or standard-library dataclasses for immutable internal graph and plan
 objects when that produces clearer semantics.
 
-Pipelantic should target Pydantic v2 only and define a tested minor-version
+ETLantic should target Pydantic v2 only and define a tested minor-version
 window rather than relying on unbounded upgrades. Pydantic describes itself as
 production-stable and continues to publish active v2 releases.
 
@@ -98,11 +98,11 @@ AnyIO is a strong match for the reference runtime because it supplies:
 - context propagation;
 - pytest integration.
 
-The runtime should expose Pipelantic semantics, not AnyIO objects. AnyIO is
+The runtime should expose ETLantic semantics, not AnyIO objects. AnyIO is
 an implementation dependency behind runtime protocols.
 
 AnyIO also keeps the runtime compatible with asyncio while avoiding hand-built
-task and cancellation management. Pipelantic does not need to promise Trio
+task and cancellation management. ETLantic does not need to promise Trio
 support merely because AnyIO can provide it; backend support should be tested
 and declared explicitly.
 
@@ -149,9 +149,9 @@ and call `EntryPoint.load()` only after trust policy permits the import.
 ## Recommended Extras
 
 Extras belong in the main distribution when they are lightweight integrations
-maintained as part of Pipelantic but are not required by every user.
+maintained as part of ETLantic but are not required by every user.
 
-### `pipelantic[yaml]`
+### `etlantic[yaml]`
 
 Recommended package:
 
@@ -172,11 +172,11 @@ Requirements:
 - pin a tested minor range because the project has evolved its APIs;
 - keep JSON and TOML usable without this extra.
 
-If Pipelantic only needed one-way YAML decoding, PyYAML would be smaller.
+If ETLantic only needed one-way YAML decoding, PyYAML would be smaller.
 The planned source-preserving diagnostics, migration, and formatting workflows
 make `ruamel.yaml` the better fit.
 
-### `pipelantic[jsonschema]`
+### `etlantic[jsonschema]`
 
 Recommended packages:
 
@@ -187,20 +187,20 @@ Use these for standards-facing JSON Schema validation and explicit reference
 registries. `jsonschema` supports current and historical JSON Schema drafts,
 lazy enumeration of validation errors, and structured error paths.
 
-Do not enable network retrieval implicitly. Pipelantic must provide its own
+Do not enable network retrieval implicitly. ETLantic must provide its own
 bounded resolver policy and pass approved resources into `referencing`.
 
 Pydantic remains the Python model validator; `jsonschema` validates portable
 schema artifacts. They solve different problems.
 
-### `pipelantic[cli]`
+### `etlantic[cli]`
 
 Recommended packages:
 
 - `cyclopts`
 - `rich`
 
-Cyclopts fits Pipelantic's type-driven philosophy, supports typed function
+Cyclopts fits ETLantic's type-driven philosophy, supports typed function
 and class parameters, shell completion, and generated CLI documentation. Rich
 provides readable diagnostic tables, trees, progress, and tracebacks.
 
@@ -214,7 +214,7 @@ Security requirements:
 - preserve plain-text and JSON output modes;
 - never make color or terminal detection part of result semantics.
 
-### `pipelantic[http]`
+### `etlantic[http]`
 
 Recommended package:
 
@@ -224,7 +224,7 @@ Use HTTPX for explicitly enabled remote references, callbacks, webhooks, and
 remote providers because it offers synchronous and asynchronous clients with a
 consistent API.
 
-All use must pass through Pipelantic network policy:
+All use must pass through ETLantic network policy:
 
 - destination allowlists;
 - DNS and redirect validation;
@@ -233,7 +233,7 @@ All use must pass through Pipelantic network policy:
 - proxy policy;
 - blocked link-local, loopback, metadata, and private destinations by default.
 
-### `pipelantic[docs]`
+### `etlantic[docs]`
 
 Recommended packages:
 
@@ -252,7 +252,7 @@ no Python runtime dependency.
 Templates and labels must be escaped. Graphviz and documentation subprocesses
 must receive argument lists, never shell strings.
 
-### `pipelantic[observability]`
+### `etlantic[observability]`
 
 Recommended packages:
 
@@ -264,14 +264,14 @@ metrics. Applications or deployment plugins install and configure
 `opentelemetry-sdk` and exporters.
 
 OpenTelemetry currently marks Python traces and metrics stable while its log
-signal remains less mature. Pipelantic should therefore keep standard
+signal remains less mature. ETLantic should therefore keep standard
 Python logging canonical and bridge it to OpenTelemetry through a provider.
 
 `structlog` is a good optional provider for structured event processing, but it
 should not become the logging facade required by every plugin. Plugins log
-through Pipelantic's context or standard `logging`.
+through ETLantic's context or standard `logging`.
 
-### `pipelantic[notebook]`
+### `etlantic[notebook]`
 
 Recommended packages:
 
@@ -283,7 +283,7 @@ diagnostics, lineage, artifacts, and reports in notebooks without changing
 their underlying public models. Ipywidgets may provide optional progress,
 selection, cancellation, and report-navigation controls.
 
-Pipelantic should not depend on the complete Jupyter distribution. JupyterLab,
+ETLantic should not depend on the complete Jupyter distribution. JupyterLab,
 Notebook, VS Code notebooks, and other frontends should consume the same
 IPython display objects and public execution APIs.
 
@@ -307,7 +307,7 @@ runtime dependencies of the notebook extra.
 
 ### AI coding assistants
 
-Pipelantic should generate documentation-only instruction and skill artifacts
+ETLantic should generate documentation-only instruction and skill artifacts
 for Codex, Claude Code, and Cursor without depending on their model SDKs.
 Repository guidance and task workflows should be generated from one canonical,
 vendor-neutral catalog rather than maintained as divergent prompts.
@@ -319,7 +319,7 @@ and model APIs belong only in separately distributed adapters with their own
 authentication, network, retention, and security policies.
 
 An optional read-only MCP server should evaluate the official MCP Python SDK
-when implementation begins. It must expose Pipelantic's public inspection APIs
+when implementation begins. It must expose ETLantic's public inspection APIs
 rather than creating a second internal API.
 
 ## Separate Plugin Dependencies
@@ -331,12 +331,12 @@ plugin distributions.
 
 | Distribution concept | Dependencies |
 |---|---|
-| `pipelantic-polars` | `polars`, optional `pyarrow` |
-| `pipelantic-pandas` | `pandas`, optional `pyarrow` |
+| `etlantic-polars` | `polars`, optional `pyarrow` |
+| `etlantic-pandas` | `pandas`, optional `pyarrow` |
 | Shared Arrow interchange extra | `pyarrow` |
 
 Polars should remain the reference dataframe backend. Pandas should remain a
-fully supported compatibility backend. Neither is imported by Pipelantic
+fully supported compatibility backend. Neither is imported by ETLantic
 core.
 
 PyArrow is valuable for cross-backend tabular interchange and Parquet, but its
@@ -355,19 +355,19 @@ SQLAlchemy Core is mature and provides composable SQL expressions, bind
 parameters, dialect compilation, connections, and transactions without
 requiring its ORM.
 
-Pipelantic should not expose SQLAlchemy classes from core protocols. A SQL
+ETLantic should not expose SQLAlchemy classes from core protocols. A SQL
 plugin may accept or adapt them.
 
 Do not add SQLGlot merely because it is powerful. Adopt it only if
-Pipelantic needs to parse user SQL or perform cross-dialect AST analysis
+ETLantic needs to parse user SQL or perform cross-dialect AST analysis
 that SQLAlchemy does not provide. Query optimization remains database-owned
-unless Pipelantic can prove semantic preservation.
+unless ETLantic can prove semantic preservation.
 
 ### SQLModel integration
 
 Recommended package:
 
-- `sqlmodel`, in a separate `pipelantic-sqlmodel` distribution
+- `sqlmodel`, in a separate `etlantic-sqlmodel` distribution
 - optional `alembic` support for reviewed schema migrations
 
 SQLModel combines Pydantic and SQLAlchemy table models and is designed to work
@@ -379,7 +379,7 @@ It should not replace SQLAlchemy Core in the SQL execution plugin. Bulk ETL,
 portable SQL expressions, transactions, dialect compilation, write intents,
 and query execution remain SQL-plugin responsibilities.
 
-Pipelantic core must not import SQLModel or expose its sessions, engines,
+ETLantic core must not import SQLModel or expose its sessions, engines,
 metadata, or ORM instances in public protocols. Provider protocols remain the
 stable boundary, with SQLModel supplying optional reference implementations.
 
@@ -404,7 +404,7 @@ separate dependencies:
 - `adlfs` for Azure;
 - provider SDKs only where their capabilities are required.
 
-Pipelantic security policy must still govern schemes, destinations,
+ETLantic security policy must still govern schemes, destinations,
 credentials, and path access. Fsspec is an interface, not a security boundary.
 
 ### Retry execution
@@ -416,7 +416,7 @@ Recommended package:
 Tenacity supplies synchronous and asynchronous retry controllers, bounded stop
 conditions, waits, predicates, and callbacks.
 
-Do not expose Tenacity policies as Pipelantic's public retry model. Translate
+Do not expose Tenacity policies as ETLantic's public retry model. Translate
 portable `RetryPolicy` values into Tenacity internally. Never use Tenacity's
 unbounded default retry behavior.
 
@@ -442,14 +442,14 @@ distributions only.
 
 ### FastAPI integration
 
-The post-1.0 control API belongs in a separate `pipelantic-fastapi`
+The post-1.0 control API belongs in a separate `etlantic-fastapi`
 distribution.
 
 Recommended dependencies:
 
 - `fastapi` for typed HTTP APIs, OpenAPI 3.1, dependencies, lifespan, and
   WebSockets;
-- Pipelantic core for plans, run requests, reports, events, and registries;
+- ETLantic core for plans, run requests, reports, events, and registries;
 - optional `uvicorn` extra for standalone development and serving;
 - an SSE implementation selected after evaluating compatibility with current
   Starlette response streaming and cancellation behavior.
@@ -460,7 +460,7 @@ runtime, queue, or orchestrator.
 
 ### Secret-provider plugins
 
-Pipelantic core should define `SecretRef`, `SecretValue`, and the Secret
+ETLantic core should define `SecretRef`, `SecretValue`, and the Secret
 Provider protocol without requiring a secret-manager SDK.
 
 | Provider concept | Packages | Decision |
@@ -478,7 +478,7 @@ it supplies a cross-platform interface to supported system credential stores.
 Pydantic `SecretStr` and `SecretBytes` are useful protected value types at
 configuration boundaries, but they do not retrieve, rotate, lease, or revoke
 secrets. `pydantic-settings` may be evaluated for application configuration and
-mounted secret files; it should not become Pipelantic's provider abstraction.
+mounted secret files; it should not become ETLantic's provider abstraction.
 
 The AWS cache package is not a universal cache layer. AWS documents that it is
 not security hardened and does not force cache invalidation. Provider caching
@@ -491,7 +491,7 @@ must remain bounded, scoped, configurable, and covered by rotation tests.
 Pluggy is a high-quality plugin and hook system proven by pytest. It supports
 hook specifications, multiple implementations, ordering, wrappers, and tracing.
 
-Pipelantic should not make it a hard dependency initially because:
+ETLantic should not make it a hard dependency initially because:
 
 - execution plugins are capability-bearing objects rather than primarily
   multi-subscriber hooks;
@@ -508,7 +508,7 @@ whose ordering and wrapper behavior would otherwise be reimplemented.
 NetworkX offers a mature collection of DAG algorithms, including ancestors,
 descendants, topological generations, closure, reduction, and longest paths.
 
-Do not make it a runtime dependency for the first milestones. Pipelantic
+Do not make it a runtime dependency for the first milestones. ETLantic
 needs a strongly typed, deterministic, source-aware graph whose diagnostics and
 identity rules it owns. The standard library plus small owned algorithms should
 cover the initial DAG requirements.
@@ -527,7 +527,7 @@ The public serialization schemas must remain independent of the encoder.
 ### Platformdirs
 
 `platformdirs` is well suited to user cache and configuration locations. Add it
-to the CLI extra if Pipelantic begins storing user-level state. Do not add it
+to the CLI extra if ETLantic begins storing user-level state. Do not add it
 before that need exists.
 
 ## Development Dependencies
@@ -649,7 +649,7 @@ The review should record:
 - license compatibility;
 - wheel availability for supported platforms;
 - import-time and installation-size impact;
-- deprecations affecting Pipelantic;
+- deprecations affecting ETLantic;
 - whether the dependency still earns its tier.
 
 The goal is not zero dependencies. The goal is a small set of excellent

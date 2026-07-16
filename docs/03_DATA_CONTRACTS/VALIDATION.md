@@ -1,8 +1,8 @@
 # Validation
 
-Validation is a core part of the Pipelantic data-contract lifecycle.
+Validation is a core part of the ETLantic data-contract lifecycle.
 
-Pipelantic coordinates **when** validation happens, ContractModel defines **what valid data means**, and execution plugins determine **how validation is performed efficiently** for a chosen runtime.
+ETLantic coordinates **when** validation happens, ContractModel defines **what valid data means**, and execution plugins determine **how validation is performed efficiently** for a chosen runtime.
 
 The architectural boundary is:
 
@@ -14,7 +14,7 @@ ContractModel
 Defines contract semantics
       │
       ▼
-Pipelantic
+ETLantic
 Coordinates validation boundaries
       │
       ▼
@@ -50,9 +50,9 @@ ContractModel owns:
 - Data-contract diagnostics
 - Validation reports
 
-### Pipelantic
+### ETLantic
 
-Pipelantic owns:
+ETLantic owns:
 
 - Validation timing
 - Validation policy
@@ -78,7 +78,7 @@ Execution plugins own:
 
 ## Validation Boundaries
 
-Pipelantic may validate data at four primary boundaries.
+ETLantic may validate data at four primary boundaries.
 
 ### 1. Source output validation
 
@@ -106,7 +106,7 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 ```
 
-Pipelantic verifies that the provided input is governed by a compatible contract.
+ETLantic verifies that the provided input is governed by a compatible contract.
 
 Runtime validation may also confirm that the actual data satisfies `RawCustomer`.
 
@@ -130,7 +130,7 @@ The recommended default is to fail the node.
 
 ### 4. Sink input validation
 
-Before a sink writes or publishes data, Pipelantic may validate the input against the sink contract.
+Before a sink writes or publishes data, ETLantic may validate the input against the sink contract.
 
 This is the final publication boundary and should usually receive the strongest validation policy.
 
@@ -286,9 +286,9 @@ PluginValidationCapabilities(
 )
 ```
 
-Pipelantic uses this information during planning.
+ETLantic uses this information during planning.
 
-If a required constraint is unsupported, Pipelantic may:
+If a required constraint is unsupported, ETLantic may:
 
 - Fall back to ContractModel
 - Materialize data
@@ -299,7 +299,7 @@ Silent omission is not allowed.
 
 ## Validation Modes
 
-Pipelantic should support several validation modes.
+ETLantic should support several validation modes.
 
 ### Full
 
@@ -342,7 +342,7 @@ Profiles should make this distinction explicit.
 A profile may configure validation behavior:
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 production = Profile(
     name="production",
@@ -370,7 +370,7 @@ Possible actions include:
 Example:
 
 ```python
-from pipelantic import (
+from etlantic import (
     InvalidDataAction,
     InvalidDataContext,
     on_invalid_data,
@@ -387,7 +387,7 @@ def handle_invalid_customers(
     )
 ```
 
-Pipelantic coordinates the action.
+ETLantic coordinates the action.
 
 Plugins carry out the actual split, write, or quarantine.
 
@@ -482,7 +482,7 @@ Value does not satisfy the declared email constraint.
 
 Diagnostics must avoid exposing sensitive values.
 
-ContractModel and Pipelantic should support:
+ContractModel and ETLantic should support:
 
 - Redacted values
 - Omitted values
@@ -495,7 +495,7 @@ Personally identifiable information, secrets, and regulated data should not be l
 
 ## Error Translation
 
-Pydantic errors should be translated into Pipelantic validation diagnostics.
+Pydantic errors should be translated into ETLantic validation diagnostics.
 
 ```text
 Pydantic ValidationError
@@ -504,7 +504,7 @@ Pydantic ValidationError
 ContractModel Validation Report
         │
         ▼
-Pipelantic InvalidDataContext
+ETLantic InvalidDataContext
         │
         ▼
 Callback and InvalidDataAction
@@ -528,7 +528,7 @@ async def handle_invalid(context):
     ...
 ```
 
-Pipelantic normalizes both through its internal async invocation layer.
+ETLantic normalizes both through its internal async invocation layer.
 
 Validation plugins may also expose sync or async implementations.
 
@@ -570,7 +570,7 @@ Actual output data validation
 
 ContractModel owns compatibility analysis.
 
-Pipelantic invokes it during graph validation.
+ETLantic invokes it during graph validation.
 
 ## Validation Pushdown
 
@@ -591,7 +591,7 @@ The logical contract remains the source of truth.
 
 ## Fallback Validation
 
-When pushdown is incomplete, Pipelantic may fall back to ContractModel validation.
+When pushdown is incomplete, ETLantic may fall back to ContractModel validation.
 
 ```text
 Plugin-native checks
@@ -616,7 +616,7 @@ Streaming validation introduces additional concerns:
 - Partial failures
 - Checkpoint behavior
 
-Pipelantic should treat streaming validation as a plugin capability.
+ETLantic should treat streaming validation as a plugin capability.
 
 A contract may remain the same while enforcement strategy differs.
 
@@ -753,8 +753,8 @@ Plugins should compile or enforce ContractModel semantics, not invent independen
 
 ## Key Principle
 
-> ContractModel defines validity. Pipelantic decides where and when validity is checked. Execution plugins perform the check using the most appropriate runtime strategy.
+> ContractModel defines validity. ETLantic decides where and when validity is checked. Execution plugins perform the check using the most appropriate runtime strategy.
 
 ## Next Step
 
-Continue with **VERSIONING.md** to learn how data contracts evolve, how compatibility is evaluated, and how Pipelantic validates contract versions across pipeline boundaries.
+Continue with **VERSIONING.md** to learn how data contracts evolve, how compatibility is evaluated, and how ETLantic validates contract versions across pipeline boundaries.

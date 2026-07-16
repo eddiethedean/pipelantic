@@ -1,6 +1,6 @@
 # Project Structure
 
-A well-organized Pipelantic project separates **modeling** from
+A well-organized ETLantic project separates **modeling** from
 **execution**. Your Python classes define contracts and pipelines, while
 runtime configuration and generated artifacts remain outside your source
 code.
@@ -90,14 +90,14 @@ Example:
 
 - Local Python (`"local"`)
 - Polars / Pandas (optional plugins in 0.5+)
-- SQL (`"sql"` via `pipelantic-sql` and `Profile.sql_engine` in 0.6+)
+- SQL (`"sql"` via `etlantic-sql` and `Profile.sql_engine` in 0.6+)
 - Spark / remote (future)
 
 A single transformation contract may have multiple implementations.
 
 ### pipelines/
 
-Contains Pipelantic pipeline definitions.
+Contains ETLantic pipeline definitions.
 
 ``` python
 class CustomerPipeline(Pipeline):
@@ -165,13 +165,13 @@ Separate contract validation from execution testing whenever possible.
 
 Keep project-specific documentation in a local `docs/` directory.
 
-Pipelantic itself has its own documentation, while each project
+ETLantic itself has its own documentation, while each project
 documents business-specific pipelines, assumptions, and operational
 guidance.
 
 ## Design Principles
 
-A Pipelantic project should follow these principles:
+A ETLantic project should follow these principles:
 
 -   Data contracts are isolated from execution code.
 -   Transformations define interfaces before implementations.
@@ -192,4 +192,4 @@ existing implementations.
 ## Next Step
 
 Continue with **FAQ.md** for answers to common questions about
-Pipelantic's architecture and philosophy.
+ETLantic's architecture and philosophy.

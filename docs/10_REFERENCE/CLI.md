@@ -1,11 +1,11 @@
 # Command-Line Interface
 
-> **Status: Available in Pipelantic 0.6.0.** This page documents the commands
+> **Status: Available in ETLantic 0.6.0.** This page documents the commands
 > implemented by the installed package.
 
 ```bash
-pipelantic --help
-pipelantic --version
+etlantic --help
+etlantic --version
 ```
 
 Pipeline targets use `package.module:PipelineClass` or
@@ -16,7 +16,7 @@ Pipeline targets use `package.module:PipelineClass` or
 Validate without executing transformation code:
 
 ```bash
-pipelantic validate examples/quickstart.py:CustomerPipeline \
+etlantic validate examples/quickstart.py:CustomerPipeline \
   --profile development
 ```
 
@@ -32,8 +32,8 @@ Exit status is 0 for a valid pipeline and 1 for validation errors.
 Print the logical pipeline graph:
 
 ```bash
-pipelantic inspect examples/quickstart.py:CustomerPipeline
-pipelantic inspect examples/quickstart.py:CustomerPipeline --format json
+etlantic inspect examples/quickstart.py:CustomerPipeline
+etlantic inspect examples/quickstart.py:CustomerPipeline --format json
 ```
 
 ## `plan`
@@ -41,7 +41,7 @@ pipelantic inspect examples/quickstart.py:CustomerPipeline --format json
 Resolve a deterministic `PipelinePlan`:
 
 ```bash
-pipelantic plan examples/quickstart.py:CustomerPipeline \
+etlantic plan examples/quickstart.py:CustomerPipeline \
   --profile development
 ```
 
@@ -56,10 +56,10 @@ The default output format is JSON. Selection options are:
 Explain resolution decisions with either form:
 
 ```bash
-pipelantic plan explain examples/quickstart.py:CustomerPipeline \
+etlantic plan explain examples/quickstart.py:CustomerPipeline \
   --profile development
 
-pipelantic plan examples/quickstart.py:CustomerPipeline \
+etlantic plan examples/quickstart.py:CustomerPipeline \
   --profile development --explain
 ```
 
@@ -68,7 +68,7 @@ pipelantic plan examples/quickstart.py:CustomerPipeline \
 Validate, plan, and execute with the local runtime:
 
 ```bash
-pipelantic run examples/quickstart.py:CustomerPipeline \
+etlantic run examples/quickstart.py:CustomerPipeline \
   --profile development
 ```
 
@@ -87,8 +87,8 @@ setup for CLI execution.
 ## `report`
 
 ```bash
-pipelantic report show RUN_ID --format text
-pipelantic report export RUN_ID --format json --output report.json
+etlantic report show RUN_ID --format text
+etlantic report export RUN_ID --format json --output report.json
 ```
 
 The built-in CLI report store is process-local. A report created by a previous
@@ -98,4 +98,4 @@ CLI process is not available to a new invocation.
 
 `init`, `compile`, `generate`, `graph`, `plugins`, and `config` are future CLI
 designs. Do not depend on them until they appear in this current-version
-reference and in `pipelantic --help`.
+reference and in `etlantic --help`.

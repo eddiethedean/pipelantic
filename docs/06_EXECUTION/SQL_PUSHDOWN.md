@@ -7,7 +7,7 @@ capabilities; unsupported features fail closed at planning.
 SQL pushdown is the process of moving eligible pipeline operations into the
 database so computation occurs as close to the data as possible.
 
-Pipelantic uses pushdown as an execution optimization. The logical pipeline,
+ETLantic uses pushdown as an execution optimization. The logical pipeline,
 contracts, transformation interfaces, lineage, validation boundaries, and
 failure semantics remain unchanged.
 
@@ -203,7 +203,7 @@ The planner should minimize transitions while preserving required semantics.
 
 ## Capability Analysis
 
-Before pushdown, Pipelantic should verify:
+Before pushdown, ETLantic should verify:
 
 - Dialect support
 - Function support
@@ -230,7 +230,7 @@ Validation may occur through:
 - Post-query validation
 - ContractModel fallback
 
-If the database cannot enforce a required rule, Pipelantic must preserve the
+If the database cannot enforce a required rule, ETLantic must preserve the
 validation boundary through another strategy.
 
 ## Semantic Preservation
@@ -293,7 +293,7 @@ String interpolation should not be used for user-controlled values.
 
 ## Query Inspection
 
-Pipelantic should make generated SQL inspectable.
+ETLantic should make generated SQL inspectable.
 
 Conceptually:
 
@@ -345,7 +345,7 @@ explain = sql_plan.explain()
 
 Database explain output is runtime metadata.
 
-It should supplement, not replace, the Pipelantic `PipelinePlan`.
+It should supplement, not replace, the ETLantic `PipelinePlan`.
 
 ## Cost-Based Selection
 
@@ -404,7 +404,7 @@ represent each logical transformation and dataset relationship.
 
 Fused SQL execution can change failure granularity.
 
-Pipelantic must preserve declared semantics by determining whether:
+ETLantic must preserve declared semantics by determining whether:
 
 - Steps may be fused safely
 - Separate transactions are required
@@ -469,7 +469,7 @@ Avoid:
 ## Key Principle
 
 > SQL pushdown changes where computation runs, not what the pipeline means.
-> Pipelantic may move eligible operations into the database only when it can
+> ETLantic may move eligible operations into the database only when it can
 > preserve contracts, validation, lineage, diagnostics, and observable behavior.
 
 ## Next Step

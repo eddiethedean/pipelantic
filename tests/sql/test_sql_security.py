@@ -6,8 +6,8 @@ import os
 
 import pytest
 
-from pipelantic.sql import RelationRef, col, lit, select
-from pipelantic.sql.protocol import LiteralExpr, SqlExecutionContext, SqlQuery
+from etlantic.sql import RelationRef, col, lit, select
+from etlantic.sql.protocol import LiteralExpr, SqlExecutionContext, SqlQuery
 
 pytestmark = pytest.mark.sql
 
@@ -15,8 +15,8 @@ pytestmark = pytest.mark.sql
 @pytest.fixture
 def sql_plugin():
     pytest.importorskip("sqlalchemy")
-    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
+    os.environ.setdefault("ETLANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    from etlantic_sql import create_plugin
 
     return create_plugin()
 

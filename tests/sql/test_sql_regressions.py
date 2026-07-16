@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -15,21 +15,21 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.exceptions import NodeExecutionError
-from pipelantic.model import LogicalGraph, Node, NodeKind
-from pipelantic.plan.model import PipelinePlan
-from pipelantic.registry import (
+from etlantic.exceptions import NodeExecutionError
+from etlantic.model import LogicalGraph, Node, NodeKind
+from etlantic.plan.model import PipelinePlan
+from etlantic.registry import (
     BindingDescriptor,
     PlanningContext,
     builtin_stub_registry,
 )
-from pipelantic.runtime.logging import redact_message
-from pipelantic.runtime.request import RetryPolicy, RunRequest
-from pipelantic.runtime.sql_exec import execute_sql_sink, safe_staging_name
-from pipelantic.sql import RelationRef, col, select
-from pipelantic.sql.discovery import register_discovered_plugins
-from pipelantic.sql.expression import col as col_expr
-from pipelantic.sql.protocol import SqlExecutionContext, TransactionOutcome
+from etlantic.runtime.logging import redact_message
+from etlantic.runtime.request import RetryPolicy, RunRequest
+from etlantic.runtime.sql_exec import execute_sql_sink, safe_staging_name
+from etlantic.sql import RelationRef, col, select
+from etlantic.sql.discovery import register_discovered_plugins
+from etlantic.sql.expression import col as col_expr
+from etlantic.sql.protocol import SqlExecutionContext, TransactionOutcome
 
 pytestmark = pytest.mark.sql
 
@@ -75,7 +75,7 @@ def test_invalid_write_intent_fails_closed(sql_plugin) -> None:
     import anyio
 
     plan = PipelinePlan(
-        schema="pipelantic.plan/1",
+        schema="etlantic.plan/1",
         plan_id="p",
         pipeline_id="pipe",
         pipeline_name="pipe",
@@ -142,7 +142,7 @@ def test_write_failure_marks_run_failed(sql_plugin) -> None:
 
 
 def test_unknown_commit_not_retried() -> None:
-    from pipelantic.runtime.orchestrator import LocalOrchestrator
+    from etlantic.runtime.orchestrator import LocalOrchestrator
 
     orch = LocalOrchestrator.__new__(LocalOrchestrator)
     orch.request = RunRequest(

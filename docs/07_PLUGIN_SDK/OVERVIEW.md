@@ -1,7 +1,7 @@
 # Plugin SDK Overview
 
-The Pipelantic Plugin SDK defines the public interfaces used to extend
-Pipelantic without modifying its core.
+The ETLantic Plugin SDK defines the public interfaces used to extend
+ETLantic without modifying its core.
 
 The core framework is responsible for modeling, validation, planning, contract
 coordination, common lifecycle semantics, and result normalization. Plugins
@@ -21,7 +21,7 @@ The Plugin SDK exists to:
 ## Architecture
 
 ```text
-Pipelantic Core
+ETLantic Core
         │
         ▼
 Validation
@@ -72,7 +72,7 @@ Every plugin follows the same high-level lifecycle:
 
 ## Plugin Categories
 
-Pipelantic currently defines several plugin categories:
+ETLantic currently defines several plugin categories:
 
 - Execution Plugins
 - Dataframe Plugins
@@ -106,7 +106,7 @@ execution.
 
 Plugins should publish compatibility information for:
 
-- Pipelantic
+- ETLantic
 - ODCS
 - DTCS
 - DPCS
@@ -123,7 +123,7 @@ This allows the ecosystem to evolve while maintaining predictable behavior.
 
 ## Key Principle
 
-> Pipelantic provides the portable execution model. The Plugin SDK enables
+> ETLantic provides the portable execution model. The Plugin SDK enables
 > implementations to extend that model while preserving its semantics and
 > interoperability.
 

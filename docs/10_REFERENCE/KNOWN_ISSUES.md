@@ -1,7 +1,7 @@
 # Known Limitations
 
 - The project is alpha and does not promise 1.0 API stability.
-- Local execution is in-process; Pipelantic is not a distributed scheduler.
+- Local execution is in-process; ETLantic is not a distributed scheduler.
 - Spark, Airflow, and other non-SQL distributed backends are not included in
   0.6.
 - SQL plugins do not treat untrusted raw SQL as safe; use the typed expression
@@ -9,8 +9,8 @@
 - `MERGE` / upsert is not implemented in the 0.6 reference plugin; requiring
   `sql_merge` fails closed at planning. Do not rely on merge until a later
   release advertises and implements it.
-- SQLite via `PIPELANTIC_SQL_URL` is demo-only; it is not the SQL conformance
-  reference (PostgreSQL via `pipelantic-sql` is).
+- SQLite via `ETLANTIC_SQL_URL` is demo-only; it is not the SQL conformance
+  reference (PostgreSQL via `etlantic-sql` is).
 - Cross-database joins and distributed transactions are not supported.
 - Polars LazyFrames are collected only at plan-declared boundaries; durable
   JSON workspace materialization requires collection to records first.
@@ -31,4 +31,4 @@
   rather than edited by hand.
 
 Release-specific fixes and changes are recorded in the
-[changelog](https://github.com/eddiethedean/pipelantic/blob/main/CHANGELOG.md).
+[changelog](https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md).

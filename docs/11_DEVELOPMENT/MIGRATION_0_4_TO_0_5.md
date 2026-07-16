@@ -2,12 +2,12 @@
 
 ## Core remains engine-free
 
-Installing `pipelantic` alone does not install Polars, Pandas, PyArrow, or
+Installing `etlantic` alone does not install Polars, Pandas, PyArrow, or
 NumPy. Add dataframe backends explicitly:
 
 ```bash
-pip install pipelantic-polars
-pip install pipelantic-pandas
+pip install etlantic-polars
+pip install etlantic-pandas
 ```
 
 ## Implementation engines

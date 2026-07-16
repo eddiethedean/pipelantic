@@ -1,20 +1,20 @@
 # Exceptions Reference
 
-> **Status: Available in Pipelantic 0.6.0.** This page documents exceptions
+> **Status: Available in ETLantic 0.6.0.** This page documents exceptions
 > exported by the installed package. Broader 1.0 exception trees on older
 > design pages are not authoritative.
 
-Pipelantic uses structured diagnostics for expected contract and pipeline
+ETLantic uses structured diagnostics for expected contract and pipeline
 problems. Exceptions represent failures in model definition, validation
 escalation, or runtime execution.
 
 ## Hierarchy (shipped)
 
 ```text
-PipelanticError
+ETLanticError
 ├── ModelDefinitionError
 ├── PipelineValidationError
-├── InternalPipelanticError
+├── InternalETLanticError
 └── PipelineExecutionError
     ├── NodeExecutionError
     ├── DataValidationError
@@ -23,7 +23,7 @@ PipelanticError
 ```
 
 ```python
-from pipelantic import (
+from etlantic import (
     DataValidationError,
     ModelDefinitionError,
     NodeExecutionError,
@@ -31,15 +31,15 @@ from pipelantic import (
     PipelineExecutionError,
     PipelineTimeoutError,
     PipelineValidationError,
-    PipelanticError,
+    ETLanticError,
 )
 ```
 
 ## Base Exception
 
 ```python
-class PipelanticError(Exception):
-    """Base class for public Pipelantic exceptions."""
+class ETLanticError(Exception):
+    """Base class for public ETLantic exceptions."""
 ```
 
 Applications may catch this base class at integration boundaries, but should
@@ -69,7 +69,7 @@ Messages are redacted before entering reports and logs.
 
 ## Internal
 
-`InternalPipelanticError` signals a violated internal invariant. Treat it as a
+`InternalETLanticError` signals a violated internal invariant. Treat it as a
 bug report candidate, not a normal control-flow signal.
 
 ## Diagnostics vs exceptions

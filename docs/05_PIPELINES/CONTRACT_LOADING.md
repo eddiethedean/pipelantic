@@ -1,9 +1,9 @@
 # Contract Loading
 
-Contract loading allows Pipelantic to construct in-memory models from
+Contract loading allows ETLantic to construct in-memory models from
 portable contract artifacts.
 
-While Pipelantic recommends a **code-first** workflow using strongly typed
+While ETLantic recommends a **code-first** workflow using strongly typed
 Python classes, it also supports **contract-first** workflows by loading ODCS,
 DTCS, and DPCS artifacts into the same typed logical pipeline model.
 
@@ -42,14 +42,14 @@ The source format should not affect pipeline behavior.
 
 ## Supported Contract Types
 
-Pipelantic can load:
+ETLantic can load:
 
 - ODCS Data Contracts
 - DTCS Transformation Contracts
 - DPCS Pipeline Contracts
 
 Each contract is loaded into its domain model, then connected through the same
-logical pipeline representation used by the code-first APIs. Pipelantic does
+logical pipeline representation used by the code-first APIs. ETLantic does
 not flatten data, transformation, and pipeline contracts into one universal
 domain object.
 
@@ -58,8 +58,8 @@ domain object.
 Conceptually:
 
 ```python
-from pipelantic import Data, load_data_contract
-from pipelantic import Pipeline, Transformation
+from etlantic import Data, load_data_contract
+from etlantic import Pipeline, Transformation
 
 customer = load_data_contract("customer.odcs.yaml")
 
@@ -78,7 +78,7 @@ URLs.
 ## Typed Logical Model
 
 Loaded contracts retain their domain-specific representations while
-Pipelantic builds common references, ports, and graph relationships around
+ETLantic builds common references, ports, and graph relationships around
 them.
 
 The logical model preserves:
@@ -131,7 +131,7 @@ Invalid contracts should fail before planning begins.
 
 ## Serialization Independence
 
-Pipelantic separates semantics from serialization.
+ETLantic separates semantics from serialization.
 
 Equivalent contracts expressed as:
 
@@ -232,7 +232,7 @@ Avoid:
 ## Key Principle
 
 > Contract loading converts portable ODCS, DTCS, and DPCS artifacts into a
-canonical Pipelantic object model that is independent of serialization,
+canonical ETLantic object model that is independent of serialization,
 storage location, and authoring workflow.
 
 ## Next Step

@@ -1,6 +1,6 @@
 # Observability Provider
 
-An observability provider receives Pipelantic lifecycle events, structured
+An observability provider receives ETLantic lifecycle events, structured
 logs, metrics, traces, and lineage signals and routes them to external systems.
 
 It does not define pipeline semantics or determine whether execution succeeds.
@@ -91,7 +91,7 @@ Multiple providers may subscribe to the same event stream.
 
 ## Redaction
 
-Pipelantic should redact records before provider dispatch. Providers may add
+ETLantic should redact records before provider dispatch. Providers may add
 further controls but must never weaken the core redaction policy.
 
 ## Conformance

@@ -5,7 +5,7 @@
     subclass `Data`. Prefer:
 
     ```python
-    from pipelantic import Data
+    from etlantic import Data
 
     class Customer(Data):
         customer_id: int
@@ -13,20 +13,20 @@
         last_name: str
     ```
 
-    Importing `DataContractModel` from `pipelantic` emits a deprecation
+    Importing `DataContractModel` from `etlantic` emits a deprecation
     warning. This page remains for migration context only.
 
 ## Why the rename
 
-Pipelantic's preferred public name for a typed dataset contract is `Data`.
+ETLantic's preferred public name for a typed dataset contract is `Data`.
 Under the hood it remains a thin alias of ContractModel's `ContractModel`.
-The older Pipelantic-facing name `DataContractModel` confused the boundary
-between ContractModel and Pipelantic.
+The older ETLantic-facing name `DataContractModel` confused the boundary
+between ContractModel and ETLantic.
 
 ## Migration
 
-1. Replace `from pipelantic import DataContractModel` with
-   `from pipelantic import Data`.
+1. Replace `from etlantic import DataContractModel` with
+   `from etlantic import Data`.
 2. Replace `class X(DataContractModel)` with `class X(Data)`.
 3. Load ODCS with `load_data_contract(...)` and write with `write_odcs(...)`.
 

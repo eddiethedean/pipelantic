@@ -1,10 +1,10 @@
 # Spark Optimization
 
-Spark optimization in Pipelantic is the process of improving the physical
+Spark optimization in ETLantic is the process of improving the physical
 execution of Spark-capable pipeline regions without changing the logical
 semantics of the pipeline.
 
-Pipelantic optimizes from the validated Pipeline Plan. It does not require
+ETLantic optimizes from the validated Pipeline Plan. It does not require
 pipeline authors to encode Spark-specific tuning into transformation contracts
 or pipeline topology.
 
@@ -43,14 +43,14 @@ Catalyst Optimizer
 Physical Spark Plan
 ```
 
-Pipelantic performs framework-level optimization before Spark performs its
+ETLantic performs framework-level optimization before Spark performs its
 own logical and physical optimization.
 
 ## Optimization Layers
 
 Spark execution includes several optimization layers.
 
-### Pipelantic planning
+### ETLantic planning
 
 Determines:
 
@@ -122,7 +122,7 @@ Benefits include:
 - Better join optimization
 - Less serialization
 
-Fusion is permitted only when Pipelantic can preserve:
+Fusion is permitted only when ETLantic can preserve:
 
 - Validation semantics
 - Failure boundaries
@@ -134,7 +134,7 @@ Fusion is permitted only when Pipelantic can preserve:
 
 ## Region Splitting
 
-Pipelantic should split Spark regions when required.
+ETLantic should split Spark regions when required.
 
 Reasons include:
 
@@ -155,7 +155,7 @@ Splitting should be explicit in the plan.
 
 Spark transformations should remain lazy until an action is required.
 
-Pipelantic should detect or discourage accidental actions such as:
+ETLantic should detect or discourage accidental actions such as:
 
 - `collect()`
 - `count()`
@@ -207,7 +207,7 @@ Pushdown capabilities depend on the source plugin.
 
 Only required columns should be read and retained.
 
-Pipelantic can derive required columns from:
+ETLantic can derive required columns from:
 
 - Transformation inputs
 - Output contracts
@@ -247,7 +247,7 @@ remain compatible.
 
 Join performance is often the dominant Spark optimization concern.
 
-Pipelantic may consider:
+ETLantic may consider:
 
 - Input sizes
 - Partitioning
@@ -291,7 +291,7 @@ They may require:
 - Compatible key types
 - Adequate partition counts
 
-Pipelantic should not force a physical join strategy unless necessary.
+ETLantic should not force a physical join strategy unless necessary.
 
 ## Shuffle Hash Joins
 
@@ -303,7 +303,7 @@ The plugin should treat them as runtime choices rather than pipeline semantics.
 
 Catalyst may reorder joins.
 
-Pipelantic should allow reordering only when:
+ETLantic should allow reordering only when:
 
 - Logical equivalence is preserved.
 - Outer join semantics are not changed.
@@ -329,7 +329,7 @@ Salting changes physical representation and must not affect logical outputs.
 
 Partitioning affects performance and resource use.
 
-Pipelantic may reason about:
+ETLantic may reason about:
 
 - Current partitioning
 - Required partitioning
@@ -387,7 +387,7 @@ spark.sql.shuffle.partitions
 
 A fixed default may be inefficient across workloads.
 
-Pipelantic may support:
+ETLantic may support:
 
 - Profile-defined values
 - Size-based recommendations
@@ -409,7 +409,7 @@ Capabilities include:
 
 Profiles may enable AQE.
 
-Pipelantic should record whether AQE is required, preferred, or optional.
+ETLantic should record whether AQE is required, preferred, or optional.
 
 ## Statistics
 
@@ -633,7 +633,7 @@ A backend transition should have an explicit reason.
 
 Validation can cause additional scans.
 
-Pipelantic may optimize by:
+ETLantic may optimize by:
 
 - Combining multiple validation expressions
 - Reusing aggregates
@@ -806,7 +806,7 @@ Conceptually:
 compiled.explain(mode="formatted")
 ```
 
-Spark explain output supplements Pipelantic's optimization report.
+Spark explain output supplements ETLantic's optimization report.
 
 ## Determinism
 
@@ -954,13 +954,13 @@ Avoid:
 ## Key Principle
 
 > Spark optimization changes the physical execution strategy, not the logical
-> pipeline. Pipelantic may fuse regions, push operations down, adjust
+> pipeline. ETLantic may fuse regions, push operations down, adjust
 > partitioning, cache, checkpoint, and select Spark strategies only when it can
 > preserve contracts, validation, lineage, failure behavior, and observable
 > results.
 
 ## Next Step
 
-Continue with **STRUCTURED_STREAMING.md** to define how Pipelantic models and
+Continue with **STRUCTURED_STREAMING.md** to define how ETLantic models and
 executes event-time processing, watermarks, stateful transformations,
 checkpoints, and streaming sink guarantees with PySpark.

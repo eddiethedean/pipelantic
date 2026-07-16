@@ -1,0 +1,315 @@
+"""Immutable PipelinePlan IR (schema etlantic.plan/1)."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from etlantic.model import Edge, LogicalGraph, Node, NodeKind, ParameterSpec, PortSpec
+from etlantic.plan.artifacts import ArtifactRef
+from etlantic.plan.regions import ExecutionRegion, MaterializationBoundary
+from etlantic.registry import BindingDescriptor, ImplementationDescriptor
+
+PLAN_SCHEMA = "etlantic.plan/1"
+
+
+@dataclass(frozen=True, slots=True)
+class PhysicalUnit:
+    """A physical execution unit mapped from one or more logical nodes."""
+
+    identity: str
+    region_id: str
+    logical_nodes: tuple[str, ...]
+    engine: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize physical unit."""
+        return {
+            "identity": self.identity,
+            "region_id": self.region_id,
+            "logical_nodes": list(self.logical_nodes),
+            "engine": self.engine,
+            "metadata": dict(self.metadata),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PhysicalUnit:
+        """Deserialize physical unit."""
+        return cls(
+            identity=str(data["identity"]),
+            region_id=str(data["region_id"]),
+            logical_nodes=tuple(data.get("logical_nodes") or ()),
+            engine=str(data["engine"]),
+            metadata=dict(data.get("metadata") or {}),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class OutputResolution:
+    """Resolved strategy for a logical output port."""
+
+    node_name: str
+    port_name: str
+    artifact: ArtifactRef
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize output resolution."""
+        return {
+            "node_name": self.node_name,
+            "port_name": self.port_name,
+            "artifact": self.artifact.to_dict(),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> OutputResolution:
+        """Deserialize output resolution."""
+        return cls(
+            node_name=str(data["node_name"]),
+            port_name=str(data["port_name"]),
+            artifact=ArtifactRef.from_dict(data["artifact"]),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PipelinePlan:
+    """Immutable, versioned, secret-free execution-facing IR."""
+
+    schema: str
+    plan_id: str
+    pipeline_id: str
+    pipeline_name: str
+    profile_name: str
+    fingerprint: str
+    logical_graph: LogicalGraph
+    regions: tuple[ExecutionRegion, ...] = ()
+    physical_units: tuple[PhysicalUnit, ...] = ()
+    logical_to_physical: dict[str, str] = field(default_factory=dict)
+    implementations: dict[str, ImplementationDescriptor] = field(default_factory=dict)
+    bindings: dict[str, BindingDescriptor] = field(default_factory=dict)
+    resource_refs: dict[str, dict[str, Any]] = field(default_factory=dict)
+    materialization_boundaries: tuple[MaterializationBoundary, ...] = ()
+    output_resolutions: tuple[OutputResolution, ...] = ()
+    capability_decisions: tuple[dict[str, Any], ...] = ()
+    selected_nodes: tuple[str, ...] | None = None
+    security_domain: str = "default"
+    contract_versions: dict[str, str] = field(default_factory=dict)
+    plugin_versions: dict[str, str] = field(default_factory=dict)
+    intents: dict[str, Any] = field(default_factory=dict)
+    profile_snapshot: dict[str, Any] = field(default_factory=dict)
+    execution_settings: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize plan to a JSON-friendly dict."""
+        return {
+            "schema": self.schema,
+            "plan_id": self.plan_id,
+            "pipeline_id": self.pipeline_id,
+            "pipeline_name": self.pipeline_name,
+            "profile_name": self.profile_name,
+            "fingerprint": self.fingerprint,
+            "logical_graph": _graph_to_dict(self.logical_graph),
+            "regions": [r.to_dict() for r in self.regions],
+            "physical_units": [u.to_dict() for u in self.physical_units],
+            "logical_to_physical": dict(self.logical_to_physical),
+            "implementations": {
+                k: v.to_dict() for k, v in self.implementations.items()
+            },
+            "bindings": {k: v.to_dict() for k, v in self.bindings.items()},
+            "resource_refs": dict(self.resource_refs),
+            "materialization_boundaries": [
+                b.to_dict() for b in self.materialization_boundaries
+            ],
+            "output_resolutions": [o.to_dict() for o in self.output_resolutions],
+            "capability_decisions": list(self.capability_decisions),
+            "selected_nodes": (
+                list(self.selected_nodes) if self.selected_nodes is not None else None
+            ),
+            "security_domain": self.security_domain,
+            "contract_versions": dict(self.contract_versions),
+            "plugin_versions": dict(self.plugin_versions),
+            "intents": dict(self.intents),
+            "profile_snapshot": dict(self.profile_snapshot),
+            "execution_settings": dict(self.execution_settings),
+            "metadata": dict(self.metadata),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PipelinePlan:
+        """Deserialize a plan mapping."""
+        return cls(
+            schema=str(data.get("schema") or PLAN_SCHEMA),
+            plan_id=str(data["plan_id"]),
+            pipeline_id=str(data["pipeline_id"]),
+            pipeline_name=str(data["pipeline_name"]),
+            profile_name=str(data["profile_name"]),
+            fingerprint=str(data["fingerprint"]),
+            logical_graph=_graph_from_dict(data["logical_graph"]),
+            regions=tuple(
+                ExecutionRegion.from_dict(r) for r in data.get("regions") or ()
+            ),
+            physical_units=tuple(
+                PhysicalUnit.from_dict(u) for u in data.get("physical_units") or ()
+            ),
+            logical_to_physical=dict(data.get("logical_to_physical") or {}),
+            implementations={
+                k: ImplementationDescriptor.from_dict(v)
+                for k, v in (data.get("implementations") or {}).items()
+            },
+            bindings={
+                k: BindingDescriptor.from_dict(v)
+                for k, v in (data.get("bindings") or {}).items()
+            },
+            resource_refs=dict(data.get("resource_refs") or {}),
+            materialization_boundaries=tuple(
+                MaterializationBoundary.from_dict(b)
+                for b in data.get("materialization_boundaries") or ()
+            ),
+            output_resolutions=tuple(
+                OutputResolution.from_dict(o)
+                for o in data.get("output_resolutions") or ()
+            ),
+            capability_decisions=tuple(data.get("capability_decisions") or ()),
+            selected_nodes=(
+                tuple(data["selected_nodes"])
+                if data.get("selected_nodes") is not None
+                else None
+            ),
+            security_domain=str(data.get("security_domain") or "default"),
+            contract_versions=dict(data.get("contract_versions") or {}),
+            plugin_versions=dict(data.get("plugin_versions") or {}),
+            intents=dict(data.get("intents") or {}),
+            profile_snapshot=dict(data.get("profile_snapshot") or {}),
+            execution_settings=dict(data.get("execution_settings") or {}),
+            metadata=dict(data.get("metadata") or {}),
+        )
+
+
+def _graph_to_dict(graph: LogicalGraph) -> dict[str, Any]:
+    return {
+        "pipeline_id": graph.pipeline_id,
+        "pipeline_name": graph.pipeline_name,
+        "nodes": [_node_to_dict(n) for n in graph.nodes],
+        "edges": [
+            {
+                "producer_node": e.producer_node,
+                "producer_port": e.producer_port,
+                "consumer_node": e.consumer_node,
+                "consumer_port": e.consumer_port,
+                "producer_contract_id": e.producer_contract_id,
+                "consumer_contract_id": e.consumer_contract_id,
+            }
+            for e in graph.edges
+        ],
+        "metadata": dict(graph.metadata),
+    }
+
+
+def _node_to_dict(node: Node) -> dict[str, Any]:
+    return {
+        "name": node.name,
+        "kind": node.kind.value,
+        "identity": node.identity,
+        "contract_id": node.contract_id,
+        "binding": node.binding,
+        "transformation_id": node.transformation_id,
+        "transformation_name": node.transformation_name,
+        "inputs": [
+            {
+                "name": p.name,
+                "direction": p.direction,
+                "contract_id": p.contract_id,
+                "required": p.required,
+                "role": p.role,
+            }
+            for p in node.inputs
+        ],
+        "outputs": [
+            {
+                "name": p.name,
+                "direction": p.direction,
+                "contract_id": p.contract_id,
+                "required": p.required,
+                "role": p.role,
+            }
+            for p in node.outputs
+        ],
+        "parameters": [
+            {
+                "name": p.name,
+                "has_default": p.has_default,
+                "has_value": p.has_value,
+            }
+            for p in node.parameters
+        ],
+        "nested_pipeline_id": node.nested_pipeline_id,
+        "metadata": dict(node.metadata),
+    }
+
+
+def _graph_from_dict(data: dict[str, Any]) -> LogicalGraph:
+    nodes = tuple(_node_from_dict(n) for n in data.get("nodes") or ())
+    edges = tuple(
+        Edge(
+            producer_node=e["producer_node"],
+            producer_port=e["producer_port"],
+            consumer_node=e["consumer_node"],
+            consumer_port=e["consumer_port"],
+            producer_contract_id=e.get("producer_contract_id"),
+            consumer_contract_id=e.get("consumer_contract_id"),
+        )
+        for e in data.get("edges") or ()
+    )
+    return LogicalGraph(
+        pipeline_id=str(data["pipeline_id"]),
+        pipeline_name=str(data["pipeline_name"]),
+        nodes=nodes,
+        edges=edges,
+        metadata=dict(data.get("metadata") or {}),
+    )
+
+
+def _node_from_dict(data: dict[str, Any]) -> Node:
+    return Node(
+        name=str(data["name"]),
+        kind=NodeKind(str(data["kind"])),
+        identity=str(data["identity"]),
+        contract_id=data.get("contract_id"),
+        binding=data.get("binding"),
+        transformation_id=data.get("transformation_id"),
+        transformation_name=data.get("transformation_name"),
+        inputs=tuple(
+            PortSpec(
+                name=p["name"],
+                direction=p["direction"],
+                contract_type=None,
+                contract_id=p.get("contract_id"),
+                required=bool(p.get("required", True)),
+                role=str(p.get("role") or "valid"),
+            )
+            for p in data.get("inputs") or ()
+        ),
+        outputs=tuple(
+            PortSpec(
+                name=p["name"],
+                direction=p["direction"],
+                contract_type=None,
+                contract_id=p.get("contract_id"),
+                required=bool(p.get("required", True)),
+                role=str(p.get("role") or "valid"),
+            )
+            for p in data.get("outputs") or ()
+        ),
+        parameters=tuple(
+            ParameterSpec(
+                name=p["name"],
+                value_type=None,
+                has_default=bool(p.get("has_default", False)),
+                has_value=bool(p.get("has_value", False)),
+            )
+            for p in data.get("parameters") or ()
+        ),
+        nested_pipeline_id=data.get("nested_pipeline_id"),
+        metadata=dict(data.get("metadata") or {}),
+    )

@@ -1,8 +1,8 @@
 # Troubleshooting
 
-## `pip install pipelantic` rejects my Python version
+## `pip install etlantic` rejects my Python version
 
-Pipelantic requires Python 3.11 or newer. Check with:
+ETLantic requires Python 3.11 or newer. Check with:
 
 ```bash
 python --version
@@ -10,42 +10,42 @@ python --version
 
 ## Installed version is older than the docs
 
-These docs describe Pipelantic **0.6.0**. Confirm what you installed:
+These docs describe ETLantic **0.6.0**. Confirm what you installed:
 
 ```bash
-python -c "import pipelantic; print(pipelantic.__version__)"
+python -c "import etlantic; print(etlantic.__version__)"
 ```
 
 If the version is older, upgrade:
 
 ```bash
-python -m pip install --upgrade 'pipelantic>=0.6.0'
+python -m pip install --upgrade 'etlantic>=0.6.0'
 ```
 
 If pip still resolves an older release, you may be on a mirror or pin. Check
-`pip index versions pipelantic` (or visit
-[PyPI](https://pypi.org/project/pipelantic/)) and clear conflicting constraints
+`pip index versions etlantic` (or visit
+[PyPI](https://pypi.org/project/etlantic/)) and clear conflicting constraints
 in your environment.
 
-## `pip install pipelantic-polars` / `pipelantic-pandas` / `pipelantic-sql` fails
+## `pip install etlantic-polars` / `etlantic-pandas` / `etlantic-sql` fails
 
-Those packages ship with Pipelantic 0.6.0. They are separate distributions:
+Those packages ship with ETLantic 0.6.0. They are separate distributions:
 
 ```bash
-python -m pip install --upgrade pipelantic-polars
-python -m pip install --upgrade pipelantic-pandas
-python -m pip install --upgrade pipelantic-sql
+python -m pip install --upgrade etlantic-polars
+python -m pip install --upgrade etlantic-pandas
+python -m pip install --upgrade etlantic-sql
 ```
 
 If pip reports no matching distribution:
 
 1. Confirm core is already at 0.6.0 or newer.
 2. Confirm Python is 3.11+.
-3. Confirm the package name uses a hyphen (`pipelantic-polars`), not an
+3. Confirm the package name uses a hyphen (`etlantic-polars`), not an
    underscore.
 
 Until 0.6.0 is on PyPI, install from a git checkout with
-`uv sync --group dataframes` (and install `pipelantic-sql` from the workspace)
+`uv sync --group dataframes` (and install `etlantic-sql` from the workspace)
 instead.
 
 ## A transformation has no implementation
@@ -81,8 +81,8 @@ runtime examples. Do not silently switch profile names within one workflow.
 ## A Pandas, Polars, SQL, Spark, or Airflow example fails
 
 Install the matching plugin for dataframe engines
-(`pipelantic-polars` / `pipelantic-pandas`) and set `Profile.dataframe_engine`,
-or install `pipelantic-sql` and set `Profile.sql_engine="sql"`. Spark and
+(`etlantic-polars` / `etlantic-pandas`) and set `Profile.dataframe_engine`,
+or install `etlantic-sql` and set `Profile.sql_engine="sql"`. Spark and
 Airflow remain design material for later milestones. Start with the runnable
 examples under `examples/` (including `examples/sql_to_sql.py`).
 
@@ -106,6 +106,6 @@ Only run the removal command from the repository root after confirming
 
 ## Where to report a problem
 
-Include the Pipelantic version, Python version, command, complete traceback or
+Include the ETLantic version, Python version, command, complete traceback or
 diagnostic code, and a minimal pipeline definition in the issue report. Never
 include credentials or production data.

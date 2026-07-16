@@ -1,9 +1,9 @@
 # Documentation Status and Conventions
 
-Pipelantic 0.6 implements the typed modeling kernel, contract interoperability,
+ETLantic 0.6 implements the typed modeling kernel, contract interoperability,
 Validation / Pipeline Plan IR, the local runtime / operational model,
 dataframe execution (Polars reference + Pandas compatibility), and SQL-native
-execution (`pipelantic-sql`). Much of the documentation still describes the
+execution (`etlantic-sql`). Much of the documentation still describes the
 intended 1.0 product. It serves three related purposes:
 
 1. Explain the product vision and user experience.
@@ -40,12 +40,12 @@ example**, not as evidence of a published package API. The 0.6 surface is
 defined by the package, [API reference](../10_REFERENCE/API_REFERENCE.md),
 tests, and changelog.
 
-**Shipped in 0.5:** dataframe execution protocol, `pipelantic-polars`, and
-`pipelantic-pandas` (see Execution → Polars / Pandas and the Dataframe Plugin
+**Shipped in 0.5:** dataframe execution protocol, `etlantic-polars`, and
+`etlantic-pandas` (see Execution → Polars / Pandas and the Dataframe Plugin
 protocol page).
 
-**Shipped in 0.6:** SQL execution protocol (`pipelantic.sql/1`),
-`pipelantic-sql`, `Profile.sql_engine`, and SQL→SQL fusion without intermediate
+**Shipped in 0.6:** SQL execution protocol (`etlantic.sql/1`),
+`etlantic-sql`, `Profile.sql_engine`, and SQL→SQL fusion without intermediate
 Python fetch (see Execution → SQL and the SQL Plugin protocol page).
 
 **Still accepted design until later milestones:** Spark, external
@@ -62,10 +62,10 @@ The source of truth depends on the subject:
 | Transformation-contract meaning | `DTCS_SPEC.md` |
 | Pipeline-contract meaning | `DPCS_SPEC.md` |
 | ContractModel behavior | ContractModel project |
-| Pipelantic architecture and API | This documentation until code and tests supersede it |
+| ETLantic architecture and API | This documentation until code and tests supersede it |
 | Backend behavior | Plugin documentation and conformance tests |
 
-Integration guides explain how Pipelantic uses a standard; they do not
+Integration guides explain how ETLantic uses a standard; they do not
 replace normative specifications.
 
 ## Requirement Language

@@ -1,6 +1,6 @@
 # Testing Plugins
 
-Testing plugins provide standardized ways to verify that Pipelantic plugins
+Testing plugins provide standardized ways to verify that ETLantic plugins
 conform to the Plugin SDK and preserve pipeline semantics.
 
 A plugin should not merely "work" with one example pipeline—it should
@@ -37,7 +37,7 @@ SDK Test Suite
 ```
 
 A plugin that passes the same conformance suite should behave predictably with
-Pipelantic.
+ETLantic.
 
 ## What Should Be Tested?
 
@@ -83,12 +83,12 @@ Resource providers should verify:
 
 ## Conformance Testing
 
-Pipelantic should provide reusable conformance suites.
+ETLantic should provide reusable conformance suites.
 
 Conceptually:
 
 ```python
-from pipelantic.testing import run_conformance_suite
+from etlantic.testing import run_conformance_suite
 
 results = run_conformance_suite(plugin)
 ```
@@ -153,7 +153,7 @@ Avoid:
 
 ## Key Principle
 
-> Every Pipelantic plugin should prove compatibility through standardized,
+> Every ETLantic plugin should prove compatibility through standardized,
 > repeatable conformance testing. Correctness is defined by preserved pipeline
 > semantics, not by a specific implementation strategy.
 

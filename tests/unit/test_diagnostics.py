@@ -1,7 +1,7 @@
 """Unit tests for diagnostics and reports."""
 
-from pipelantic import Diagnostic, Severity, ValidationReport
-from pipelantic.exceptions import PipelineValidationError
+from etlantic import Diagnostic, Severity, ValidationReport
+from etlantic.exceptions import PipelineValidationError
 
 
 def test_report_valid_when_no_errors() -> None:

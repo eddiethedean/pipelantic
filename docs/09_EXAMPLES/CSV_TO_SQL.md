@@ -1,17 +1,17 @@
 # CSV to SQL
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads customer data
+This example builds a complete ETLantic pipeline that reads customer data
 from a CSV file, validates it against data contracts, normalizes the records
 with a typed transformation, and writes the curated results to a SQL database.
 
-The example demonstrates how Pipelantic keeps the logical pipeline unchanged
+The example demonstrates how ETLantic keeps the logical pipeline unchanged
 while execution profiles and plugins supply the physical source, sink, and
 dataframe implementations.
 
@@ -73,7 +73,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -100,7 +100,7 @@ The contracts remain independent of both CSV and SQL.
 ```python
 # src/csv_to_sql/transformations.py
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -154,7 +154,7 @@ The runtime-specific code is isolated in the implementation module.
 ```python
 # src/csv_to_sql/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, RawCustomer
 from .transformations import NormalizeCustomers
@@ -195,7 +195,7 @@ Neither the CSV path nor SQL connection string appears in the pipeline class.
 ```python
 # src/csv_to_sql/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -558,7 +558,7 @@ A SQL write may fail because of:
 - Transaction conflicts
 
 The storage plugin should translate backend exceptions into structured
-Pipelantic diagnostics.
+ETLantic diagnostics.
 
 A failure callback may choose a declarative retry or fail action when supported
 by the active execution environment.

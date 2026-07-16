@@ -1,11 +1,11 @@
-"""Smallest complete Pipelantic 0.5 local-runtime pipeline.
+"""Smallest complete ETLantic 0.5 local-runtime pipeline.
 
 Run with:
 
     python examples/quickstart.py
 """
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,

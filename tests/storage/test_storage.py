@@ -7,8 +7,8 @@ from pathlib import Path
 
 import anyio
 
-from pipelantic import Data
-from pipelantic.storage import CsvStorage, JsonStorage, MemoryStorage, NullStorage
+from etlantic import Data
+from etlantic.storage import CsvStorage, JsonStorage, MemoryStorage, NullStorage
 
 
 class Item(Data):

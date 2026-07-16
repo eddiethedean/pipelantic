@@ -1,17 +1,17 @@
 # CSV to CSV
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads customer data
+This example builds a complete ETLantic pipeline that reads customer data
 from a CSV file, validates it against a data contract, normalizes the records
 with a typed transformation, and writes the curated results to another CSV file.
 
-The example demonstrates the full Pipelantic lifecycle:
+The example demonstrates the full ETLantic lifecycle:
 
 ```text
 Data Contract
@@ -90,7 +90,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -118,7 +118,7 @@ both models.
 ```python
 # src/csv_to_csv/transformations.py
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -174,7 +174,7 @@ The transformation contract remains portable.
 ```python
 # src/csv_to_csv/pipeline.py
 
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, RawCustomer
 from .transformations import NormalizeCustomers
@@ -215,7 +215,7 @@ The pipeline does not contain file paths or Polars-specific code.
 ```python
 # src/csv_to_csv/profiles.py
 
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -303,7 +303,7 @@ result = await CustomerCsvPipeline.arun(
 )
 ```
 
-Pipelantic handles sync and async invocation without requiring the pipeline
+ETLantic handles sync and async invocation without requiring the pipeline
 author to manage event loops or worker coordination manually.
 
 ## Expected Output
@@ -453,7 +453,7 @@ customer_id,first_name,last_name,email
 
 The value `0` violates the `customer_id > 0` constraint.
 
-The configured validation policy determines whether Pipelantic:
+The configured validation policy determines whether ETLantic:
 
 - Fails the source
 - Rejects the record

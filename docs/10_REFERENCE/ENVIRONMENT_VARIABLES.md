@@ -1,20 +1,20 @@
 # Environment Variables
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
-    This page describes a proposed 1.0 configuration surface. Pipelantic 0.6
-    does not load `pipelantic.toml` or most of these environment variables.
+!!! warning "Future design—not a ETLantic 0.6 API guide"
+    This page describes a proposed 1.0 configuration surface. ETLantic 0.6
+    does not load `etlantic.toml` or most of these environment variables.
     Configure profiles and bindings in Python.
 
-    **Shipped in 0.6 for SQL:** `PIPELANTIC_SQL_URL` is read by
-    `pipelantic-sql` (and the SQL examples/fixtures). It is not part of the
-    proposed 1.0 `pipelantic.toml` surface below.
+    **Shipped in 0.6 for SQL:** `ETLANTIC_SQL_URL` is read by
+    `etlantic-sql` (and the SQL examples/fixtures). It is not part of the
+    proposed 1.0 `etlantic.toml` surface below.
 
 
 Environment variables provide deployment-time overrides and references to
 secrets. They should complement, not replace, explicit project configuration.
 
-> Variable names in this chapter (except `PIPELANTIC_SQL_URL`) are proposed
-> for Pipelantic 1.0.
+> Variable names in this chapter (except `ETLANTIC_SQL_URL`) are proposed
+> for ETLantic 1.0.
 
 ## Precedence
 
@@ -30,23 +30,23 @@ From lowest to highest priority:
 
 | Variable | Purpose |
 |---|---|
-| `PIPELANTIC_PROJECT` | Project root or configuration path |
-| `PIPELANTIC_PROFILE` | Default execution profile |
-| `PIPELANTIC_CONFIG` | Explicit `pipelantic.toml` path |
-| `PIPELANTIC_LOG_LEVEL` | Runtime log level |
-| `PIPELANTIC_LOG_FORMAT` | Console, JSON, or provider-defined format |
-| `PIPELANTIC_LOG_PROVIDER` | Selected logging or observability provider |
-| `PIPELANTIC_OUTPUT_FORMAT` | Default CLI output format |
-| `PIPELANTIC_NO_COLOR` | Disable ANSI color when truthy |
-| `PIPELANTIC_PLUGIN_DISCOVERY` | Enable or disable entry-point discovery |
-| `PIPELANTIC_CACHE_DIR` | Cache directory |
+| `ETLANTIC_PROJECT` | Project root or configuration path |
+| `ETLANTIC_PROFILE` | Default execution profile |
+| `ETLANTIC_CONFIG` | Explicit `etlantic.toml` path |
+| `ETLANTIC_LOG_LEVEL` | Runtime log level |
+| `ETLANTIC_LOG_FORMAT` | Console, JSON, or provider-defined format |
+| `ETLANTIC_LOG_PROVIDER` | Selected logging or observability provider |
+| `ETLANTIC_OUTPUT_FORMAT` | Default CLI output format |
+| `ETLANTIC_NO_COLOR` | Disable ANSI color when truthy |
+| `ETLANTIC_PLUGIN_DISCOVERY` | Enable or disable entry-point discovery |
+| `ETLANTIC_CACHE_DIR` | Cache directory |
 
 ## Example
 
 ```bash
-export PIPELANTIC_PROFILE=production
-export PIPELANTIC_LOG_LEVEL=INFO
-pipelantic plan src/pipelines/customer.py:CustomerPipeline
+export ETLANTIC_PROFILE=production
+export ETLANTIC_LOG_LEVEL=INFO
+etlantic plan src/pipelines/customer.py:CustomerPipeline
 ```
 
 ## Profile Overrides
@@ -54,7 +54,7 @@ pipelantic plan src/pipelines/customer.py:CustomerPipeline
 Structured profile overrides should use a documented prefix:
 
 ```text
-PIPELANTIC_PROFILE__PRODUCTION__LIMITS__MAX_CONCURRENT_NODES=32
+ETLANTIC_PROFILE__PRODUCTION__LIMITS__MAX_CONCURRENT_NODES=32
 ```
 
 Double underscores delimit nested keys. Environment-based structured overrides
@@ -66,14 +66,14 @@ files.
 Plugins should namespace their variables:
 
 ```text
-PIPELANTIC_SQL_URL              # shipped: SQLAlchemy URL for pipelantic-sql
-PIPELANTIC_POLARS_STREAMING
-PIPELANTIC_AIRFLOW_DAG_ID_PREFIX
-PIPELANTIC_SPARK_MASTER
+ETLANTIC_SQL_URL              # shipped: SQLAlchemy URL for etlantic-sql
+ETLANTIC_POLARS_STREAMING
+ETLANTIC_AIRFLOW_DAG_ID_PREFIX
+ETLANTIC_SPARK_MASTER
 ```
 
 Plugin documentation must define parsing, defaults, and security behavior.
-Never log resolved DSNs with credentials; Pipelantic redacts connection
+Never log resolved DSNs with credentials; ETLantic redacts connection
 secrets in diagnostics where possible.
 
 ## Secrets
@@ -84,11 +84,11 @@ platform compatibility, and controlled local use:
 ```toml
 [profiles.ci.secrets.ci-secrets]
 provider = "environment"
-prefix = "PIPELANTIC_SECRET_"
+prefix = "ETLANTIC_SECRET_"
 ```
 
 Production profiles should prefer a managed secret store and workload identity.
-Pipelantic should read an environment-backed value only when the consuming
+ETLantic should read an environment-backed value only when the consuming
 resource is acquired.
 
 Never:
@@ -119,7 +119,7 @@ choosing a default.
 ## `.env` Files
 
 Automatic `.env` loading should not be required by the core. Applications may
-load `.env` files before constructing Pipelantic configuration, or an
+load `.env` files before constructing ETLantic configuration, or an
 optional integration may provide this behavior.
 
 Production systems should prefer their platform's secret and environment
@@ -131,7 +131,7 @@ Tests should isolate environment changes:
 
 ```python
 def test_production_profile(monkeypatch):
-    monkeypatch.setenv("PIPELANTIC_PROFILE", "production")
+    monkeypatch.setenv("ETLANTIC_PROFILE", "production")
     ...
 ```
 

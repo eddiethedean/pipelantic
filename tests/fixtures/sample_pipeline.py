@@ -1,6 +1,6 @@
 """Sample pipeline fixture for CLI tests."""
 
-from pipelantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
 
 
 class Row(Data):

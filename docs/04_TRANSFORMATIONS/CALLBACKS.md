@@ -3,7 +3,7 @@
 Callbacks allow applications to respond to important events in a pipeline's lifecycle
 without embedding operational logic inside transformation implementations.
 
-Pipelantic coordinates callback invocation. Execution plugins perform the
+ETLantic coordinates callback invocation. Execution plugins perform the
 underlying work.
 
 Callbacks are one of several lifecycle extension mechanisms. They are distinct
@@ -35,7 +35,7 @@ Typical callback categories include:
 ## Invalid Data
 
 ```python
-from pipelantic import (
+from etlantic import (
     InvalidDataAction,
     InvalidDataContext,
     on_invalid_data,
@@ -49,13 +49,13 @@ def quarantine(context: InvalidDataContext[Customer]) -> InvalidDataAction:
     )
 ```
 
-Pipelantic interprets the returned action while the execution plugin performs
+ETLantic interprets the returned action while the execution plugin performs
 the quarantine or filtering.
 
 ## Failure Callbacks
 
 ```python
-from pipelantic import FailureContext, on_failure
+from etlantic import FailureContext, on_failure
 
 @on_failure
 def notify(context: FailureContext):
@@ -72,7 +72,7 @@ Failure callbacks may:
 ## Completion Callbacks
 
 ```python
-from pipelantic import CompletionContext, on_complete
+from etlantic import CompletionContext, on_complete
 
 @on_complete
 async def publish_metrics(context: CompletionContext):
@@ -97,7 +97,7 @@ async def handler(context):
     ...
 ```
 
-Pipelantic normalizes invocation internally.
+ETLantic normalizes invocation internally.
 
 ## Typed Context Objects
 
@@ -131,7 +131,7 @@ The action remains declarative. Plugins execute the requested behavior.
 
 ## Ordering
 
-When multiple callbacks are registered, Pipelantic should execute them in a
+When multiple callbacks are registered, ETLantic should execute them in a
 deterministic order documented by the framework.
 
 Callbacks associated with a wrapped operation run inside run or step middleware

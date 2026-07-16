@@ -1,13 +1,13 @@
 # PySpark to Delta
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example builds a complete Pipelantic pipeline that reads distributed
+This example builds a complete ETLantic pipeline that reads distributed
 customer and order data with PySpark, performs typed transformations on Spark,
 and publishes the curated result to a Delta Lake table.
 
@@ -26,7 +26,7 @@ Contract Validation
 Delta Merge
 ```
 
-Pipelantic preserves one portable set of ODCS, DTCS, and DPCS semantics while
+ETLantic preserves one portable set of ODCS, DTCS, and DPCS semantics while
 the execution profile selects PySpark, a Spark Provider, and the Delta storage
 plugin.
 
@@ -75,7 +75,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 
 from pydantic import Field
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class Customer(DataContractModel):
@@ -108,7 +108,7 @@ class CustomerOrderSummary(DataContractModel):
 ```python
 from typing import Literal
 
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 
 class BuildCustomerOrderSummary(Transformation):
@@ -126,7 +126,7 @@ class BuildCustomerOrderSummary(Transformation):
 
 ```python
 from pyspark.sql import functions as F
-from pipelantic.pyspark import SparkDataFrame
+from etlantic.pyspark import SparkDataFrame
 
 
 @BuildCustomerOrderSummary.implementation("pyspark")
@@ -180,7 +180,7 @@ action.
 ## Pipeline Definition
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 
 class CustomerOrderDeltaPipeline(Pipeline):
@@ -209,7 +209,7 @@ The pipeline contains no Delta paths, catalogs, Spark sessions, or merge syntax.
 ## Local Profile
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -338,7 +338,7 @@ The binding should define:
 
 A merge must not receive multiple ambiguous source rows for one target key.
 
-Pipelantic should require a deterministic policy:
+ETLantic should require a deterministic policy:
 
 - Reject duplicates
 - Deduplicate by timestamp
@@ -429,12 +429,12 @@ Delta schema compatibility
 Merge transaction
 ```
 
-Delta's physical schema checks supplement, but do not replace, Pipelantic
+Delta's physical schema checks supplement, but do not replace, ETLantic
 contract validation.
 
 ## Schema Evolution
 
-Pipelantic should distinguish:
+ETLantic should distinguish:
 
 - Compatible contract evolution
 - Physical schema evolution
@@ -842,7 +842,7 @@ Avoid:
 ## Key Principle
 
 > PySpark-to-Delta execution combines distributed Spark transformation with
-> Delta Lake's transactional table model while Pipelantic preserves portable
+> Delta Lake's transactional table model while ETLantic preserves portable
 > contracts, validation, lineage, compatibility, incremental semantics, and
 > reproducible execution.
 

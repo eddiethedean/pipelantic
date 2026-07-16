@@ -1,6 +1,6 @@
 # Five-Minute Quickstart
 
-> **Status: Available in Pipelantic 0.6.0.** Every API in this guide is shipped
+> **Status: Available in ETLantic 0.6.0.** Every API in this guide is shipped
 > and the complete example is tested in CI.
 
 This guide defines, validates, plans, and runs a typed pipeline using only the
@@ -16,22 +16,22 @@ core package and in-memory storage.
 
 ## 1. Install
 
-Pipelantic requires Python 3.11 or newer.
+ETLantic requires Python 3.11 or newer.
 
 ```bash
-python -m pip install pipelantic
+python -m pip install etlantic
 ```
 
 Verify the installation:
 
 ```bash
-python -c "import pipelantic; print(pipelantic.__version__)"
+python -c "import etlantic; print(etlantic.__version__)"
 ```
 
 ## 2. Create `pipeline.py`
 
 ```python
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,

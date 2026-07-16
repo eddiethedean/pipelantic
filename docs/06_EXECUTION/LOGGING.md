@@ -1,9 +1,9 @@
 # Logging
 
-Pipelantic provides structured, contextual logging for validation, planning,
+ETLantic provides structured, contextual logging for validation, planning,
 execution, and plugin coordination.
 
-Logging is part of the shared execution experience, but Pipelantic is not a
+Logging is part of the shared execution experience, but ETLantic is not a
 log-storage platform. The core defines records, context, redaction, and
 lifecycle integration. Logging and observability providers route those records
 to the Python logging system, console, files, OpenTelemetry, cloud services, or
@@ -11,7 +11,7 @@ other destinations.
 
 ## Goals
 
-Pipelantic logging should be:
+ETLantic logging should be:
 
 - structured
 - correlated by pipeline, plan, run, step, and attempt
@@ -23,7 +23,7 @@ Pipelantic logging should be:
 
 ## Logging Versus Results and Events
 
-Pipelantic distinguishes three related concepts:
+ETLantic distinguishes three related concepts:
 
 ```text
 Lifecycle event
@@ -63,7 +63,7 @@ LogRecord(
     run_id="run_01...",
     step_id="normalize_customers",
     attempt=1,
-    plugin="pipelantic-polars",
+    plugin="etlantic-polars",
     backend="polars",
     event="step.started",
     attributes={
@@ -209,7 +209,7 @@ json = true
 Run-scoped overrides may increase verbosity:
 
 ```bash
-pipelantic run customer.py:CustomerPipeline --log-level DEBUG
+etlantic run customer.py:CustomerPipeline --log-level DEBUG
 ```
 
 Changing log verbosity must not change pipeline semantics or plan identity.
@@ -221,22 +221,22 @@ The default provider should integrate with `logging`:
 ```python
 import logging
 
-logging.getLogger("pipelantic").setLevel(logging.INFO)
-logging.getLogger("pipelantic.plugin.airflow").setLevel(logging.DEBUG)
+logging.getLogger("etlantic").setLevel(logging.INFO)
+logging.getLogger("etlantic.plugin.airflow").setLevel(logging.DEBUG)
 ```
 
 Recommended logger hierarchy:
 
 ```text
-pipelantic
-pipelantic.loading
-pipelantic.validation
-pipelantic.planning
-pipelantic.execution
-pipelantic.plugin.<plugin-name>
+etlantic
+etlantic.loading
+etlantic.validation
+etlantic.planning
+etlantic.execution
+etlantic.plugin.<plugin-name>
 ```
 
-Pipelantic should not call `logging.basicConfig()` automatically in library
+ETLantic should not call `logging.basicConfig()` automatically in library
 usage. The CLI may configure its own handlers.
 
 ## Secret and Data Safety
@@ -269,7 +269,7 @@ DataLoggingPolicy(
 
 Plugins must:
 
-- use the logging context supplied by Pipelantic
+- use the logging context supplied by ETLantic
 - preserve correlation identifiers
 - avoid adding their own global handlers
 - classify expected failures with stable error categories
@@ -283,13 +283,13 @@ Plugins may attach backend metadata such as job, query, task, or cluster IDs.
 External runtimes often own their own logs. The orchestration plugin should map:
 
 ```text
-Pipelantic run_id   ↔ orchestrator run identifier
-Pipelantic step_id  ↔ task identifier
-Pipelantic attempt  ↔ task attempt
-Pipelantic trace_id ↔ native trace context
+ETLantic run_id   ↔ orchestrator run identifier
+ETLantic step_id  ↔ task identifier
+ETLantic attempt  ↔ task attempt
+ETLantic trace_id ↔ native trace context
 ```
 
-Pipelantic should link to native logs rather than copying an unlimited
+ETLantic should link to native logs rather than copying an unlimited
 remote log stream into the core result.
 
 ## Local Debugging
@@ -327,7 +327,7 @@ Conformance tests should verify:
 
 ## Key Principle
 
-> Pipelantic defines one safe, structured logging context across every
+> ETLantic defines one safe, structured logging context across every
 > backend. Providers control routing and storage; logs never replace lifecycle
 > events or normalized results.
 

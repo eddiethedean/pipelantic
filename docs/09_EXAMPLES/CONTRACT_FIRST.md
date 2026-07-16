@@ -1,13 +1,13 @@
 # Contract-First Pipeline
 
-!!! warning "Future design—not a Pipelantic 0.6 API guide"
+!!! warning "Future design—not a ETLantic 0.6 API guide"
     This page is a design study. It may describe packages, commands, or
     interfaces that are not installable yet. Use Current Capabilities, the
     runnable examples under `examples/`, the API reference, and the CLI
     reference for shipped behavior.
 
 
-This example demonstrates how to build a Pipelantic project from authored
+This example demonstrates how to build a ETLantic project from authored
 ODCS, DTCS, and DPCS contract artifacts rather than starting from Python
 classes.
 
@@ -20,7 +20,7 @@ Contract-first development is useful when:
 - Registries are the source of contract identity and versioning.
 - Python is one implementation target among several.
 
-Pipelantic should support both directions:
+ETLantic should support both directions:
 
 ```text
 Code-first
@@ -31,7 +31,7 @@ and:
 
 ```text
 Contract-first
-ODCS / DTCS / DPCS ───► Typed Pipelantic objects
+ODCS / DTCS / DPCS ───► Typed ETLantic objects
 ```
 
 The two workflows should converge on the same normalized internal models and
@@ -44,7 +44,7 @@ Build a pipeline that:
 1. Authors a customer data contract in ODCS.
 2. Authors a normalization transformation in DTCS.
 3. Authors a CSV-to-Parquet pipeline in DPCS.
-4. Loads all three artifacts into Pipelantic.
+4. Loads all three artifacts into ETLantic.
 5. Generates or binds typed Python interfaces.
 6. Registers a Polars implementation.
 7. Validates implementation conformance.
@@ -143,7 +143,7 @@ schema:
 
 The exact ODCS syntax should follow the supported ODCS version.
 
-The example focuses on the Pipelantic workflow rather than redefining the
+The example focuses on the ETLantic workflow rather than redefining the
 normative standard.
 
 ## Step 2 — Author the Curated Customer ODCS Contract
@@ -288,7 +288,7 @@ It does not contain physical paths, credentials, or execution-engine details.
 Conceptually:
 
 ```python
-from pipelantic.contracts import ContractProject
+from etlantic.contracts import ContractProject
 
 
 project = ContractProject.load(
@@ -349,7 +349,7 @@ contract:
 
 but only `customer@1.0.0` exists.
 
-Pipelantic should emit a structured diagnostic rather than silently selecting
+ETLantic should emit a structured diagnostic rather than silently selecting
 another version.
 
 Example:
@@ -367,7 +367,7 @@ Available versions:
 
 ## Step 7 — Generate Typed Python Models
 
-Pipelantic may generate typed Python interfaces:
+ETLantic may generate typed Python interfaces:
 
 ```python
 project.generate_python(
@@ -392,7 +392,7 @@ A generated `contracts.py` may resemble:
 from typing import Annotated
 
 from pydantic import Field
-from pipelantic import DataContractModel
+from etlantic import DataContractModel
 
 
 class RawCustomer(DataContractModel):
@@ -417,7 +417,7 @@ The contract artifacts remain authoritative in a contract-first project.
 A generated `transformations.py` may resemble:
 
 ```python
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 from .contracts import Customer, RawCustomer
 
@@ -434,7 +434,7 @@ class NormalizeCustomers(Transformation):
 A generated `pipelines.py` may resemble:
 
 ```python
-from pipelantic import Pipeline, Sink, Source
+from etlantic import Pipeline, Sink, Source
 
 from .contracts import Customer, RawCustomer
 from .transformations import NormalizeCustomers
@@ -515,7 +515,7 @@ The implementation binds to the generated transformation interface.
 
 ## Implementation Without Code Generation
 
-Pipelantic may also support direct binding by contract identity.
+ETLantic may also support direct binding by contract identity.
 
 Conceptually:
 
@@ -574,7 +574,7 @@ fail before execution.
 Create `src/contract_first/profiles.py`:
 
 ```python
-from pipelantic import Profile
+from etlantic import Profile
 
 
 local = Profile(
@@ -611,7 +611,7 @@ pipeline = project.pipeline(
 )
 ```
 
-The returned object should behave like a normalized Pipelantic pipeline.
+The returned object should behave like a normalized ETLantic pipeline.
 
 ## Step 12 — Validate the Profile
 
@@ -649,7 +649,7 @@ Both workflows should converge:
 Contract-first artifacts
           │
           ▼
-Normalized Pipelantic objects
+Normalized ETLantic objects
           │
           ▼
 Pipeline Plan
@@ -661,7 +661,7 @@ and:
 Code-first Python classes
           │
           ▼
-Normalized Pipelantic objects
+Normalized ETLantic objects
           │
           ▼
 Pipeline Plan
@@ -738,7 +738,7 @@ flowchart LR
 
 ## Step 17 — Regenerate Contracts from the Normalized Model
 
-Pipelantic may support round-trip export:
+ETLantic may support round-trip export:
 
 ```python
 project.write_contracts(
@@ -797,13 +797,13 @@ Implementation files remain authored.
 
 ## Preventing Drift
 
-Pipelantic should detect when generated Python no longer matches the source
+ETLantic should detect when generated Python no longer matches the source
 contracts.
 
 Conceptually:
 
 ```bash
-pipelantic generate --check
+etlantic generate --check
 ```
 
 CI should fail if regeneration changes committed generated files.
@@ -845,7 +845,7 @@ canonical dependency identity.
 
 Suppose `customer@1.1.0` adds an optional field.
 
-Pipelantic may determine that:
+ETLantic may determine that:
 
 - The output implementation can still satisfy the contract.
 - Existing consumers remain compatible.
@@ -939,7 +939,7 @@ Loading a contract must never import arbitrary Python code.
 
 Standards may allow extension fields.
 
-Pipelantic should preserve supported extensions without letting them override
+ETLantic should preserve supported extensions without letting them override
 core semantics silently.
 
 Vendor extensions should be namespaced.
@@ -1004,7 +1004,7 @@ manually by identity.
 
 This reduces generated files but provides less static typing.
 
-Pipelantic should support both styles.
+ETLantic should support both styles.
 
 ## Mixed Code-First and Contract-First Projects
 
@@ -1035,7 +1035,7 @@ Source metadata improves diagnostics and governance.
 
 Suppose both a Python class and ODCS artifact define `customer@1.0.0`.
 
-Pipelantic should compare them.
+ETLantic should compare them.
 
 Possible policies include:
 
@@ -1057,7 +1057,7 @@ Conflict detection should compare normalized semantics rather than raw text.
 Create `tests/test_contract_loading.py`:
 
 ```python
-from pipelantic.contracts import ContractProject
+from etlantic.contracts import ContractProject
 
 
 def test_contract_project_loads() -> None:
@@ -1198,12 +1198,12 @@ A contract-first CI pipeline may run:
 Conceptually:
 
 ```bash
-pipelantic contracts validate contracts/
-pipelantic contracts lock contracts/
-pipelantic generate python contracts/ --output src/generated/
-pipelantic implementations validate
-pipelantic plan customer-curation@1.0.0 --profile local
-pipelantic docs build
+etlantic contracts validate contracts/
+etlantic contracts lock contracts/
+etlantic generate python contracts/ --output src/generated/
+etlantic implementations validate
+etlantic plan customer-curation@1.0.0 --profile local
+etlantic docs build
 ```
 
 The exact CLI may evolve.
@@ -1227,7 +1227,7 @@ The exact CLI may evolve.
 - Familiar class-based APIs
 - Simple experimentation
 
-Pipelantic should not force one workflow.
+ETLantic should not force one workflow.
 
 ## Recommended Workflow
 
@@ -1300,7 +1300,7 @@ Avoid:
 
 ## Key Principle
 
-> Contract-first Pipelantic projects author ODCS, DTCS, and DPCS artifacts as
+> Contract-first ETLantic projects author ODCS, DTCS, and DPCS artifacts as
 > the portable source of truth, then derive typed interfaces, implementation
 > bindings, Pipeline Plans, execution, lineage, and documentation from those
 > validated contracts.

@@ -3,7 +3,7 @@
 Orchestration plugins bind a validated **Pipeline Plan** to a workflow
 orchestration platform.
 
-Pipelantic does not embed Airflow, Dagster, Prefect, or any other scheduler
+ETLantic does not embed Airflow, Dagster, Prefect, or any other scheduler
 into its core. Instead, orchestration plugins translate the implementation-
 independent Pipeline Plan into runtime-specific workflows while preserving the
 pipeline's declared semantics.
@@ -21,7 +21,7 @@ Orchestration plugins should:
 
 ## Philosophy
 
-Pipelantic defines **what** the pipeline means.
+ETLantic defines **what** the pipeline means.
 
 Orchestration plugins define **where and how** it is coordinated.
 
@@ -52,7 +52,7 @@ Pipeline definitions never depend on orchestrator APIs.
 
 ## Supported Platforms
 
-Pipelantic is designed to support plugins for:
+ETLantic is designed to support plugins for:
 
 - Local execution
 - Airflow
@@ -78,7 +78,7 @@ Examples include:
 - Compensation
 - Dynamic branching
 
-During planning, Pipelantic compares pipeline requirements against plugin
+During planning, ETLantic compares pipeline requirements against plugin
 capabilities.
 
 Planning or binding should fail if a required capability is unavailable.

@@ -1,10 +1,10 @@
 # Transformations
 
-Transformations are the heart of Pipelantic.
+Transformations are the heart of ETLantic.
 
 A transformation defines **how data logically changes** as it moves through a pipeline. Like FastAPI endpoints, transformations are declared using Python classes and type annotations. The declaration describes the interface; execution implementations remain separate.
 
-Pipelantic models transformations using **Transformation Contracts**, represented portably by the **Data Transformation Contract Standard (DTCS)**.
+ETLantic models transformations using **Transformation Contracts**, represented portably by the **Data Transformation Contract Standard (DTCS)**.
 
 ## What This Section Covers
 
@@ -24,7 +24,7 @@ This section explains how to:
 A transformation begins as a typed class:
 
 ```python
-from pipelantic import Input, Output, Parameter, Transformation
+from etlantic import Input, Output, Parameter, Transformation
 
 
 class NormalizeCustomers(Transformation):
@@ -90,11 +90,11 @@ class CustomerPipeline(Pipeline):
     )
 ```
 
-Pipelantic validates that upstream outputs satisfy downstream inputs before execution planning begins.
+ETLantic validates that upstream outputs satisfy downstream inputs before execution planning begins.
 
 ## Sync and Async
 
-Pipelantic supports both synchronous and asynchronous implementations.
+ETLantic supports both synchronous and asynchronous implementations.
 
 ```python
 @NormalizeCustomers.implementation("polars")
@@ -124,7 +124,7 @@ Callbacks may be synchronous or asynchronous.
 
 ## Validation
 
-Pipelantic validates:
+ETLantic validates:
 
 - Input compatibility
 - Output compatibility
@@ -132,7 +132,7 @@ Pipelantic validates:
 - Implementation signatures
 - Plugin capabilities
 
-DTCS defines transformation semantics; Pipelantic coordinates validation.
+DTCS defines transformation semantics; ETLantic coordinates validation.
 
 ## Generated Artifacts
 

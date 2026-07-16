@@ -2,7 +2,7 @@
 
 Versioning allows data contracts to evolve without breaking the pipelines that depend on them.
 
-Pipelantic delegates the definition of contract compatibility to **ContractModel** while coordinating version validation across transformations and pipelines.
+ETLantic delegates the definition of contract compatibility to **ContractModel** while coordinating version validation across transformations and pipelines.
 
 ## Goals
 
@@ -22,7 +22,7 @@ A versioning strategy should:
 | Pydantic | Model structure |
 | ContractModel | Contract identity, version metadata, compatibility analysis |
 | ODCS | Portable version representation |
-| Pipelantic | Pipeline-wide version validation and planning |
+| ETLantic | Pipeline-wide version validation and planning |
 | Plugins | Runtime execution only |
 
 ## Contract Identity
@@ -39,7 +39,7 @@ Identity should remain stable across compatible revisions.
 
 ## Semantic Versioning
 
-Pipelantic recommends Semantic Versioning:
+ETLantic recommends Semantic Versioning:
 
 - **MAJOR** – Breaking schema or semantic changes
 - **MINOR** – Backward-compatible additions
@@ -81,7 +81,7 @@ Breaking changes should require a new major version.
 
 ## Pipeline Validation
 
-When validating a pipeline, Pipelantic asks ContractModel whether connected contracts are compatible.
+When validating a pipeline, ETLantic asks ContractModel whether connected contracts are compatible.
 
 Conceptually:
 
@@ -92,7 +92,7 @@ compatible = compare_contracts(
 )
 ```
 
-Pipelantic should rely on the public ContractModel compatibility API rather than implementing its own rules.
+ETLantic should rely on the public ContractModel compatibility API rather than implementing its own rules.
 
 ## Multiple Versions
 
@@ -108,7 +108,7 @@ Customer v2
 Pipeline B
 ```
 
-Pipelantic should allow this while detecting accidental incompatibilities.
+ETLantic should allow this while detecting accidental incompatibilities.
 
 ## Migrations
 
@@ -150,7 +150,7 @@ Recommended metadata:
 - Planned removal version
 - Migration guidance
 
-Pipelantic should surface deprecation warnings during planning.
+ETLantic should surface deprecation warnings during planning.
 
 ## Compatibility Reports
 
@@ -186,8 +186,8 @@ Avoid:
 
 ## Key Principle
 
-> ContractModel decides whether two data contract versions are compatible. Pipelantic uses that decision to ensure pipelines remain safe as contracts evolve.
+> ContractModel decides whether two data contract versions are compatible. ETLantic uses that decision to ensure pipelines remain safe as contracts evolve.
 
 ## Next Step
 
-Continue with **GENERATION.md** to learn how Pipelantic and ContractModel generate deterministic contract artifacts from Python models.
+Continue with **GENERATION.md** to learn how ETLantic and ContractModel generate deterministic contract artifacts from Python models.

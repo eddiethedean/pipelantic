@@ -1,6 +1,6 @@
 # Architecture Decisions
 
-Pipelantic uses Architecture Decision Records (ADRs) for choices that affect
+ETLantic uses Architecture Decision Records (ADRs) for choices that affect
 module boundaries, public protocols, persistent formats, or multiple
 subsystems.
 

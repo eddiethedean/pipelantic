@@ -7,11 +7,11 @@ from decimal import Decimal
 
 import pytest
 
-from pipelantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
-from pipelantic.identity import identity_slug
-from pipelantic.interchange.bundle import BundleError, generate_contracts
-from pipelantic.interchange.diff import diff_pipelines, diff_transformations
-from pipelantic.interchange.dtcs import (
+from etlantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
+from etlantic.identity import identity_slug
+from etlantic.interchange.bundle import BundleError, generate_contracts
+from etlantic.interchange.diff import diff_pipelines, diff_transformations
+from etlantic.interchange.dtcs import (
     _annotation_for_dtcs_type,
     transformation_from_dtcs,
     transformation_to_dtcs,
@@ -62,8 +62,8 @@ def test_schema_only_dtcs_preserves_datetime_decimal() -> None:
     doc = transformation_to_dtcs(Emit)
     # Strip contract ids so load falls back to schema-only synthetic types
     for port in (*doc.get("inputs", ()), *doc.get("outputs", ())):
-        port.pop("pipelantic:contractId", None)
-        port.pop("pipelantic:contractVersion", None)
+        port.pop("etlantic:contractId", None)
+        port.pop("etlantic:contractVersion", None)
         port.pop("contractId", None)
         ref = port.get("contractRef")
         if isinstance(ref, dict):

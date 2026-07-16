@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from pipelantic import (
+from etlantic import (
     Data,
     Input,
     Output,
@@ -13,17 +13,17 @@ from pipelantic import (
     Source,
     Transformation,
 )
-from pipelantic.capabilities import PluginCapabilities, negotiate_capabilities
-from pipelantic.dataframe import (
+from etlantic.capabilities import PluginCapabilities, negotiate_capabilities
+from etlantic.dataframe import (
     DATAFRAME_PROTOCOL_VERSION,
     ArtifactOwnership,
     DataframeValidationPolicy,
 )
-from pipelantic.dataframe.protocol import DATAFRAME_ENGINES, DataframeMetrics
-from pipelantic.exceptions import PipelineValidationError
-from pipelantic.plan import explain_plan, plan_pipeline
-from pipelantic.profile import Profile
-from pipelantic.registry import (
+from etlantic.dataframe.protocol import DATAFRAME_ENGINES, DataframeMetrics
+from etlantic.exceptions import PipelineValidationError
+from etlantic.plan import explain_plan, plan_pipeline
+from etlantic.profile import Profile
+from etlantic.registry import (
     PlanningContext,
     PluginDescriptor,
     RegistryBundle,
@@ -94,7 +94,7 @@ class _PandasPipeline(Pipeline):
 
 
 def test_protocol_version() -> None:
-    assert DATAFRAME_PROTOCOL_VERSION == "pipelantic.dataframe/1"
+    assert DATAFRAME_PROTOCOL_VERSION == "etlantic.dataframe/1"
     assert "polars" in DATAFRAME_ENGINES
     assert "pandas" in DATAFRAME_ENGINES
 
@@ -144,7 +144,7 @@ def test_pandas_fails_lazy_requirement() -> None:
     registry = RegistryBundle()
     registry.register_plugin(
         PluginDescriptor(
-            name="pipelantic-pandas",
+            name="etlantic-pandas",
             kind="dataframe",
             version="0.5.0",
             engine="pandas",
