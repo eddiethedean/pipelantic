@@ -1,13 +1,13 @@
 [project]
 name = "etlantic-sql"
-version = "0.6.0"
+version = "0.6.1"
 description = "PostgreSQL reference SQL execution plugin for ETLantic."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Odo Matthews", email = "odosmatthews@gmail.com" }]
 dependencies = [
-    "etlantic>=0.6.0,<0.7",
+    "etlantic>=0.6.1,<0.7",
     "sqlalchemy>=2.0,<3",
     "psycopg[binary]>=3.1,<4",
 ]

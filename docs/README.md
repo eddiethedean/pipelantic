@@ -26,7 +26,7 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-**0.6.0** ships validation, profiles, an immutable secret-free
+**0.6.1** ships validation, profiles, an immutable secret-free
 `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
 and Pandas plugins, and a versioned SQL protocol with the `etlantic-sql`
@@ -86,7 +86,7 @@ From these declarations, ETLantic can derive:
 - A deterministic, secret-free `PipelinePlan` (0.3.0)
 - A local Python runtime and structured run report (0.4.0)
 - Optional Polars and Pandas dataframe plugins (0.5.0)
-- Optional SQL execution via `etlantic-sql` (0.6.0)
+- Optional SQL execution via `etlantic-sql` (0.6.1)
 
 Memory, callable, JSON, CSV, and no-write storage are included in core.
 Spark and external orchestration plugins arrive later.

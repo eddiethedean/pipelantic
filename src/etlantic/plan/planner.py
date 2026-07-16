@@ -291,7 +291,7 @@ def _build_plan(
         execution_settings=execution_settings,
         metadata={
             "planner": "etlantic.plan.planner",
-            "planner_version": "0.6.0",
+            "planner_version": "0.6.1",
             "dataframe_protocol": "etlantic.dataframe/1",
             "sql_protocol": "etlantic.sql/1",
             "sql_fusion": [

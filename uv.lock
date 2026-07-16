@@ -242,6 +242,174 @@ wheels = [
 ]
 
 [[package]]
+name = "etlantic"
+version = "0.6.1"
+source = { editable = "." }
+dependencies = [
+    { name = "anyio" },
+    { name = "click" },
+    { name = "contractmodel" },
+    { name = "dpcs" },
+    { name = "dtcs" },
+    { name = "packaging" },
+    { name = "pydantic" },
+    { name = "typer" },
+]
+
+[package.optional-dependencies]
+arrow = [
+    { name = "pyarrow" },
+]
+dataframes = [
+    { name = "etlantic-pandas" },
+    { name = "etlantic-polars" },
+]
+pandas = [
+    { name = "etlantic-pandas" },
+]
+polars = [
+    { name = "etlantic-polars" },
+]
+postgresql = [
+    { name = "etlantic-sql" },
+]
+sql = [
+    { name = "etlantic-sql" },
+]
+
+[package.dev-dependencies]
+dataframes = [
+    { name = "etlantic-pandas" },
+    { name = "etlantic-polars" },
+    { name = "pyarrow" },
+]
+dev = [
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
+    { name = "pymdown-extensions" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+pandas = [
+    { name = "etlantic-pandas" },
+    { name = "pyarrow" },
+]
+polars = [
+    { name = "etlantic-polars" },
+    { name = "pyarrow" },
+]
+sql = [
+    { name = "etlantic-sql" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anyio", specifier = ">=4,<5" },
+    { name = "click", specifier = ">=8,<9" },
+    { name = "contractmodel", specifier = ">=0.1.2" },
+    { name = "dpcs", specifier = ">=0.13,<1" },
+    { name = "dtcs", specifier = ">=0.11,<1" },
+    { name = "etlantic-pandas", marker = "extra == 'dataframes'", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-pandas", marker = "extra == 'pandas'", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-polars", marker = "extra == 'dataframes'", editable = "packages/etlantic-polars" },
+    { name = "etlantic-polars", marker = "extra == 'polars'", editable = "packages/etlantic-polars" },
+    { name = "etlantic-sql", marker = "extra == 'postgresql'", editable = "packages/etlantic-sql" },
+    { name = "etlantic-sql", marker = "extra == 'sql'", editable = "packages/etlantic-sql" },
+    { name = "packaging", specifier = ">=24" },
+    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
+    { name = "pydantic", specifier = ">=2.12,<3" },
+    { name = "typer", specifier = ">=0.15,<1" },
+]
+provides-extras = ["polars", "pandas", "sql", "postgresql", "arrow", "dataframes"]
+
+[package.metadata.requires-dev]
+dataframes = [
+    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
+    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
+    { name = "pyarrow", specifier = ">=14" },
+]
+dev = [
+    { name = "mkdocs", specifier = ">=1.6,<2" },
+    { name = "mkdocs-material", specifier = ">=9.6,<10" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.29,<1" },
+    { name = "pymdown-extensions", specifier = ">=10.14,<11" },
+    { name = "pytest", specifier = ">=8,<9" },
+    { name = "ruff", specifier = ">=0.9,<1" },
+]
+pandas = [
+    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
+    { name = "pyarrow", specifier = ">=14" },
+]
+polars = [
+    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
+    { name = "pyarrow", specifier = ">=14" },
+]
+sql = [{ name = "etlantic-sql", editable = "packages/etlantic-sql" }]
+
+[[package]]
+name = "etlantic-pandas"
+version = "0.6.1"
+source = { editable = "packages/etlantic-pandas" }
+dependencies = [
+    { name = "etlantic" },
+    { name = "pandas" },
+]
+
+[package.optional-dependencies]
+arrow = [
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "etlantic", editable = "." },
+    { name = "pandas", specifier = ">=2.0,<3" },
+    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
+]
+provides-extras = ["arrow"]
+
+[[package]]
+name = "etlantic-polars"
+version = "0.6.1"
+source = { editable = "packages/etlantic-polars" }
+dependencies = [
+    { name = "etlantic" },
+    { name = "polars" },
+]
+
+[package.optional-dependencies]
+arrow = [
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "etlantic", editable = "." },
+    { name = "polars", specifier = ">=1.0,<2" },
+    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
+]
+provides-extras = ["arrow"]
+
+[[package]]
+name = "etlantic-sql"
+version = "0.6.1"
+source = { editable = "packages/etlantic-sql" }
+dependencies = [
+    { name = "etlantic" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "etlantic", editable = "." },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.1,<4" },
+    { name = "sqlalchemy", specifier = ">=2.0,<3" },
+]
+provides-extras = ["sqlite"]
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -804,174 +972,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/5a/82/42f767fc1c1143d6f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/d9/7fb5aa316bc299258e68c73ba3bddbc499654a07f151cba08f6153988714/pathspec-1.1.1-py3-none-any.whl", hash = "sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189", size = 57328, upload-time = "2026-04-27T01:46:07.06Z" },
 ]
-
-[[package]]
-name = "etlantic"
-version = "0.6.0"
-source = { editable = "." }
-dependencies = [
-    { name = "anyio" },
-    { name = "click" },
-    { name = "contractmodel" },
-    { name = "dpcs" },
-    { name = "dtcs" },
-    { name = "packaging" },
-    { name = "pydantic" },
-    { name = "typer" },
-]
-
-[package.optional-dependencies]
-arrow = [
-    { name = "pyarrow" },
-]
-dataframes = [
-    { name = "etlantic-pandas" },
-    { name = "etlantic-polars" },
-]
-pandas = [
-    { name = "etlantic-pandas" },
-]
-polars = [
-    { name = "etlantic-polars" },
-]
-postgresql = [
-    { name = "etlantic-sql" },
-]
-sql = [
-    { name = "etlantic-sql" },
-]
-
-[package.dev-dependencies]
-dataframes = [
-    { name = "etlantic-pandas" },
-    { name = "etlantic-polars" },
-    { name = "pyarrow" },
-]
-dev = [
-    { name = "mkdocs" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "pymdown-extensions" },
-    { name = "pytest" },
-    { name = "ruff" },
-]
-pandas = [
-    { name = "etlantic-pandas" },
-    { name = "pyarrow" },
-]
-polars = [
-    { name = "etlantic-polars" },
-    { name = "pyarrow" },
-]
-sql = [
-    { name = "etlantic-sql" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anyio", specifier = ">=4,<5" },
-    { name = "click", specifier = ">=8,<9" },
-    { name = "contractmodel", specifier = ">=0.1.2" },
-    { name = "dpcs", specifier = ">=0.13,<1" },
-    { name = "dtcs", specifier = ">=0.11,<1" },
-    { name = "packaging", specifier = ">=24" },
-    { name = "etlantic-pandas", marker = "extra == 'dataframes'", editable = "packages/etlantic-pandas" },
-    { name = "etlantic-pandas", marker = "extra == 'pandas'", editable = "packages/etlantic-pandas" },
-    { name = "etlantic-polars", marker = "extra == 'dataframes'", editable = "packages/etlantic-polars" },
-    { name = "etlantic-polars", marker = "extra == 'polars'", editable = "packages/etlantic-polars" },
-    { name = "etlantic-sql", marker = "extra == 'postgresql'", editable = "packages/etlantic-sql" },
-    { name = "etlantic-sql", marker = "extra == 'sql'", editable = "packages/etlantic-sql" },
-    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
-    { name = "pydantic", specifier = ">=2.12,<3" },
-    { name = "typer", specifier = ">=0.15,<1" },
-]
-provides-extras = ["polars", "pandas", "sql", "postgresql", "arrow", "dataframes"]
-
-[package.metadata.requires-dev]
-dataframes = [
-    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
-    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
-    { name = "pyarrow", specifier = ">=14" },
-]
-dev = [
-    { name = "mkdocs", specifier = ">=1.6,<2" },
-    { name = "mkdocs-material", specifier = ">=9.6,<10" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.29,<1" },
-    { name = "pymdown-extensions", specifier = ">=10.14,<11" },
-    { name = "pytest", specifier = ">=8,<9" },
-    { name = "ruff", specifier = ">=0.9,<1" },
-]
-pandas = [
-    { name = "etlantic-pandas", editable = "packages/etlantic-pandas" },
-    { name = "pyarrow", specifier = ">=14" },
-]
-polars = [
-    { name = "etlantic-polars", editable = "packages/etlantic-polars" },
-    { name = "pyarrow", specifier = ">=14" },
-]
-sql = [{ name = "etlantic-sql", editable = "packages/etlantic-sql" }]
-
-[[package]]
-name = "etlantic-pandas"
-version = "0.6.0"
-source = { editable = "packages/etlantic-pandas" }
-dependencies = [
-    { name = "pandas" },
-    { name = "etlantic" },
-]
-
-[package.optional-dependencies]
-arrow = [
-    { name = "pyarrow" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pandas", specifier = ">=2.0,<3" },
-    { name = "etlantic", editable = "." },
-    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
-]
-provides-extras = ["arrow"]
-
-[[package]]
-name = "etlantic-polars"
-version = "0.6.0"
-source = { editable = "packages/etlantic-polars" }
-dependencies = [
-    { name = "etlantic" },
-    { name = "polars" },
-]
-
-[package.optional-dependencies]
-arrow = [
-    { name = "pyarrow" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "etlantic", editable = "." },
-    { name = "polars", specifier = ">=1.0,<2" },
-    { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
-]
-provides-extras = ["arrow"]
-
-[[package]]
-name = "etlantic-sql"
-version = "0.6.0"
-source = { editable = "packages/etlantic-sql" }
-dependencies = [
-    { name = "etlantic" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "sqlalchemy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "etlantic", editable = "." },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.1,<4" },
-    { name = "sqlalchemy", specifier = ">=2.0,<3" },
-]
-provides-extras = ["sqlite"]
 
 [[package]]
 name = "platformdirs"

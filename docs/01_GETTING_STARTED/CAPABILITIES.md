@@ -1,6 +1,6 @@
 # Current Capabilities and Limitations
 
-ETLantic 0.6.0 is an alpha release. This page is the shortest answer to
+ETLantic 0.6.1 is an alpha release. This page is the shortest answer to
 "What can I use today?"
 
 ## Available in 0.6

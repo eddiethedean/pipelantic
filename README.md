@@ -10,7 +10,7 @@ Define datasets, transformations, and pipelines as typed Python classes.
 Validate and plan them once. Run locally today; swap Polars, Pandas, or SQL
 backends without rewriting the logical pipeline.
 
-**Status:** Alpha **0.6.0** — local runtime + optional Polars/Pandas/SQL
+**Status:** Alpha **0.6.1** — local runtime + optional Polars/Pandas/SQL
 plugins. Spark and Airflow compilation are not shipped.
 
 ## Install
@@ -50,8 +50,8 @@ the `dev` dependency group (pytest, ruff, mkdocs) by default.
 Tag a version that matches `src/etlantic/_version.py`, then push the tag:
 
 ```bash
-git tag v0.6.0
-git push origin v0.6.0
+git tag v0.6.1
+git push origin v0.6.1
 ```
 
 GitHub Actions runs checks and publishes to PyPI using the `PYPI_API_TOKEN`

@@ -4,7 +4,7 @@ import etlantic
 
 
 def test_version() -> None:
-    assert etlantic.__version__ == "0.6.0"
+    assert etlantic.__version__ == "0.6.1"
 
 
 def test_root_exports() -> None:

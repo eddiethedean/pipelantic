@@ -166,7 +166,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="local",
             kind="runtime",
-            version="0.6.0",
+            version="0.6.1",
             engine="local",
             capabilities=local_caps,
         )
@@ -175,7 +175,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="null",
             kind="runtime",
-            version="0.6.0",
+            version="0.6.1",
             engine="null",
             capabilities=null_caps,
         )
@@ -184,7 +184,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="env-secrets",
             kind="secret_provider",
-            version="0.6.0",
+            version="0.6.1",
             engine="env",
             capabilities=PluginCapabilities(
                 engine="env",

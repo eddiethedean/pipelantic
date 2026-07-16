@@ -1,13 +1,13 @@
 [project]
 name = "etlantic-pandas"
-version = "0.6.0"
+version = "0.6.1"
 description = "Pandas dataframe execution plugin for ETLantic."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Odo Matthews", email = "odosmatthews@gmail.com" }]
 dependencies = [
-    "etlantic>=0.6.0,<0.7",
+    "etlantic>=0.6.1,<0.7",
     "pandas>=2.0,<3",
 ]
 
