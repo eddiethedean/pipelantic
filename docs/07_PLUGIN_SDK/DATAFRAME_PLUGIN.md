@@ -178,5 +178,6 @@ Avoid:
 
 ## Next Step
 
-Continue with **ORCHESTRATION_PLUGIN.md** to learn how execution coordination is
-implemented for workflow engines such as Airflow and Dagster.
+Continue with [Orchestrator Plugin](ORCHESTRATOR_PLUGIN.md) to learn how
+execution coordination is implemented for workflow engines such as Airflow and
+Dagster.

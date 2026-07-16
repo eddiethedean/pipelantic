@@ -1121,6 +1121,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **INCREMENTAL_PIPELINE.md** to compare watermark, snapshot,
-change-feed, and merge-based incremental strategies across SQL, Polars,
-PySpark, and Delta execution backends.
+Continue with [End to End](END_TO_END.md) to review the complete modeling,
+generation, planning, execution, and documentation lifecycle.

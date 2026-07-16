@@ -169,5 +169,5 @@ platform while preserving the portable semantics defined by DPCS.
 
 ## Next Step
 
-Continue with **RESOURCES.md** to learn how execution plugins acquire and manage
-runtime resources.
+Continue with [Resource Providers](RESOURCE_PLUGINS.md) to learn how execution
+plugins acquire and manage runtime resources.

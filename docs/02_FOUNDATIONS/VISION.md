@@ -115,6 +115,21 @@ Those classes become the foundation for:
 
 without rewriting the same information in multiple places.
 
+Success also means PipelineModel remains small enough to explain:
+
+```text
+Types define interfaces.
+Contracts define portable meaning.
+Pipelines define topology.
+Profiles bind environments.
+Plans resolve execution.
+Plugins perform adaptation.
+External engines do the work.
+```
+
+The framework should make sophisticated planning possible without making the
+basic authoring experience feel sophisticated.
+
 ## Long-Term Vision
 
 We envision an ecosystem where contracts, transformations, and pipelines
@@ -125,6 +140,16 @@ contract-driven data engineering, enabling developers to focus on
 business logic while relying on open standards and interchangeable
 execution engines.
 
+That vision includes:
+
+- Code-first and contract-first interoperability
+- Static lineage before execution
+- Capability-aware backend selection
+- SQL and Spark execution regions
+- Local execution and external orchestration from one plan
+- A stable Plugin SDK for community integrations
+- Reproducible contracts, plans, diagrams, and documentation
+
 ## Relationship to the Manifesto
 
 The PipelineModel Manifesto defines the project's guiding philosophy.
@@ -133,3 +158,7 @@ This Vision document explains the destination.
 
 Subsequent chapters describe the architecture, principles, and
 implementation decisions that move the project toward that vision.
+
+Because the project is pre-implementation, the
+[Documentation Status](DOCUMENTATION_STATUS.md) chapter explains how to read
+accepted designs, proposals, examples, and normative requirements.

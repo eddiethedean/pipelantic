@@ -1,341 +1,354 @@
 # Architecture
 
-## Overview
+PipelineModel is a typed modeling, validation, planning, and coordination
+framework for data pipelines.
 
-PipelineModel is a **typed pipeline modeling framework**.
+It does not implement dataframe computation, distributed scheduling, storage,
+or infrastructure. It defines a portable logical pipeline, resolves that model
+for a selected environment, and delegates the resulting plan to plugins and
+external systems.
 
-Its responsibility is to model, validate, document, and plan data
-pipelines. It intentionally delegates execution to external plugins.
+## Architectural Boundary
 
-The architecture follows a layered design that cleanly separates
-business intent from runtime execution.
-
-``` text
-Python Models
-      │
-      ▼
-PipelineModel
-      │
-      ├── Validation
-      ├── Contract Generation
-      ├── Documentation
-      ├── Visualization
-      ├── Planning
-      ▼
-Execution Plugins
-      │
-      ▼
-Execution Engines
+```text
+Standards own meaning.
+ContractModel operationalizes data contracts.
+PipelineModel owns the logical model and resolved plan.
+Plugins own backend adaptation and execution.
+External systems perform the work.
 ```
 
-The framework owns the logical model.
+This boundary is the primary defense against PipelineModel becoming another
+monolithic ETL framework.
 
-Plugins own execution.
+Security is a cross-cutting architectural constraint, not a plugin feature.
+See the [Security Model](SECURITY.md).
 
-------------------------------------------------------------------------
+## System Overview
 
-# Architectural Layers
-
-``` text
-┌────────────────────────────────────┐
-│ User Python Code                   │
-│                                    │
-│ • DataContractModel                │
-│ • Transformation                   │
-│ • Pipeline                         │
-└────────────────────────────────────┘
-                │
-                ▼
-┌────────────────────────────────────┐
-│ PipelineModel Core                 │
-│                                    │
-│ Type Introspection                 │
-│ Validation                         │
-│ Graph Builder                      │
-│ Planning                           │
-│ Contract Generation                │
-│ Documentation                      │
-│ Visualization                      │
-└────────────────────────────────────┘
-                │
-                ▼
-┌────────────────────────────────────┐
-│ Plugin Layer                       │
-│                                    │
-│ Dataframe Plugins                  │
-│ Orchestrator Plugins               │
-│ Storage Plugins                    │
-│ Resource Providers                 │
-│ Compiler Plugins                   │
-└────────────────────────────────────┘
-                │
-                ▼
-┌────────────────────────────────────┐
-│ Runtime Technologies               │
-│                                    │
-│ Polars                             │
-│ Pandas                             │
-│ Airflow                            │
-│ SQLAlchemy                         │
-│ DuckDB                             │
-│ Cloud Services                     │
-└────────────────────────────────────┘
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Authoring and Interchange                                   │
+│                                                              │
+│ ContractModel classes   Transformation classes   Pipelines   │
+│ ODCS documents          DTCS documents            DPCS docs  │
+└──────────────────────────────┬───────────────────────────────┘
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│ Typed Logical Model                                          │
+│                                                              │
+│ Contracts • ports • steps • edges • parameters • identities │
+└──────────────────────────────┬───────────────────────────────┘
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│ Analysis                                                     │
+│                                                              │
+│ Introspection • references • validation • diagnostics        │
+└──────────────────────────────┬───────────────────────────────┘
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│ Planning                                                     │
+│                                                              │
+│ Profiles • bindings • capabilities • execution regions       │
+│ resources • materialization boundaries                       │
+└──────────────────────────────┬───────────────────────────────┘
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│ PipelinePlan                                                 │
+│                                                              │
+│ Immutable • resolved • deterministic • secret-free           │
+└──────────────────────┬───────────────┬───────────────────────┘
+                       ▼               ▼
+              Direct execution     Compilation / generation
+                       │               │
+                       ▼               ▼
+              Runtime plugins      Backend artifacts, docs,
+                                   diagrams, lineage
 ```
 
-------------------------------------------------------------------------
+## Authoring Layer
 
-# Core Components
+PipelineModel supports complementary authoring paths.
 
-## Data Modeling
+### Code-first
 
-Data contracts are authored using ContractModel-compatible Pydantic
-models.
+- `DataContractModel` classes define data contracts.
+- `Transformation` classes define typed interfaces.
+- `Pipeline` classes connect sources, steps, sinks, and subpipelines.
 
-Responsibilities:
+### Contract-first
 
--   describe datasets
--   validate records
--   generate ODCS
--   provide type information
+- ContractModel loads ODCS data contracts.
+- PipelineModel integrations load DTCS transformations.
+- PipelineModel loads DPCS pipelines.
 
-------------------------------------------------------------------------
+Both paths converge on semantically equivalent domain models and one typed
+logical pipeline graph. PipelineModel does not flatten ODCS, DTCS, and DPCS
+into one universal contract object.
 
-## Transformation Modeling
+## Typed Logical Model
 
-Transformation classes define:
+The logical model captures portable meaning:
 
--   inputs
--   outputs
--   parameters
--   metadata
+- Stable identities
+- Data-contract references
+- Typed transformation ports
+- Parameters and defaults
+- Sources and sinks
+- Step instances
+- Edges and dependencies
+- Subpipeline interfaces
+- Callbacks and declared failure policy
+- Lifespan, middleware, and typed resource requirements
+- Typed outbound event declarations
 
-They describe interfaces only.
+It excludes resolved credentials, dataframe objects, scheduler tasks, database
+connections, and cluster handles.
 
-Execution implementations are registered separately.
+## Validation Architecture
 
-------------------------------------------------------------------------
+Validation is phased so tools can provide precise diagnostics:
 
-## Pipeline Modeling
+1. **Definition validation** — annotations, metadata, identities, and class
+   declarations are internally valid.
+2. **Contract validation** — ODCS, DTCS, and DPCS artifacts satisfy their
+   authorities.
+3. **Graph validation** — dependencies, ports, cycles, fan-in, fan-out, and
+   subpipeline boundaries are valid.
+4. **Compatibility validation** — producer outputs satisfy consumer inputs.
+5. **Profile validation** — bindings and resources are complete.
+6. **Capability validation** — selected plugins can preserve required
+   semantics.
+7. **Runtime data validation** — actual inputs and outputs satisfy their data
+   contracts at configured boundaries.
 
-Pipeline classes connect transformations together.
+The first six phases occur before execution. Runtime data validation occurs
+through ContractModel and backend integrations.
 
-Responsibilities include:
+## Planning Architecture
 
--   dependency graph construction
--   type compatibility
--   contract references
--   execution planning
+Planning combines a valid logical pipeline with a profile.
 
-Pipelines describe logical topology rather than runtime behavior.
-
-------------------------------------------------------------------------
-
-## Validation Engine
-
-The validation engine performs static analysis before execution.
-
-Examples include:
-
--   incompatible contracts
--   missing inputs
--   unused outputs
--   parameter validation
--   plugin compatibility
--   cyclic graphs
-
-Validation should catch as many issues as possible before execution
-begins.
-
-------------------------------------------------------------------------
-
-## Contract Generation
-
-PipelineModel generates:
-
--   ODCS
--   DTCS
--   DPCS
-
-Generated contracts are portable artifacts that can be shared
-independently of Python code.
-
-------------------------------------------------------------------------
-
-## Planning Engine
-
-Planning converts a logical pipeline into an execution plan.
-
-Responsibilities include:
-
--   dependency ordering
--   plugin resolution
--   profile application
--   resource resolution
--   runtime configuration
-
-Planning does not execute work.
-
-------------------------------------------------------------------------
-
-## Plugin Manager
-
-The plugin manager discovers and configures runtime integrations.
-
-Examples:
-
--   dataframe plugins
--   orchestrators
--   storage systems
--   compilers
-
-The core framework depends only on abstract interfaces.
-
-------------------------------------------------------------------------
-
-# Internal Data Flow
-
-PipelineModel follows a predictable lifecycle.
-
-``` text
-Python Classes
-        │
-        ▼
-Type Introspection
-        │
-        ▼
-Logical Pipeline Graph
-        │
-        ▼
-Validation
-        │
-        ▼
-Execution Plan
-        │
-        ▼
-Plugin Dispatch
-        │
-        ▼
-Runtime Execution
+```text
+Logical pipeline
+      +
+Profile
+      +
+Installed plugin capabilities
+      ↓
+Resolved PipelinePlan
 ```
 
-Every stage produces structured metadata that can be inspected,
-documented, or visualized.
+The planner resolves:
 
-------------------------------------------------------------------------
+- Transformation implementations
+- Source and sink bindings
+- Orchestrator selection
+- Resource-provider references
+- Execution modes
+- Artifact boundaries
+- Retry and timeout requirements
+- Backend capability constraints
+- SQL or Spark execution regions
 
-# Runtime Independence
+Planning must not execute transformations, acquire live credentials, or
+materialize data.
 
-One of PipelineModel's central architectural goals is runtime
-independence.
+Planning should also avoid importing or executing untrusted user modules when a
+static discovery path is available.
 
-A pipeline should not change simply because execution technology
-changes.
+## PipelinePlan
 
-``` text
-Logical Pipeline
+`PipelinePlan` is the resolved intermediate representation between authoring
+and execution.
 
-        │
+It should be:
 
-        ├──────────► Polars
+- Immutable after construction
+- Deterministic for equivalent inputs
+- Serializable where practical
+- Fully resolved
+- Inspectable
+- Versioned
+- Free of resolved secrets
 
-        ├──────────► Pandas
+The plan preserves mappings between logical nodes and physical execution units.
+This is essential because a backend may fuse several logical transformations
+into one SQL statement or Spark plan while PipelineModel still needs
+step-level lineage, diagnostics, and failure attribution.
 
-        ├──────────► Airflow
+## Logical and Physical Graphs
 
-        └──────────► Future Plugins
+PipelineModel distinguishes:
+
+```text
+Logical graph
+User-visible sources, steps, sinks, ports, and contracts
+
+Physical graph
+Backend tasks, fused queries, Spark stages, materializations, and submissions
 ```
 
-Execution bindings belong to profiles and plugins rather than pipeline
-definitions.
+Optimizations may change the physical graph. They must not silently change the
+observable semantics of the logical graph.
 
-------------------------------------------------------------------------
+## Execution Regions
 
-# Async Architecture
+Adjacent compatible nodes may be grouped into an execution region:
 
-PipelineModel is asynchronous internally.
+- A SQL region compiled into one or more statements
+- A Polars lazy region collected at a sink
+- A Spark region represented by one logical Spark plan
+- A local Python region coordinated by the reference orchestrator
 
-Every user callable---whether synchronous or asynchronous---is
-normalized through a common invocation layer.
+Region formation depends on:
 
-This allows users to write:
+- Available implementations
+- Shared execution environment
+- Validation boundaries
+- Retry and failure boundaries
+- Reuse and fan-out
+- Backend capabilities
+- Required materialization
 
-``` python
-def transform(...):
-    ...
+## Plugin Architecture
+
+The core depends on public protocols rather than backend packages.
+
+Primary extension families are:
+
+| Extension | Responsibility |
+|---|---|
+| Dataframe plugin | Execute transformation implementations with a dataframe engine |
+| SQL plugin and dialect | Compile and execute SQL-native regions |
+| PySpark plugin | Build and submit Spark-native regions |
+| Orchestrator plugin | Coordinate or compile pipeline execution |
+| Storage plugin | Read and write persistent datasets |
+| Resource provider | Acquire managed runtime dependencies |
+| Observability provider | Route logs, metrics, traces, and lifecycle events |
+| Notification provider | Deliver typed outbound events |
+
+Plugins advertise capabilities. The planner selects them only when those
+capabilities satisfy the logical model.
+
+## Runtime Architecture
+
+The runtime boundary is async-first.
+
+```text
+async def callable
+    → await directly
+
+def callable
+    → managed worker boundary
+
+CPU-heavy Python
+    → process or external mode when declared
+
+Airflow, Spark, dbt, remote service
+    → plugin-managed external execution
 ```
 
-or
+PipelineModel coordinates invocation, concurrency limits, cancellation,
+timeouts, context propagation, and cleanup. It does not assume worker threads
+make CPU-heavy Python parallel.
 
-``` python
-async def transform(...):
-    ...
+## Lifecycle Extension Architecture
+
+PipelineModel uses separate mechanisms for distinct lifecycle concerns:
+
+```text
+Runtime lifespan
+    └── initialize and clean up shared runtime state
+
+Run and step middleware
+    └── wrap matching logical operations
+
+Resource injection
+    └── acquire typed services required by callables
+
+Lifecycle callbacks
+    └── respond to specific outcomes with declarative actions
+
+Outbound event declarations
+    └── document and deliver typed external notifications
 ```
 
-without changing the surrounding pipeline.
+These mechanisms remain separate so ordering, cleanup, portability, and failure
+semantics are predictable.
 
-The execution engine chooses the appropriate invocation strategy.
+## Resource Architecture
 
-------------------------------------------------------------------------
+Logical models refer to named resources. Profiles bind those names to resource
+providers.
 
-# Generated Artifacts
-
-PipelineModel can derive multiple outputs from the same Python model.
-
-``` text
-Python Classes
-      │
-      ├── ODCS
-      ├── DTCS
-      ├── DPCS
-      ├── Documentation
-      ├── Mermaid
-      ├── Graphviz
-      ├── HTML
-      └── Execution Plans
+```text
+Transformation requires "warehouse"
+                 ↓
+Production profile selects SQLAlchemy provider
+                 ↓
+Provider resolves credentials at runtime
+                 ↓
+Managed connection is injected and cleaned up
 ```
 
-The Python model remains the single source of truth.
+Resolved secrets must never enter contracts, generated documentation, or a
+serialized `PipelinePlan`.
 
-------------------------------------------------------------------------
+## Generation Architecture
 
-# Separation of Responsibilities
+Validated models and plans can generate:
 
-  Responsibility             Component
-  -------------------------- ----------------------
-  Data semantics             ContractModel / ODCS
-  Transformation semantics   DTCS
-  Pipeline topology          DPCS
-  Pipeline modeling          PipelineModel
-  Validation                 PipelineModel
-  Planning                   PipelineModel
-  Documentation              PipelineModel
-  Execution                  Plugins
-  Scheduling                 Orchestrator Plugins
-  Data processing            Dataframe Plugins
+- ODCS, DTCS, and DPCS artifacts
+- Mermaid and Graphviz diagrams
+- HTML documentation
+- Lineage
+- Pipeline interface descriptions
+- SQL scripts
+- Airflow DAGs
+- Plugin-defined deployment artifacts
 
-This separation allows each component to evolve independently while
-maintaining a coherent developer experience.
+Generation must be deterministic and suitable for a CI `--check` workflow.
 
-------------------------------------------------------------------------
+## Repository and Dependency Direction
 
-# Architectural Principles
+The intended dependency direction is:
 
-PipelineModel follows these architectural rules:
+```text
+identities + typing + diagnostics
+              ↓
+authoring + contract integrations
+              ↓
+logical graph + validation
+              ↓
+profiles + planning + PipelinePlan
+              ↓
+Plugin SDK
+              ↓
+runtime + compilers + CLI
+```
 
--   Types define interfaces.
--   Contracts define semantics.
--   Pipelines define topology.
--   Plugins define execution.
--   Profiles define runtime bindings.
--   Planning precedes execution.
--   Validation precedes planning.
--   Python remains the source of truth.
+The core package must not require Pandas, Polars, PySpark, Airflow, or a SQL
+engine.
 
-------------------------------------------------------------------------
+## Architectural Invariants
 
-# Looking Ahead
+1. Importing a pipeline never executes it.
+2. Planning never materializes user data.
+3. Profiles do not redefine portable semantics.
+4. Plugins preserve logical meaning or planning fails.
+5. Generated artifacts derive from validated models or plans.
+6. Resolved secrets never enter portable artifacts.
+7. Physical optimization retains logical identity mappings.
+8. Sync and async implementations produce equivalent framework behavior.
+9. Domain standards remain authoritative for contract meaning.
+10. Execution technology never becomes the source of truth.
 
-This document provides the conceptual architecture.
+## Related Reading
 
-Subsequent sections describe the public APIs, plugin interfaces,
-execution model, and runtime behavior in greater detail.
+- [Core Concepts](CORE_CONCEPTS.md)
+- [Design Principles](DESIGN_PRINCIPLES.md)
+- [Planning](../05_PIPELINES/PLANNING.md)
+- [Execution Model](../06_EXECUTION/EXECUTION_MODEL.md)
+- [Plugin SDK](../07_PLUGIN_SDK/README.md)
+- [Architecture Decisions](../11_DEVELOPMENT/ARCHITECTURE_DECISIONS.md)

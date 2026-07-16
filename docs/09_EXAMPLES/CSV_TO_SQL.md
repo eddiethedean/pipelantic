@@ -606,6 +606,5 @@ Customer
 
 ## Next Step
 
-Continue with **MULTI_SOURCE_JOIN.md** to build a pipeline that reads from
-multiple sources, joins typed datasets, validates the combined result, and
-publishes it to SQL.
+Continue with [SQL to SQL](SQL_TO_SQL.md) to keep both data and transformation
+execution inside a relational engine.

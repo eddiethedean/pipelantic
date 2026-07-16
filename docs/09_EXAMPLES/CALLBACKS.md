@@ -1147,6 +1147,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **ASYNC_PIPELINE.md** to build a pipeline that combines synchronous
-and asynchronous sources, transformations, resources, callbacks, and sinks
-through one unified execution model.
+Continue with [Async Pipelines](ASYNC_PIPELINES.md) to combine synchronous and
+asynchronous sources, transformations, resources, callbacks, and sinks.

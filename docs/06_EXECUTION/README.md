@@ -7,7 +7,8 @@ realizes the resulting **Pipeline Plan** using a specific runtime such as local
 Python, Polars, Airflow, Dagster, Prefect, or another supported backend.
 
 PipelineModel intentionally separates execution from modeling. The core library
-never embeds execution semantics into contracts or pipeline definitions.
+coordinates execution from a resolved `PipelinePlan`, while plugins and
+external systems perform backend-specific work.
 
 ## What This Section Covers
 
@@ -21,6 +22,8 @@ This section explains how to:
 - Handle retries and failures
 - Integrate callbacks
 - Report diagnostics
+- Emit structured, correlated logs
+- Extend execution through lifespan, middleware, resources, and callbacks
 - Preserve pipeline semantics across runtimes
 
 ## Execution Lifecycle
@@ -44,8 +47,8 @@ Execution Plugin
 Runtime
 ```
 
-Execution plugins consume Pipeline Plans—they do not interpret Python pipeline
-definitions directly.
+Execution plugins consume `PipelinePlan` objects—they do not interpret Python
+pipeline definitions directly.
 
 ## Core Philosophy
 
@@ -57,7 +60,7 @@ PipelineModel owns:
 - Contract generation
 - Contract loading
 
-Execution plugins own:
+Plugins and external runtimes own:
 
 - Reading data
 - Writing data
@@ -66,6 +69,9 @@ Execution plugins own:
 - Managing concurrency
 - Resource allocation
 - Runtime integration
+
+PipelineModel still owns the common execution state model, diagnostics,
+logical-identity propagation, callback policy, and result normalization.
 
 This separation allows the same pipeline to execute on multiple runtimes while
 preserving identical observable semantics.
@@ -82,7 +88,8 @@ PipelineModel is designed to support:
 - Hybrid execution
 - Remote execution
 
-Execution engines may vary, but the Pipeline Plan remains the same.
+Execution engines may vary. Different profiles may produce different physical
+plans, but those plans preserve the same logical pipeline contract.
 
 ## Relationship to Standards
 
@@ -97,17 +104,22 @@ capabilities.
 
 ## Documentation Roadmap
 
-Read this section in the following order:
+Start with the common runtime model, then choose the backend topics relevant to
+your project:
 
-1. EXECUTION_ENGINE.md
-2. EXECUTION_PLUGINS.md
-3. EXECUTION_CONTEXT.md
-4. RESOURCE_BINDINGS.md
-5. CALLBACK_EXECUTION.md
-6. ERROR_HANDLING.md
-7. RETRIES.md
-8. OBSERVABILITY.md
-9. LOCAL_EXECUTION.md
+1. [Execution Model](EXECUTION_MODEL.md)
+2. [Run Reports](RUN_REPORTS.md)
+3. [Lifecycle Extensions](LIFECYCLE_EXTENSIONS.md)
+4. [Logging](LOGGING.md)
+5. [Plugins](PLUGINS.md)
+6. [Dataframe Plugins](DATAFRAME_PLUGINS.md)
+7. [Orchestration Plugins](ORCHESTRATION_PLUGINS.md)
+8. [Storage Plugins](STORAGE_PLUGINS.md)
+9. [Resource Providers](RESOURCE_PLUGINS.md)
+10. [Local Python](LOCAL_PYTHON.md)
+11. [Compilation](COMPILATION.md)
+12. [SQL](SQL.md)
+13. [PySpark](PYSPARK.md)
 
 ## Key Principles
 
@@ -116,8 +128,11 @@ Read this section in the following order:
 - Contracts remain runtime-independent.
 - Execution engines preserve DPCS semantics.
 - Modeling and execution evolve independently.
+- Physical optimization preserves logical identities.
+- Unsupported capabilities fail during planning.
+- Resolved secrets never enter portable plans.
 
 ## Next Step
 
-Continue with **EXECUTION_ENGINE.md** to learn how PipelineModel defines the
-execution interface that all runtime plugins implement.
+Continue with the [Execution Model](EXECUTION_MODEL.md) to learn how every
+runtime realizes a validated `PipelinePlan`.

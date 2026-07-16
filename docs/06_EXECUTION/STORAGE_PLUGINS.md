@@ -174,5 +174,5 @@ transformation, and data contracts.
 
 ## Next Step
 
-Continue with **RESOURCES.md** to learn how execution resources are acquired,
-managed, and shared across plugins.
+Continue with [Resource Providers](RESOURCE_PLUGINS.md) to learn how execution
+resources are acquired, managed, and shared across plugins.

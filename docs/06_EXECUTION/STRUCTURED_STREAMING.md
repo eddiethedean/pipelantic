@@ -195,7 +195,7 @@ Validation
 SQL Sink
 ```
 
-Backend transitions should remain explicit in the execution plan.
+Backend transitions should remain explicit in the `PipelinePlan`.
 
 ## Diagnostics
 
@@ -257,5 +257,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **PYSPARK_PLUGIN.md** in the Plugin SDK to implement Spark
-execution backends that support both batch and Structured Streaming workloads.
+Continue with the [PySpark Plugin](../07_PLUGIN_SDK/PYSPARK_PLUGIN.md) guide to
+implement Spark backends that support batch and Structured Streaming workloads.

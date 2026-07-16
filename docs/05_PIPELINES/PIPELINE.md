@@ -18,25 +18,26 @@ PipelineModel uses pipeline definitions to:
 - Validate graph structure
 - Verify contract compatibility
 - Generate DPCS artifacts
-- Build execution plans
+- Build resolved `PipelinePlan` objects
 - Produce lineage
 - Generate documentation
 
 ## Basic Example
 
 ```python
-from pipelinemodel import Pipeline
+from pipelinemodel import Pipeline, Sink, Source
 
 class CustomerPipeline(Pipeline):
-    raw = CsvSource[RawCustomer](path="customers.csv")
+    raw: Source[RawCustomer] = Source(binding="customer_source")
 
     normalized = NormalizeCustomers.step(
         customers=raw,
         minimum_age=18,
     )
 
-    warehouse = SqlSink[Customer](
+    warehouse: Sink[Customer] = Sink(
         input=normalized.result,
+        binding="customer_sink",
     )
 ```
 
@@ -86,9 +87,7 @@ The planner identifies:
 Sources introduce data into the graph.
 
 ```python
-customers = CsvSource[RawCustomer](
-    path="customers.csv",
-)
+customers: Source[RawCustomer] = Source(binding="customer_source")
 ```
 
 Every source declares the contract of the data it produces.
@@ -110,8 +109,9 @@ Each transformation becomes a graph node.
 Sinks publish data outside the pipeline.
 
 ```python
-warehouse = SqlSink[Customer](
+warehouse: Sink[Customer] = Sink(
     input=normalized.result,
+    binding="customer_sink",
 )
 ```
 

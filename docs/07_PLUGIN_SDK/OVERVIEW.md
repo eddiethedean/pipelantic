@@ -3,9 +3,10 @@
 The PipelineModel Plugin SDK defines the public interfaces used to extend
 PipelineModel without modifying its core.
 
-The core framework is responsible for modeling, validation, planning, and
-contract management. Plugins provide concrete runtime behavior for execution,
-storage, orchestration, resources, registries, and other extension points.
+The core framework is responsible for modeling, validation, planning, contract
+coordination, common lifecycle semantics, and result normalization. Plugins
+provide concrete runtime behavior for execution, storage, orchestration,
+resources, and other extension points.
 
 ## Purpose
 
@@ -40,8 +41,8 @@ Execution Dataframe Storage Resource Registry Orchestration
  Plugins   Plugins   Plugins  Plugins  Plugins    Plugins
 ```
 
-Every plugin consumes or contributes to the execution of a validated
-`PipelinePlan`. No plugin changes the meaning of the pipeline.
+Every plugin consumes or contributes to planning, compilation, or execution of
+a validated `PipelinePlan`. No plugin changes the meaning of the pipeline.
 
 ## Core Principles
 
@@ -51,7 +52,10 @@ The SDK is built around a few simple principles:
 - **Capability driven** — Plugins declare what they support.
 - **Portable semantics** — Plugins preserve ODCS, DTCS, and DPCS semantics.
 - **Independent versioning** — Plugins evolve independently of the core.
-- **Loose coupling** — Plugins depend on the SDK, not each other.
+- **Loose coupling** — Plugins depend on the SDK, not each other's private APIs.
+- **Honest capabilities** — Unsupported semantics fail during planning.
+- **Logical traceability** — Physical work maps back to logical identities.
+- **Secret safety** — Plans contain references, never resolved credentials.
 
 ## Plugin Lifecycle
 
@@ -74,10 +78,12 @@ PipelineModel currently defines several plugin categories:
 - Dataframe Plugins
 - Orchestration Plugins
 - Storage Plugins
-- Resource Plugins
+- Resource Providers
 - Registry Plugins
 
-Additional categories may be introduced without changing the architecture.
+Additional categories require a demonstrated responsibility that cannot be
+expressed cleanly through the existing SDK. New categories should not be added
+merely to mirror every external technology.
 
 ## Capability Matching
 
@@ -123,5 +129,5 @@ This allows the ecosystem to evolve while maintaining predictable behavior.
 
 ## Next Step
 
-Continue with **PLUGIN_ARCHITECTURE.md** to explore the SDK's internal design
-and extension interfaces.
+Continue with [Dataframe Plugin](DATAFRAME_PLUGIN.md) to explore the first
+concrete SDK extension interface.

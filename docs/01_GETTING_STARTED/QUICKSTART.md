@@ -8,6 +8,8 @@ contract, wire everything into a pipeline, validate it, and generate
 portable contracts.
 
 > **Goal:** Learn the PipelineModel mental model, not every feature.
+>
+> **Status:** This is an accepted design example for the intended 1.0 API.
 
 ## Step 1 --- Define a Data Contract
 
@@ -39,18 +41,18 @@ PipelineModel can derive a DTCS contract from this definition.
 ## Step 3 --- Build a Pipeline
 
 ``` python
-from pipelinemodel import Pipeline, Source, Sink
+from pipelinemodel import Pipeline, Sink, Source
 
 class CustomerPipeline(Pipeline):
-    raw = Source(contract=Customer)
+    raw: Source[Customer] = Source(binding="customer_source")
 
     normalized = NormalizeCustomers.step(
         customers=raw,
     )
 
-    curated = Sink(
-        contract=Customer,
+    curated: Sink[Customer] = Sink(
         input=normalized.result,
+        binding="customer_sink",
     )
 ```
 
@@ -87,7 +89,18 @@ contracts/
     └── customer-pipeline.dpcs.yaml
 ```
 
-## Step 6 --- Execute
+## Step 6 --- Plan
+
+Resolve the logical pipeline for an environment before execution:
+
+```python
+plan = CustomerPipeline.plan(profile="local")
+```
+
+The resulting `PipelinePlan` contains implementation, binding, capability, and
+execution-region decisions without containing resolved secrets.
+
+## Step 7 --- Execute
 
 Choose the execution engine appropriate for your environment.
 
@@ -117,10 +130,11 @@ You have:
 -   Built a pipeline.
 -   Validated the pipeline.
 -   Generated portable contracts.
+-   Resolved a deterministic `PipelinePlan`.
 -   Executed through a runtime profile.
 
 ## Where to Go Next
 
-Continue with **FIRST_PIPELINE.md**, where you'll build a realistic
+Continue with [Your First Pipeline](FIRST_PIPELINE.md), where you'll build a realistic
 end-to-end ETL pipeline and learn how data contracts, transformation
 contracts, and pipeline contracts work together.

@@ -1281,6 +1281,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **SUBPIPELINE_EXAMPLE.md** to compose independently validated
-pipelines while preserving async execution, resource scopes, and portable
-interfaces.
+Continue with [Contract-First](CONTRACT_FIRST.md) to build a pipeline from
+portable ODCS, DTCS, and DPCS artifacts.

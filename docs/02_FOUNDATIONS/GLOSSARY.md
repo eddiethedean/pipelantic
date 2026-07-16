@@ -7,8 +7,10 @@ terms are used in other ETL frameworks.
 
 ## Artifact
 
-A generated output derived from a pipeline model, such as an ODCS, DTCS,
-or DPCS document, documentation, diagrams, or an execution plan.
+A generated file or runtime data value/reference. Generated artifacts include
+ODCS, DTCS, DPCS, documentation, diagrams, and compiled backend output. Runtime
+artifacts include dataframes, database relations, files, and external
+references passed between physical execution units.
 
 ## Binding
 
@@ -72,6 +74,13 @@ A resolved representation of a logical pipeline that identifies
 dependencies, runtime bindings, and the order of execution. An execution
 plan is produced by PipelineModel but executed by plugins.
 
+The preferred public term is `PipelinePlan`.
+
+## Execution Region
+
+A group of compatible logical nodes that a backend may realize together, such
+as a fused SQL query or one lazy Spark plan.
+
 ## Hook
 
 A specialized callback associated with a pipeline lifecycle event.
@@ -82,9 +91,14 @@ A typed input port declared by a transformation using `Input[T]`.
 
 ## Intermediate Representation (IR)
 
-The internal logical graph created by PipelineModel after type
-introspection and validation. The IR is the basis for planning,
-visualization, and compilation.
+A model between authoring and backend execution. PipelineModel distinguishes
+the typed logical graph from the resolved `PipelinePlan`; the latter is the
+primary execution-facing IR.
+
+## Logical Graph
+
+The portable, user-visible graph of sources, steps, sinks, ports, and
+dependencies.
 
 ## Node
 
@@ -124,6 +138,11 @@ An extension that provides runtime functionality not implemented by the
 PipelineModel core, such as dataframe processing, orchestration,
 storage, or compilation.
 
+## Physical Graph
+
+The backend-specific graph of tasks, statements, stages, and materialization
+boundaries created from a `PipelinePlan`.
+
 ## Profile
 
 A named runtime configuration that selects bindings, resources, and
@@ -134,6 +153,11 @@ definition.
 
 An external dependency provided at runtime, such as a database
 connection, object storage client, or API client.
+
+## Resource Provider
+
+A Plugin SDK component that acquires, scopes, injects, and cleans up runtime
+resources.
 
 ## Sink
 

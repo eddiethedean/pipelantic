@@ -1044,6 +1044,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **SQL_COMPILER.md** to define how logical SQL plans are lowered
-through compilation passes into deterministic, parameterized, dialect-specific
-statements.
+Continue with [Testing Plugins](TESTING_PLUGINS.md) to validate dialect
+capabilities, deterministic compilation, and failure behavior.

@@ -27,21 +27,26 @@ This section explains how to:
 A pipeline is declared using ordinary Python.
 
 ```python
+from pipelinemodel import Pipeline, Sink, Source
+
+
 class CustomerPipeline(Pipeline):
-    raw = CsvSource[RawCustomer](path="customers.csv")
+    raw: Source[RawCustomer] = Source(binding="customer_source")
 
     normalized = NormalizeCustomers.step(
         customers=raw,
         minimum_age=18,
     )
 
-    warehouse = SqlSink[Customer](
+    warehouse: Sink[Customer] = Sink(
         input=normalized.result,
+        binding="customer_sink",
     )
 ```
 
-The declaration focuses on the logical flow of data rather than execution
-details.
+The declaration focuses on logical data flow. Profiles bind
+`customer_source` and `customer_sink` to files, tables, APIs, or other
+environment-specific implementations.
 
 ## Relationship to DPCS
 
@@ -125,14 +130,17 @@ Generated artifacts are deterministic and suitable for version control.
 
 Read this section in the following order:
 
-1. PIPELINE.md
-2. SOURCES.md
-3. SINKS.md
-4. PIPELINE_GRAPH.md
-5. EXECUTION_PROFILES.md
-6. PLANNING.md
-7. DPCS.md
-8. GENERATION.md
+1. [Pipeline](PIPELINE.md)
+2. [Sources](SOURCES.md)
+3. [Steps](STEPS.md)
+4. [Sinks](SINKS.md)
+5. [Subpipelines](SUBPIPELINES.md)
+6. [DPCS](DPCS.md)
+7. [Pipeline Validation](PIPELINE_VALIDATION.md)
+8. [Planning](PLANNING.md)
+9. [Profiles](PROFILES.md)
+10. [Contract Generation](CONTRACT_GENERATION.md)
+11. [Contract Loading](CONTRACT_LOADING.md)
 
 ## Key Principles
 
@@ -145,5 +153,5 @@ Read this section in the following order:
 
 ## Next Step
 
-Continue with **PIPELINE.md** to learn how to define typed pipeline classes and
-compose transformations into complete workflows.
+Continue with [Pipeline](PIPELINE.md) to learn how to define typed pipeline
+classes and compose transformations into complete workflows.

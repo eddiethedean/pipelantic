@@ -173,5 +173,5 @@ the same logical results regardless of the selected dataframe backend.
 
 ## Next Step
 
-Continue with **ORCHESTRATOR_PLUGINS.md** to learn how Pipeline Plans are bound
-to workflow orchestration platforms.
+Continue with [Orchestration Plugins](ORCHESTRATION_PLUGINS.md) to learn how
+Pipeline Plans are bound to workflow orchestration platforms.

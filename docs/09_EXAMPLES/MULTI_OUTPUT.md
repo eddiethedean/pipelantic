@@ -1132,6 +1132,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **BRANCHING_PIPELINE.md** to build a pipeline where downstream
-execution paths depend on explicit quality gates and portable conditional
-semantics.
+Continue with [Callbacks](CALLBACKS.md) to add invalid-data and execution-failure
+policies to a typed pipeline.

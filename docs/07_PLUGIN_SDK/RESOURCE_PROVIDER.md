@@ -11,6 +11,10 @@ clients, caches, message brokers, ML endpoints, and compute resources.
 Pipeline authors declare logical resource requirements. Resource providers
 resolve those requirements into concrete runtime objects.
 
+This is PipelineModel's dependency-injection mechanism. The term resource
+injection is preferred so it cannot be confused with pipeline graph
+dependencies.
+
 ## Purpose
 
 A resource provider is responsible for:
@@ -77,6 +81,21 @@ warehouse -> PostgreSQL
 
 No pipeline code changes are required.
 
+An annotation-oriented form may also be used by implementation callables:
+
+```python
+from typing import Annotated
+
+from pipelinemodel import Inject
+
+Warehouse = Annotated[SqlDatabase, Inject("warehouse")]
+
+
+@NormalizeCustomers.implementation("python")
+async def normalize(customers, warehouse: Warehouse):
+    ...
+```
+
 ## Provider Interface
 
 Conceptually:
@@ -112,6 +131,47 @@ Dispose
 ```
 
 Providers should clean up resources deterministically.
+
+Provider acquisition may use `yield` or an async context manager so setup and
+cleanup remain paired:
+
+```python
+async def provide_session(engine: DatabaseEngine):
+    async with engine.session() as session:
+        yield session
+```
+
+## Resource Graph
+
+Providers may depend on other providers. PipelineModel builds a resource graph
+separate from the pipeline data-flow graph, validates cycles, resolves shared
+sub-dependencies once per declared scope, and injects the final value.
+
+## Scopes
+
+Supported scopes should include:
+
+- runtime
+- run
+- execution region
+- step
+- attempt
+
+Resources are cached only within their declared scope.
+
+## Overrides
+
+Tests and debug sessions may replace a provider explicitly:
+
+```python
+runtime.override_resource(
+    "warehouse",
+    provider=provide_test_database,
+)
+```
+
+Overrides affect runtime binding, not ODCS, DTCS, DPCS, or the logical pipeline
+graph.
 
 ## Async Support
 
@@ -172,5 +232,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **REGISTRY_PROVIDER.md** to learn how PipelineModel discovers,
-publishes, and resolves portable contract artifacts.
+Continue with [Testing Plugins](TESTING_PLUGINS.md) to learn how providers and
+plugins prove lifecycle, capability, and failure behavior.

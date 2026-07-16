@@ -5,7 +5,7 @@ portable contract artifacts.
 
 While PipelineModel recommends a **code-first** workflow using strongly typed
 Python classes, it also supports **contract-first** workflows by loading ODCS,
-DTCS, and DPCS artifacts into the same internal object model.
+DTCS, and DPCS artifacts into the same typed logical pipeline model.
 
 This enables interoperability with external tools, registries, and existing
 contract repositories.
@@ -31,9 +31,9 @@ Python Classes          YAML / JSON Contracts
        │                        │
        └────────────┬───────────┘
                     ▼
-             Contract Loader
+             Contract Loaders
                     ▼
-        Canonical Object Model
+      Typed Logical Pipeline Model
                     ▼
           Validation & Planning
 ```
@@ -48,15 +48,18 @@ PipelineModel can load:
 - DTCS Transformation Contracts
 - DPCS Pipeline Contracts
 
-Each contract is normalized into the same internal representation used by the
-code-first APIs.
+Each contract is loaded into its domain model, then connected through the same
+logical pipeline representation used by the code-first APIs. PipelineModel does
+not flatten data, transformation, and pipeline contracts into one universal
+domain object.
 
 ## Loading APIs
 
 Conceptually:
 
 ```python
-from pipelinemodel import DataContractModel, Pipeline, Transformation
+from contractmodel import DataContractModel
+from pipelinemodel import Pipeline, Transformation
 
 customer = DataContractModel.from_odcs("customer.odcs.yaml")
 
@@ -72,11 +75,13 @@ pipeline = Pipeline.from_dpcs(
 Future APIs may support loading from streams, registries, packages, or remote
 URLs.
 
-## Canonical Object Model
+## Typed Logical Model
 
-All loaded contracts are normalized into a common in-memory representation.
+Loaded contracts retain their domain-specific representations while
+PipelineModel builds common references, ports, and graph relationships around
+them.
 
-The canonical model preserves:
+The logical model preserves:
 
 - Identity
 - Metadata
@@ -87,7 +92,7 @@ The canonical model preserves:
 - Compatibility metadata
 - Extensions
 
-Planning and execution operate on the canonical model rather than raw files.
+Planning operates on the typed logical model rather than raw files.
 
 ## Reference Resolution
 
@@ -134,7 +139,7 @@ Equivalent contracts expressed as:
 - JSON
 - TOML (future)
 
-should produce identical canonical models.
+should produce semantically equivalent logical models.
 
 ## Caching
 
@@ -173,7 +178,7 @@ Contract Files
 Loading
       │
       ▼
-Canonical Object Model
+Typed Logical Model
       │
       ▼
 Validation
@@ -201,7 +206,7 @@ Portable Artifacts
 Load Contracts
    │
    ▼
-Canonical Object Model
+Typed Logical Model
 ```
 
 A generated contract should load into an equivalent internal model.
@@ -232,5 +237,5 @@ storage location, and authoring workflow.
 
 ## Next Step
 
-Continue with **PIPELINE_REGISTRY.md** to learn how contracts are published,
-discovered, and shared across teams.
+Continue with the [Execution](../06_EXECUTION/README.md) section to learn how a
+loaded, validated pipeline becomes a resolved plan for a selected runtime.

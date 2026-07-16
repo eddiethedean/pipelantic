@@ -1,4 +1,4 @@
-# SQL Execution
+# SQL
 
 The SQL execution backend allows PipelineModel to execute eligible
 transformations directly inside a SQL database instead of materializing data

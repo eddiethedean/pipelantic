@@ -34,7 +34,7 @@ CustomerPipeline
         └── Production Profile
 ```
 
-Each profile produces a different execution plan while preserving identical
+Each profile produces a different `PipelinePlan` while preserving identical
 logical behavior.
 
 ## What a Profile Defines
@@ -54,8 +54,18 @@ A profile may define:
 - Concurrency limits
 - Timeouts
 - Deployment metadata
+- SQL dialect or Spark provider
+- Artifact and checkpoint locations
+- Plugin-specific compiler options
 
 Profiles never redefine pipeline contracts.
+
+Profiles also must not:
+
+- Add or remove logical nodes
+- Change contract identities
+- Change transformation semantics
+- Resolve secret values during planning
 
 ## Example
 
@@ -182,7 +192,36 @@ Planning combines:
 
 to generate a Pipeline Plan.
 
-Changing profiles should change the execution plan—not the pipeline itself.
+Changing profiles should change the `PipelinePlan`—not the pipeline itself.
+
+More precisely, changing profiles produces a different `PipelinePlan` and
+possibly a different physical graph while preserving the same logical graph.
+
+## Resolution Precedence
+
+Recommended precedence is:
+
+```text
+Explicit Python or CLI override
+        ↓
+Selected profile
+        ↓
+Inherited profile
+        ↓
+Project defaults
+        ↓
+Plugin defaults
+```
+
+The effective plan should retain configuration provenance so users can explain
+why a binding or implementation was selected.
+
+## Plan Safety
+
+A profile may reference a secret provider or environment variable name, but the
+resolved value must not be serialized into a `PipelinePlan`.
+
+Profile validation should occur before resource acquisition.
 
 ## Relationship to DPCS
 
@@ -217,5 +256,5 @@ without changing their semantics.
 
 ## Next Step
 
-Continue with **GENERATION.md** to learn how PipelineModel generates portable
-artifacts such as DPCS contracts, documentation, diagrams, and execution plans.
+Continue with [Contract Generation](CONTRACT_GENERATION.md) to learn how
+PipelineModel generates portable ODCS, DTCS, and DPCS artifacts.

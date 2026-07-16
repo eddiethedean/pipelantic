@@ -1189,6 +1189,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **SPARK_PROVIDER_TESTING.md** to define the shared conformance,
-lifecycle, isolation, security, and managed-environment test suites for Spark
-Providers.
+Continue with [Testing Plugins](TESTING_PLUGINS.md) to apply shared conformance,
+lifecycle, isolation, and security tests to Spark providers.

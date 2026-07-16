@@ -1,17 +1,23 @@
 # OpenAPI for Pipelines
 
-PipelineModel can generate an **OpenAPI-like specification for data pipelines**.
+PipelineModel can generate an **OpenAPI-inspired interface description for data
+pipelines**.
 
-Just as OpenAPI standardizes HTTP APIs, PipelineModel standardizes the public
-interface of a pipeline. This specification describes *what a pipeline accepts,
-what it produces, and how it behaves* without exposing implementation details.
+Just as OpenAPI provides a machine-readable description of HTTP APIs, this
+proposed PipelineModel artifact describes *what a pipeline accepts, what it
+produces, and how it behaves* without exposing implementation details.
+
+It is not OpenAPI and is not a fourth contract standard. ODCS, DTCS, and DPCS
+remain the authoritative contract family. This document explores a derived,
+non-normative view generated from those contracts and a validated pipeline
+model.
 
 The generated specification is intended for documentation, discovery,
 governance, validation, IDE tooling, registries, and interoperability.
 
 ## Purpose
 
-An OpenAPI-style pipeline specification enables:
+An OpenAPI-inspired pipeline description enables:
 
 - Pipeline discovery
 - Automatic documentation
@@ -39,10 +45,10 @@ Planning
 Pipeline Plan (IR)
     │
     ▼
-Pipeline OpenAPI Generator
+Pipeline Interface Generator
     │
     ▼
-OpenAPI-like Specification
+Pipeline Interface Description
 ```
 
 The specification is generated from the validated model and is never the source
@@ -208,7 +214,7 @@ Avoid:
 
 | HTTP APIs | PipelineModel |
 |-----------|---------------|
-| OpenAPI | Pipeline OpenAPI |
+| OpenAPI | Pipeline interface description |
 | Endpoint | Pipeline |
 | Request schema | Input contract |
 | Response schema | Output contract |
@@ -229,12 +235,13 @@ Future versions may support:
 
 ## Key Principle
 
-> An OpenAPI-style pipeline specification provides a portable, machine-readable
-description of a pipeline's public interface. Like OpenAPI, it documents the
-contract—not the implementation—and is generated directly from PipelineModel's
-canonical models.
+> An OpenAPI-inspired pipeline description provides a portable,
+> machine-readable
+> description of a pipeline's public interface. Like OpenAPI, it documents the
+> contract—not the implementation—and is generated directly from
+> PipelineModel's canonical models.
 
 ## Next Step
 
-Continue with **INTERACTIVE.md** to explore interactive visualization,
-inspection, and navigation of generated pipeline specifications.
+Continue with the [Examples](../09_EXAMPLES/README.md) section to see generated
+pipeline descriptions used alongside executable documentation.

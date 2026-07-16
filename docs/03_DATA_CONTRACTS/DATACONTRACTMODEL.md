@@ -608,7 +608,7 @@ The `DataContractModel` should be the Python source of truth, with ODCS serving 
 Avoid coupling data contracts to a particular execution engine:
 
 ```python
-# Avoid making Polars or Pandas part of the logical data contract.
+## Avoid Making Polars or Pandas Part of the Logical Data Contract
 class CustomerPolarsFrame(...):
     ...
 ```

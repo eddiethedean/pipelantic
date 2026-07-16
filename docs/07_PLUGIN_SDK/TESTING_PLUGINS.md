@@ -159,5 +159,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **VERSIONING.md** to learn how plugins evolve while maintaining
-compatibility with PipelineModel and the ODCS, DTCS, and DPCS standards.
+Continue with [Distribution](DISTRIBUTION.md) to learn how independently
+versioned plugins declare compatibility and are published.

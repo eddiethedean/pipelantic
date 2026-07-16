@@ -172,7 +172,8 @@ Avoid:
 
 ## Key Principle
 
-> Python models are the source of truth. Generated artifacts are portable representations derived from those models.
+> In code-first projects, Python models are the authoring source of truth.
+> Generated artifacts are portable representations derived from those models.
 
 ## Next Step
 

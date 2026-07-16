@@ -1,133 +1,97 @@
 # Installation
 
-This guide walks you through installing PipelineModel and preparing your
-development environment.
+PipelineModel is currently a design-first, pre-implementation project.
 
-> **Status:** PipelineModel is currently under active development. The
-> installation instructions below describe the intended developer
-> workflow until the first public release.
+There is no supported PyPI release or installable package in this repository
+yet. The commands below document the intended installation experience and
+development toolchain; they should not be treated as currently working package
+instructions.
 
-## Requirements
+## Intended Requirements
 
-PipelineModel targets:
+The current plan targets:
 
--   Python 3.11 or newer
--   A modern virtual environment manager (recommended: `uv`)
--   Git (for development installs)
+- Python 3.11 or newer
+- `uv` for project and dependency management
+- ContractModel as a companion package
+- Optional backend packages installed independently
 
-## Create a Virtual Environment
+The minimum Python version may be revisited before 1.0.
 
-Using `uv` (recommended):
+## Intended User Installation
 
-``` bash
-uv venv
-source .venv/bin/activate      # macOS/Linux
-# .venv\Scripts\activate      # Windows
-```
+Core modeling package:
 
-Or with the Python standard library:
-
-``` bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-## Install PipelineModel
-
-### From PyPI (future)
-
-``` bash
+```bash
 pip install pipelinemodel
 ```
 
-### Development Install
+Backend plugins should remain independently installable:
 
-Clone the repository:
+```bash
+pip install pipelinemodel-polars
+pip install pipelinemodel-pandas
+pip install pipelinemodel-airflow
+pip install pipelinemodel-pyspark
+```
 
-``` bash
+Exact distribution names are proposed and will be finalized with the Plugin
+SDK.
+
+Heavy dependencies such as Airflow and PySpark must not be required by the core
+package.
+
+## Intended Development Setup
+
+Once the package scaffold exists, the expected workflow is:
+
+```bash
 git clone https://github.com/<organization>/pipelinemodel.git
 cd pipelinemodel
+uv sync --all-extras --dev
+uv run pytest
 ```
 
-Install in editable mode:
+The repository should eventually include:
 
-``` bash
-pip install -e .
+```text
+pyproject.toml
+src/pipelinemodel/
+tests/
+docs/
+examples/
 ```
 
-or with `uv`:
+## Intended Verification
 
-``` bash
-uv pip install -e .
-```
-
-## Optional Dependencies
-
-Install only the integrations you need.
-
-Examples:
-
-``` bash
-pip install "pipelinemodel[polars]"
-pip install "pipelinemodel[pandas]"
-pip install "pipelinemodel[airflow]"
-pip install "pipelinemodel[all]"
-```
-
-## Verify Your Installation
-
-``` python
+```python
 import pipelinemodel
 
 print(pipelinemodel.__version__)
 ```
 
-If no errors are raised, your installation is working correctly.
+Plugin inspection should be available through:
 
-## Recommended Companion Packages
-
-For most projects you will also install:
-
--   ContractModel
--   Polars (recommended dataframe engine)
--   Pandas (optional compatibility)
--   SQLAlchemy
--   Airflow or another orchestration plugin, when needed
-
-PipelineModel intentionally keeps these integrations optional.
-
-## Keeping Your Installation Updated
-
-PyPI release:
-
-``` bash
-pip install --upgrade pipelinemodel
+```bash
+pipelinemodel plugins list
 ```
 
-Development checkout:
+## Dependency Philosophy
 
-``` bash
-git pull
-uv pip install -e .
-```
+The core installation should include only what is needed for:
 
-## Troubleshooting
+- Typed authoring
+- Introspection
+- Validation
+- Planning
+- Diagnostics
+- Contract coordination
 
-### Unsupported Python Version
+Users install execution, orchestration, storage, and resource integrations
+separately.
 
-Ensure you are running Python 3.11 or newer.
+## Current Next Step
 
-### Import Errors
-
-Verify that your virtual environment is activated before installing or
-running PipelineModel.
-
-### Missing Plugin
-
-Execution plugins are optional. Install the appropriate extra or plugin
-package before attempting to use a specific execution engine.
-
-## Next Step
-
-Continue with **QUICKSTART.md** to build your first typed,
-contract-driven pipeline.
+Because the package is not yet implemented, continue with the
+[Quickstart](QUICKSTART.md) as an accepted design example, then review the
+[Roadmap](../11_DEVELOPMENT/ROADMAP.md) for implementation order.

@@ -494,5 +494,5 @@ The example contains several intentional boundaries:
 
 ## Next Step
 
-Continue with **CUSTOMER_ETL.md** to build a multi-step pipeline with branching,
-invalid-data quarantine, multiple sinks, and reusable subpipelines.
+Continue with [CSV to SQL](CSV_TO_SQL.md) to add a persistent relational sink to
+the same typed modeling workflow.

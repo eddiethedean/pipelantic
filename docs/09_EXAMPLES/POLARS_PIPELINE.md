@@ -917,5 +917,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **DUCKDB_PIPELINE.md** to explore local analytical SQL execution
-using the same typed contracts and Pipeline Plan architecture.
+Continue with [Airflow Pipeline](AIRFLOW_PIPELINE.md) to compile a portable
+pipeline for an external orchestrator.

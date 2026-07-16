@@ -153,5 +153,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **PUBLISHING.md** to learn recommended practices for releasing
-plugins to the broader PipelineModel ecosystem.
+Continue with the [Examples](../09_EXAMPLES/README.md) section to see plugins
+used in complete pipelines.

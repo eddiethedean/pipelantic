@@ -2,6 +2,11 @@
 
 Welcome to PipelineModel!
 
+> **Project status:** PipelineModel is currently design-first and
+> pre-implementation. The examples in this section define the intended
+> developer experience. See
+> [Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
+
 This section is designed to get you productive as quickly as possible.
 Rather than starting with implementation details, you'll learn the core
 ideas that make PipelineModel different from traditional ETL frameworks.
@@ -33,11 +38,11 @@ No prior experience with orchestration frameworks is required.
 
 Read the Getting Started section in this order:
 
-1.  INSTALLATION.md
-2.  QUICKSTART.md
-3.  FIRST_PIPELINE.md
-4.  PROJECT_STRUCTURE.md
-5.  FAQ.md
+1. [Installation](INSTALLATION.md)
+2. [Quickstart](QUICKSTART.md)
+3. [Your First Pipeline](FIRST_PIPELINE.md)
+4. [Project Structure](PROJECT_STRUCTURE.md)
+5. [FAQ](FAQ.md)
 
 ## The PipelineModel Mental Model
 
@@ -104,5 +109,5 @@ PipelineModel is built around a few core ideas:
 
 ## Next Step
 
-Continue with **INSTALLATION.md** to install PipelineModel and create
-your first project.
+Continue with [Installation](INSTALLATION.md) to review the intended package
+layout and development installation workflow.

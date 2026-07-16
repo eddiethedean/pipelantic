@@ -217,7 +217,7 @@ This is useful when:
 
 ### Expand the graph
 
-The planner may inline the internal nodes into the parent execution plan.
+The planner may inline the internal nodes into the parent `PipelinePlan`.
 
 This is useful when:
 

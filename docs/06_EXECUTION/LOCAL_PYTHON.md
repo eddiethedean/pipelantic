@@ -173,5 +173,5 @@ portable semantics expected from every orchestration plugin.
 
 ## Next Step
 
-Continue with **OBSERVABILITY.md** to learn how PipelineModel reports execution
-events, diagnostics, metrics, and lineage during runtime.
+Continue with [Compilation](COMPILATION.md) to compare direct local execution
+with generation of backend-specific artifacts.

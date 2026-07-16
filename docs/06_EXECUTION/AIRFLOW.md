@@ -161,5 +161,5 @@ DAGs while preserving the logical semantics defined by DPCS.
 
 ## Next Step
 
-Continue with **LOCAL_EXECUTION.md** to learn how Pipeline Plans can execute
-directly within Python without an external orchestrator.
+Continue with [Local Python](LOCAL_PYTHON.md) to learn how Pipeline Plans can
+execute directly without an external orchestrator.

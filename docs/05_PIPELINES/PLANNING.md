@@ -1,269 +1,328 @@
 # Planning
 
-Planning is the process of converting a validated `Pipeline` into an implementation-independent
-**Pipeline Plan**.
+Planning converts a validated logical pipeline and selected profile into an
+immutable, resolved `PipelinePlan`.
 
-A Pipeline Plan preserves the logical semantics of a pipeline while resolving
-its dependencies, bindings, implementations, and execution requirements. It is
-the final product of the modeling layer and the starting point for execution
-plugins.
+The plan is the execution-facing intermediate representation shared by direct
+execution, backend compilation, visualization, documentation, and static
+analysis.
 
-Planning is deliberately separated from execution. A pipeline may be planned
-many times for different execution environments without changing its logical
-definition.
-
-## Goals
-
-Pipeline planning should:
-
-- Preserve pipeline semantics.
-- Remain independent of execution engines.
-- Produce deterministic results.
-- Resolve implementations and bindings.
-- Verify execution capabilities.
-- Generate a reusable Pipeline Plan.
-
-## Planning Philosophy
-
-PipelineModel follows a staged planning process.
+## Planning Contract
 
 ```text
-Python Pipeline
-       │
-       ▼
-Validation
-       │
-       ▼
-Pipeline Planner
-       │
-       ▼
-Pipeline Plan
-       │
-       ▼
-Execution Plugin
-       │
-       ▼
-Runtime
+Validated logical pipeline
+          +
+Selected profile
+          +
+Plugin registry and capabilities
+          ↓
+Resolved PipelinePlan
 ```
 
-Execution plugins consume Pipeline Plans rather than Python pipeline classes.
+Planning never executes transformation code, acquires live credentials, or
+materializes user data.
 
 ## Inputs
 
 The planner consumes:
 
-- Pipeline definitions
-- Data contracts (ODCS)
-- Transformation contracts (DTCS)
-- Pipeline contracts (DPCS)
-- Execution profile
-- Plugin registry
-- Runtime bindings
+- Pipeline identity and logical graph
+- ODCS data-contract references
+- DTCS transformation definitions
+- DPCS pipeline semantics
+- Transformation implementations
+- Profile configuration
+- Source and sink bindings
+- Resource-provider references
+- Installed plugin descriptors and capabilities
 
 ## Planning Phases
 
-### 1. Graph Construction
+### 1. Freeze the Logical Model
 
-Build the logical DAG.
+Normalize code-first or contract-first input into a stable graph of:
 
-Produces:
-
-- Nodes
-- Edges
-- Dependencies
-- Public interfaces
-
-### 2. Contract Resolution
-
-Resolve referenced contracts.
-
-Checks:
-
-- ODCS references
-- DTCS references
-- Nested DPCS references
-- Version compatibility
-
-### 3. Binding Resolution
-
-Resolve logical bindings into runtime bindings.
-
-Examples:
-
-- Source bindings
-- Sink bindings
-- Resource bindings
-- Secret references
-
-The logical pipeline remains unchanged.
-
-### 4. Implementation Selection
-
-Choose an implementation for each transformation.
-
-Conceptually:
-
-```python
-NormalizeCustomers
-    -> "polars"
-```
-
-Selection depends on:
-
-- Execution profile
-- Available plugins
-- Runtime capabilities
-
-### 5. Capability Evaluation
-
-Verify that the selected execution environment supports the required semantics.
-
-Examples:
-
-- Parallel execution
-- Retry
-- Streaming
-- Checkpoints
-- Compensation
-- Approval workflows
-
-Planning fails if mandatory capabilities are unavailable.
-
-### 6. Plan Generation
-
-Generate a normalized Pipeline Plan suitable for execution.
-
-The Pipeline Plan contains no Python-specific authoring constructs.
-
-## Pipeline Plan
-
-A Pipeline Plan should preserve:
-
-- Pipeline identity
-- Graph topology
-- Step identities
-- Contract references
-- Public interfaces
+- Sources
+- Steps
+- Sinks
+- Subpipeline interfaces
+- Typed ports
 - Parameters
-- Execution requirements
-- Scheduling intent
-- Failure semantics
-- Quality gates
-- Lineage
+- Edges
 
-Execution plugins must preserve these semantics.
+No environment-specific behavior is introduced yet.
 
-## Multiple Plans
+### 2. Resolve Contracts and References
 
-The same pipeline may produce multiple plans.
+Resolve contract identity and version requirements:
+
+- ODCS data contracts
+- DTCS transformations
+- DPCS subpipelines
+- Internal port references
+- External registry references, when configured
+
+The planner must preserve the authority of each domain model rather than
+flattening all contracts into one generic object.
+
+### 3. Apply the Profile
+
+Apply environment-specific choices:
+
+- Orchestrator
+- Default transformation engine
+- Node-specific implementation overrides
+- Source and sink bindings
+- Resource providers
+- Concurrency and timeout settings
+- Backend compiler options
+
+Profile application may select how the graph is realized. It may not change its
+portable semantics.
+
+### 4. Select Implementations
+
+Select an implementation for every executable transformation.
+
+Recommended precedence:
 
 ```text
-CustomerPipeline
-      │
-      ├── Local Plan
-      ├── Airflow Plan
-      ├── Dagster Plan
-      └── Prefect Plan
+Step-specific selection
+        ↓
+Transformation or role mapping
+        ↓
+Profile default
+        ↓
+Unambiguous installed default
 ```
 
-Each plan represents the same logical pipeline.
+Ambiguity is a planning error.
 
-## Determinism
+### 5. Evaluate Capabilities
 
-Planning should be deterministic.
-
-Equivalent inputs should always produce semantically equivalent Pipeline Plans.
-
-Differences should only arise from:
-
-- Different execution profiles
-- Different plugin sets
-- Different runtime bindings
-
-## Relationship to DPCS
-
-Planning consumes a DPCS-compatible model and produces a normalized execution
-plan.
-
-DPCS describes **what the pipeline means**.
-
-The Pipeline Plan describes **how a compatible execution environment should
-realize those semantics**.
-
-## Validation vs. Planning
-
-Validation answers:
-
-> Is this pipeline valid?
-
-Planning answers:
-
-> Given a valid pipeline and an execution profile, what is the execution plan?
-
-Planning never repairs an invalid pipeline.
-
-## Diagnostics
-
-Planning failures should return structured diagnostics.
+Compare required semantics with plugin capabilities.
 
 Examples:
 
-- Missing implementation
-- Unsatisfied capability
-- Unresolved binding
-- Missing resource
-- Version incompatibility
-- Ambiguous implementation
+- Transactions
+- Async execution
+- Streaming
+- Checkpoints
+- Event-time watermarks
+- Retry and cancellation behavior
+- Dynamic mapping
+- SQL functions and data types
+- Spark stateful operations
 
-## Planning API
+PipelineModel must not silently approximate mandatory behavior.
 
-Conceptually:
+### 6. Form Execution Regions
+
+Group compatible logical nodes where one backend can realize them together:
+
+```text
+SQL-capable steps       → SQL region
+Polars lazy steps       → Polars lazy region
+Spark-native steps      → Spark region
+Python callables        → Local Python region
+```
+
+Region formation considers:
+
+- Backend compatibility
+- Shared environment
+- Fan-out and reuse
+- Validation gates
+- Retry boundaries
+- Failure attribution
+- Required materialization
+- Transaction scope
+
+### 7. Insert Physical Boundaries
+
+Add boundaries required for:
+
+- Cross-backend artifact transfer
+- Validation
+- Persistence
+- Checkpoints
+- Reused outputs
+- External orchestrator tasks
+- Transaction boundaries
+
+Logical edges remain preserved even when the physical graph differs.
+
+### 8. Resolve Output References
+
+Every downstream input references a logical output port, not an assumed table.
 
 ```python
-plan = CustomerPipeline.plan(
-    profile="production",
+scored = ScoreCustomers.step(
+    customers=normalized.result,
 )
 ```
 
-The returned plan may then be executed by any compatible execution plugin.
+The planner resolves `normalized.result` to an edge strategy:
+
+```text
+Logical OutputRef
+       │
+       ├── native in-memory value
+       ├── lazy dataframe or logical plan
+       ├── SQL relation or CTE
+       ├── cached backend artifact
+       └── durable ArtifactRef
+```
+
+The selected strategy depends on:
+
+- whether producer and consumer share an execution region
+- process and orchestrator boundaries
+- fan-out and reuse
+- memory and persistence policies
+- validation and checkpoint requirements
+- backend interoperability
+- retry and failure boundaries
+
+The default should preserve the upstream result directly when safe. Reading a
+published table is appropriate only when the pipeline explicitly references a
+source binding or when planning requires durable materialization.
+
+### 9. Resolve Resource References
+
+Resolve logical resource names to provider descriptors and scopes.
+
+The plan records how a resource will be obtained but never includes resolved
+credentials or live resource objects.
+
+### 10. Produce the PipelinePlan
+
+The final plan contains:
+
+- Pipeline and plan identity
+- Contract and plugin versions
+- Logical graph
+- Physical execution units
+- Logical-to-physical mappings
+- Resolved implementations
+- Bindings
+- Resource references
+- Execution regions
+- Materialization boundaries
+- Logical output references and resolved artifact strategies
+- Retry, timeout, and failure requirements
+- Capability decisions
+- Generation and compilation metadata
+
+## Determinism
+
+Equivalent inputs should produce semantically equivalent plans.
+
+A canonical plan hash may include:
+
+- Pipeline definition
+- Contract identities and versions
+- Selected profile
+- Plugin descriptors and versions
+- Planner version
+
+It must exclude secret values and incidental process state.
+
+## Logical Versus Physical Plans
+
+The logical graph explains the pipeline to users.
+
+The physical graph explains how a selected backend will realize it.
+
+```text
+Logical:
+filter → join → aggregate
+
+Physical SQL:
+one INSERT ... SELECT statement
+```
+
+The plan retains mappings to every logical node for lineage, diagnostics,
+documentation, and failure attribution.
+
+## Multiple Profiles, Multiple Plans
+
+```text
+CustomerPipeline
+      ├── Local + Polars plan
+      ├── Local + Pandas plan
+      ├── Airflow + SQL plan
+      └── Airflow + PySpark plan
+```
+
+The plans may differ physically while preserving one logical pipeline contract.
+
+## Planning Diagnostics
+
+Planning should report:
+
+- Missing or ambiguous implementation
+- Unresolved binding
+- Missing resource provider
+- Unsupported backend capability
+- Unsafe artifact boundary
+- Invalid transaction region
+- Unsupported SQL dialect feature
+- Unsupported Spark streaming behavior
+- Plugin-version incompatibility
+
+Diagnostics should explain the required capability, selected backend, and
+available alternatives when known.
+
+## API
+
+Conceptually:
+
+```python
+plan = CustomerPipeline.plan(profile="production")
+```
+
+The plan may then be:
+
+```python
+result = await plan.arun()
+artifact = plan.compile(target="airflow")
+diagram = plan.to_mermaid()
+```
+
+Exact convenience methods remain a proposed 1.0 API; the architectural rule is
+that each operation consumes the same resolved plan.
 
 ## Caching
 
-Pipeline Plans may be cached.
+Plans may be cached when the cache key includes every semantic input.
 
-Cached plans remain valid only while:
+Cached plans are invalidated by relevant changes to:
 
-- Pipeline definition
-- Contract versions
-- Plugin versions
-- Execution profile
+- Pipeline definitions
+- Contracts
+- Profiles
+- Plugin capabilities or versions
+- Planner version
 
-remain compatible.
+## Non-Goals
 
-## Best Practices
+Planning does not:
 
-- Validate before planning.
-- Keep planning deterministic.
-- Separate planning from execution.
-- Resolve implementations during planning.
-- Preserve DPCS semantics.
-
-## Anti-Patterns
-
-Avoid:
-
-- Executing transformations during planning.
-- Modifying pipeline semantics while planning.
-- Depending on orchestrator-specific planners.
-- Hiding planning failures until runtime.
+- Execute transformations
+- Read production data
+- Acquire credentials
+- Repair invalid pipelines
+- Provision infrastructure
+- Pretend unsupported runtime behavior is safe
 
 ## Key Principle
 
-> Planning converts a validated, declarative pipeline into an implementation-independent
-> execution plan while preserving every observable semantic defined by the
-> pipeline contracts.
+> Planning is the point where portable meaning meets a concrete environment.
+> The result is resolved enough to execute, but still independent of any one
+> runtime's private object model.
 
 ## Next Step
 
-Continue with **EXECUTION_PROFILES.md** to learn how execution profiles influence
-planning without changing the logical pipeline.
+Continue with [Profiles](PROFILES.md) to learn how environment-specific choices
+feed the planner without changing the logical pipeline.

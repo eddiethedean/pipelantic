@@ -138,5 +138,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **PIPELINE_GRAPH.md** to learn how PipelineModel constructs,
-validates, and analyzes complete pipeline graphs.
+Continue with [Subpipelines](SUBPIPELINES.md) to learn how complete pipeline
+graphs can be composed from reusable pipeline definitions.

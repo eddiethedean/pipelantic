@@ -150,6 +150,55 @@ framework's value.
 
 ------------------------------------------------------------------------
 
+## 13. Preserve Logical Identity Through Optimization
+
+Backends may fuse, expand, or reorder physical execution units when semantics
+permit it.
+
+PipelineModel must retain mappings to the original logical sources, steps,
+ports, contracts, and sinks so lineage, diagnostics, documentation, and failure
+attribution remain understandable.
+
+------------------------------------------------------------------------
+
+## 14. Capabilities Must Be Honest
+
+Plugins must explicitly declare what they support.
+
+PipelineModel should fail during planning when a selected backend cannot
+preserve required behavior. It must not silently approximate transactions,
+streaming guarantees, retries, quality gates, or failure semantics.
+
+------------------------------------------------------------------------
+
+## 15. Plans Are Resolved but Secret-Free
+
+A `PipelinePlan` should contain every reference and capability decision needed
+for execution or compilation.
+
+It must not contain resolved credentials, tokens, or secret values. Resource
+providers resolve those values at runtime.
+
+------------------------------------------------------------------------
+
+## 16. Generated Artifacts Are Reproducible
+
+Equivalent validated models and profiles should produce semantically equivalent
+contracts, plans, documentation, diagrams, and backend artifacts.
+
+Generation should support a CI check mode so drift is detected automatically.
+
+------------------------------------------------------------------------
+
+## 17. Prefer Evidence Over Runtime Guessing
+
+Runtime systems should emit structured results, diagnostics, and lineage.
+
+Observed execution evidence may be compared with declared contracts and plans,
+but it must not silently mutate the source model.
+
+------------------------------------------------------------------------
+
 ## Decision Filter
 
 When evaluating a new feature, ask:
@@ -159,16 +208,22 @@ When evaluating a new feature, ask:
 3.  Does it reduce duplication?
 4.  Does it preserve runtime independence?
 5.  Does it belong in the core rather than a plugin?
+6.  Can its semantics be validated before execution?
+7.  Does it preserve logical identity and reproducible generation?
 
 If the answer to the last question is "no," the feature should likely be
 implemented as a plugin instead.
 
 ## Relationship to Other Documents
 
--   **PIPELINEMODEL_MANIFESTO.md** defines the project's philosophy.
--   **VISION.md** defines where the project is headed.
--   **WHY_PIPELINEMODEL.md** explains why the project exists.
--   **FASTAPI_PHILOSOPHY.md** explains the design inspiration.
+- [PipelineModel Manifesto](../PIPELINEMODEL_MANIFESTO.md) defines the
+  project's philosophy.
+- [Vision](VISION.md) defines where the project is headed.
+- [Why PipelineModel](WHY_PIPELINEMODEL.md) explains why the project exists.
+- [FastAPI Philosophy](FASTAPI_PHILOSOPHY.md) explains the design inspiration.
 
 These design principles translate those ideas into practical
 architectural rules that guide implementation.
+
+See [Documentation Status](DOCUMENTATION_STATUS.md) for how accepted designs,
+proposals, and normative specifications are distinguished.

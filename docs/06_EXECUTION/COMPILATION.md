@@ -5,7 +5,7 @@ optimized, executable representation for a specific execution backend.
 
 Unlike traditional programming language compilers, PipelineModel compilation
 does not change the meaning of a pipeline. Instead, it translates a portable
-execution plan into a backend-specific artifact while preserving the semantics
+`PipelinePlan` into a backend-specific artifact while preserving the semantics
 defined by ODCS, DTCS, and DPCS.
 
 Compilation occurs after planning and before execution.
@@ -189,5 +189,5 @@ compiled artifacts are backend-specific implementations of that plan.
 
 ## Next Step
 
-Continue with **OBSERVABILITY.md** to learn how compiled pipelines report
-execution events, diagnostics, metrics, and lineage during runtime.
+Continue with [SQL](SQL.md) to see how compilation and backend capability
+analysis enable database-native execution.

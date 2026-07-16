@@ -1,18 +1,18 @@
-# Resource Plugins
+# Resource Providers
 
-Resource plugins provide PipelineModel with access to runtime resources required
+Resource providers give PipelineModel access to runtime resources required
 to execute a Pipeline Plan.
 
-Unlike storage plugins, which persist data, resource plugins expose reusable
+Unlike storage plugins, which persist data, resource providers expose reusable
 services and infrastructure such as databases, secret managers, API clients,
 message brokers, caches, and compute resources.
 
-Resource plugins allow transformations and execution plugins to request logical
+Resource providers allow transformations and execution plugins to request logical
 resources without depending on vendor-specific SDKs.
 
 ## Goals
 
-Resource plugins should:
+Resource providers should:
 
 - Decouple pipelines from infrastructure.
 - Provide typed resource interfaces.
@@ -25,13 +25,13 @@ Resource plugins should:
 
 Pipeline authors declare **what resource** they need.
 
-Resource plugins determine **how that resource is acquired**.
+Resource providers determine **how that resource is acquired**.
 
 ```text
 Pipeline Plan
       │
       ▼
- Resource Plugin
+Resource Provider
       │
  ┌────┼───────────────┐
  ▼    ▼        ▼      ▼
@@ -40,7 +40,7 @@ SQL  Redis   Secrets  HTTP
 
 ## Responsibilities
 
-Resource plugins are responsible for:
+Resource providers are responsible for:
 
 - Resource discovery
 - Authentication
@@ -130,7 +130,7 @@ consistently regardless of implementation style.
 
 ## Capabilities
 
-Resource plugins should publish capabilities such as:
+Resource providers should publish capabilities such as:
 
 - Transactions
 - Connection pooling
@@ -169,11 +169,11 @@ Avoid:
 
 ## Key Principle
 
-> Resource plugins provide infrastructure services to execution while keeping
+> Resource providers supply infrastructure services to execution while keeping
 pipeline models, contracts, and transformations independent of specific
 deployment environments.
 
 ## Next Step
 
-Continue with **EXECUTION_CONTEXT.md** to learn how resources, callbacks,
-profiles, and runtime state are made available during execution.
+Continue with [Local Python](LOCAL_PYTHON.md) to see how resources, callbacks,
+profiles, and runtime state are coordinated by the reference orchestrator.

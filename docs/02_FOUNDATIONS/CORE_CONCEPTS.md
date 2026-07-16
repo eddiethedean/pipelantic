@@ -1,226 +1,296 @@
 # Core Concepts
 
-PipelineModel is built around a small set of concepts. Understanding
-these concepts is more important than memorizing APIs because every
-feature in the framework is an extension of them.
+PipelineModel is easiest to understand as a sequence of distinct models rather
+than as one large framework object.
 
-## The Three-Layer Model
+## The Complete Lifecycle
 
-PipelineModel models a pipeline using three kinds of contracts:
-
-``` text
-Data Contracts
-        │
-        ▼
-Transformation Contracts
-        │
-        ▼
-Pipeline Contracts
+```text
+Data contracts + transformation contracts + pipeline contract
+                          ↓
+                 Typed logical model
+                          ↓
+                     Validation
+                          ↓
+               Profile and bindings
+                          ↓
+                    PipelinePlan
+                          ↓
+            Execute, compile, or generate
+                          ↓
+                 Results and evidence
 ```
 
-Each layer has a distinct responsibility.
+Each stage answers a different question.
 
--   **Data Contracts** describe the structure and meaning of data.
--   **Transformation Contracts** describe how data flows between
-    contracts.
--   **Pipeline Contracts** describe how transformations are connected
-    into a complete pipeline.
+## Data Contract
 
-## Data Contracts
+A data contract describes valid data.
 
-Data contracts define datasets using ContractModel-compatible Pydantic
-models.
+In the code-first experience, it is a ContractModel-compatible Pydantic class:
 
-``` python
+```python
+from contractmodel import DataContractModel
+
+
 class Customer(DataContractModel):
-    id: int
-    name: str
+    customer_id: int
+    full_name: str
 ```
 
-From this model PipelineModel can generate an ODCS-compliant contract.
+ContractModel owns operational behavior such as runtime validation and ODCS
+interoperability. PipelineModel uses the class as a typed dataset boundary.
 
-Data contracts answer:
+## Transformation
 
--   What data exists?
--   What fields does it contain?
--   What constraints apply?
+A transformation is a reusable typed interface describing how data is expected
+to change:
 
-They do **not** describe how the data is produced.
-
-## Transformation Contracts
-
-Transformation contracts define the interface of a transformation.
-
-``` python
+```python
 class NormalizeCustomers(Transformation):
     customers: Input[RawCustomer]
+    minimum_age: Parameter[int] = 18
     result: Output[Customer]
 ```
 
-A transformation contract describes:
+The declaration defines ports and parameters. DTCS defines its portable
+semantics. It does not commit the transformation to a dataframe engine.
 
--   inputs
--   outputs
--   parameters
--   metadata
+## Implementation
 
-It does **not** describe the execution engine.
+An implementation satisfies a transformation for a specific execution
+technology:
 
-A single transformation may have multiple implementations.
-
-## Pipeline Contracts
-
-Pipelines connect transformations together.
-
-``` python
-class CustomerPipeline(Pipeline):
-    raw = Source(contract=RawCustomer)
-
-    normalized = NormalizeCustomers.step(
-        customers=raw,
-    )
-
-    curated = Sink(
-        contract=Customer,
-        input=normalized.result,
-    )
-```
-
-The pipeline defines logical data flow, independent of execution.
-
-## Implementations
-
-Execution implementations perform the actual work.
-
-``` python
+```python
 @NormalizeCustomers.implementation("polars")
-def normalize(df):
+def normalize_polars(customers, minimum_age):
     ...
 ```
 
-Another implementation might target Pandas, Spark, DuckDB, or a remote
-service.
+One transformation may have multiple implementations. The planner selects a
+compatible implementation for the chosen profile.
 
-The contract remains unchanged.
+## Port
 
-## Plugins
+A port is a named, typed transformation boundary:
 
-PipelineModel delegates execution to plugins.
+- `Input[T]` consumes data governed by `T`.
+- `Output[T]` produces data governed by `T`.
+- `Parameter[T]` configures behavior but does not create a data-flow edge.
+
+Ports make compatibility and lineage explicit.
+
+## Pipeline
+
+A pipeline is a portable logical graph:
+
+```python
+class CustomerPipeline(Pipeline):
+    raw: Source[RawCustomer] = Source(binding="customer_source")
+    normalized = NormalizeCustomers.step(customers=raw)
+    curated: Sink[Customer] = Sink(
+        input=normalized.result,
+        binding="customer_sink",
+    )
+```
+
+DPCS defines the portable pipeline contract. The Python class is the preferred
+code-first authoring surface.
+
+## Source, Step, and Sink
+
+### Source
+
+A `Source[T]` introduces a logical dataset into the graph. Its binding says
+where an environment obtains the data.
+
+### Step
+
+A `Step` is one use of a reusable transformation inside a pipeline. Two steps
+may use the same transformation with different inputs or parameters.
+
+### Sink
+
+A `Sink[T]` publishes data governed by `T`. A storage plugin performs the
+physical write.
+
+## Subpipeline
+
+A subpipeline exposes a stable public interface while hiding internal nodes.
+It supports composition, reuse, independent validation, and team ownership.
+
+Parent pipelines bind to public subpipeline ports rather than private internal
+steps.
+
+## Logical Graph
+
+The logical graph is the user-visible topology of sources, steps, outputs,
+sinks, dependencies, and contracts.
+
+It is stable across execution backends.
+
+## Profile
+
+A profile binds portable names to an environment:
+
+- Orchestrator
+- Default transformation engine
+- Source and sink implementations
+- Resource providers
+- Concurrency limits
+- Backend options
+
+Profiles may choose how a pipeline runs. They may not change what the pipeline
+means.
+
+## Binding
+
+A binding connects a logical name to a concrete implementation:
+
+```text
+customer_source
+    → PostgreSQL table in production
+    → local Parquet file in development
+```
+
+Bindings belong to profiles and configuration, not portable contracts.
+
+## Capability
+
+A capability is a feature a plugin can preserve, such as:
+
+- Async execution
+- Streaming
+- Transactions
+- Checkpoints
+- Dynamic task mapping
+- SQL window functions
+- Spark watermarks
+
+Planning compares required semantics with available capabilities.
+
+## PipelinePlan
+
+`PipelinePlan` is the immutable, resolved intermediate representation produced
+by planning.
+
+It contains:
+
+- Resolved implementations
+- Resolved bindings
+- Dependency order
+- Execution regions
+- Materialization boundaries
+- Capability decisions
+- Resource references
+
+It does not contain resolved secrets or live runtime objects.
+
+## Execution Region
+
+An execution region is a group of compatible logical nodes realized together by
+one backend.
+
+For example, three logical SQL-capable steps may compile into one statement,
+while still retaining mappings back to all three logical identities.
+
+## Plugin
+
+A plugin extends PipelineModel with backend behavior:
+
+- Dataframe execution
+- SQL or Spark execution
+- Orchestration
+- Storage
+- Compilation
+
+Plugins do not redefine pipeline semantics.
+
+## Resource Provider
+
+A resource provider acquires and cleans up a managed dependency such as a
+database connection, Spark session, HTTP client, secret manager, or cache.
+
+Logical models request resources by name or type. Providers resolve them at
+runtime.
+
+## Artifact
+
+The term artifact has two related uses:
+
+### Generated artifact
+
+A file derived from a model or plan, such as ODCS, DTCS, DPCS, documentation,
+or an Airflow DAG.
+
+### Runtime data artifact
+
+A value or reference passed between physical execution units, such as an
+in-memory dataframe, database relation, Parquet location, Arrow table, or
+plugin-native handle.
+
+Context should make the meaning clear.
+
+## Callback and Action
+
+A callback responds to a lifecycle event. It receives typed context and may
+return a declarative action:
+
+```text
+Invalid data → reject, drop, quarantine, continue with valid rows, or fail
+Execution failure → retry, skip, fail node, fail pipeline, or use a fallback
+```
+
+The active backend carries out the action.
+
+## Diagnostic
+
+A diagnostic is a structured finding with a stable code, severity, message,
+source location, logical path, and optional remediation.
+
+Expected model errors produce diagnostics. Exceptions are reserved for API,
+infrastructure, plugin, or invariant failures.
+
+## Compilation
+
+Compilation transforms a `PipelinePlan` into a backend artifact without making
+that artifact the source of truth.
 
 Examples include:
 
--   dataframe plugins
--   orchestration plugins
--   storage plugins
--   compiler plugins
--   resource providers
+- Airflow DAG source
+- SQL scripts
+- Spark job configuration
+- Deployment bundles
 
-Plugins determine **how** work is performed.
+## Result and Evidence
 
-PipelineModel determines **what** should happen.
+Execution produces structured results and evidence:
 
-## Profiles
+- Pipeline and node states
+- Attempts and timing
+- Diagnostics
+- Invalid-data counts
+- Lineage events
+- Generated or persisted artifacts
 
-Profiles bind a logical pipeline to a runtime environment.
+Observed evidence can be compared with declared contracts, but it does not
+silently rewrite them.
 
-``` python
-CustomerPipeline.run(profile="local")
-```
+## Responsibility Map
 
-A profile may choose:
-
--   execution engine
--   orchestrator
--   storage provider
--   concurrency settings
--   environment-specific resources
-
-The pipeline model itself remains unchanged.
-
-## Validation
-
-Validation occurs before execution.
-
-PipelineModel verifies:
-
--   compatible contracts
--   pipeline wiring
--   parameter values
--   implementation compatibility
--   plugin bindings
-
-This catches problems early and produces clear diagnostics.
-
-## Planning
-
-Before execution, PipelineModel creates an execution plan.
-
-The plan resolves:
-
--   dependency order
--   runtime bindings
--   execution plugins
--   validation results
-
-The plan can then be executed or compiled for an external orchestrator.
-
-## Contracts as Artifacts
-
-Python classes are the preferred authoring experience.
-
-PipelineModel generates portable artifacts:
-
--   ODCS
--   DTCS
--   DPCS
-
-These artifacts can be shared, versioned, reviewed, and consumed
-independently of Python source code.
-
-## The Modeling Lifecycle
-
-Most projects follow the same lifecycle:
-
-``` text
-Define Data Contracts
-          │
-          ▼
-Define Transformation Contracts
-          │
-          ▼
-Build Pipeline
-          │
-          ▼
-Validate
-          │
-          ▼
-Generate Contracts
-          │
-          ▼
-Plan Execution
-          │
-          ▼
-Execute Through Plugins
-```
-
-## The Big Picture
-
-PipelineModel deliberately separates concerns.
-
-  Responsibility             Owner
-  -------------------------- ---------------------------------
-  Data semantics             Data Contracts (ODCS)
-  Transformation semantics   Transformation Contracts (DTCS)
-  Pipeline topology          Pipeline Contracts (DPCS)
-  Authoring                  PipelineModel
-  Data validation            ContractModel
-  Execution                  Plugins
-  Scheduling                 Orchestration plugins
-
-This separation keeps the framework focused while allowing execution
-technologies to evolve independently.
+| Responsibility | Owner |
+|---|---|
+| Data-contract semantics | ODCS |
+| Data-contract operationalization | ContractModel |
+| Transformation semantics | DTCS |
+| Pipeline semantics | DPCS |
+| Typed authoring and logical graph | PipelineModel |
+| Validation and planning | PipelineModel |
+| Runtime adaptation | Plugins |
+| Actual computation and scheduling | External engines |
 
 ## Next Step
 
-Continue with **ARCHITECTURE.md** to see how these concepts are
-organized internally and how they interact within PipelineModel.
+Continue with [Architecture](ARCHITECTURE.md) to see how these concepts are
+organized into implementation layers.

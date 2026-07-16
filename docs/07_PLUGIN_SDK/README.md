@@ -42,7 +42,7 @@ Plugins provide implementation-specific behavior.
      └──────┬───┴──────┬───┘
             ▼          ▼
       Resource     Registry
-       Plugins      Plugins
+      Providers     Plugins
                 │
                 ▼
        Orchestration Plugins
@@ -83,8 +83,9 @@ The SDK supports plugin categories such as:
 - Dataframe plugins
 - Orchestration plugins
 - Storage plugins
-- Resource plugins
+- Resource providers
 - Registry plugins
+- Observability providers
 - Future extension types
 
 Each category has its own specialized interface while sharing common lifecycle
@@ -113,18 +114,16 @@ releases across the ecosystem.
 
 Read this section in the following order:
 
-1. PLUGIN_ARCHITECTURE.md
-2. PLUGIN_LIFECYCLE.md
-3. CAPABILITIES.md
-4. EXECUTION_PLUGIN_API.md
-5. DATAFRAME_PLUGIN_API.md
-6. STORAGE_PLUGIN_API.md
-7. RESOURCE_PLUGIN_API.md
-8. ORCHESTRATION_PLUGIN_API.md
-9. REGISTRY_PLUGIN_API.md
-10. TESTING.md
-11. VERSIONING.md
-12. PUBLISHING.md
+1. [Overview](OVERVIEW.md)
+2. [Dataframe Plugin](DATAFRAME_PLUGIN.md)
+3. [Orchestrator Plugin](ORCHESTRATOR_PLUGIN.md)
+4. [Storage Plugin](STORAGE_PLUGIN.md)
+5. [Resource Provider](RESOURCE_PROVIDER.md)
+6. [Observability Provider](OBSERVABILITY_PROVIDER.md)
+7. [SQL Plugin](SQL_PLUGIN.md)
+8. [PySpark Plugin](PYSPARK_PLUGIN.md)
+9. [Testing Plugins](TESTING_PLUGINS.md)
+10. [Distribution](DISTRIBUTION.md)
 
 ## Key Principles
 
@@ -133,8 +132,13 @@ Read this section in the following order:
 - Capability matching drives planning.
 - Plugins preserve, not redefine, pipeline semantics.
 - Stable SDK interfaces encourage a healthy ecosystem.
+- Plugin discovery is a trust decision because Python plugins execute code.
+- Production profiles should support allowlists and pinned plugin versions.
+
+Plugin authors should read the
+[Security Model](../02_FOUNDATIONS/SECURITY.md).
 
 ## Next Step
 
-Continue with **PLUGIN_ARCHITECTURE.md** to learn the foundational design of the
-PipelineModel Plugin SDK.
+Continue with the [Plugin SDK Overview](OVERVIEW.md) to learn the foundational
+design of the PipelineModel Plugin SDK.

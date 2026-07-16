@@ -130,5 +130,5 @@ other dataframe plugins from the perspective of pipeline authors.
 
 ## Next Step
 
-Continue with **LOCAL_EXECUTION.md** to learn how Pipeline Plans execute directly
-within Python without an external orchestrator.
+Continue with [Local Python](LOCAL_PYTHON.md) to learn how Pipeline Plans
+execute directly without an external orchestrator.

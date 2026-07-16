@@ -1284,6 +1284,6 @@ The pipeline author does not rewrite the logical workflow.
 
 ## Next Step
 
-Continue with **PYSPARK_TO_SQL.md** to build the reverse pattern: distributed
-Spark transformation followed by contract-validated transactional publication
-to a relational database.
+Continue with [PySpark to SQL](PYSPARK_TO_SQL.md) to build the reverse pattern:
+distributed Spark transformation followed by contract-validated transactional
+publication to a relational database.

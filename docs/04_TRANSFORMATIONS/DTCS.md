@@ -14,7 +14,7 @@ This document explains how PipelineModel integrates with that specification.
 
 ---
 
-# Why PipelineModel Uses DTCS
+## Why PipelineModel Uses DTCS
 
 Transformation logic should be portable.
 
@@ -35,7 +35,7 @@ definitions.
 
 ---
 
-# Architectural Relationship
+## Architectural Relationship
 
 ```text
 Python Transformation
@@ -59,7 +59,7 @@ DTCS owns the portable transformation representation.
 
 ---
 
-# Code-First Workflow
+## Code-First Workflow
 
 Developers author transformations in Python.
 
@@ -72,11 +72,12 @@ class NormalizeCustomers(Transformation):
 
 PipelineModel generates the corresponding DTCS artifact.
 
-The Python class remains the source of truth.
+In a code-first project, the Python class remains the authoring source of
+truth.
 
 ---
 
-# Contract-First Workflow
+## Contract-First Workflow
 
 PipelineModel may load existing DTCS artifacts and reconstruct transformation
 definitions through its public loading APIs.
@@ -86,7 +87,7 @@ in planning and validation the same way.
 
 ---
 
-# Generated DTCS Artifacts
+## Generated DTCS Artifacts
 
 A transformation may generate:
 
@@ -101,7 +102,7 @@ control and reproduced in CI.
 
 ---
 
-# Validation
+## Validation
 
 PipelineModel validates transformation contracts before execution.
 
@@ -119,7 +120,7 @@ satisfied.
 
 ---
 
-# Identity and Versioning
+## Identity and Versioning
 
 Every published transformation should expose a stable identity.
 
@@ -136,7 +137,7 @@ planning rules.
 
 ---
 
-# Relationship to Implementations
+## Relationship to Implementations
 
 DTCS describes the logical transformation.
 
@@ -158,7 +159,7 @@ Multiple implementations may satisfy the same DTCS contract.
 
 ---
 
-# Relationship to ODCS and DPCS
+## Relationship to ODCS and DPCS
 
 The three standards complement one another.
 
@@ -179,7 +180,7 @@ PipelineModel unifies these standards through strongly typed Python models.
 
 ---
 
-# Design Principles
+## Design Principles
 
 PipelineModel follows these principles when integrating with DTCS:
 
@@ -192,10 +193,10 @@ PipelineModel follows these principles when integrating with DTCS:
 
 ---
 
-# Further Reading
+## Further Reading
 
-For the normative definition of DTCS, refer to the project's
-`docs/specifications/DTCS_SPEC.md`.
+For the normative definition of DTCS, refer to the
+[DTCS 1.0 Specification](../specifications/DTCS_SPEC.md).
 
 This document describes **how PipelineModel integrates with DTCS**, not the DTCS
 specification itself.

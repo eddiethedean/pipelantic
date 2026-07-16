@@ -295,6 +295,10 @@ Execution reports supplement model documentation.
 
 They must not replace the canonical pipeline documentation.
 
+HTML execution reports are rendered from the canonical
+`PipelineRunReport`; runtime plugins should not invent incompatible report
+schemas. See [Run Reports](../06_EXECUTION/RUN_REPORTS.md).
+
 ## Accessibility
 
 Generated HTML should follow accessible web practices.
@@ -432,5 +436,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **SVG.md** to learn how PipelineModel generates portable vector
-graphics for pipeline diagrams, lineage views, documentation, and reports.
+Continue with [Documentation](DOCUMENTATION.md) to learn how diagrams, contracts,
+lineage, and diagnostics become a navigable documentation site.

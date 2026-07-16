@@ -138,7 +138,7 @@ PipelineModel validates:
 Editors and IDE integrations should validate incrementally as developers modify
 their pipelines.
 
-This enables immediate feedback without rebuilding the entire execution plan.
+This enables immediate feedback without rebuilding the entire `PipelinePlan`.
 
 ## Diagnostics
 
@@ -238,5 +238,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **EXECUTION_PROFILES.md** to learn how validated pipelines are
-bound to concrete execution environments without changing their semantics.
+Continue with [Planning](PLANNING.md) to learn how a validated pipeline is
+resolved into an execution-independent `PipelinePlan`.

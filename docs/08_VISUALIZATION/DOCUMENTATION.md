@@ -538,6 +538,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **INTERACTIVE.md** to define how developers and stakeholders can
-explore pipeline graphs, contracts, lineage, diagnostics, and plans through an
-interactive user interface.
+Continue with [OpenAPI for Pipelines](OPENAPI_FOR_PIPELINES.md) to explore a
+machine-readable description of a pipeline's public interface.

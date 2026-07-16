@@ -246,5 +246,5 @@ requiring duplicate maintenance.
 
 ## Next Step
 
-Continue with **PIPELINE_REGISTRY.md** to learn how generated contracts are
-discovered, versioned, and shared across projects.
+Continue with [Contract Loading](CONTRACT_LOADING.md) to learn how portable
+ODCS, DTCS, and DPCS artifacts return to PipelineModel's logical model.

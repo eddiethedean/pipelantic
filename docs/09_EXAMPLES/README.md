@@ -182,5 +182,5 @@ pipelines.
 
 ## Next Step
 
-Continue with **HELLO_WORLD.md** to build the smallest complete PipelineModel
-application.
+Continue with [CSV to CSV](CSV_TO_CSV.md) to build the smallest complete
+PipelineModel example currently included in this documentation set.

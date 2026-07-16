@@ -80,14 +80,12 @@ artifacts. This keeps diagrams backend-independent and deterministic.
 
 Suggested reading order:
 
-1. PIPELINE_GRAPHS.md
-2. LINEAGE.md
-3. MERMAID.md
-4. GRAPHVIZ.md
-5. HTML.md
-6. SVG.md
-7. INTERACTIVE.md
-8. DOCUMENTATION.md
+1. [Lineage](LINEAGE.md)
+2. [Mermaid](MERMAID.md)
+3. [Graphviz](GRAPHVIZ.md)
+4. [HTML](HTML.md)
+5. [Documentation](DOCUMENTATION.md)
+6. [OpenAPI for Pipelines](OPENAPI_FOR_PIPELINES.md)
 
 ## Best Practices
 
@@ -106,5 +104,5 @@ Suggested reading order:
 
 ## Next Step
 
-Continue with **PIPELINE_GRAPHS.md** to explore graph generation from Pipeline
-Plans.
+Continue with [Lineage](LINEAGE.md) to explore the semantic relationships that
+drive pipeline and dataset visualizations.

@@ -161,5 +161,5 @@ describe **how** it runs.
 
 ## Next Step
 
-Continue with **INPUT_OUTPUT.md** to learn how typed inputs and outputs define
-the boundaries between transformations.
+Continue with [Inputs](INPUTS.md) and [Outputs](OUTPUTS.md) to learn how typed
+ports define the boundaries between transformations.

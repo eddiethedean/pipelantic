@@ -140,6 +140,5 @@ an execution concern, not a modeling concern.
 
 ## Next Step
 
-Continue with **VALIDATION.md** to learn how PipelineModel validates
-transformations before execution regardless of whether they run synchronously or
-asynchronously.
+Continue with [DTCS](DTCS.md) to learn how synchronous and asynchronous
+implementations remain separate from portable transformation semantics.

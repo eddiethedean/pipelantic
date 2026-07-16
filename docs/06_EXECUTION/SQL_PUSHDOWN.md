@@ -340,7 +340,7 @@ explain = sql_plan.explain()
 
 Database explain output is runtime metadata.
 
-It should supplement, not replace, the PipelineModel execution plan.
+It should supplement, not replace, the PipelineModel `PipelinePlan`.
 
 ## Cost-Based Selection
 
@@ -469,5 +469,6 @@ Avoid:
 
 ## Next Step
 
-Continue with **SQL_DIALECTS.md** to define how SQL plugins declare dialect
-capabilities, type mappings, compilation behavior, and portability limitations.
+Continue with [SQL Dialect](../07_PLUGIN_SDK/SQL_DIALECT.md) to learn how SQL
+plugins declare capabilities, type mappings, compilation behavior, and
+portability limitations.

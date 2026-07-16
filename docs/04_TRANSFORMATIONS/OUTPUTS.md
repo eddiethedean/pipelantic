@@ -33,6 +33,10 @@ class NormalizeCustomers(Transformation):
 
 `result` becomes a typed output that downstream nodes can consume.
 
+The output is a logical result port. When a transformation is instantiated as a
+step, that port becomes a typed reference to the result of that particular step
+execution.
+
 ## Relationship to Data Contracts
 
 Outputs reference `DataContractModel` classes.
@@ -104,6 +108,33 @@ published = PublishCustomers.step(
 
 PipelineModel validates that each downstream input is compatible with the
 declared output contract.
+
+The downstream step consumes the previous step's result. It does not implicitly
+reload the producer's complete destination table.
+
+## Output References
+
+Given:
+
+```python
+normalized = NormalizeCustomers.step(customers=raw.result)
+```
+
+`normalized.result` is conceptually an `OutputRef[Customer]`.
+
+An output reference identifies:
+
+- the producer step
+- the output name
+- the data contract
+- the logical pipeline edge
+
+It deliberately does not specify whether the result is held in memory,
+represented lazily, expressed as SQL, cached, checkpointed, or persisted.
+
+Planning resolves that physical representation for the selected backend. This
+lets PipelineModel pass intermediate results directly between compatible steps
+and avoid unnecessary table writes and reads.
 
 ## Validation
 

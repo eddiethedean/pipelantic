@@ -22,7 +22,7 @@ Spark optimization should:
 
 ## Philosophy
 
-Optimize the execution plan, not the pipeline definition.
+Optimize the physical `PipelinePlan`, not the pipeline definition.
 
 ```text
 Validated Pipeline Plan

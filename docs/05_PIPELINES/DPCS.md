@@ -885,11 +885,8 @@ DPCS artifacts should reference external secret and resource providers.
 
 ## Further Reading
 
-For the normative definition of DPCS, see:
-
-```text
-docs/specifications/DPCS_SPEC.md
-```
+For the normative definition of DPCS, see the
+[DPCS 1.0 Specification](../specifications/DPCS_SPEC.md).
 
 This document describes **how PipelineModel integrates with DPCS**. It does not
 replace or restate the full normative specification.

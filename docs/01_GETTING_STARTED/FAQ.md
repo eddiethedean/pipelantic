@@ -13,7 +13,7 @@ execution to external execution engines.
 
 No.
 
-PipelineModel models pipelines and execution plans. It intentionally
+PipelineModel models pipelines and produces resolved `PipelinePlan` objects. It intentionally
 delegates scheduling and orchestration to external systems such as
 Airflow or other orchestration plugins.
 
@@ -44,7 +44,7 @@ Its focus is:
 -   portability
 -   execution abstraction
 
-PipelineModel can generate execution plans for multiple orchestration
+PipelineModel can generate plans and backend artifacts for multiple orchestration
 systems without changing pipeline definitions.
 
 ------------------------------------------------------------------------

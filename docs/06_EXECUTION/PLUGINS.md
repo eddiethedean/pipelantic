@@ -206,5 +206,5 @@ without altering its meaning.
 
 ## Next Step
 
-Continue with **RESOURCES.md** to learn how plugins acquire and manage runtime
-resources during execution.
+Continue with [Resource Providers](RESOURCE_PLUGINS.md) to learn how plugins
+acquire and manage runtime resources during execution.

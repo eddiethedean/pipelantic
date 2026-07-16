@@ -992,7 +992,7 @@ PipelineModel should make performance strategy explicit through profiles while p
 Avoid redefining the same fields in a transformation or pipeline node.
 
 ```python
-# Avoid
+## Avoid
 class NormalizeCustomers(Transformation):
     input_columns = {
         "customer_id": int,

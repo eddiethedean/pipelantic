@@ -80,6 +80,74 @@ validated = ValidateCustomers.step(
 )
 ```
 
+`normalized.result` refers to the result produced by that specific step
+instance. It does not mean "load the table associated with
+`NormalizeCustomers`."
+
+## Referencing Previous Step Results
+
+Step outputs are first-class graph references.
+
+```python
+normalized = NormalizeCustomers.step(customers=raw.result)
+scored = ScoreCustomers.step(customers=normalized.result)
+published = PublishCustomers.step(customers=scored.result)
+```
+
+Conceptually, `normalized.result` is an `OutputRef[Customer]`. It records:
+
+- the producing step
+- the named output port
+- the output contract
+- the consuming input
+
+It does not contain a Pandas, Polars, Spark, or SQL object during pipeline
+definition.
+
+At runtime, the selected backend may realize the same reference as:
+
+- an in-memory dataframe
+- a lazy dataframe
+- a SQL relation or common table expression
+- a Spark logical plan
+- a temporary artifact
+- a durable artifact reference across task boundaries
+
+This allows downstream steps to use the exact result of previous computation
+without forcing every intermediate result through persistent storage.
+
+### Result references versus table bindings
+
+These concepts must remain distinct:
+
+```text
+normalized.result
+    Result produced within this pipeline run.
+
+Source(binding="warehouse.customers")
+    Dataset loaded from an external binding.
+
+Sink(input=normalized.result, binding="warehouse.customers")
+    Explicit publication of a result.
+```
+
+A step result becomes a published table or dataset only when connected to a
+`Sink` or an explicit persistence policy.
+
+### Named results
+
+Multiple outputs can be referenced independently:
+
+```python
+validated = ValidateCustomers.step(customers=normalized.result)
+
+published = PublishCustomers.step(customers=validated.valid)
+quarantined = QuarantineCustomers.step(customers=validated.rejected)
+```
+
+PipelineModel tracks each reference independently for dependency analysis,
+contract validation, lineage, reuse, and invalidation.
+
 ## Identity
 
 Every step should have a stable identity within its pipeline.
@@ -91,6 +159,7 @@ Conceptually:
 - Pipeline identity
 - Parameter values
 - Input bindings
+- Output-port identities
 
 This identity supports lineage, diagnostics, and execution planning.
 
@@ -105,6 +174,8 @@ The planner resolves:
 - Parallel opportunities
 - Runtime implementation
 - Validation policy
+- Physical representation of every output reference
+- Whether a result remains ephemeral, is cached, or is materialized
 
 ## Relationship to DPCS
 
@@ -125,6 +196,7 @@ The transformation itself remains defined by DTCS.
 - Use descriptive step names.
 - Override only necessary parameters.
 - Let outputs feed downstream inputs.
+- Use a `Sink` only when the result must be published.
 
 ## Anti-Patterns
 
@@ -133,6 +205,8 @@ Avoid:
 - Embedding business logic in pipeline definitions.
 - Duplicating transformation definitions for different parameter values.
 - Referencing runtime-specific objects in step declarations.
+- Re-reading a persisted table when the desired value is an upstream step
+  result from the same run.
 
 ## Key Principle
 

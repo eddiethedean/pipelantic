@@ -69,7 +69,7 @@ DTCS is the portable representation of a transformation.
 Python Transformation
         │
         ▼
-TransformationModel
+Typed Transformation Model
         │
         ▼
 DTCS Contract
@@ -151,14 +151,16 @@ These artifacts are deterministic and suitable for version control.
 
 Read this section in the following order:
 
-1. TRANSFORMATION.md
-2. INPUT_OUTPUT.md
-3. PARAMETERS.md
-4. IMPLEMENTATIONS.md
-5. CALLBACKS.md
-6. VALIDATION.md
-7. DTCS.md
-8. GENERATION.md
+1. `TRANSFORMATION.md`
+2. `INPUTS.md`
+3. `OUTPUTS.md`
+4. `PARAMETERS.md`
+5. `TYPE_ANNOTATIONS.md`
+6. `IMPLEMENTATIONS.md`
+7. `CALLBACKS.md`
+8. `ERROR_HANDLING.md`
+9. `ASYNC.md`
+10. `DTCS.md`
 
 ## Key Principles
 
@@ -171,4 +173,5 @@ Read this section in the following order:
 
 ## Next Step
 
-Continue with **TRANSFORMATION.md** to learn how to define transformation contracts using typed Python classes.
+Continue with [Transformation](TRANSFORMATION.md) to learn how to define
+transformation contracts using typed Python classes.

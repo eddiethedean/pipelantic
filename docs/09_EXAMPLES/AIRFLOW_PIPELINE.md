@@ -1021,6 +1021,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **DAGSTER_PIPELINE.md** to compile the same portable pipeline model
-into Dagster assets, ops, resources, and jobs without changing the logical
-pipeline definition.
+Continue with [Multi-Output](MULTI_OUTPUT.md) to model explicit fan-out from one
+typed transformation.

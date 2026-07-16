@@ -1374,6 +1374,5 @@ The pipeline author does not rewrite the pipeline to choose among them.
 
 ## Next Step
 
-Continue with **INCREMENTAL_SQL.md** to build an incremental SQL-to-SQL pipeline
-using watermarks, merge semantics, idempotent retries, and contract-compatible
-schema evolution.
+Continue with [SQL to PySpark](SQL_TO_PYSPARK.md) to cross from a relational
+source into distributed Spark execution.

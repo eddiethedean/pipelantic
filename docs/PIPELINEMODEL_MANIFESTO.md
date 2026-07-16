@@ -1,112 +1,192 @@
 # PipelineModel Manifesto
 
-## Data Engineering Deserves a Better Developer Experience
+## Data Engineering Deserves a Typed Interface
 
-Modern data engineering is powerful, but it is too often fragmented.
-Data contracts, transformation logic, orchestration, validation,
-documentation, and execution are typically spread across disconnected
-tools, frameworks, and handwritten configuration.
+Modern data systems are assembled from capable tools, yet their meaning is
+often scattered across dataframe code, SQL, scheduler configuration, schema
+files, runtime settings, and hand-maintained documentation.
 
-PipelineModel exists to unify these concerns without replacing the
-execution ecosystem.
+PipelineModel exists to give that system one portable, typed model without
+replacing the tools that perform the work.
 
-PipelineModel is **not** another execution engine.
+> PipelineModel models the promises, transformations, and topology of a data
+> pipeline. External engines execute the resulting plan.
 
-It is a **modeling framework** for building typed, contract-driven ETL
-pipelines.
+## Types Should Carry Meaning
 
-Execution belongs to the best tool for the job.
+Python type annotations should do more than assist an editor.
 
-## Our Vision
+They should declare:
 
-PipelineModel is to data pipelines what FastAPI is to web APIs.
+- The data a transformation accepts
+- The data it produces
+- The parameters that control it
+- The ports a pipeline can connect
+- The contracts a boundary must preserve
 
-Users should describe **what** a pipeline is using Python type
-annotations and declarative classes. PipelineModel should infer
-everything else that can be inferred.
+From those declarations, PipelineModel should derive validation,
+documentation, contracts, lineage, and planning metadata.
 
-The result is a pipeline that is:
+Information should be stated once and reused everywhere.
 
--   strongly typed
--   self-documenting
--   contract-driven
--   statically validated
--   portable
--   execution-engine independent
+## Three Contracts Are Enough
 
-## Core Principles
+PipelineModel recognizes three top-level contract families:
 
-### Types are the source of truth
+```text
+Data Contract
+What valid data means
 
-Python type annotations define pipeline interfaces.
+Transformation Contract
+How data is expected to change
 
-### Contracts are generated, not hand-written
+Pipeline Contract
+How data and transformations are composed
+```
 
-ODCS, DTCS, and DPCS should be derived from Python models whenever
-possible.
+ODCS, DTCS, and DPCS own those meanings.
 
-### Pipelines model intent
+Profiles, plugins, resources, callbacks, artifacts, deployment settings, and
+execution plans are important, but they are not new public contract standards.
+They are implementations and runtime configuration built beneath the three
+contract authorities.
 
-PipelineModel describes logical data flow, not runtime execution.
+## Model First, Execute Second
 
-### Execution is pluggable
+Pipeline code should answer:
 
-Pandas, Polars, SQLAlchemy, Airflow, Dagster, local Python, cloud
-services, and future systems are execution plugins---not core framework
-concerns.
+- What are the inputs and outputs?
+- Which contracts govern them?
+- Which transformations connect them?
+- What dependencies and guarantees exist?
 
-### Validation comes before execution
+It should not need to answer:
 
-Invalid pipelines should fail during planning, not after expensive
-execution has begun.
+- Which thread pool runs a function?
+- Which scheduler owns a retry?
+- Which dataframe engine stores an intermediate value?
+- Which cloud SDK creates a client?
 
-### Async should be effortless
+Those choices belong to profiles, plugins, and external runtimes.
 
-Users may write `def` or `async def`. PipelineModel manages invocation
-and concurrency internally.
+## One Transformation, Many Implementations
 
-### FastAPI-inspired developer experience
+A transformation is a stable, typed interface.
 
-Type annotations should drive validation, documentation, editor support,
-and contract generation with minimal configuration.
+Its implementation may use:
 
-### Open standards first
+- Polars
+- Pandas
+- SQL
+- PySpark
+- A remote service
+- A future engine
 
-PipelineModel embraces portable specifications through:
+Changing the implementation must not change the transformation's declared
+meaning.
 
--   ODCS (Data Contracts)
--   DTCS (Transformation Contracts)
--   DPCS (Pipeline Contracts)
+## One Pipeline, Many Runtimes
 
-### Python first
+A pipeline should run locally, compile to Airflow, execute SQL in a database,
+or submit work to Spark by changing bindings and capabilities—not by rewriting
+its logical graph.
 
-The reference implementation is pure Python, emphasizing readability,
-extensibility, and ecosystem compatibility.
+Portability does not mean pretending every runtime is identical. PipelineModel
+must detect when a backend cannot preserve requested semantics and fail during
+planning with an actionable diagnostic.
 
-### One pipeline, many runtimes
+## Validation Should Precede Cost
 
-A single pipeline definition should execute through different execution
-engines by changing bindings or profiles---not rewriting business logic.
+PipelineModel should reject invalid models before expensive work begins.
 
-## What PipelineModel Is Not
+Validation includes:
 
-PipelineModel is not:
+- Contract compatibility
+- Typed port wiring
+- Parameter correctness
+- Graph topology
+- Implementation signatures
+- Plugin capabilities
+- Backend semantic support
 
--   an orchestration engine
--   a dataframe library
--   a scheduler
--   a workflow server
--   a replacement for Pandas or Polars
--   a replacement for Airflow, Prefect, or Dagster
+Runtime validation still matters for actual data, but structural mistakes
+should not survive into execution.
 
-Instead, it coordinates these systems through a unified typed model.
+## Async Should Be an Implementation Detail
+
+Users may write `def` or `async def`.
+
+PipelineModel should normalize invocation, concurrency, cancellation, timeouts,
+and cleanup through one async-first internal model. Users should not need to
+wire event loops or worker pools to participate safely.
+
+## Plans Should Be Inspectable
+
+Planning should produce an immutable, deterministic `PipelinePlan`.
+
+The plan is the resolved intermediate representation between modeling and
+execution. It should be usable for:
+
+- Execution
+- Compilation
+- Visualization
+- Documentation
+- Static analysis
+- Lineage
+- Reproducibility
+
+It must contain resolved references and capabilities, but never resolved
+secrets.
+
+## Generated Artifacts Should Not Drift
+
+ODCS, DTCS, DPCS, diagrams, documentation, and backend artifacts should be
+generated from validated models or plans.
+
+Generated output should be deterministic, reviewable, and verifiable in CI.
+
+## The Core Should Stay Small
+
+PipelineModel owns:
+
+- Typed authoring
+- Introspection
+- Validation
+- Logical graph construction
+- Planning
+- Contract coordination
+- Diagnostics
+- Generation
+
+Plugins own:
+
+- Dataframe execution
+- SQL and Spark execution
+- Reading and writing
+- Orchestration
+- Runtime resources
+- Backend compilation
+
+ContractModel owns operational data-contract behavior.
+
+ODCS, DTCS, and DPCS own contract semantics.
+
+## The Project Constitution
+
+A feature belongs in PipelineModel when it strengthens portable modeling,
+validation, planning, diagnostics, or plugin coordination.
+
+A feature belongs in a plugin when it concerns how a particular technology
+executes, stores, schedules, or provisions work.
+
+A feature belongs in ContractModel when it operationalizes data contracts.
+
+A feature belongs in ODCS, DTCS, or DPCS when it changes the meaning of a
+contract standard.
 
 ## Success
 
-PipelineModel succeeds when developers can define data contracts,
-transformations, and pipelines with the same confidence and clarity that
-FastAPI brought to web APIs.
-
-If a developer can understand a pipeline by reading its Python types,
-and confidently execute it on the runtime of their choice, PipelineModel
-has achieved its mission.
+PipelineModel succeeds when a developer can understand a pipeline by reading
+its types, validate it before execution, generate portable contracts and
+documentation from it, and run it through an appropriate backend without
+allowing that backend to become the source of truth.

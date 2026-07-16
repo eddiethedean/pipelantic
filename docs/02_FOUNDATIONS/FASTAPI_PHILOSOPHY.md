@@ -89,15 +89,15 @@ Execution details belong to plugins.
 
 ``` python
 class CustomerPipeline(Pipeline):
-    raw = Source(contract=RawCustomer)
+    raw: Source[RawCustomer] = Source(binding="customer_source")
 
     normalized = NormalizeCustomers.step(
         customers=raw,
     )
 
-    curated = Sink(
-        contract=Customer,
+    curated: Sink[Customer] = Sink(
         input=normalized.result,
+        binding="customer_sink",
     )
 ```
 

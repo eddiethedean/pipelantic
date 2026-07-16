@@ -6,6 +6,10 @@ without embedding operational logic inside transformation implementations.
 PipelineModel coordinates callback invocation. Execution plugins perform the
 underlying work.
 
+Callbacks are one of several lifecycle extension mechanisms. They are distinct
+from runtime lifespan, execution middleware, and resource injection. See
+[Lifecycle Extension Mechanisms](../06_EXECUTION/LIFECYCLE_EXTENSIONS.md).
+
 ## Goals
 
 Callbacks should:
@@ -118,7 +122,7 @@ Conceptually:
 
 ```python
 return InvalidDataAction.fail()
-return InvalidDataAction.retry()
+return FailureAction.retry()
 return InvalidDataAction.quarantine(...)
 return InvalidDataAction.continue_with_valid()
 ```
@@ -129,6 +133,48 @@ The action remains declarative. Plugins execute the requested behavior.
 
 When multiple callbacks are registered, PipelineModel should execute them in a
 deterministic order documented by the framework.
+
+Callbacks associated with a wrapped operation run inside run or step middleware
+unless the callback explicitly represents final provider shutdown. Yield-based
+resource cleanup occurs after the callback has finished using the injected
+resource.
+
+## Callbacks Versus Middleware
+
+Use middleware when behavior must surround every matching invocation:
+
+- timing
+- tracing
+- structured logging
+- context propagation
+
+Use callbacks when behavior responds to a specific outcome:
+
+- validation failed
+- step completed
+- retry exhausted
+- pipeline completed
+
+Callbacks should not implement a general `call_next` wrapper.
+
+## Outbound Events
+
+A callback may return an `Emit` action targeting a typed outbound event:
+
+```python
+@CustomerPipeline.on_complete
+def publish_completion(context):
+    return Emit(
+        CustomerPipeline.pipeline_completed,
+        PipelineCompleted(
+            pipeline_id=context.pipeline_id,
+            run_id=context.run_id,
+        ),
+    )
+```
+
+The outbound event declares what may be sent. A notification provider handles
+HTTP, Kafka, queue, or other delivery mechanics.
 
 ## Best Practices
 
@@ -146,6 +192,9 @@ Avoid:
 - Depending on runtime-specific objects.
 - Mutating contracts.
 - Swallowing failures silently.
+- Using callbacks as unbounded middleware.
+- Sending undocumented transport-specific payloads directly from portable
+  pipeline definitions.
 
 ## Key Principle
 
@@ -154,5 +203,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **VALIDATION.md** to learn how PipelineModel validates
-transformations before and during execution.
+Continue with [Error Handling](ERROR_HANDLING.md) to learn how callback actions,
+runtime failures, and validation failures interact.

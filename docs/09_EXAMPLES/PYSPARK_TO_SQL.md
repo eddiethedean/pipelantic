@@ -830,6 +830,6 @@ source, Spark environment, SQL database, or publication strategy.
 
 ## Next Step
 
-Continue with **PYSPARK_TO_DELTA.md** to build a Spark-native lakehouse pipeline
-with Delta merge, schema enforcement, change data feed, and incremental
-publication.
+Continue with [PySpark to Delta](PYSPARK_TO_DELTA.md) to build a Spark-native
+lakehouse pipeline with Delta merge, schema enforcement, change data feed, and
+incremental publication.

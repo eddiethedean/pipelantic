@@ -12,7 +12,7 @@ The authoritative ODCS specification is maintained by the Open Data Contract Sta
 
 ---
 
-# Why PipelineModel Uses ODCS
+## Why PipelineModel Uses ODCS
 
 Data contracts should be portable.
 
@@ -30,7 +30,7 @@ PipelineModel therefore treats ODCS as the canonical artifact for published data
 
 ---
 
-# Architectural Relationship
+## Architectural Relationship
 
 PipelineModel intentionally separates responsibilities.
 
@@ -61,7 +61,7 @@ Each layer has a different purpose.
 
 ---
 
-# Code-First Workflow
+## Code-First Workflow
 
 PipelineModel recommends a code-first workflow.
 
@@ -81,11 +81,12 @@ Customer.write_odcs(
 )
 ```
 
-The Python class remains the source of truth.
+In a code-first project, the Python class remains the authoring source of
+truth.
 
 ---
 
-# Contract-First Workflow
+## Contract-First Workflow
 
 Existing ODCS contracts may also be loaded.
 
@@ -99,7 +100,7 @@ The resulting class behaves like any authored `DataContractModel` and can be ref
 
 ---
 
-# Hybrid Workflow
+## Hybrid Workflow
 
 Many organizations already maintain published ODCS contracts.
 
@@ -127,7 +128,7 @@ Both become equivalent pipeline types.
 
 ---
 
-# Referencing ODCS from Pipelines
+## Referencing ODCS from Pipelines
 
 PipelineModel never references YAML directly.
 
@@ -143,7 +144,7 @@ Those classes carry the metadata needed to identify the corresponding ODCS artif
 
 ---
 
-# Contract Generation
+## Contract Generation
 
 PipelineModel can discover every referenced contract.
 
@@ -170,7 +171,7 @@ Generated ODCS documents should be deterministic so they can be reviewed in vers
 
 ---
 
-# Contract Identity
+## Contract Identity
 
 PipelineModel relies on ContractModel to expose stable contract identity.
 
@@ -187,7 +188,7 @@ PipelineModel uses this information for validation, documentation, lineage, and 
 
 ---
 
-# Validation
+## Validation
 
 PipelineModel coordinates validation.
 
@@ -204,7 +205,7 @@ When native validation is unavailable, plugins may fall back to ContractModel va
 
 ---
 
-# Supported ODCS Features
+## Supported ODCS Features
 
 PipelineModel intends to support every feature that can be represented faithfully through ContractModel.
 
@@ -223,7 +224,7 @@ Support ultimately depends on ContractModel's public API.
 
 ---
 
-# Extensions
+## Extensions
 
 ODCS may evolve over time.
 
@@ -233,7 +234,7 @@ This allows organizations to use organization-specific ODCS extensions without b
 
 ---
 
-# Version Compatibility
+## Version Compatibility
 
 PipelineModel should clearly document:
 
@@ -248,7 +249,7 @@ PipelineModel consumes those decisions.
 
 ---
 
-# Design Principles
+## Design Principles
 
 PipelineModel follows these principles when integrating with ODCS:
 
@@ -262,7 +263,7 @@ PipelineModel follows these principles when integrating with ODCS:
 
 ---
 
-# Relationship to DTCS and DPCS
+## Relationship to DTCS and DPCS
 
 ODCS describes **data**.
 
@@ -284,7 +285,7 @@ PipelineModel unifies all three through typed Python models.
 
 ---
 
-# Further Reading
+## Further Reading
 
 For the normative definition of ODCS, refer to the official Open Data Contract Standard specification maintained by the upstream project.
 

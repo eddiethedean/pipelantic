@@ -4,6 +4,9 @@ This tutorial walks through building a complete PipelineModel project
 from start to finish. Rather than focusing on execution details, you'll
 learn how to model a pipeline using typed Python classes.
 
+> **Status:** This tutorial defines the intended code-first developer
+> experience. The package is not yet implemented.
+
 ## Goal
 
 We'll build a simple pipeline that:
@@ -65,18 +68,18 @@ without changing the transformation contract.
 ## Step 4 --- Build the Pipeline
 
 ``` python
-from pipelinemodel import Pipeline, Source, Sink
+from pipelinemodel import Pipeline, Sink, Source
 
 class CustomerPipeline(Pipeline):
-    raw = Source(contract=RawCustomer)
+    raw: Source[RawCustomer] = Source(binding="customer_source")
 
     normalized = NormalizeCustomers.step(
         customers=raw,
     )
 
-    curated = Sink(
-        contract=Customer,
+    curated: Sink[Customer] = Sink(
         input=normalized.result,
+        binding="customer_sink",
     )
 ```
 
@@ -117,7 +120,18 @@ contracts/
     └── customer-pipeline.dpcs.yaml
 ```
 
-## Step 7 --- Execute
+## Step 7 --- Plan
+
+```python
+plan = CustomerPipeline.plan(profile="local")
+```
+
+Planning resolves the Polars implementation, source and sink bindings,
+capabilities, resource references, and the physical execution graph.
+
+It does not read data or execute the transformation.
+
+## Step 8 --- Execute
 
 Select the runtime that best fits your environment.
 
@@ -142,7 +156,7 @@ You created:
 -   A typed transformation contract
 -   A typed pipeline
 -   Portable ODCS, DTCS, and DPCS contracts
--   A validated execution plan
+-   A validated `PipelinePlan`
 
 ## Key Takeaways
 
@@ -154,5 +168,5 @@ You created:
 
 ## Next Step
 
-Continue with **PROJECT_STRUCTURE.md** to learn how to organize a
+Continue with [Project Structure](PROJECT_STRUCTURE.md) to learn how to organize a
 PipelineModel project for long-term maintainability.

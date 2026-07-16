@@ -155,5 +155,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **VALIDATION.md** to learn how PipelineModel prevents many runtime
-errors by validating contracts and transformation interfaces before execution.
+Continue with [Async](ASYNC.md) to learn how PipelineModel preserves equivalent
+failure semantics for synchronous and asynchronous implementations.

@@ -159,5 +159,5 @@ Avoid:
 
 ## Next Step
 
-Continue with **RESOURCE_PLUGIN.md** to learn how infrastructure services are
-provided through the Plugin SDK.
+Continue with [Resource Provider](RESOURCE_PROVIDER.md) to learn how
+infrastructure services are provided through the Plugin SDK.

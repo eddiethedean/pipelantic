@@ -1,101 +1,206 @@
 # PipelineModel Documentation
 
-Welcome to the official documentation for **PipelineModel**.
+PipelineModel is a proposed Python framework for defining typed,
+contract-driven data pipelines and coordinating their execution through the
+tools users already choose.
 
-PipelineModel is a Python framework for building **typed,
-contract-driven ETL pipelines**. Inspired by FastAPI, it uses Python
-type annotations and declarative classes to model data pipelines while
-delegating execution to best-in-class execution engines such as Pandas,
-Polars, Airflow, and future plugins.
+Its central idea is simple:
 
-## Documentation Guide
+> Define data, transformations, and pipelines with typed Python classes.
+> Validate and plan them once. Execute them through interchangeable backends.
 
-### Start Here
+PipelineModel is inspired by FastAPI's type-driven developer experience, but it
+does not turn ETL into a web API metaphor. It applies the same principle—types
+as executable interface declarations—to data engineering.
 
--   **PIPELINEMODEL_MANIFESTO.md** --- The philosophy and vision of the
-    project.
--   **01_GETTING_STARTED/** --- Installation, quickstart, and your first
-    pipeline.
+## Project Status
 
-### Learn the Foundations
+PipelineModel is currently **design-first and pre-implementation**. These
+documents define the intended product, public API, architecture, Plugin SDK,
+and 1.0 direction.
 
--   **02_FOUNDATIONS/** --- Core concepts, design principles, and
-    architecture.
+Examples are normative design examples, not a promise that every illustrated
+API is already available. Reference chapters explicitly label proposed 1.0
+surfaces.
 
-### Build Pipelines
+See the [Roadmap](11_DEVELOPMENT/ROADMAP.md) for implementation sequencing.
 
--   **03_DATA_CONTRACTS/** --- Author ContractModel-compatible data
-    contracts (ODCS).
--   **04_TRANSFORMATIONS/** --- Define typed transformation contracts
-    (DTCS).
--   **05_PIPELINES/** --- Wire contracts together into typed pipelines
-    (DPCS).
+## Thirty-Second Example
 
-### Execute Pipelines
+```python
+from contractmodel import DataContractModel
+from pipelinemodel import Input, Output, Pipeline, Sink, Source, Transformation
 
--   **06_EXECUTION/** --- Execution model, plugins, bindings, and
-    runtime profiles.
 
-### Extend PipelineModel
+class RawCustomer(DataContractModel):
+    customer_id: int
+    first_name: str
+    last_name: str
 
--   **07_PLUGIN_SDK/** --- Build custom execution, orchestration, and
-    storage plugins.
 
-### Visualize and Document
+class Customer(DataContractModel):
+    customer_id: int
+    full_name: str
 
--   **08_VISUALIZATION/** --- Lineage, diagrams, documentation
-    generation, and graph exports.
 
-### Explore Examples
+class NormalizeCustomers(Transformation):
+    customers: Input[RawCustomer]
+    result: Output[Customer]
 
--   **09_EXAMPLES/** --- End-to-end examples, migration guides, and
-    reference projects.
 
-### API and Reference
+class CustomerPipeline(Pipeline):
+    raw: Source[RawCustomer] = Source(binding="customer_source")
+    normalized = NormalizeCustomers.step(customers=raw)
+    curated: Sink[Customer] = Sink(
+        input=normalized.result,
+        binding="customer_sink",
+    )
+```
 
--   **10_REFERENCE/** --- CLI, configuration, diagnostics, exceptions,
-    and API reference.
+From these declarations, PipelineModel can derive:
 
-### Contribute
+- ODCS data contracts
+- A DTCS transformation contract
+- A DPCS pipeline contract
+- Static wiring and compatibility diagnostics
+- A logical lineage graph
+- A resolved `PipelinePlan` for a selected profile
+- Documentation and visualizations
+- Backend-specific execution artifacts
 
--   **11_DEVELOPMENT/** --- Roadmap, architecture decisions, testing,
-    and contribution guidelines.
+The transformation implementation remains separate:
 
-## Guiding Philosophy
+```python
+@NormalizeCustomers.implementation("polars")
+def normalize_customers(customers):
+    ...
+```
 
-PipelineModel follows a few simple principles:
+The same transformation may also have Pandas, SQL, PySpark, remote, or other
+implementations.
 
--   Python type annotations are the source of truth.
--   Contracts are generated from code whenever possible.
--   Pipelines model intent, not execution.
--   Execution is delegated to interchangeable plugins.
--   Validation happens before execution.
--   One pipeline should be portable across multiple execution
-    environments.
+## The Architecture in One View
 
-## Relationship to Other Projects
+```text
+Typed Python authoring or portable contracts
+                    │
+                    ▼
+          Typed logical pipeline model
+                    │
+                    ▼
+     Introspection and semantic validation
+                    │
+                    ▼
+        Profile and capability resolution
+                    │
+                    ▼
+        Immutable PipelinePlan (resolved IR)
+                    │
+          ┌─────────┼──────────┐
+          ▼         ▼          ▼
+      Execute    Compile    Generate
+          │         │          │
+          ▼         ▼          ▼
+      Plugins   Airflow/SQL  Docs/graphs
+```
 
-PipelineModel is part of a larger ecosystem:
+PipelineModel owns modeling, validation, planning, and coordination.
 
--   **ContractModel** --- Operationalizes data contracts.
--   **ODCS** --- Open Data Contract Standard.
--   **DTCS** --- Data Transformation Contract Standard.
--   **DPCS** --- Data Pipeline Contract Standard.
+Standards own contract meaning. ContractModel owns data-contract
+operationalization. Plugins and external systems perform the work.
 
-PipelineModel unifies these standards into a single typed authoring
-experience while remaining execution-engine independent.
+## The Three Contract Authorities
 
-## Recommended Reading Order
+PipelineModel intentionally recognizes only three top-level contract families:
 
-1.  PipelineModel Manifesto
-2.  Getting Started
-3.  Foundations
-4.  Data Contracts
-5.  Transformations
-6.  Pipelines
-7.  Execution
-8.  Plugin SDK
-9.  Examples
-10. Reference
+| Contract | Authority | Answers |
+|---|---|---|
+| Data contract | ODCS and ContractModel | What is valid data? |
+| Transformation contract | DTCS | How is data expected to change? |
+| Pipeline contract | DPCS | How are data and transformations composed? |
 
-Happy building!
+Profiles, plugins, resources, callbacks, artifacts, and execution plans are
+implementation or runtime concepts—not additional contract standards.
+
+## Choose Your Path
+
+### I want to understand the idea
+
+1. [Manifesto](PIPELINEMODEL_MANIFESTO.md)
+2. [Vision](02_FOUNDATIONS/VISION.md)
+3. [Core Concepts](02_FOUNDATIONS/CORE_CONCEPTS.md)
+4. [Architecture](02_FOUNDATIONS/ARCHITECTURE.md)
+5. [Security Model](02_FOUNDATIONS/SECURITY.md)
+
+### I want to author pipelines
+
+1. [Getting Started](01_GETTING_STARTED/README.md)
+2. [Data Contracts](03_DATA_CONTRACTS/README.md)
+3. [Transformations](04_TRANSFORMATIONS/README.md)
+4. [Pipelines](05_PIPELINES/README.md)
+
+### I want to understand execution
+
+1. [Execution Model](06_EXECUTION/EXECUTION_MODEL.md)
+2. [Run Reports](06_EXECUTION/RUN_REPORTS.md)
+3. [Lifecycle Extensions](06_EXECUTION/LIFECYCLE_EXTENSIONS.md)
+4. [Logging](06_EXECUTION/LOGGING.md)
+5. [Planning](05_PIPELINES/PLANNING.md)
+6. [Profiles](05_PIPELINES/PROFILES.md)
+7. [Plugins](06_EXECUTION/PLUGINS.md)
+8. [Compilation](06_EXECUTION/COMPILATION.md)
+
+### I want to build a plugin
+
+1. [Plugin SDK](07_PLUGIN_SDK/README.md)
+2. [SDK Overview](07_PLUGIN_SDK/OVERVIEW.md)
+3. [Testing Plugins](07_PLUGIN_SDK/TESTING_PLUGINS.md)
+4. [Distribution](07_PLUGIN_SDK/DISTRIBUTION.md)
+
+### I want concrete examples
+
+- [CSV to CSV](09_EXAMPLES/CSV_TO_CSV.md)
+- [SQL to SQL](09_EXAMPLES/SQL_TO_SQL.md)
+- [Polars Pipeline](09_EXAMPLES/POLARS_PIPELINE.md)
+- [Airflow Pipeline](09_EXAMPLES/AIRFLOW_PIPELINE.md)
+- [PySpark to Delta](09_EXAMPLES/PYSPARK_TO_DELTA.md)
+- [End-to-End Pipeline](09_EXAMPLES/END_TO_END.md)
+
+### I am integrating or migrating SparkForge
+
+1. [SparkForge Feature Adoption](11_DEVELOPMENT/SPARKFORGE_ADOPTION.md)
+2. [Roadmap](11_DEVELOPMENT/ROADMAP.md)
+3. [Planning](05_PIPELINES/PLANNING.md)
+4. [PySpark Execution](06_EXECUTION/PYSPARK_EXECUTION.md)
+5. [SQL Execution](06_EXECUTION/SQL_EXECUTION.md)
+
+## Documentation Map
+
+| Section | Purpose |
+|---|---|
+| [Getting Started](01_GETTING_STARTED/README.md) | Learn the core workflow |
+| [Foundations](02_FOUNDATIONS/README.md) | Understand product philosophy and architecture |
+| [Data Contracts](03_DATA_CONTRACTS/README.md) | Define and operationalize typed datasets |
+| [Transformations](04_TRANSFORMATIONS/README.md) | Define typed transformation interfaces |
+| [Pipelines](05_PIPELINES/README.md) | Compose transformations into portable graphs |
+| [Execution](06_EXECUTION/README.md) | Resolve and delegate runtime behavior |
+| [Plugin SDK](07_PLUGIN_SDK/README.md) | Extend execution and infrastructure support |
+| [Visualization](08_VISUALIZATION/README.md) | Generate lineage, diagrams, and documentation |
+| [Examples](09_EXAMPLES/README.md) | Study complete workflows |
+| [Reference](10_REFERENCE/README.md) | Review proposed CLI, configuration, and Python APIs |
+| [Development](11_DEVELOPMENT/README.md) | Follow roadmap, decisions, testing, and contribution rules |
+| [Specifications](specifications/DTCS_SPEC.md) | Read normative DTCS and DPCS documents |
+
+## Non-Goals
+
+PipelineModel is not intended to become:
+
+- A dataframe engine
+- A distributed scheduler
+- A storage system
+- A secret manager
+- A proprietary pipeline contract format
+- A replacement for Pandas, Polars, SQL engines, Spark, Airflow, or Dagster
+
+It is the typed control and interoperability layer that connects those systems
+without allowing any one of them to define the pipeline's portable meaning.
