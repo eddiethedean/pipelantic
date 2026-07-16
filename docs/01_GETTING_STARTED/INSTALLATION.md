@@ -1,97 +1,77 @@
 # Installation
 
-PipelineModel is currently a design-first, pre-implementation project.
+PipelineModel 0.1 provides the typed modeling kernel. Planning, execution
+plugins, and contract serialization arrive in later milestones.
 
-There is no supported PyPI release or installable package in this repository
-yet. The commands below document the intended installation experience and
-development toolchain; they should not be treated as currently working package
-instructions.
-
-## Intended Requirements
-
-The current plan targets:
+## Requirements
 
 - Python 3.11 or newer
-- `uv` for project and dependency management
-- ContractModel as a companion package
-- Optional backend packages installed independently
+- [uv](https://docs.astral.sh/uv/) for project and dependency management
+- ContractModel as a companion package (installed automatically)
 
-The minimum Python version may be revisited before 1.0.
-
-## Intended User Installation
-
-Core modeling package:
+## Development Setup
 
 ```bash
-pip install pipelinemodel
-```
-
-Backend plugins should remain independently installable:
-
-```bash
-pip install pipelinemodel-polars
-pip install pipelinemodel-pandas
-pip install pipelinemodel-airflow
-pip install pipelinemodel-pyspark
-```
-
-Exact distribution names are proposed and will be finalized with the Plugin
-SDK.
-
-Heavy dependencies such as Airflow and PySpark must not be required by the core
-package.
-
-## Intended Development Setup
-
-Once the package scaffold exists, the expected workflow is:
-
-```bash
-git clone https://github.com/<organization>/pipelinemodel.git
+git clone https://github.com/eddiethedean/pipelinemodel.git
 cd pipelinemodel
-uv sync --all-extras --dev
+uv sync
 uv run pytest
+uv run ruff check .
+uv run ruff format --check .
 ```
 
-The repository should eventually include:
+`uv sync` installs runtime dependencies, the editable package, and the `dev`
+group (pytest, ruff). The lockfile `uv.lock` pins exact versions.
+
+### Common commands
+
+| Command | Purpose |
+|---|---|
+| `uv sync` | Create/update `.venv` from `uv.lock` |
+| `uv lock` | Refresh the lockfile after dependency changes |
+| `uv run pytest` | Run tests |
+| `uv run ruff check .` | Lint |
+| `uv run ruff check --fix .` | Lint and apply safe fixes |
+| `uv run ruff format .` | Format |
+
+## Repository Layout
 
 ```text
 pyproject.toml
+uv.lock
+.python-version
 src/pipelinemodel/
 tests/
 docs/
-examples/
 ```
 
-## Intended Verification
-
-```python
-import pipelinemodel
-
-print(pipelinemodel.__version__)
-```
-
-Plugin inspection should be available through:
+## Verification
 
 ```bash
-pipelinemodel plugins list
+uv run python -c "import pipelinemodel; print(pipelinemodel.__version__)"
 ```
+
+## User Installation (future)
+
+Once published to PyPI:
+
+```bash
+pip install pipelinemodel
+# or
+uv add pipelinemodel
+```
+
+Backend plugins will remain independently installable and must not be required
+by the core package.
 
 ## Dependency Philosophy
 
-The core installation should include only what is needed for:
+PipelineModel keeps the core install small. Dataframe engines, orchestrators,
+and storage clients belong in optional plugins—not the base package.
 
-- Typed authoring
-- Introspection
-- Validation
-- Planning
-- Diagnostics
-- Contract coordination
+See [Dependency Strategy](../11_DEVELOPMENT/DEPENDENCY_STRATEGY.md) for the
+full dependency policy.
 
-Users install execution, orchestration, storage, and resource integrations
-separately.
+## Next Step
 
-## Current Next Step
-
-Because the package is not yet implemented, continue with the
-[Quickstart](QUICKSTART.md) as an accepted design example, then review the
-[Roadmap](../11_DEVELOPMENT/ROADMAP.md) for implementation order.
+Continue with [Quickstart](QUICKSTART.md) or [First Pipeline](FIRST_PIPELINE.md).
