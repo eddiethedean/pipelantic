@@ -1,9 +1,8 @@
 """Data-contract integration boundary for ContractModel.
 
-Pipelantic docs refer to ``DataContractModel``. The published ContractModel
-package exposes ``ContractModel`` as the Pydantic authoring base. This module
-aliases that type and provides helpers for identity, compatibility checks, and
-ODCS load/save facades.
+``Data`` is Pipelantic's thin public facade over ContractModel (DD-010A).
+ContractModel retains authority for data-contract semantics and ODCS.
+``DataContractModel`` remains as a deprecated compatibility alias.
 """
 
 from __future__ import annotations
@@ -13,11 +12,15 @@ from typing import Any, TypeAlias
 
 from contractmodel import ContractModel
 
-# Docs-aligned alias for the ContractModel Pydantic authoring base.
-DataContractModel: TypeAlias = ContractModel
+# Preferred public facade (DD-010A): thin alias, not a new implementation.
+Data: TypeAlias = ContractModel
+# Compatibility alias (prefer ``Data``). Deprecation is emitted from the
+# package root ``pipelantic.__getattr__``.
+DataContractModel: TypeAlias = Data
 
 __all__ = [
     "ContractModel",
+    "Data",
     "DataContractModel",
     "is_data_contract_type",
     "load_data_contract",
@@ -51,20 +54,20 @@ def load_data_contract(
     *,
     root: str | Path | None = None,
     class_name: str | None = None,
-) -> type[DataContractModel]:
-    """Load an ODCS artifact into a ``DataContractModel`` subclass."""
+) -> type[Data]:
+    """Load an ODCS artifact into a ``Data`` (ContractModel) subclass."""
     from pipelantic.interchange.odcs import load_data_contract as _load
 
     return _load(path, root=root, class_name=class_name)
 
 
 def write_odcs(
-    model: type[DataContractModel],
+    model: type[Data],
     path: str | Path,
     *,
     root: str | Path | None = None,
 ) -> Path:
-    """Write a ``DataContractModel`` class to an ODCS YAML file."""
+    """Write a ``Data`` class to an ODCS YAML file."""
     from pipelantic.interchange.odcs import write_odcs as _write
 
     return _write(model, path, root=root)

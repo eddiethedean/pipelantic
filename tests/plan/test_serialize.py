@@ -1,0 +1,69 @@
+"""PipelinePlan serialization round-trip tests."""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from pipelantic import (
+    Data,
+    Input,
+    Output,
+    Pipeline,
+    PlanningContext,
+    Sink,
+    Source,
+    Transformation,
+)
+from pipelantic.plan import plan_from_json, plan_pipeline, plan_to_json
+from pipelantic.profile import Profile
+from pipelantic.registry import BindingDescriptor, builtin_stub_registry
+from pipelantic.secrets import SecretRef
+
+
+class Row(Data):
+    id: int
+
+
+class Identity(Transformation):
+    rows: Input[Row]
+    result: Output[Row]
+
+
+class Sample(Pipeline):
+    raw: Source[Row] = Source(binding="rows")
+    step = Identity.step(rows=raw)
+    out: Sink[Row] = Sink(input=step.result, binding="out")
+
+
+def test_secret_ref_round_trip_on_binding() -> None:
+    registry = builtin_stub_registry()
+    registry.register_binding(
+        BindingDescriptor(
+            binding="rows",
+            provider="local",
+            kind="source",
+            secret_ref=SecretRef(provider="env-secrets", name="rows", key="token"),
+        )
+    )
+    profile = Profile(name="sec", bindings={"out": "local"})
+    plan = plan_pipeline(
+        Sample,
+        context=PlanningContext.create(profile=profile, registry=registry),
+    )
+    assert plan.bindings["raw"].secret_ref is not None
+    restored = plan_from_json(plan_to_json(plan))
+    assert restored.bindings["raw"].secret_ref is not None
+    assert restored.bindings["raw"].secret_ref.key == "token"
+
+
+def test_plan_from_json_verify_optional() -> None:
+    plan = plan_pipeline(Sample, profile="local")
+    data = json.loads(plan_to_json(plan))
+    data["fingerprint"] = "deadbeef" * 8
+    # verify=False accepts tampered fingerprint
+    restored = plan_from_json(json.dumps(data), verify=False)
+    assert restored.fingerprint == "deadbeef" * 8
+    with pytest.raises(ValueError):
+        plan_from_json(json.dumps(data), verify=True)

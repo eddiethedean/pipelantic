@@ -27,6 +27,26 @@ class SourceLocation:
     line: int | None = None
     column: int | None = None
     object_ref: str | None = None
+    symbol: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class DiagnosticAction:
+    """Machine-readable action a future IDE can expose as a quick fix."""
+
+    kind: str
+    title: str
+    edit_suggestion: str | None = None
+    arguments: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize action for tooling."""
+        return {
+            "kind": self.kind,
+            "title": self.title,
+            "edit_suggestion": self.edit_suggestion,
+            "arguments": dict(self.arguments),
+        }
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +61,8 @@ class Diagnostic:
     related: tuple[tuple[str, ...], ...] = ()
     source: SourceLocation | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    phase: str | None = None
+    actions: tuple[DiagnosticAction, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,6 +70,7 @@ class ValidationReport:
     """Immutable collection of diagnostics for a validation pass."""
 
     diagnostics: tuple[Diagnostic, ...] = ()
+    phases: tuple[str, ...] = ()
 
     @property
     def valid(self) -> bool:
@@ -74,6 +97,7 @@ class ValidationReport:
         *,
         severity: Severity | None = None,
         code: str | None = None,
+        phase: str | None = None,
     ) -> ValidationReport:
         """Return a report containing only matching diagnostics."""
         items = self.diagnostics
@@ -81,7 +105,9 @@ class ValidationReport:
             items = tuple(d for d in items if d.severity is severity)
         if code is not None:
             items = tuple(d for d in items if d.code == code)
-        return ValidationReport(diagnostics=items)
+        if phase is not None:
+            items = tuple(d for d in items if d.phase == phase)
+        return ValidationReport(diagnostics=items, phases=self.phases)
 
     def raise_for_errors(self) -> None:
         """Raise :class:`PipelineValidationError` if the report is invalid."""
@@ -93,12 +119,21 @@ class ValidationReport:
 
     def merge(self, other: ValidationReport) -> ValidationReport:
         """Combine two reports, preserving order and uniqueness by identity."""
-        return ValidationReport(diagnostics=self.diagnostics + other.diagnostics)
+        phases = tuple(dict.fromkeys([*self.phases, *other.phases]))
+        return ValidationReport(
+            diagnostics=self.diagnostics + other.diagnostics,
+            phases=phases,
+        )
 
     @classmethod
-    def from_diagnostics(cls, diagnostics: Iterable[Diagnostic]) -> ValidationReport:
+    def from_diagnostics(
+        cls,
+        diagnostics: Iterable[Diagnostic],
+        *,
+        phases: Sequence[str] = (),
+    ) -> ValidationReport:
         """Build a report from an iterable of diagnostics."""
-        return cls(diagnostics=tuple(diagnostics))
+        return cls(diagnostics=tuple(diagnostics), phases=tuple(phases))
 
     def codes(self) -> Sequence[str]:
         """Return diagnostic codes in report order."""

@@ -181,6 +181,8 @@ with explicit provenance and no domain semantics duplicated in Pipelantic.
 
 ## 0.3 — Validation and Pipeline Plan IR
 
+**Status: shipped in 0.3.0**
+
 ### Deliver
 
 - Unified top-level authoring primitives:

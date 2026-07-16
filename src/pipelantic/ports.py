@@ -24,18 +24,38 @@ class Input(Generic[T]):
 
 
 class Output(Generic[T]):
-    """Declares data produced under contract ``T``."""
+    """Declares data produced under contract ``T``.
 
-    __slots__ = ("contract_type",)
+    ``role`` distinguishes primary valid outputs from invalid/side channels:
+    ``"valid"`` (default), ``"invalid"``, or ``"side"``.
+    """
 
-    def __init__(self, contract_type: type[T] | None = None) -> None:
+    __slots__ = ("contract_type", "role")
+
+    def __init__(
+        self,
+        contract_type: type[T] | None = None,
+        *,
+        role: str = "valid",
+    ) -> None:
         self.contract_type = contract_type
+        self.role = role
 
     def __class_getitem__(cls, item: type[T] | Any) -> Output[T]:
         return cls(contract_type=item)
 
+    def as_invalid(self) -> Output[T]:
+        """Return a copy marked as an invalid-output channel."""
+        return Output(contract_type=self.contract_type, role="invalid")
+
+    def as_side(self) -> Output[T]:
+        """Return a copy marked as a side-output channel."""
+        return Output(contract_type=self.contract_type, role="side")
+
     def __repr__(self) -> str:
         name = getattr(self.contract_type, "__name__", self.contract_type)
+        if self.role != "valid":
+            return f"Output[{name}, role={self.role!r}]"
         return f"Output[{name}]"
 
 

@@ -27,6 +27,7 @@ class PortSpec:
     contract_type: type[Any] | None
     contract_id: str | None
     required: bool = True
+    role: str = "valid"  # "valid" | "invalid" | "side"
 
 
 @dataclass(frozen=True, slots=True)

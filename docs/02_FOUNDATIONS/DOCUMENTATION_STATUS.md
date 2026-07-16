@@ -1,7 +1,7 @@
 # Documentation Status and Conventions
 
-Pipelantic 0.2 implements the typed modeling kernel and contract
-interoperability (ODCS/DTCS/DPCS). Much of the documentation still describes
+Pipelantic 0.3 implements the typed modeling kernel, contract interoperability,
+and Validation / Pipeline Plan IR. Much of the documentation still describes
 the intended 1.0 product. It serves three related purposes:
 
 1. Explain the product vision and user experience.
@@ -21,11 +21,11 @@ Documents use these conceptual stability levels:
 | Normative | A requirement defined by a contract specification |
 | Example | Illustrative code that expresses intended UX |
 
-Unless a chapter says otherwise, user-guide code beyond the shipped 0.2
-modeling and interchange surface should be read as an **accepted design
-example**, not as evidence of a published package API. The 0.2 surface is
-defined by the package, [API reference](../10_REFERENCE/API_REFERENCE.md),
-tests, and changelog.
+Unless a chapter says otherwise, user-guide code beyond the shipped 0.3
+modeling, interchange, validation, and planning surface should be read as an
+**accepted design example**, not as evidence of a published package API. The
+0.3 surface is defined by the package,
+[API reference](../10_REFERENCE/API_REFERENCE.md), tests, and changelog.
 
 ## Normative Authority
 

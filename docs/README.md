@@ -26,9 +26,9 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-**0.2.0** ships the typed modeling kernel and contract interoperability: ODCS
-via ContractModel, DTCS/DPCS generate and load, deterministic bundles, and
-diff hooks. Planning, execution plugins, and richer registries are later
+**0.3.0** ships validation, profiles, and an immutable secret-free
+`PipelinePlan` on top of the typed modeling kernel and ODCS/DTCS/DPCS
+interoperability. Local execution and secret resolution arrive in later
 milestones.
 
 Many chapters still describe the intended 1.0 product. Examples beyond the

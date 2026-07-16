@@ -131,7 +131,7 @@ Proposed class methods:
 ```python
 CustomerPipeline.inspect()
 CustomerPipeline.validate()
-CustomerPipeline.plan(profile="local")       # 0.3+
+CustomerPipeline.plan(profile="local")       # shipped in 0.3
 CustomerPipeline.run(profile="local")        # 0.4+
 await CustomerPipeline.arun(profile="local") # 0.4+
 CustomerPipeline.compile(target="airflow", profile="production")  # later
@@ -198,7 +198,7 @@ Represents environment-specific bindings and backend choices:
 profile = Profile(
     name="local",
     orchestrator="local",
-    dataframe="polars",
+    dataframe_engine="polars",
 )
 ```
 

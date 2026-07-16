@@ -35,6 +35,7 @@ class PortDefinition:
     contract_type: type[Any] | None
     default: Any = ...
     has_default: bool = False
+    role: str = "valid"  # output role: valid | invalid | side
 
 
 @dataclass(frozen=True, slots=True)
@@ -275,8 +276,15 @@ def _collect_ports(cls: type[Transformation]) -> list[PortDefinition]:
 
             default = ...
             has_default = False
+            role = "valid"
             if kind_cls is Parameter:
                 default, has_default = _parameter_default(base, name, annotation)
+            if kind_cls is Output:
+                attr = base.__dict__.get(name)
+                if isinstance(attr, Output):
+                    role = attr.role
+                elif isinstance(annotation, Output):
+                    role = annotation.role
 
             port = PortDefinition(
                 name=name,
@@ -290,6 +298,7 @@ def _collect_ports(cls: type[Transformation]) -> list[PortDefinition]:
                 contract_type=contract,
                 default=default,
                 has_default=has_default,
+                role=role,
             )
             if name in seen:
                 # Derived class overrides an inherited port of the same name.

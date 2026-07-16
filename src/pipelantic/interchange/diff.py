@@ -10,7 +10,7 @@ import dtcs
 import yaml
 from contractmodel import CompatibilityMode, DataContract
 
-from pipelantic.contracts import DataContractModel, is_data_contract_type
+from pipelantic.contracts import Data, is_data_contract_type
 from pipelantic.diagnostics import Diagnostic, Severity, ValidationReport
 from pipelantic.interchange.diagnostics import map_toolkit_diagnostics
 from pipelantic.interchange.dpcs import pipeline_to_dpcs
@@ -29,8 +29,8 @@ _COMPATIBLE_DPCS_CATEGORIES = frozenset(
 
 
 def diff_data_contracts(
-    previous: type[DataContractModel] | DataContract,
-    current: type[DataContractModel] | DataContract,
+    previous: type[Data] | DataContract,
+    current: type[Data] | DataContract,
     *,
     mode: CompatibilityMode = CompatibilityMode.BACKWARD,
 ) -> ValidationReport:
@@ -76,9 +76,64 @@ def diff_transformations(
     current: type[Any] | dict[str, Any] | str | Path,
 ) -> ValidationReport:
     """Compare two transformations / DTCS docs via the dtcs toolkit."""
-    left = _as_dtcs_doc(previous)
-    right = _as_dtcs_doc(current)
-    result = dtcs.compat_analyze(left, right)
+    try:
+        left = _as_dtcs_doc(previous)
+        right = _as_dtcs_doc(current)
+        result = dtcs.compat_analyze(left, right)
+    except (ValueError, TypeError, KeyError) as exc:
+        return ValidationReport.from_diagnostics(
+            [
+                Diagnostic(
+                    code="PMGEN203",
+                    severity=Severity.ERROR,
+                    message=f"DTCS diff failed: {exc}",
+                    path=("dtcs", "diff"),
+                )
+            ]
+        )
+    except DtcsError as exc:
+        # Fail closed with a stable Pipelantic code; preserve toolkit details.
+        base = [
+            Diagnostic(
+                code="PMGEN203",
+                severity=Severity.ERROR,
+                message=str(exc) or "DTCS diff failed.",
+                path=("dtcs", "diff"),
+            )
+        ]
+        if exc.report is not None and exc.report.diagnostics:
+            return ValidationReport.from_diagnostics(
+                [
+                    *base,
+                    *[
+                        Diagnostic(
+                            code=d.code,
+                            severity=d.severity,
+                            message=d.message,
+                            path=d.path or ("dtcs", "diff"),
+                            help=d.help,
+                            related=d.related,
+                            source=d.source,
+                            metadata=d.metadata,
+                            phase=d.phase,
+                            actions=d.actions,
+                        )
+                        for d in exc.report.diagnostics
+                    ],
+                ]
+            )
+        return ValidationReport.from_diagnostics(base)
+    if not isinstance(result, dict):
+        return ValidationReport.from_diagnostics(
+            [
+                Diagnostic(
+                    code="PMGEN301",
+                    severity=Severity.ERROR,
+                    message=f"Unexpected DTCS compat result: {result!r}",
+                    path=("dtcs", "diff"),
+                )
+            ]
+        )
     return map_toolkit_diagnostics(
         result.get("diagnostics"),
         default_code="PMGEN301",
@@ -91,9 +146,21 @@ def diff_pipelines(
     current: type[Any] | dict[str, Any] | str | Path,
 ) -> ValidationReport:
     """Compare two pipelines / DPCS docs via the dpcs toolkit."""
-    left = _as_dpcs_yaml(previous)
-    right = _as_dpcs_yaml(current)
-    result = dpcs.compare_contract_yaml(left, right)
+    try:
+        left = _as_dpcs_yaml(previous)
+        right = _as_dpcs_yaml(current)
+        result = dpcs.compare_contract_yaml(left, right)
+    except (ValueError, TypeError, KeyError) as exc:
+        return ValidationReport.from_diagnostics(
+            [
+                Diagnostic(
+                    code="PMGEN311",
+                    severity=Severity.ERROR,
+                    message=f"DPCS diff failed: {exc}",
+                    path=("dpcs", "diff"),
+                )
+            ]
+        )
     if not isinstance(result, dict):
         return ValidationReport.from_diagnostics(
             [
@@ -132,12 +199,12 @@ def diff_pipelines(
     return report
 
 
-def _as_data_contract(value: type[DataContractModel] | DataContract) -> DataContract:
+def _as_data_contract(value: type[Data] | DataContract) -> DataContract:
     if isinstance(value, DataContract):
         return value
     if is_data_contract_type(value):
         return DataContract.from_pydantic(value)
-    raise TypeError("Expected DataContractModel class or DataContract instance")
+    raise TypeError("Expected Data / ContractModel class or DataContract instance")
 
 
 def _as_dtcs_doc(value: type[Any] | dict[str, Any] | str | Path) -> dict[str, Any]:

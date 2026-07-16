@@ -372,7 +372,23 @@ def _parameter_python_type(type_name: Any) -> type[Any]:
 
 
 def _annotation_for_dtcs_type(type_name: Any) -> type[Any]:
-    return _parameter_python_type(type_name)
+    """Map DTCS field types to Python annotations for schema-only ports."""
+    from datetime import date, datetime, time
+    from decimal import Decimal
+
+    mapping: dict[str, type[Any]] = {
+        "integer": int,
+        "number": float,
+        "decimal": Decimal,
+        "boolean": bool,
+        "string": str,
+        "datetime": datetime,
+        "date": date,
+        "time": time,
+        "binary": bytes,
+        "bytes": bytes,
+    }
+    return mapping.get(str(type_name or "string").lower(), str)
 
 
 def _safe_class_name(name: str) -> str:

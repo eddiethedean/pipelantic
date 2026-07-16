@@ -26,7 +26,7 @@ from pipelantic import (
 )
 from pipelantic.interchange.bundle import BundleError
 from pipelantic.interchange.diff import diff_transformations
-from pipelantic.interchange.dtcs import DtcsError, transformation_from_dtcs
+from pipelantic.interchange.dtcs import transformation_from_dtcs
 from pipelantic.interchange.odcs import dtcs_type_for_logical_type
 
 
@@ -204,5 +204,6 @@ def test_diff_pipelines_fails_closed_on_incompatible_category(
 def test_diff_transformations_rejects_invalid_dtcs(tmp_path: Path) -> None:
     bad = tmp_path / "bad.dtcs.yaml"
     bad.write_text("not: valid: dtcs\n", encoding="utf-8")
-    with pytest.raises(DtcsError):
-        diff_transformations(bad, bad)
+    report = diff_transformations(bad, bad)
+    assert report.has_errors
+    assert any(d.code == "PMGEN203" for d in report.errors)

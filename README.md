@@ -11,11 +11,11 @@ Typed, contract-driven data pipeline modeling for Python.
 
 ## Status
 
-**0.2.0 — Contract Interoperability**
+**0.3.0 — Validation and Pipeline Plan IR**
 
-Pipelantic provides the typed modeling kernel plus ODCS/DTCS/DPCS generate and
-load, deterministic contract bundles, and compatibility hooks. Planning and
-execution plugins arrive in later milestones.
+Pipelantic provides the typed modeling kernel, contract interoperability, and
+an immutable secret-free `PipelinePlan`. Planning is pure (no secret
+resolution or execution). Local runtime arrives in later milestones.
 
 See the [hosted documentation](https://pipelantic.readthedocs.io/) for the
 full design,
@@ -49,8 +49,8 @@ the `dev` dependency group (pytest, ruff, mkdocs) by default.
 Tag a version that matches `src/pipelantic/_version.py`, then push the tag:
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
 GitHub Actions runs checks and publishes to PyPI using the `PYPI_API_TOKEN`
@@ -59,17 +59,16 @@ repository secret.
 ## Quick example
 
 ```python
-from contractmodel import ContractModel as DataContractModel
-from pipelantic import Input, Output, Pipeline, Sink, Source, Transformation
+from pipelantic import Data, Input, Output, Pipeline, Sink, Source, Transformation
 
 
-class RawCustomer(DataContractModel):
+class RawCustomer(Data):
     customer_id: int
     first_name: str
     last_name: str
 
 
-class Customer(DataContractModel):
+class Customer(Data):
     customer_id: int
     full_name: str
 

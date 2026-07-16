@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pipelantic.dev/schemas/profile.json",
+  "title": "Pipelantic Profile",
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "orchestrator": { "type": "string" },
+    "dataframe_engine": { "type": ["string", "null"] },
+    "bindings": { "type": "object", "additionalProperties": { "type": "string" } },
+    "implementation_overrides": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "secret_providers": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "secrets": { "type": "object" },
+    "security_domain": { "type": "string" },
+    "validation_policy": { "type": "string" },
+    "concurrency": { "type": ["integer", "null"] },
+    "timeout_seconds": { "type": ["number", "null"] },
+    "retry_max_attempts": { "type": ["integer", "null"] },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": true
+}

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-07-16
+
+### Added
+
+- `Data` as the preferred thin facade over ContractModel (`DataContractModel`
+  remains as a deprecated alias)
+- Multi-phase validation (structural, reference, semantic, policy, capability)
+  with diagnostic actions and source symbols
+- `Profile` templates, `SecretRef`, scoped registries, and capability negotiation
+- Immutable secret-free `PipelinePlan` IR (`pipelantic.plan/1`) with slicing,
+  explain output, and canonical fingerprints
+- Schema-drift models (`NormalizedSchema`, observations, changes, `DriftImpact`)
+- Portable reliability/intent models (freshness, write/materialization intents,
+  idempotency, evidence schemas)
+- JSON Schemas for profiles, project config, and PipelinePlan
+- `pipelantic` CLI: `validate`, `inspect`, `plan`, and `plan explain`
+  (plus `plan --explain` alias, `--nodes`, and mutual exclusion for
+  `--run-one` / `--run-until`)
+- `Pipeline.plan()` / `Pipeline.explain_plan()`
+
+### Fixed
+
+- `run_until` selects declaration-order prefix (not only upstream closure)
+- Unknown plan selections fail closed with `PMPLAN501`
+- Multi-engine regions and cross-engine durable artifact strategies
+- Profile snapshot included in plan fingerprint
+- Strict policy requires registered transformation implementations
+- Subpipeline validation inherits parent planning context
+- Plan JSON round-trip restores `secret_ref` and verifies fingerprints
+- Schema-only DTCS ports map `datetime`/`decimal`/`binary` correctly
+- Diff APIs return diagnostics for malformed toolkit input
+
+### Changed
+
+- Package version and public status advance to 0.3 (Validation and Pipeline Plan IR)
+
 ## [0.2.0] - 2026-07-16
 
 ### Added
@@ -48,5 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
+[0.3.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.3.0
 [0.2.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.2.0
 [0.1.0]: https://github.com/eddiethedean/pipelantic/releases/tag/v0.1.0

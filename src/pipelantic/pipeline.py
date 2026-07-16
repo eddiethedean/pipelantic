@@ -285,11 +285,41 @@ class Pipeline(metaclass=_PipelineMeta):
         return inspect_pipeline(cls)
 
     @classmethod
-    def validate(cls):  # type: ignore[no-untyped-def]
+    def validate(
+        cls, *, profile: str | Any = None, policy: str | Any = None, context: Any = None
+    ):  # type: ignore[no-untyped-def]
         """Validate the pipeline and return a structured report."""
         from pipelantic.validation import validate_pipeline
 
-        return validate_pipeline(cls)
+        return validate_pipeline(cls, context=context, profile=profile, policy=policy)
+
+    @classmethod
+    def plan(
+        cls,
+        profile: str | Any = None,
+        *,
+        context: Any = None,
+        selection: dict[str, Any] | None = None,
+    ) -> Any:
+        """Resolve an immutable secret-free PipelinePlan for this pipeline."""
+        from pipelantic.plan.planner import plan_pipeline
+
+        return plan_pipeline(cls, context=context, profile=profile, selection=selection)
+
+    @classmethod
+    def explain_plan(
+        cls,
+        profile: str | Any = None,
+        *,
+        context: Any = None,
+        selection: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Return a structured explanation of the planned pipeline."""
+        from pipelantic.plan.explain import explain_plan
+        from pipelantic.plan.planner import plan_pipeline
+
+        plan = plan_pipeline(cls, context=context, profile=profile, selection=selection)
+        return explain_plan(plan)
 
     @classmethod
     def to_mermaid(cls) -> str:
@@ -496,6 +526,7 @@ def _build_logical_graph(cls: type[Pipeline]) -> LogicalGraph:
                     contract_id=contract_id(p.contract_type)
                     if p.contract_type is not None
                     else None,
+                    role=getattr(p, "role", "valid"),
                 )
                 for p in transform.outputs()
             )

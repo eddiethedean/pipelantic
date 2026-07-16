@@ -1,0 +1,139 @@
+"""Multi-phase validation tests."""
+
+from __future__ import annotations
+
+from pipelantic import (
+    Data,
+    Input,
+    Output,
+    Pipeline,
+    PlanningContext,
+    Sink,
+    Source,
+    Transformation,
+)
+from pipelantic.capabilities import PluginCapabilities
+from pipelantic.policy import STRICT_POLICY
+from pipelantic.profile import Profile
+from pipelantic.registry import PluginDescriptor, RegistryBundle
+
+
+class Item(Data):
+    id: int
+
+
+class Pass(Transformation):
+    items: Input[Item]
+    result: Output[Item]
+    rejected: Output[Item] = Output(Item).as_invalid()
+
+
+@Pass.implementation("local")
+def _pass_local(items):  # type: ignore[no-untyped-def]
+    return items
+
+
+class GoodPipeline(Pipeline):
+    raw: Source[Item] = Source(binding="in")
+    step = Pass.step(items=raw)
+    out: Sink[Item] = Sink(input=step.result, binding="out")
+
+
+class BadInvalidWire(Pipeline):
+    raw: Source[Item] = Source(binding="in")
+    step = Pass.step(items=raw)
+    out: Sink[Item] = Sink(input=step.rejected, binding="out")
+
+
+class UnboundPipeline(Pipeline):
+    raw: Source[Item] = Source(binding="missing_binding")
+    step = Pass.step(items=raw)
+    out: Sink[Item] = Sink(input=step.result, binding="also_missing")
+
+
+class NoImplTransform(Transformation):
+    items: Input[Item]
+    result: Output[Item]
+
+
+class NoImplPipeline(Pipeline):
+    raw: Source[Item] = Source(binding="in")
+    step = NoImplTransform.step(items=raw)
+    out: Sink[Item] = Sink(input=step.result, binding="out")
+
+
+class ChildPipeline(Pipeline):
+    raw: Source[Item] = Source(binding="child_in")
+    step = Pass.step(items=raw)
+    out: Sink[Item] = Sink(input=step.result, binding="child_out")
+
+
+class ParentWithChild(Pipeline):
+    raw: Source[Item] = Source(binding="in")
+    child = ChildPipeline.subpipeline(raw=raw)
+    out: Sink[Item] = Sink(input=child.out, binding="out")
+
+
+def test_validation_phases_present() -> None:
+    report = GoodPipeline.validate()
+    assert report.valid
+    assert report.phases == (
+        "structural",
+        "reference",
+        "semantic",
+        "policy",
+        "capability",
+    )
+
+
+def test_invalid_output_cannot_feed_consumer() -> None:
+    report = BadInvalidWire.validate()
+    assert any(d.code == "PMPIPE220" for d in report.errors)
+
+
+def test_capability_fail_closed() -> None:
+    registry = RegistryBundle()
+    registry.register_plugin(
+        PluginDescriptor(
+            name="limited",
+            kind="dataframe",
+            engine="limited",
+            capabilities=PluginCapabilities(engine="limited", dataframe=False),
+        )
+    )
+    context = PlanningContext.create(
+        profile="local",
+        registry=registry,
+        required_capabilities=["dataframe"],
+    )
+    report = GoodPipeline.validate(context=context)
+    assert any(d.code in {"PMPLAN401", "PMPLAN402"} for d in report.errors)
+
+
+def test_strict_policy_requires_bindings() -> None:
+    report = UnboundPipeline.validate(policy=STRICT_POLICY)
+    assert any(d.code == "PMPLAN201" for d in report.errors)
+
+
+def test_strict_policy_requires_implementations() -> None:
+    report = NoImplPipeline.validate(
+        policy=STRICT_POLICY,
+        profile=Profile(
+            name="strict-local",
+            bindings={"in": "x", "out": "y"},
+            validation_policy="strict",
+        ),
+    )
+    assert any(d.code == "PMPLAN301" for d in report.errors)
+
+
+def test_subpipeline_inherits_parent_strict_bindings() -> None:
+    # Parent provides bindings for its own ports but not child_in/child_out.
+    profile = Profile(
+        name="parent",
+        bindings={"in": "src", "out": "dst"},
+        validation_policy="strict",
+    )
+    report = ParentWithChild.validate(profile=profile, policy=STRICT_POLICY)
+    assert any(d.code == "PMPLAN201" for d in report.errors)
+    assert any("child_in" in d.message or "child" in d.path for d in report.errors)
