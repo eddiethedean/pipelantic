@@ -1,8 +1,8 @@
 # Installation
 
-Pipelantic 0.2 provides the typed modeling kernel and contract
-interoperability (ODCS/DTCS/DPCS). Planning, execution plugins, and richer
-registries arrive in later milestones.
+Pipelantic 0.3 provides the typed modeling kernel, contract interoperability
+(ODCS/DTCS/DPCS), multi-phase validation, profiles, and deterministic planning.
+Execution plugins and secret resolution at runtime arrive in later milestones.
 
 ## Requirements
 

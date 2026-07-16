@@ -40,7 +40,7 @@ and the [Roadmap](11_DEVELOPMENT/ROADMAP.md).
 
 ```python
 from pipelantic import (
-    DataContractModel,
+    Data,
     Input,
     Output,
     Pipeline,
@@ -50,13 +50,13 @@ from pipelantic import (
 )
 
 
-class RawCustomer(DataContractModel):
+class RawCustomer(Data):
     customer_id: int
     first_name: str
     last_name: str
 
 
-class Customer(DataContractModel):
+class Customer(Data):
     customer_id: int
     full_name: str
 
@@ -82,9 +82,9 @@ From these declarations, Pipelantic can derive:
 - A DPCS pipeline contract
 - Static wiring and compatibility diagnostics
 - A logical lineage graph
+- A deterministic, secret-free `PipelinePlan` (0.3.0)
 
-Planning (`PipelinePlan`) and execution plugins arrive in later milestones.- Documentation and visualizations
-- Backend-specific execution artifacts
+Execution plugins and runtime secret resolution arrive in later milestones.
 
 The transformation implementation remains separate:
 

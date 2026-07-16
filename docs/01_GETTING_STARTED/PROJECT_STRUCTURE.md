@@ -59,10 +59,11 @@ customer-pipeline/
 
 ### contracts/
 
-Contains ContractModel-compatible data contract models.
+Contains `Data` contract models (`DataContractModel` remains as a deprecated
+alias).
 
 ``` python
-class Customer(DataContractModel):
+class Customer(Data):
     ...
 ```
 

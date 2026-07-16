@@ -9,15 +9,16 @@ portable contracts.
 
 > **Goal:** Learn the Pipelantic mental model, not every feature.
 >
-> **Status:** Steps 1–5 match the shipped 0.2.0 surface. Planning and
-> execution below describe later milestones.
+> **Status:** Steps 1–6 match the shipped 0.3.0 surface (authoring, validation,
+> contract generation, and planning). Execution below describes a later
+> milestone.
 
 ## Step 1 --- Define a Data Contract
 
 ``` python
-from pipelantic import DataContractModel
+from pipelantic import Data
 
-class Customer(DataContractModel):
+class Customer(Data):
     id: int
     first_name: str
     last_name: str
@@ -90,15 +91,16 @@ contracts/
     └── customer-pipeline.dpcs.yaml
 ```
 
-## Step 6 --- Plan (later milestone)
+## Step 6 --- Plan
 
 ```python
 plan = CustomerPipeline.plan(profile="local")
 ```
 
-Planning is not shipped in 0.2.0. The intended `PipelinePlan` will contain
-implementation, binding, capability, and execution-region decisions without
-resolved secrets.
+0.3.0 resolves a deterministic, secret-free `PipelinePlan` with
+implementation, binding, capability, and execution-region decisions. Use
+`CustomerPipeline.explain_plan(profile="local")` or the CLI
+(`pipelantic plan …`) for a structured explanation.
 
 ## Step 7 --- Execute (later milestone)
 
@@ -116,7 +118,7 @@ await CustomerPipeline.arun(
 )
 ```
 
-Execution plugins are not shipped in 0.2.0. The intended model handles
+Execution plugins are not shipped in 0.3.0. The intended model handles
 synchronous and asynchronous implementations transparently while
 delegating runtime work to plugins.
 
@@ -129,7 +131,8 @@ You have:
 -   Built a pipeline.
 -   Validated the pipeline.
 -   Generated portable contracts.
--   Seen how later milestones add planning and execution.
+-   Planned the pipeline with a profile.
+-   Seen how later milestones add execution.
 
 ## Where to Go Next
 

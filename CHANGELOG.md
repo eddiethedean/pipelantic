@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Package version and public status advance to 0.3 (Validation and Pipeline Plan IR)
+- Explicit `click` dependency for the CLI plan command group (Typer 0.15+ no
+  longer pulls it in transitively)
 
 ## [0.2.0] - 2026-07-16
 

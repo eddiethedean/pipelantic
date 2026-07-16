@@ -4,9 +4,9 @@ This tutorial walks through building a complete Pipelantic project
 from start to finish. Rather than focusing on execution details, you'll
 learn how to model a pipeline using typed Python classes.
 
-> **Status:** Steps 1–6 match the shipped 0.2.0 surface (authoring,
-> validation, and contract generation). Planning and execution examples
-> later in this tutorial describe upcoming milestones.
+> **Status:** Steps 1–7 match the shipped 0.3.0 surface (authoring, validation,
+> contract generation, and planning). The execution example later in this
+> tutorial describes an upcoming milestone.
 
 ## Goal
 
@@ -21,14 +21,14 @@ We'll build a simple pipeline that:
 ## Step 1 --- Define the Data Contracts
 
 ``` python
-from pipelantic import DataContractModel
+from pipelantic import Data
 
-class RawCustomer(DataContractModel):
+class RawCustomer(Data):
     customer_id: int
     first_name: str
     last_name: str
 
-class Customer(DataContractModel):
+class Customer(Data):
     customer_id: int
     full_name: str
 ```
@@ -121,16 +121,15 @@ contracts/
     └── customer-pipeline.dpcs.yaml
 ```
 
-## Step 7 --- Plan (later milestone)
+## Step 7 --- Plan
 
 ```python
 plan = CustomerPipeline.plan(profile="local")
 ```
 
-Planning is not shipped in 0.2.0. When available, it will resolve the
-Polars implementation, source and sink bindings, capabilities, resource
-references, and the physical execution graph without reading data or
-executing the transformation.
+0.3.0 resolves the Polars implementation (when registered), source and sink
+bindings, capabilities, resource references, and the physical execution graph
+without reading data, resolving secrets, or executing the transformation.
 
 ## Step 8 --- Execute (later milestone)
 
@@ -144,7 +143,7 @@ or
 await CustomerPipeline.arun(profile="production")
 ```
 
-Execution plugins are not shipped in 0.2.0. The intended model keeps the
+Execution plugins are not shipped in 0.3.0. The intended model keeps the
 pipeline definition unchanged while delegating runtime work to configured
 plugins.
 
