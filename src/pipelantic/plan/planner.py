@@ -173,7 +173,12 @@ def _build_plan(
     )
     boundaries.extend(
         _collection_boundaries(
-            graph, implementations, default_engine, security_domain, regions
+            graph,
+            implementations,
+            default_engine,
+            security_domain,
+            regions,
+            context.registry.engines,
         )
     )
 
@@ -510,10 +515,12 @@ def _collection_boundaries(
     default_engine: str,
     security_domain: str,
     regions: list[ExecutionRegion],
+    engines: dict[str, Any] | None = None,
 ) -> list[MaterializationBoundary]:
     """Declare explicit collection points for lazy dataframe engines."""
     from pipelantic.dataframe.protocol import DATAFRAME_ENGINES
 
+    engines = engines or {}
     region_engine = {r.identity: r.engine for r in regions}
     node_region = {
         name: region.identity for region in regions for name in region.node_names
@@ -525,7 +532,7 @@ def _collection_boundaries(
         engine = _node_engine(node.name, implementations, default_engine)
         if engine not in DATAFRAME_ENGINES:
             continue
-        caps = None
+        caps = engines.get(engine)
         # Collection required before sink / cross-engine / durable boundaries.
         for edge in graph.edges_from(node.name):
             cons = next((n for n in graph.nodes if n.name == edge.consumer_node), None)
@@ -546,7 +553,7 @@ def _collection_boundaries(
                     metadata={
                         "engine": engine,
                         "lazy_supported": bool(
-                            caps.supports("lazy") if caps else engine == "polars"
+                            caps.supports("lazy") if caps is not None else False
                         ),
                         "region": node_region.get(node.name),
                         "region_engine": region_engine.get(
@@ -678,35 +685,54 @@ def _resolve_outputs(
     region_of = {
         name: region.identity for region in regions for name in region.node_names
     }
-    durable_ports = {(b.producer_node, b.producer_port) for b in boundaries}
+    # Only sink publication forces durable record materialization by default.
+    # Fan-out / cross-engine / collection still require collect at runtime but
+    # keep native frames in memory (ownership/copy), not durable JSON records.
+    durable_reasons = {"sink_publication"}
+    durable_ports = {
+        (b.producer_node, b.producer_port)
+        for b in boundaries
+        if b.reason in durable_reasons
+    }
+    fanout_ports = {
+        (b.producer_node, b.producer_port)
+        for b in boundaries
+        if b.reason == "fan_out_reuse"
+    }
     resolutions: list[OutputResolution] = []
     for node in graph.nodes:
         for port in node.outputs:
             key = (node.name, port.name)
-            if key in durable_ports or node.kind is NodeKind.SINK:
+            consumers = [
+                e.consumer_node
+                for e in graph.edges_from(node.name)
+                if e.producer_port == port.name
+            ]
+            if node.kind is NodeKind.SINK or key in durable_ports:
                 strategy = ArtifactStrategy.DURABLE
             elif node.kind is NodeKind.SOURCE:
                 strategy = ArtifactStrategy.EXTERNAL
+            elif not consumers:
+                # Unconsumed ports stay in-memory; never default to durable.
+                strategy = ArtifactStrategy.IN_MEMORY
             else:
-                consumers = [
-                    e.consumer_node
-                    for e in graph.edges_from(node.name)
-                    if e.producer_port == port.name
-                ]
                 prod_engine = _node_engine(node.name, implementations, default_engine)
-                same_engine = consumers and all(
+                same_engine = all(
                     _node_engine(c, implementations, default_engine) == prod_engine
                     for c in consumers
                 )
-                same_region = consumers and all(
+                same_region = all(
                     region_of.get(c) == region_of.get(node.name) for c in consumers
                 )
-                if same_engine and same_region:
+                if key in fanout_ports:
+                    strategy = ArtifactStrategy.IN_MEMORY
+                elif same_engine and same_region:
                     strategy = ArtifactStrategy.LAZY
                 elif same_engine:
                     strategy = ArtifactStrategy.IN_MEMORY
                 else:
-                    strategy = ArtifactStrategy.DURABLE
+                    # Cross-engine handoff: keep in-memory until conversion.
+                    strategy = ArtifactStrategy.IN_MEMORY
             art_id = artifact_identity(
                 pipeline_id=graph.pipeline_id,
                 node_name=node.name,
@@ -720,6 +746,9 @@ def _resolve_outputs(
                 security_domain=security_domain,
                 plan_fingerprint=plan_fp,
             )
+            metadata: dict[str, Any] = {}
+            if key in fanout_ports:
+                metadata["ownership"] = "copied"
             resolutions.append(
                 OutputResolution(
                     node_name=node.name,
@@ -730,6 +759,7 @@ def _resolve_outputs(
                         strategy=strategy,
                         security_domain=security_domain,
                         cache_key=cache_key,
+                        metadata=metadata,
                     ),
                 )
             )

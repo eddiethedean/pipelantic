@@ -58,7 +58,37 @@ jobs:
           uv run --isolated --no-project --with "$WHEEL" \
             python -c "import pipelantic; assert pipelantic.__version__ == '$TAG'"
 
-      - name: Publish to PyPI
+      - name: Publish core to PyPI
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: uv publish
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          uv publish "dist/pipelantic-${TAG}-py3-none-any.whl" \
+            "dist/pipelantic-${TAG}.tar.gz"
+
+      - name: Publish dataframe plugins to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          # Wheel names use underscores for the distribution name.
+          uv publish \
+            "dist/pipelantic_polars-${TAG}-py3-none-any.whl" \
+            "dist/pipelantic_polars-${TAG}.tar.gz" \
+            "dist/pipelantic_pandas-${TAG}-py3-none-any.whl" \
+            "dist/pipelantic_pandas-${TAG}.tar.gz"
+
+      - name: Smoke discover_dataframe_plugins on installed wheels
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          CORE="dist/pipelantic-${TAG}-py3-none-any.whl"
+          POLARS="dist/pipelantic_polars-${TAG}-py3-none-any.whl"
+          PANDAS="dist/pipelantic_pandas-${TAG}-py3-none-any.whl"
+          uv run --isolated --no-project \
+            --with "$CORE" --with "$POLARS" --with "$PANDAS" \
+            python -c "
+          from pipelantic.dataframe.discovery import discover_dataframe_plugins
+          found = discover_dataframe_plugins()
+          assert set(found) >= {'polars', 'pandas'}, found
+          print('ok', sorted(found))
+          "

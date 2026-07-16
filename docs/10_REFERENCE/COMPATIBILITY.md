@@ -1,6 +1,6 @@
 # Compatibility Matrix
 
-This table describes the declared compatibility of Pipelantic 0.4.0.
+This table describes the declared compatibility of Pipelantic 0.5.0.
 
 | Surface | Supported range or version |
 |---|---|
@@ -10,8 +10,11 @@ This table describes the declared compatibility of Pipelantic 0.4.0.
 | DTCS toolkit | `>=0.11,<1` |
 | DPCS toolkit | `>=0.13,<1` |
 | Pipeline plan schema | `pipelantic.plan/1` |
+| Dataframe protocol | `pipelantic.dataframe/1` |
+| Polars plugin | `pipelantic-polars==0.5.0` |
+| Pandas plugin | `pipelantic-pandas==0.5.0` |
 | Package stability | Alpha |
-| Plugin SDK stability | Not published as a stable SDK |
+| Plugin SDK stability | Protocol stable within 0.5; third-party SDK still evolving |
 
 The package metadata in `pyproject.toml` is authoritative for dependency
 ranges. During the 0.x series, public APIs and persistent formats may change.

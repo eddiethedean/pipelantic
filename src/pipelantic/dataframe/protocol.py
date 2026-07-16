@@ -215,8 +215,12 @@ class DataframePlugin(Protocol):
         context: DataframeExecutionContext,
         boundary: str,
         port_name: str | None = None,
-    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]]]:
-        """Validate a frame (or records) against a contract."""
+    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]], Any | None]:
+        """Validate a frame (or records) against a contract.
+
+        Returns ``(value, decision, diagnostics, invalid_value)``.
+        ``invalid_value`` is set when reject/quarantine splits rows.
+        """
         ...
 
     def inspect_schema(

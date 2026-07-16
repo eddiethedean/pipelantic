@@ -40,8 +40,10 @@ runtime examples. Do not silently switch profile names within one workflow.
 
 ## A Pandas, Polars, SQL, Spark, or Airflow example fails
 
-Those integrations are design material in 0.4 and are not shipped plugins.
-Start with the runnable examples under `examples/`.
+Install the matching plugin for dataframe engines
+(`pipelantic-polars` / `pipelantic-pandas`) and set `Profile.dataframe_engine`.
+SQL, Spark, and Airflow remain design material for later milestones. Start
+with the runnable examples under `examples/`.
 
 ## Commands in a design page do not exist
 

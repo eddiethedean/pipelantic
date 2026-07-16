@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from pipelantic import (
@@ -19,12 +21,10 @@ from pipelantic.plan import explain_plan, plan_pipeline
 from pipelantic.profile import Profile
 from pipelantic.registry import PlanningContext, builtin_stub_registry
 
-polars = pytest.importorskip("polars")
-pandas = pytest.importorskip("pandas")
-
 
 @pytest.fixture
 def polars_plugin():
+    pytest.importorskip("polars")
     from pipelantic_polars import create_plugin
 
     return create_plugin()
@@ -32,6 +32,7 @@ def polars_plugin():
 
 @pytest.fixture
 def pandas_plugin():
+    pytest.importorskip("pandas")
     from pipelantic_pandas import create_plugin
 
     return create_plugin()
@@ -54,14 +55,16 @@ class NormalizeCustomers(Transformation):
 
 
 @NormalizeCustomers.implementation("polars")
-def normalize_polars(customers: polars.DataFrame) -> polars.DataFrame:
+def normalize_polars(customers: Any) -> Any:
+    import polars as pl
+
     return customers.with_columns(
-        (polars.col("first_name") + " " + polars.col("last_name")).alias("full_name")
+        (pl.col("first_name") + " " + pl.col("last_name")).alias("full_name")
     ).select("customer_id", "full_name")
 
 
 @NormalizeCustomers.implementation("pandas")
-def normalize_pandas(customers: pandas.DataFrame) -> pandas.DataFrame:
+def normalize_pandas(customers: Any) -> Any:
     out = customers.copy()
     out["full_name"] = out["first_name"] + " " + out["last_name"]
     return out[["customer_id", "full_name"]]
@@ -124,17 +127,17 @@ def test_pandas_eager_end_to_end(pandas_plugin) -> None:
 
 @pytest.mark.polars
 def test_polars_lazy_preserved_until_sink(polars_plugin) -> None:
+    import polars as pl
+
     class LazyNormalize(Transformation):
         customers: Input[RawCustomer]
         result: Output[Customer]
 
     @LazyNormalize.implementation("polars")
     def normalize_lazy(customers):
-        lf = customers.lazy() if isinstance(customers, polars.DataFrame) else customers
+        lf = customers.lazy() if isinstance(customers, pl.DataFrame) else customers
         return lf.with_columns(
-            (polars.col("first_name") + " " + polars.col("last_name")).alias(
-                "full_name"
-            )
+            (pl.col("first_name") + " " + pl.col("last_name")).alias("full_name")
         ).select("customer_id", "full_name")
 
     class Mid(Transformation):
@@ -144,7 +147,7 @@ def test_polars_lazy_preserved_until_sink(polars_plugin) -> None:
     @Mid.implementation("polars")
     def mid_lazy(customers):
         lf = customers
-        if isinstance(lf, polars.DataFrame):
+        if isinstance(lf, pl.DataFrame):
             lf = lf.lazy()
         return lf  # stay lazy
 
@@ -178,20 +181,33 @@ def test_polars_lazy_preserved_until_sink(polars_plugin) -> None:
 
 
 @pytest.mark.polars
+def test_profile_switches_engine_polars(polars_plugin) -> None:
+    runtime = PipelineRuntime()
+    runtime.register_dataframe_plugin("polars", polars_plugin)
+    _seed_runtime(runtime)
+    profile = Profile(name="polars-switch", dataframe_engine="polars")
+    report = CustomerPipeline.run(
+        profile=profile,
+        runtime=runtime,
+        context=PlanningContext.create(profile=profile, registry=runtime.registry),
+    )
+    assert report.status is RunStatus.SUCCEEDED
+    assert runtime.memory.get("curated")[0].full_name == "Ada Lovelace"
+
+
 @pytest.mark.pandas
-def test_profile_switches_engine_same_pipeline(polars_plugin, pandas_plugin) -> None:
-    for engine, plugin in (("polars", polars_plugin), ("pandas", pandas_plugin)):
-        runtime = PipelineRuntime()
-        runtime.register_dataframe_plugin(engine, plugin)
-        _seed_runtime(runtime)
-        profile = Profile(name=f"{engine}-switch", dataframe_engine=engine)
-        report = CustomerPipeline.run(
-            profile=profile,
-            runtime=runtime,
-            context=PlanningContext.create(profile=profile, registry=runtime.registry),
-        )
-        assert report.status is RunStatus.SUCCEEDED
-        assert runtime.memory.get("curated")[0].full_name == "Ada Lovelace"
+def test_profile_switches_engine_pandas(pandas_plugin) -> None:
+    runtime = PipelineRuntime()
+    runtime.register_dataframe_plugin("pandas", pandas_plugin)
+    _seed_runtime(runtime)
+    profile = Profile(name="pandas-switch", dataframe_engine="pandas")
+    report = CustomerPipeline.run(
+        profile=profile,
+        runtime=runtime,
+        context=PlanningContext.create(profile=profile, registry=runtime.registry),
+    )
+    assert report.status is RunStatus.SUCCEEDED
+    assert runtime.memory.get("curated")[0].full_name == "Ada Lovelace"
 
 
 @pytest.mark.polars

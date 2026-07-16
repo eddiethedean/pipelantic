@@ -152,15 +152,15 @@ nav:
       - Secrets Management: 06_EXECUTION/SECRETS_MANAGEMENT.md
       - Run Reports: 06_EXECUTION/RUN_REPORTS.md
       - Local Python: 06_EXECUTION/LOCAL_PYTHON.md
+      - Dataframe Plugins: 06_EXECUTION/DATAFRAME_PLUGINS.md
+      - Polars: 06_EXECUTION/POLARS.md
+      - Pandas: 06_EXECUTION/PANDAS.md
   - Future Design:
       - Execution Plugins:
           - Overview: 06_EXECUTION/PLUGINS.md
-          - Dataframe Plugins: 06_EXECUTION/DATAFRAME_PLUGINS.md
           - Orchestration Plugins: 06_EXECUTION/ORCHESTRATION_PLUGINS.md
           - Storage Plugins: 06_EXECUTION/STORAGE_PLUGINS.md
           - Resource Plugins: 06_EXECUTION/RESOURCE_PLUGINS.md
-          - Polars: 06_EXECUTION/POLARS.md
-          - Pandas: 06_EXECUTION/PANDAS.md
           - SQL: 06_EXECUTION/SQL.md
           - SQL Execution: 06_EXECUTION/SQL_EXECUTION.md
           - SQL Pushdown: 06_EXECUTION/SQL_PUSHDOWN.md

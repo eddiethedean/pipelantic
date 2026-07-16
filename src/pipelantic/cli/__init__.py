@@ -122,7 +122,10 @@ def _plan_and_emit(
 ) -> None:
     pipeline_cls = _load_target(target)
     selection = _build_selection(run_one=run_one, run_until=run_until, nodes=nodes)
-    context = PlanningContext.create(profile=resolve_profile(profile))
+    context = PlanningContext.create(
+        profile=resolve_profile(profile),
+        registry=_CLI_RUNTIME.registry,
+    )
     plan, report = plan_pipeline_with_report(
         pipeline_cls, context=context, selection=selection
     )
@@ -170,7 +173,7 @@ def validate_cmd(
 ) -> None:
     """Validate a pipeline without executing it."""
     pipeline_cls = _load_target(target)
-    context = PlanningContext.create(profile=profile)
+    context = PlanningContext.create(profile=profile, registry=_CLI_RUNTIME.registry)
     report = pipeline_cls.validate(context=context)
     if fmt == "json":
         _emit(

@@ -41,6 +41,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing plugins or unsupported capabilities (e.g. Pandas + lazy) fail at
   validation/planning
 
+### Fixed
+
+- Default `Pipeline.run` / CLI planning now uses plugins discovered on
+  `PipelineRuntime` (and entry-point discovery for plan-only contexts)
+- Fan-out / unconsumed / cross-engine ports map to in-memory strategies instead
+  of durable records; durable conversion only follows durable strategies
+- Per-port collect and validation; quarantine/reject populate invalid artifacts
+  and metrics
+- Schema observation uses plugin `inspect_schema` for native frames
+- Durable `ArtifactStore` refuses native frames/LazyFrames (fail closed)
+- Discovery load failures emit warnings; LazyFrame dtype checks without row
+  collect; invoke kwargs prefer inputs over colliding parameters
+- Core `from_arrow_table` no longer imports Polars/Pandas
+
 ## [0.4.0] - 2026-07-16
 
 ### Upgrade notes

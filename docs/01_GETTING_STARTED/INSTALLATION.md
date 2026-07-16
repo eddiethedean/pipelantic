@@ -1,10 +1,10 @@
 # Installation
 
-Pipelantic 0.4 provides the typed modeling kernel, contract interoperability
+Pipelantic 0.5.0 provides the typed modeling kernel, contract interoperability
 (ODCS/DTCS/DPCS), multi-phase validation, profiles, deterministic planning,
-and a local runtime that executes plans with Python callables, in-memory
-artifacts, and stdlib JSON/CSV bindings. Dataframe/SQL/Spark plugins arrive
-in later milestones.
+a local runtime that executes plans with Python callables, in-memory
+artifacts, and stdlib JSON/CSV bindings, plus optional Polars and Pandas
+dataframe plugins. SQL/Spark/orchestration plugins arrive in later milestones.
 
 ## Requirements
 
@@ -66,8 +66,17 @@ uv add pipelantic
 Backend plugins remain independently installable and are not required by the
 core package.
 
-Pandas, Polars, SQL, Spark, and Airflow plugins are not published as part of
-Pipelantic 0.4. Do not install undocumented extras expecting those backends.
+```bash
+pip install pipelantic-polars    # Polars reference plugin
+pip install pipelantic-pandas    # Pandas compatibility plugin
+# or extras:
+pip install 'pipelantic[polars]'
+pip install 'pipelantic[pandas]'
+pip install 'pipelantic[dataframes]'
+```
+
+SQL, Spark, and Airflow plugins are not part of 0.5. Do not install
+undocumented extras expecting those backends.
 
 ## Upgrade
 

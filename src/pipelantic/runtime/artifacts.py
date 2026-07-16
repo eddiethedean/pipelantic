@@ -15,9 +15,8 @@ from pipelantic.storage.protocol import as_records, records_to_dicts
 class ArtifactStore:
     """Holds run artifacts in memory and optional durable workspace files.
 
-    Native dataframe handles are stored as-is. Durable serialization still
-    requires collectible records; callers must collect LazyFrames before
-    requesting durable storage.
+    Native dataframe handles are stored as-is. Durable serialization requires
+    collectible records; callers must convert frames before durable puts.
     """
 
     workspace: Path | None = None
@@ -42,6 +41,11 @@ class ArtifactStore:
             self._ownership[ref.identity] = ownership
             self._ownership[ref.logical_output] = ownership
         if durable and self.workspace is not None:
+            if _looks_like_frame(value):
+                raise TypeError(
+                    f"Cannot durably serialize native dataframe artifact "
+                    f"{ref.logical_output!r}; collect to records first."
+                )
             self.workspace.mkdir(parents=True, exist_ok=True)
             path = (
                 self.workspace

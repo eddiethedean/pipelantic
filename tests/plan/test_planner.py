@@ -162,8 +162,13 @@ def test_multi_engine_overrides_split_regions() -> None:
     by_port = {
         (o.node_name, o.port_name): o.artifact.strategy for o in plan.output_resolutions
     }
-    # Cross-engine handoff from normalized(null) to enriched(local) is durable
-    assert by_port[("normalized", "result")] is ArtifactStrategy.DURABLE
+    # Cross-engine handoff stays in-memory; conversion happens at the boundary
+    # without forcing durable record materialization.
+    assert by_port[("normalized", "result")] is ArtifactStrategy.IN_MEMORY
+    assert any(
+        b.reason == "cross_engine" and b.producer_node == "normalized"
+        for b in plan.materialization_boundaries
+    )
 
 
 def test_fingerprint_changes_with_profile_timeout() -> None:

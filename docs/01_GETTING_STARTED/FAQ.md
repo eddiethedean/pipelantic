@@ -121,9 +121,11 @@ Business logic remains unchanged.
 
 Pipelantic is dataframe-engine neutral.
 
-Pipelantic 0.4 does not ship Pandas or Polars plugins. Choose and call those
-libraries inside your own registered Python implementation if needed, or wait
-for a documented plugin release.
+Install `pipelantic-polars` or `pipelantic-pandas`, register
+`@Transformation.implementation("polars")` / `"pandas"`, and set
+`Profile.dataframe_engine` accordingly. Prefer Polars when you need lazy
+preservation; use Pandas when you need the Pandas ecosystem. SQL and Spark
+backends are later milestones.
 
 ------------------------------------------------------------------------
 

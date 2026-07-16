@@ -47,11 +47,11 @@ class PolarsDataframePlugin:
             lazy=True,
             arrow_import=arrow_available(),
             arrow_export=arrow_available(),
-            zero_copy=arrow_available(),
+            zero_copy=False,
             schema_inspection=True,
             invalid_row_separation=True,
-            cancellation=True,
-            thread_safe=True,
+            cancellation=False,
+            thread_safe=False,
             extras=frozenset({"polars"}),
         )
         self._info = DataframePluginInfo(
@@ -94,7 +94,8 @@ class PolarsDataframePlugin:
         parameters: Mapping[str, Any],
         context: DataframeExecutionContext,
     ) -> Any:
-        kwargs = {**dict(inputs), **dict(parameters)}
+        # Inputs take precedence over parameters when names collide.
+        kwargs = {**dict(parameters), **dict(inputs)}
         return callable_(**kwargs)
 
     def normalize_output(
@@ -132,39 +133,59 @@ class PolarsDataframePlugin:
         context: DataframeExecutionContext,
         boundary: str,
         port_name: str | None = None,
-    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]]]:
+    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]], Any | None]:
         outcome = (
             context.validation_policy.input_outcome
             if boundary.startswith("input")
             else context.validation_policy.output_outcome
         )
         if contract_type is None:
-            return value, ValidationDecision.SKIPPED, []
+            return value, ValidationDecision.SKIPPED, [], None
         frame = value
         if isinstance(frame, pl.LazyFrame):
-            # Avoid hidden collection: only validate schema against declared fields.
             schema = schema_from_contract(
                 contract_type, identity=contract_type.__name__
             )
             if schema is None:
-                return frame, ValidationDecision.SKIPPED, []
-            names = set(frame.collect_schema().names())
+                return frame, ValidationDecision.SKIPPED, [], None
+            collected_schema = frame.collect_schema()
+            names = set(collected_schema.names())
+            diagnostics: list[dict[str, Any]] = []
             missing = [
                 f.name for f in schema.fields if f.required and f.name not in names
             ]
-            if missing and outcome is DataframeValidationOutcome.FAIL:
-                return (
-                    frame,
-                    ValidationDecision.FAILED,
-                    [
+            if missing:
+                diagnostics.append(
+                    {
+                        "code": "PMDF411",
+                        "message": f"Missing required columns: {missing}",
+                        "severity": "error",
+                    }
+                )
+                if outcome is DataframeValidationOutcome.FAIL:
+                    return frame, ValidationDecision.FAILED, diagnostics, None
+            # Dtype checks without collecting rows.
+            for field in schema.fields:
+                if field.name not in collected_schema:
+                    continue
+                expected = field.logical_type
+                actual = _polars_logical(collected_schema[field.name])
+                if not _logical_compatible(expected, actual):
+                    diagnostics.append(
                         {
-                            "code": "PMDF411",
-                            "message": f"Missing required columns: {missing}",
+                            "code": "PMDF412",
+                            "message": (
+                                f"Column {field.name!r} logical type mismatch: "
+                                f"expected {expected}, observed {actual}"
+                            ),
                             "severity": "error",
                         }
-                    ],
-                )
-            return frame, ValidationDecision.PASSED, []
+                    )
+            if diagnostics and outcome is DataframeValidationOutcome.FAIL:
+                return frame, ValidationDecision.FAILED, diagnostics, None
+            if diagnostics:
+                return frame, ValidationDecision.WARNED, diagnostics, None
+            return frame, ValidationDecision.PASSED, [], None
 
         if not isinstance(frame, pl.DataFrame):
             frame = self.materialize_input(
@@ -178,16 +199,21 @@ class PolarsDataframePlugin:
             rows, contract_type=contract_type
         )
         if not invalid:
-            return frame, ValidationDecision.PASSED, []
+            return frame, ValidationDecision.PASSED, [], None
         if outcome is DataframeValidationOutcome.FAIL:
-            return frame, ValidationDecision.FAILED, diagnostics
+            return frame, ValidationDecision.FAILED, diagnostics, None
         if outcome is DataframeValidationOutcome.OBSERVE_ONLY:
-            return frame, ValidationDecision.OBSERVED, diagnostics
+            return frame, ValidationDecision.OBSERVED, diagnostics, None
         if outcome is DataframeValidationOutcome.WARN:
-            return frame, ValidationDecision.WARNED, diagnostics
-        # reject / quarantine → split frames
+            return frame, ValidationDecision.WARNED, diagnostics, None
         valid_frame = pl.DataFrame(records_to_dicts(valid)) if valid else frame.clear()
-        return valid_frame, ValidationDecision.REJECTED, diagnostics
+        invalid_frame = pl.DataFrame(records_to_dicts(invalid))
+        decision = (
+            ValidationDecision.QUARANTINED
+            if outcome is DataframeValidationOutcome.QUARANTINE
+            else ValidationDecision.REJECTED
+        )
+        return valid_frame, decision, diagnostics, invalid_frame
 
     def inspect_schema(self, value: Any, *, identity: str) -> dict[str, Any] | None:
         if isinstance(value, pl.LazyFrame):
@@ -305,3 +331,12 @@ def _polars_logical(dtype: Any) -> str:
     if "Struct" in name:
         return "object"
     return "string"
+
+
+def _logical_compatible(expected: str, actual: str) -> bool:
+    if expected == actual:
+        return True
+    # Soft compatibility: numbers accept integers; strings are a catch-all for Utf8.
+    if expected == "number" and actual == "integer":
+        return True
+    return expected == "string" and actual in {"string", "null"}

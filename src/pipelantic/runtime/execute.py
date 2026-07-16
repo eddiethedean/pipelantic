@@ -89,6 +89,8 @@ async def arun_pipeline(
     runtime = runtime or PipelineRuntime()
     graph = pipeline_cls.build_graph()
     selection = request.selection.to_plan_selection(graph)
+    if context is None:
+        context = PlanningContext.create(profile=profile, registry=runtime.registry)
     plan = plan_pipeline(
         pipeline_cls,
         context=context,

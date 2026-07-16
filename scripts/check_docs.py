@@ -42,6 +42,28 @@ def main() -> None:
     if "complete working examples" in examples_index.lower():
         raise SystemExit("Examples index still claims all design examples are runnable")
 
+    banned_phrases = [
+        "does not ship Pandas or Polars",
+        "Pandas, Polars, SQL, Spark, and Airflow plugins are not published as part of\nPipelantic 0.4",
+        "Future plugins may add Pandas, Polars",
+        "Pandas and Polars pipelines | Future plugin design",
+    ]
+    scrub_paths = [
+        ROOT / "docs/README.md",
+        ROOT / "docs/01_GETTING_STARTED/INSTALLATION.md",
+        ROOT / "docs/01_GETTING_STARTED/FAQ.md",
+        ROOT / "docs/01_GETTING_STARTED/README.md",
+        ROOT / "docs/09_EXAMPLES/README.md",
+        ROOT / "docs/10_REFERENCE/COMPATIBILITY.md",
+    ]
+    for path in scrub_paths:
+        text = path.read_text(encoding="utf-8")
+        for phrase in banned_phrases:
+            if phrase in text:
+                raise SystemExit(
+                    f"{path} still contains banned stale phrase: {phrase!r}"
+                )
+
     print(f"Documentation consistency checks passed for {package_version}.")
 
 

@@ -65,8 +65,13 @@ class PipelineRuntime:
                 discovered = discover_dataframe_plugins()
                 self.dataframe_plugins.update(discovered)
                 register_discovered_plugins(self.registry, plugins=discovered)
-            except Exception:
-                pass
+            except Exception as exc:
+                import logging
+                import warnings
+
+                msg = f"Dataframe plugin discovery failed during runtime init: {exc}"
+                logging.getLogger(__name__).warning(msg)
+                warnings.warn(msg, RuntimeWarning, stacklevel=2)
         if not self.storage:
             self.storage = {
                 "memory": self.memory,

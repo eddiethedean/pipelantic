@@ -60,9 +60,9 @@ You describe *what* the pipeline is:
 
 Pipelantic validates and plans the pipeline.
 
-Pipelantic 0.4 can execute registered Python implementations with its local
-runtime. Future plugins will connect the same plans to dataframe, SQL, Spark,
-and orchestration systems.
+Pipelantic 0.5 can execute registered Python implementations with its local
+runtime and optional Polars/Pandas dataframe plugins. Later milestones add
+SQL, Spark, and orchestration systems.
 
 ``` text
 Python Classes
@@ -77,8 +77,8 @@ Pipeline Validation
 Execution Planning
       │
       ▼
-Local Python Runtime (0.4)
-Future External Plugins
+Local Python Runtime + Dataframe Plugins (0.5)
+Future SQL / Spark / Orchestrators
 ```
 
 ## A Preview

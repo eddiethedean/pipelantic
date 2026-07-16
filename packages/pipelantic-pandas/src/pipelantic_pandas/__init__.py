@@ -49,7 +49,7 @@ class PandasDataframePlugin:
             zero_copy=False,
             schema_inspection=True,
             invalid_row_separation=True,
-            cancellation=True,
+            cancellation=False,
             thread_safe=False,
             extras=frozenset({"pandas"}),
         )
@@ -99,7 +99,8 @@ class PandasDataframePlugin:
         parameters: Mapping[str, Any],
         context: DataframeExecutionContext,
     ) -> Any:
-        kwargs = {**dict(inputs), **dict(parameters)}
+        # Inputs take precedence over parameters when names collide.
+        kwargs = {**dict(parameters), **dict(inputs)}
         return callable_(**kwargs)
 
     def normalize_output(
@@ -137,14 +138,14 @@ class PandasDataframePlugin:
         context: DataframeExecutionContext,
         boundary: str,
         port_name: str | None = None,
-    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]]]:
+    ) -> tuple[Any, ValidationDecision, list[dict[str, Any]], Any | None]:
         outcome = (
             context.validation_policy.input_outcome
             if boundary.startswith("input")
             else context.validation_policy.output_outcome
         )
         if contract_type is None:
-            return value, ValidationDecision.SKIPPED, []
+            return value, ValidationDecision.SKIPPED, [], None
         frame = value
         if not isinstance(frame, pd.DataFrame):
             frame = self.materialize_input(
@@ -171,17 +172,23 @@ class PandasDataframePlugin:
                     }
                 )
         if not invalid:
-            return frame, ValidationDecision.PASSED, diagnostics
+            return frame, ValidationDecision.PASSED, diagnostics, None
         if outcome is DataframeValidationOutcome.FAIL:
-            return frame, ValidationDecision.FAILED, diagnostics
+            return frame, ValidationDecision.FAILED, diagnostics, None
         if outcome is DataframeValidationOutcome.OBSERVE_ONLY:
-            return frame, ValidationDecision.OBSERVED, diagnostics
+            return frame, ValidationDecision.OBSERVED, diagnostics, None
         if outcome is DataframeValidationOutcome.WARN:
-            return frame, ValidationDecision.WARNED, diagnostics
+            return frame, ValidationDecision.WARNED, diagnostics, None
         valid_frame = (
             pd.DataFrame(records_to_dicts(valid)) if valid else frame.iloc[0:0]
         )
-        return valid_frame, ValidationDecision.REJECTED, diagnostics
+        invalid_frame = pd.DataFrame(records_to_dicts(invalid))
+        decision = (
+            ValidationDecision.QUARANTINED
+            if outcome is DataframeValidationOutcome.QUARANTINE
+            else ValidationDecision.REJECTED
+        )
+        return valid_frame, decision, diagnostics, invalid_frame
 
     def inspect_schema(self, value: Any, *, identity: str) -> dict[str, Any] | None:
         if not isinstance(value, pd.DataFrame):

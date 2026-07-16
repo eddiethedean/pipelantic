@@ -217,7 +217,12 @@ class PlanningContext:
         required_capabilities: list[str] | None = None,
         allow_capability_fallback: bool = False,
     ) -> PlanningContext:
-        """Build a planning context from a profile name/object."""
+        """Build a planning context from a profile name/object.
+
+        When ``dataframe_engine`` is ``polars`` or ``pandas`` and no custom
+        registry is supplied, discovered entry-point plugins are registered
+        onto a stub registry so plan-only paths work without a runtime.
+        """
         resolved = resolve_profile(profile)
         caps = list(required_capabilities) if required_capabilities is not None else []
         engine = resolved.dataframe_engine or "local"
@@ -225,9 +230,16 @@ class PlanningContext:
             caps = ["dataframe", "eager"]
             if engine == "polars":
                 caps.append("lazy")
+        reg = registry
+        if reg is None:
+            reg = builtin_stub_registry()
+            if engine in {"polars", "pandas"}:
+                from pipelantic.dataframe.discovery import register_discovered_plugins
+
+                register_discovered_plugins(reg)
         return cls(
             profile=resolved,
-            registry=registry or builtin_stub_registry(),
+            registry=reg,
             required_capabilities=caps,
             allow_capability_fallback=allow_capability_fallback,
         )

@@ -72,20 +72,20 @@ def to_arrow_table(value: Any) -> Any | None:
 
 
 def from_arrow_table(table: Any, *, engine: str) -> Any:
-    """Convert an Arrow table into an engine-native frame.
+    """Convert an Arrow table into records (core) or raise for engine frames.
 
-    Core only provides the Arrow→records path and delegates engine construction
-    to plugins when they call this helper after importing their own libraries.
+    Core keeps Arrow↔records only. Engine-native construction belongs in
+    dataframe plugins (``pl.from_arrow`` / ``Table.to_pandas``). Pass
+    ``engine="records"`` (or any non-plugin name) to get a pylist.
     """
     import pyarrow as pa
 
     if not isinstance(table, pa.Table):
         raise TypeError(f"Expected pyarrow.Table, got {type(table)!r}")
-    if engine == "polars":
-        import polars as pl
-
-        return pl.from_arrow(table)
-    if engine == "pandas":
-        return table.to_pandas(types_mapper=None)
-    # Generic: return pylist for local/record engines
+    if engine in {"polars", "pandas"}:
+        raise ValueError(
+            f"from_arrow_table no longer constructs {engine!r} frames in core; "
+            f"use the {engine} dataframe plugin (e.g. pl.from_arrow / "
+            f"table.to_pandas) instead."
+        )
     return table.to_pylist()

@@ -61,6 +61,14 @@ dataframes = [
     "pipelantic-pandas",
     "pyarrow>=14",
 ]
+polars = [
+    "pipelantic-polars",
+    "pyarrow>=14",
+]
+pandas = [
+    "pipelantic-pandas",
+    "pyarrow>=14",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -5,12 +5,16 @@
 - SQL, Spark, Airflow, and other non-dataframe backends are not included in
   0.5.
 - Polars LazyFrames are collected only at plan-declared boundaries; durable
-  JSON workspace materialization requires collection to records.
+  JSON workspace materialization requires collection to records first.
+- Durable workspace storage rejects native frames/LazyFrames (fail closed);
+  there is no durable LazyFrame workspace format yet.
 - Pandas does not support lazy execution; requiring `lazy` fails at planning.
 - Arrow interchange requires an optional PyArrow install; without it,
   cross-engine transfers use a documented copy fallback.
 - Not every Polars/Pandas dtype maps losslessly; ambiguous or unsupported
   mappings produce structured diagnostics.
+- Cancellation and thread-safety capability flags are not fully enforced by
+  the reference plugins.
 - Many design pages still describe intended 1.0 behavior. Check the page
   status before copying code.
 - Process-local report history is not a durable report database.

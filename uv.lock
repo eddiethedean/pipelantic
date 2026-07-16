@@ -785,6 +785,14 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
+pandas = [
+    { name = "pipelantic-pandas" },
+    { name = "pyarrow" },
+]
+polars = [
+    { name = "pipelantic-polars" },
+    { name = "pyarrow" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -817,6 +825,14 @@ dev = [
     { name = "pymdown-extensions", specifier = ">=10.14,<11" },
     { name = "pytest", specifier = ">=8,<9" },
     { name = "ruff", specifier = ">=0.9,<1" },
+]
+pandas = [
+    { name = "pipelantic-pandas", editable = "packages/pipelantic-pandas" },
+    { name = "pyarrow", specifier = ">=14" },
+]
+polars = [
+    { name = "pipelantic-polars", editable = "packages/pipelantic-polars" },
+    { name = "pyarrow", specifier = ">=14" },
 ]
 
 [[package]]

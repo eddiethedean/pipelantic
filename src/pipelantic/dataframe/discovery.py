@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import warnings
 from importlib.metadata import entry_points
 from typing import Any
 
@@ -9,14 +11,15 @@ from pipelantic.dataframe.protocol import DataframePlugin
 from pipelantic.registry import PluginDescriptor, RegistryBundle
 
 DATAFRAME_PLUGIN_ENTRY_POINT = "pipelantic.dataframe_plugins"
+_LOG = logging.getLogger(__name__)
 
 
 def discover_dataframe_plugins() -> dict[str, DataframePlugin]:
     """Load dataframe plugins registered under the entry-point group.
 
     Returns a mapping of engine name → plugin instance. Missing or broken
-    entry points are skipped (callers should fail closed at planning when the
-    selected engine is absent).
+    entry points are skipped with a warning (callers should fail closed at
+    planning when the selected engine is absent).
     """
     found: dict[str, DataframePlugin] = {}
     try:
@@ -29,7 +32,10 @@ def discover_dataframe_plugins() -> dict[str, DataframePlugin]:
             plugin = factory() if callable(factory) else factory
             engine = getattr(getattr(plugin, "info", None), "engine", None) or ep.name
             found[str(engine)] = plugin
-        except Exception:
+        except Exception as exc:
+            msg = f"Failed to load dataframe plugin entry point {ep.name!r}: {exc}"
+            _LOG.warning(msg)
+            warnings.warn(msg, RuntimeWarning, stacklevel=2)
             continue
     return found
 

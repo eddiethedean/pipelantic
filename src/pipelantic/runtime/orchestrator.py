@@ -101,8 +101,30 @@ def _logical_type_of(value: Any) -> str:
 
 
 def _observe_records_schema(
-    subject_id: str, data: Any, *, layer: str
+    subject_id: str,
+    data: Any,
+    *,
+    layer: str,
+    plugin: Any | None = None,
 ) -> SchemaObservation | None:
+    from pipelantic.runtime.artifacts import _looks_like_frame
+
+    if _looks_like_frame(data) and plugin is not None:
+        inspected = plugin.inspect_schema(data, identity=f"observed:{subject_id}")
+        if isinstance(inspected, dict) and inspected.get("fields") is not None:
+            from pipelantic.dataframe.helpers import normalized_from_field_dicts
+
+            schema = normalized_from_field_dicts(
+                list(inspected["fields"]),
+                identity=inspected.get("identity", f"observed:{subject_id}"),
+            )
+            return SchemaObservation(
+                subject_id=subject_id,
+                schema=schema,
+                inspector=layer,
+                metadata={"layer": layer, "source": "dataframe_inspect"},
+            )
+
     records = as_records(data, None)
     if not records:
         return SchemaObservation(
@@ -867,12 +889,9 @@ class LocalOrchestrator:
                         strategy=strategy,
                         security_domain=self.plan.security_domain,
                     )
-                    durable = (
-                        self.request.materialization is MaterializationPolicy.DURABLE
-                        or artifacts.should_durable(strategy)
-                    )
+                    durable = artifacts.should_durable(strategy)
                     if durable:
-                        # Collect to records for durable JSON workspace.
+                        # Collect to records only for durable / storage strategies.
                         value = plugin.to_records(value, contract_type=None)
                     artifacts.put(
                         ref,
@@ -1353,7 +1372,24 @@ class LocalOrchestrator:
         if isinstance(data, dict):
             # Multi-output: observe first port payload.
             payload = next(iter(data.values()), [])
-        current = _observe_records_schema(node.name, payload, layer="current")
+        plugin = None
+        impl = self.plan.implementations.get(node.name)
+        engine = (
+            impl.engine
+            if impl is not None
+            else (self.plan.profile_snapshot or {}).get("dataframe_engine")
+        )
+        if engine and is_dataframe_engine(str(engine)):
+            try:
+                plugin = resolve_dataframe_plugin(
+                    str(engine),
+                    plugins=getattr(self.runtime, "dataframe_plugins", None),
+                )
+            except NodeExecutionError:
+                plugin = None
+        current = _observe_records_schema(
+            node.name, payload, layer="current", plugin=plugin
+        )
         previous = self.schema_history.latest(node.name)
         if current is not None:
             self.schema_history.record(current)

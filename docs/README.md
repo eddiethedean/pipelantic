@@ -84,9 +84,10 @@ From these declarations, Pipelantic can derive:
 - A logical lineage graph
 - A deterministic, secret-free `PipelinePlan` (0.3.0)
 - A local Python runtime and structured run report (0.4.0)
+- Optional Polars and Pandas dataframe plugins (0.5.0)
 
-Memory, callable, JSON, CSV, and no-write storage are included in 0.4.
-Dataframe, SQL, Spark, and external orchestration plugins arrive later.
+Memory, callable, JSON, CSV, and no-write storage are included in core.
+SQL, Spark, and external orchestration plugins arrive later.
 
 The transformation implementation remains separate:
 
@@ -94,10 +95,14 @@ The transformation implementation remains separate:
 @NormalizeCustomers.implementation("local")
 def normalize_customers(customers):
     ...
+
+@NormalizeCustomers.implementation("polars")
+def normalize_customers_polars(customers):
+    ...
 ```
 
-Future plugins may add Pandas, Polars, SQL, PySpark, remote, or other
-implementations.
+Install `pipelantic-polars` / `pipelantic-pandas` for dataframe engines; later
+milestones may add SQL, PySpark, remote, or other implementations.
 
 ## The Architecture in One View
 

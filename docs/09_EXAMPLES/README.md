@@ -1,9 +1,9 @@
 # Examples
 
 The repository's current runnable examples live in the top-level `examples/`
-directory and use only Pipelantic 0.4 APIs.
+directory.
 
-## Runnable in 0.4
+## Runnable in 0.5
 
 ### In-memory quickstart
 
@@ -18,16 +18,24 @@ the test suite.
 The Getting Started [Quickstart](../01_GETTING_STARTED/QUICKSTART.md) contains
 the same workflow as a copy-pasteable single-file tutorial.
 
+### Dataframe parity (Polars / Pandas)
+
+```bash
+# requires pipelantic-polars / pipelantic-pandas
+python examples/dataframe_parity.py polars
+python examples/dataframe_parity.py pandas
+```
+
 ## Future design examples
 
 The remaining pages in this section explore intended integrations and advanced
 workflows. They are retained as design material and may contain APIs, packages,
-or commands that do not exist in Pipelantic 0.4.
+or commands that do not exist yet.
 
-| Topic | 0.4 status |
+| Topic | 0.5 status |
 |---|---|
 | CSV and JSON through built-in storage | Core capability; use the storage guide |
-| Pandas and Polars pipelines | Future plugin design |
+| Pandas and Polars pipelines | Available via `pipelantic-pandas` / `pipelantic-polars` |
 | SQL execution and pushdown | Future plugin design |
 | PySpark and streaming | Future plugin design |
 | Airflow compilation | Future plugin design |
