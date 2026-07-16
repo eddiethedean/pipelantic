@@ -124,6 +124,13 @@ from pipelantic import (
       show_root_heading: true
       members_order: source
 
+## SQL protocol
+
+::: pipelantic.sql
+    options:
+      show_root_heading: true
+      members_order: source
+
 ## Capabilities
 
 ::: pipelantic.capabilities

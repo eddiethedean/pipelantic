@@ -56,14 +56,18 @@ _SECRET_INLINE_RE = re.compile(
     r"(?i)(password|secret|token|api[_-]?key|credential|authorization)"
     r"""\s*[=:]\s*['\"]?[^\s'\",;]+"""
 )
+_DSN_RE = re.compile(
+    r"(?i)((?:postgres(?:ql)?|mysql|mariadb|mssql|oracle|sqlite)"
+    r"(?:\+\w+)?://)([^:@/\s]+):([^@/\s]+)@"
+)
 
 
 def redact_message(message: str) -> str:
-    """Redact likely secret assignments from free-form exception text."""
+    """Redact likely secret assignments and DSN credentials from free-form text."""
     if not message:
         return message
     redacted = _SECRET_INLINE_RE.sub(r"\1=***", message)
-    # Also collapse obvious SecretValue reprs.
+    redacted = _DSN_RE.sub(r"\1\2:***@", redacted)
     return redacted.replace("value=***", "value=***")
 
 

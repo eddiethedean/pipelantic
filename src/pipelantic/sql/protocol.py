@@ -274,6 +274,10 @@ class CompiledSql:
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        # Never serialize private keys (e.g. live bound parameter values).
+        public_meta = {
+            k: v for k, v in self.metadata.items() if not str(k).startswith("_")
+        }
         return {
             "statement_id": self.statement_id,
             "text": self.text,
@@ -281,7 +285,7 @@ class CompiledSql:
             "redacted_params": dict(self.redacted_params),
             "dialect": self.dialect,
             "logical_nodes": list(self.logical_nodes),
-            "metadata": dict(self.metadata),
+            "metadata": public_meta,
         }
 
 

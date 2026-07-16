@@ -148,6 +148,8 @@ class SqlCompiler:
         if write.intent in {WriteIntentKind.REPLACE, WriteIntentKind.SNAPSHOT}:
             if write.atomic is AtomicPublicationStrategy.UNSUPPORTED:
                 raise ValueError("Atomic publication unsupported for replace")
+            # Only create staging here. Executor publishes via rename-swap so the
+            # live target is never dropped before the replacement exists.
             staging = RelationRef(
                 name=f"{write.target.name}__staging_{uuid4().hex[:8]}",
                 namespace=write.target.namespace,
@@ -165,15 +167,9 @@ class SqlCompiler:
                 bound = {}
             else:
                 raise ValueError("Replace requires a source query or relation")
-            drop = f"DROP TABLE IF EXISTS {target}"
-            rename = (
-                f"ALTER TABLE {self.qid(staging)} RENAME TO "
-                f"{self.quote(write.target.name)}"
-            )
-            sql = f"{create};;{drop};;{rename}"
             return CompiledSql(
                 statement_id=f"replace:{context.step_name}:{uuid4().hex[:8]}",
-                text=sql,
+                text=create,
                 param_names=tuple(bound.keys()),
                 redacted_params={k: "<redacted>" for k in bound},
                 dialect=self.dialect,
@@ -182,10 +178,13 @@ class SqlCompiler:
                     "_bound_params": bound,
                     "intent": write.intent.value,
                     "staging": staging.to_dict(),
+                    "target": write.target.to_dict(),
+                    "needs_publish_swap": True,
                 },
             )
         if write.intent is WriteIntentKind.MERGE:
-            if not self.supports_merge:
-                raise ValueError("MERGE unsupported by this dialect")
-            raise ValueError("MERGE compilation requires dialect-specific keys")
+            raise ValueError(
+                "MERGE is not implemented by the 0.6 reference plugin; "
+                "fail closed before mutation"
+            )
         raise ValueError(f"Unsupported write intent: {write.intent}")

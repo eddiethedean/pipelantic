@@ -8,7 +8,7 @@ from pipelantic.capabilities import CapabilityDecision, negotiate_capabilities
 from pipelantic.diagnostics import Diagnostic, Severity, ValidationReport
 from pipelantic.exceptions import PipelineValidationError
 from pipelantic.identity import implementation_id, published_contract_version
-from pipelantic.model import LogicalGraph, NodeKind
+from pipelantic.model import LogicalGraph, Node, NodeKind
 from pipelantic.plan.artifacts import (
     ArtifactRef,
     ArtifactStrategy,
@@ -142,8 +142,17 @@ def _build_plan(
     capability_decisions = _capability_records(context, default_engine)
     _assert_capabilities_supported(capability_decisions, context, default_engine)
 
+    # Bindings resolve early so source/sink engines follow providers, not only neighbors.
+    bindings = _resolve_bindings(graph, context)
+
     # 6. Regions by resolved engine (never merge across engines/security domains)
-    regions = _form_regions(graph, implementations, default_engine, security_domain)
+    regions = _form_regions(
+        graph,
+        implementations,
+        default_engine,
+        security_domain,
+        bindings=bindings,
+    )
 
     # 7. Physical units + mappings
     physical_units: list[PhysicalUnit] = []
@@ -176,7 +185,11 @@ def _build_plan(
 
     # 7b. Materialization + collection boundaries
     boundaries = _materialization_boundaries(
-        graph, implementations, default_engine, security_domain
+        graph,
+        implementations,
+        default_engine,
+        security_domain,
+        bindings=bindings,
     )
     boundaries.extend(
         _collection_boundaries(
@@ -202,7 +215,7 @@ def _build_plan(
     )
 
     # 9. Bindings / resource refs (secret-free; only referenced secrets)
-    bindings = _resolve_bindings(graph, context)
+    # bindings already resolved above for region formation
     resource_refs: dict[str, dict[str, Any]] = {
         name: {"binding": desc.binding, "provider": desc.provider}
         for name, desc in bindings.items()
@@ -679,25 +692,64 @@ def _node_engine(
     return impl.engine if impl is not None else default_engine
 
 
+def _provider_engine(provider: str | None, default_engine: str) -> str | None:
+    """Map a binding provider to an execution engine when unambiguous."""
+    if provider == "sql":
+        return "sql"
+    if provider in {"polars", "pandas"}:
+        return provider
+    if provider in {"memory", "json", "csv", "callable", "null", "no_write"}:
+        return "local"
+    return None
+
+
+def _resolved_io_engine(
+    node: Node,
+    *,
+    graph: LogicalGraph,
+    implementations: dict[str, ImplementationDescriptor],
+    default_engine: str,
+    bindings: dict[str, BindingDescriptor],
+) -> str:
+    """Resolve source/sink engine from binding provider, else neighbor, else default."""
+    binding = bindings.get(node.name)
+    if binding is not None:
+        mapped = _provider_engine(binding.provider, default_engine)
+        if mapped is not None:
+            return mapped
+    if node.kind is NodeKind.SOURCE:
+        consumers = [e.consumer_node for e in graph.edges_from(node.name)]
+        if consumers:
+            return _node_engine(consumers[0], implementations, default_engine)
+    elif node.kind is NodeKind.SINK:
+        producers = [e.producer_node for e in graph.edges_to(node.name)]
+        if producers:
+            return _node_engine(producers[0], implementations, default_engine)
+    return default_engine
+
+
 def _form_regions(
     graph: LogicalGraph,
     implementations: dict[str, ImplementationDescriptor],
     default_engine: str,
     security_domain: str,
+    *,
+    bindings: dict[str, BindingDescriptor] | None = None,
 ) -> list[ExecutionRegion]:
     """Form one region per (security_domain, engine); never merge across engines."""
+    binding_map = bindings or {}
     by_engine: dict[str, list[str]] = {}
     for node in graph.nodes:
-        engine = _node_engine(node.name, implementations, default_engine)
-        # Sources/sinks follow the engine of their adjacent step when possible
-        if node.kind is NodeKind.SOURCE:
-            consumers = [e.consumer_node for e in graph.edges_from(node.name)]
-            if consumers:
-                engine = _node_engine(consumers[0], implementations, default_engine)
-        elif node.kind is NodeKind.SINK:
-            producers = [e.producer_node for e in graph.edges_to(node.name)]
-            if producers:
-                engine = _node_engine(producers[0], implementations, default_engine)
+        if node.kind in {NodeKind.SOURCE, NodeKind.SINK}:
+            engine = _resolved_io_engine(
+                node,
+                graph=graph,
+                implementations=implementations,
+                default_engine=default_engine,
+                bindings=binding_map,
+            )
+        else:
+            engine = _node_engine(node.name, implementations, default_engine)
         by_engine.setdefault(engine, []).append(node.name)
 
     regions: list[ExecutionRegion] = []
@@ -718,14 +770,30 @@ def _materialization_boundaries(
     implementations: dict[str, ImplementationDescriptor],
     default_engine: str,
     security_domain: str,
+    *,
+    bindings: dict[str, BindingDescriptor] | None = None,
 ) -> list[MaterializationBoundary]:
+    binding_map = bindings or {}
     boundaries: list[MaterializationBoundary] = []
     fanout: dict[tuple[str, str], int] = {}
+
+    def eng(name: str) -> str:
+        node = next((n for n in graph.nodes if n.name == name), None)
+        if node is not None and node.kind in {NodeKind.SOURCE, NodeKind.SINK}:
+            return _resolved_io_engine(
+                node,
+                graph=graph,
+                implementations=implementations,
+                default_engine=default_engine,
+                bindings=binding_map,
+            )
+        return _node_engine(name, implementations, default_engine)
+
     for edge in graph.edges:
         key = (edge.producer_node, edge.producer_port)
         fanout[key] = fanout.get(key, 0) + 1
-        prod_engine = _node_engine(edge.producer_node, implementations, default_engine)
-        cons_engine = _node_engine(edge.consumer_node, implementations, default_engine)
+        prod_engine = eng(edge.producer_node)
+        cons_engine = eng(edge.consumer_node)
         if prod_engine != cons_engine:
             boundaries.append(
                 MaterializationBoundary(

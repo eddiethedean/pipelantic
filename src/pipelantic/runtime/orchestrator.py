@@ -63,6 +63,7 @@ from pipelantic.runtime.sql_exec import (
     is_sql_engine,
     materialize_sql_temp,
     resolve_sql_plugin,
+    safe_staging_name,
 )
 from pipelantic.runtime.state import FailureStage, RunStatus, StepStatus
 from pipelantic.schema_drift import (
@@ -78,6 +79,7 @@ from pipelantic.schema_policy import (
 )
 from pipelantic.secrets.provider import SecretResolutionContext
 from pipelantic.secrets.ref import SecretRef
+from pipelantic.sql.protocol import RelationRef, SqlExecutionContext, SqlQuery
 from pipelantic.storage.protocol import as_records
 from pipelantic.transformation import ImplementationRecord, Transformation
 
@@ -403,6 +405,14 @@ class LocalOrchestrator:
                 code="PMEXEC500",
             ) from exc
         finally:
+            # Drop run-scoped SQL staging tables when present.
+            import contextlib
+
+            for plugin in getattr(self.runtime, "sql_plugins", {}).values():
+                cleanup = getattr(plugin, "cleanup_staging", None)
+                if callable(cleanup):
+                    with contextlib.suppress(Exception):
+                        cleanup()
             await self.runtime.resources.cleanup_scope("run", run_id)
 
         step_reports = tuple(self._step_report(s) for s in nodes.values())
@@ -748,6 +758,11 @@ class LocalOrchestrator:
             state.ended_at = datetime.now(UTC)
 
     def _should_retry(self, exc: BaseException) -> bool:
+        from pipelantic.exceptions import NodeExecutionError
+
+        # Unknown SQL commit outcomes must never be retried blindly.
+        if isinstance(exc, NodeExecutionError) and exc.code == "PMEXEC434":
+            return False
         retry_on = self.request.retry.retry_on
         if not retry_on:
             return self.request.retry.max_attempts > 1
@@ -860,15 +875,6 @@ class LocalOrchestrator:
                     write_intent=write_intent,
                     allow_trusted_sql=allow_trusted,
                 )
-                if result.outcome.value == "unknown":
-                    raise NodeExecutionError(
-                        "SQL sink commit outcome unknown; refusing unsafe retry.",
-                        node_name=node.name,
-                        stage=FailureStage.PUBLICATION.value,
-                        code="PMEXEC434",
-                    )
-                state.records_in = result.metrics.rows_affected or 0
-                state.records_out = result.metrics.rows_affected or 0
                 for diag in result.diagnostics:
                     diagnostics.append(
                         RunDiagnostic(
@@ -878,6 +884,22 @@ class LocalOrchestrator:
                             node_name=node.name,
                         )
                     )
+                if result.outcome.value == "unknown":
+                    raise NodeExecutionError(
+                        "SQL sink commit outcome unknown; refusing unsafe retry.",
+                        node_name=node.name,
+                        stage=FailureStage.WRITE.value,
+                        code="PMEXEC434",
+                    )
+                if result.outcome.value != "committed":
+                    raise NodeExecutionError(
+                        f"SQL sink write failed with outcome {result.outcome.value!r}.",
+                        node_name=node.name,
+                        stage=FailureStage.WRITE.value,
+                        code="PMEXEC436",
+                    )
+                state.records_in = result.metrics.rows_affected or 0
+                state.records_out = result.metrics.rows_affected or 0
                 self.runtime.events.emit(
                     LifecycleEvent(
                         kind="publication",
@@ -889,6 +911,85 @@ class LocalOrchestrator:
                     )
                 )
                 return
+            # SQL-region sink with Python list payload: load directly into target.
+            if is_sql_engine(self._engine_for(node.name)) and isinstance(payload, list):
+                binding_name = node.binding or node.name
+                binding_name = self.request.binding_overrides.get(
+                    node.name, binding_name
+                )
+                descriptor = self._binding_descriptor(node, binding_name)
+                provider = descriptor.provider if descriptor is not None else "memory"
+                if provider != "sql":
+                    raise NodeExecutionError(
+                        f"SQL-engine sink {node.name!r} has non-sql binding "
+                        f"provider {provider!r} with list payload; failing closed.",
+                        node_name=node.name,
+                        stage=FailureStage.WRITE.value,
+                        code="PMEXEC437",
+                    )
+                plugin = resolve_sql_plugin(
+                    "sql",
+                    plugins=getattr(self.runtime, "sql_plugins", None),
+                )
+                location = descriptor.location if descriptor is not None else None
+                allow_trusted = bool(
+                    (self.plan.profile_snapshot or {}).get("allow_trusted_sql")
+                )
+                target = plugin.relation_from_binding(
+                    binding=binding_name,
+                    location=location,
+                )
+                ctx = SqlExecutionContext(
+                    run_id=run_id,
+                    pipeline_id=self.plan.pipeline_id,
+                    plan_id=self.plan.plan_id,
+                    step_name=node.name,
+                    allow_trusted_sql=allow_trusted,
+                )
+                if write_mode_for_request(self.request).value == "no_write":
+                    state.records_in = _count(payload)
+                    state.records_out = 0
+                    return
+                # Load rows straight into the sink relation (avoids TEXT staging
+                # → typed target INSERT SELECT mismatches on PostgreSQL).
+                loaded = plugin.load_records(payload, target=target, context=ctx)
+                if loaded.outcome.value == "unknown":
+                    raise NodeExecutionError(
+                        "SQL sink commit outcome unknown; refusing unsafe retry.",
+                        node_name=node.name,
+                        stage=FailureStage.WRITE.value,
+                        code="PMEXEC434",
+                    )
+                if loaded.outcome.value != "committed":
+                    raise NodeExecutionError(
+                        f"SQL load_records failed with outcome "
+                        f"{loaded.outcome.value!r}.",
+                        node_name=node.name,
+                        stage=FailureStage.WRITE.value,
+                        code="PMEXEC436",
+                    )
+                state.records_in = _count(payload)
+                state.records_out = loaded.metrics.rows_affected or _count(payload)
+                self.runtime.events.emit(
+                    LifecycleEvent(
+                        kind="publication",
+                        run_id=run_id,
+                        pipeline_id=self.plan.pipeline_id,
+                        step_name=node.name,
+                        attempt=attempt,
+                        status="succeeded",
+                    )
+                )
+                return
+            # SQL IR into a non-sql storage sink must not silently ignore the IR.
+            if isinstance(payload, (RelationRef, SqlQuery)):
+                raise NodeExecutionError(
+                    f"Sink {node.name!r} received a SQL handle but is not in a "
+                    "SQL execution region; failing closed.",
+                    node_name=node.name,
+                    stage=FailureStage.WRITE.value,
+                    code="PMEXEC437",
+                )
             payload = self._coerce_to_records(payload, contract_type=node.contract_type)
             payload = await self._validate_boundary(
                 node, payload, boundary="pre_publication", validations=validations
@@ -1040,7 +1141,6 @@ class LocalOrchestrator:
                     attempt=attempt,
                     allow_trusted_sql=allow_trusted,
                 )
-                from pipelantic.sql.protocol import SqlQuery
 
                 # If consumers are also SQL, keep IR (or temp relation). If any
                 # consumer is non-SQL, materialize later at gather time.
@@ -1053,7 +1153,9 @@ class LocalOrchestrator:
                         consumers_sql = False
                         break
                 if consumers_sql and isinstance(result, SqlQuery):
-                    temp_name = f"pipelantic_tmp_{node.name}_{port_name}"
+                    temp_name = safe_staging_name(
+                        run_id=run_id, node_name=node.name, port_name=port_name
+                    )
                     stored = await materialize_sql_temp(
                         plugin=plugin,
                         query=result,
@@ -1187,8 +1289,6 @@ class LocalOrchestrator:
     def _gather_inputs(
         self, node: Node, graph: LogicalGraph, artifacts: ArtifactStore
     ) -> dict[str, Any]:
-        from pipelantic.sql.protocol import RelationRef, SqlQuery
-
         inputs: dict[str, Any] = {}
         consumer_engine = self._engine_for(node.name)
         for edge in graph.edges:
@@ -1207,8 +1307,6 @@ class LocalOrchestrator:
                 allow_trusted = bool(
                     (self.plan.profile_snapshot or {}).get("allow_trusted_sql")
                 )
-                from pipelantic.sql.protocol import SqlExecutionContext
-
                 ctx = SqlExecutionContext(
                     run_id="hybrid",
                     pipeline_id=self.plan.pipeline_id,

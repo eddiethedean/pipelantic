@@ -147,6 +147,18 @@ def main() -> None:
             "SECRETS_MANAGEMENT.md still shows aws-secrets-manager as current config"
         )
 
+    # Plugin package versions must match core.
+    for plugin_pyproject in (
+        ROOT / "packages/pipelantic-polars/pyproject.toml",
+        ROOT / "packages/pipelantic-pandas/pyproject.toml",
+        ROOT / "packages/pipelantic-sql/pyproject.toml",
+    ):
+        plugin_version = version_from(plugin_pyproject, r'(?m)^version = "([^"]+)"')
+        if plugin_version != package_version:
+            raise SystemExit(
+                f"{plugin_pyproject} version {plugin_version} != core {package_version}"
+            )
+
     print(f"Documentation consistency checks passed for {package_version}.")
 
 

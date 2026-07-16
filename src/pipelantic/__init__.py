@@ -126,6 +126,8 @@ from pipelantic.sql import (
     SQL_PROTOCOL_VERSION,
     RelationRef,
     SqlQuery,
+    col,
+    concat,
     discover_sql_plugins,
     select,
 )
@@ -234,6 +236,8 @@ __all__ = [
     "WriteMode",
     "__version__",
     "builtin_stub_registry",
+    "col",
+    "concat",
     "development_profile",
     "diff_contract_schemas",
     "diff_data_contracts",

@@ -79,8 +79,8 @@ Pipeline Validation
 Execution Planning
       │
       ▼
-Local Python Runtime + Dataframe Plugins (0.5)
-Future SQL / Spark / Orchestrators
+Local Python Runtime + Dataframe (0.5) + SQL (0.6) Plugins
+Future Spark / Orchestrators
 ```
 
 ## A Preview

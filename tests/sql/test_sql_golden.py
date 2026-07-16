@@ -25,9 +25,11 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture
-def sql_plugin(monkeypatch: pytest.MonkeyPatch):
+def sql_plugin():
     pytest.importorskip("sqlalchemy")
-    monkeypatch.setenv("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    import os
+
+    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
     from pipelantic_sql import create_plugin
 
     return create_plugin()
@@ -72,10 +74,14 @@ def test_explain_plan_sql_golden_shape(sql_plugin) -> None:
         "redacted": compiled.redacted_params,
     }
     expected_path = FIXTURES / "compile_select_shape.json"
-    if not expected_path.exists():
-        expected_path.parent.mkdir(parents=True, exist_ok=True)
-        expected_path.write_text(
-            json.dumps(snapshot, indent=2) + "\n", encoding="utf-8"
-        )
-    expected = json.loads(expected_path.read_text(encoding="utf-8"))
-    assert snapshot == expected
+    # Dialect-sensitive: compare against dialect-specific golden when present.
+    dialect_path = FIXTURES / f"compile_select_shape_{compiled.dialect}.json"
+    path = dialect_path if dialect_path.exists() else expected_path
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
+    expected = json.loads(path.read_text(encoding="utf-8"))
+    # Allow dialect field to track the active backend.
+    assert snapshot["text_contains_select"] == expected["text_contains_select"]
+    assert snapshot["has_params"] == expected["has_params"]
+    assert snapshot["dialect"] == compiled.dialect

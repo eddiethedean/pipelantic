@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from pipelantic.sql import RelationRef, col, lit, select
@@ -11,9 +13,9 @@ pytestmark = pytest.mark.sql
 
 
 @pytest.fixture
-def sql_plugin(monkeypatch: pytest.MonkeyPatch):
+def sql_plugin():
     pytest.importorskip("sqlalchemy")
-    monkeypatch.setenv("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
+    os.environ.setdefault("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
     from pipelantic_sql import create_plugin
 
     return create_plugin()
@@ -38,6 +40,10 @@ def test_value_injection_uses_bound_params(sql_plugin) -> None:
     assert "DROP" not in compiled.text.upper()
     assert ":p" in compiled.text
     assert all(v == "<redacted>" for v in compiled.redacted_params.values())
+    assert "_bound_params" not in compiled.metadata
+    assert "secret" not in str(compiled.to_dict()).lower() or "redacted" in str(
+        compiled.to_dict()
+    )
 
 
 def test_identifier_injection_rejected(sql_plugin) -> None:
@@ -60,6 +66,14 @@ def test_compiled_artifacts_are_secret_free(sql_plugin) -> None:
     compiled = sql_plugin.compile_query(query, context=_ctx())
     assert "secret-token" not in compiled.text
     assert "secret-token" not in str(compiled.redacted_params)
-    # Bound values may live in private metadata for execution only.
-    bound = compiled.metadata.get("_bound_params") or {}
-    assert "secret-token" in bound.values()
+    assert "secret-token" not in str(compiled.to_dict())
+    assert "_bound_params" not in compiled.metadata
+    # Live values may exist only in the private plugin store.
+    assert (
+        "secret-token"
+        in sql_plugin._bound_params.get(compiled.statement_id, {}).values()
+    )
+
+
+def test_sql_merge_not_advertised(sql_plugin) -> None:
+    assert not sql_plugin.capabilities().supports("sql_merge")

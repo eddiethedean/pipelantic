@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from pipelantic import (
@@ -80,18 +82,13 @@ class MergeProbePipeline(Pipeline):
     sink: Sink[Row] = Sink(input=step.result, binding="out")
 
 
-@pytest.fixture
-def sql_plugin(monkeypatch: pytest.MonkeyPatch):
-    pytest.importorskip("sqlalchemy")
-    monkeypatch.setenv("PIPELANTIC_SQL_URL", "sqlite+pysqlite:///:memory:")
-    from pipelantic_sql import create_plugin
-
-    return create_plugin()
-
-
 def test_sql_conformance(sql_plugin) -> None:
     run_sql_conformance_suite(sql_plugin)
     assert_sql_plugin_info(sql_plugin)
+    # Dialect assertion when CI points at Postgres.
+    url = os.environ.get("PIPELANTIC_SQL_URL", "")
+    if url.startswith("postgresql"):
+        assert sql_plugin.info.dialect == "postgresql"
 
 
 def test_sql_to_sql_no_python_fetch(sql_plugin) -> None:
@@ -160,7 +157,9 @@ def test_sql_to_sql_no_python_fetch(sql_plugin) -> None:
     assert rows == [(1, "Ada Lovelace"), (2, "Grace Hopper")]
 
 
-def test_merge_fails_closed_on_sqlite(sql_plugin) -> None:
+def test_merge_fails_closed(sql_plugin) -> None:
+    """MERGE is not implemented in 0.6 — requiring it always fails at plan."""
+    assert not sql_plugin.capabilities().supports("sql_merge")
     profile = Profile(
         name="sql-merge",
         sql_engine="sql",
@@ -169,9 +168,6 @@ def test_merge_fails_closed_on_sqlite(sql_plugin) -> None:
     registry = builtin_stub_registry()
     register_discovered_plugins(registry, plugins={"sql": sql_plugin})
     context = PlanningContext.create(profile, registry=registry)
-    if sql_plugin.capabilities().supports("sql_merge"):
-        pytest.skip("reference URL supports merge")
-
     registry.register_binding(
         BindingDescriptor(binding="t", provider="sql", location="t")
     )

@@ -134,6 +134,7 @@ jobs:
         run: |
           uv run python examples/sql_to_sql.py
           uv run python examples/sql_transactional_write.py
+          uv run python examples/sql_boundary_hybrid.py
           uv run python examples/sql_failure_recovery.py
 
   package:

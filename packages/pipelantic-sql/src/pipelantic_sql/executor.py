@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableMapping, Sequence
 from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from pipelantic.sql.helpers import require_safe_identifier
 from pipelantic.sql.protocol import (
@@ -22,6 +23,23 @@ from pipelantic_sql.compiler import SqlCompiler
 from pipelantic_sql.dialect_postgresql import quote_identifier
 
 
+def _classify_failure(exc: BaseException, *, started: bool) -> TransactionOutcome:
+    """Classify transaction failure; ambiguous post-start failures → UNKNOWN."""
+    if isinstance(exc, (InterfaceError, OperationalError)):
+        return TransactionOutcome.UNKNOWN if started else TransactionOutcome.ROLLED_BACK
+    if isinstance(exc, DBAPIError) and getattr(exc, "connection_invalidated", False):
+        return TransactionOutcome.UNKNOWN
+    msg = str(exc).lower()
+    if started and (
+        "commit" in msg
+        or "connection" in msg
+        or "server closed" in msg
+        or "broken pipe" in msg
+    ):
+        return TransactionOutcome.UNKNOWN
+    return TransactionOutcome.ROLLED_BACK
+
+
 class SqlExecutor:
     """Run compiled statements inside a transaction."""
 
@@ -31,11 +49,21 @@ class SqlExecutor:
         engine: Engine,
         dialect: str,
         rows_fetched_counter: list[int],
+        bound_params: MutableMapping[str, dict[str, Any]],
+        staging_tables: list[str],
     ) -> None:
         self.engine = engine
         self.dialect = dialect
-        # mutable single-element list shared with plugin for instrumentation
         self._rows_fetched = rows_fetched_counter
+        self._bound_params = bound_params
+        self._staging_tables = staging_tables
+
+    def _resolve_bound(
+        self, stmt: CompiledSql, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        bound = dict(self._bound_params.pop(stmt.statement_id, {}))
+        bound.update(params)
+        return bound
 
     def execute(
         self,
@@ -50,12 +78,12 @@ class SqlExecutor:
         results: list[CompiledSql] = []
         records: list[Any] | None = None
         outcome = TransactionOutcome.NOT_STARTED
+        started = False
         try:
             with self.engine.begin() as conn:
-                outcome = TransactionOutcome.COMMITTED
+                started = True
                 for stmt in compiled:
-                    bound = dict(stmt.metadata.get("_bound_params") or {})
-                    bound.update(params)
+                    bound = self._resolve_bound(stmt, params)
                     public = CompiledSql(
                         statement_id=stmt.statement_id,
                         text=stmt.text,
@@ -66,7 +94,7 @@ class SqlExecutor:
                         metadata={
                             k: v
                             for k, v in stmt.metadata.items()
-                            if k != "_bound_params"
+                            if not str(k).startswith("_")
                         },
                     )
                     results.append(public)
@@ -85,11 +113,9 @@ class SqlExecutor:
                             metrics.rows_affected = (metrics.rows_affected or 0) + int(
                                 result.rowcount
                             )
+                outcome = TransactionOutcome.COMMITTED
         except Exception as exc:
-            if "connection" in str(exc).lower() and "commit" in str(exc).lower():
-                outcome = TransactionOutcome.UNKNOWN
-            else:
-                outcome = TransactionOutcome.ROLLED_BACK
+            outcome = _classify_failure(exc, started=started)
             return SqlExecutionResult(
                 outcome=outcome,
                 metrics=metrics,
@@ -118,35 +144,111 @@ class SqlExecutor:
         temp_name: str,
         params: Mapping[str, Any],
         context: SqlExecutionContext,
+        seal: Any,
     ) -> SqlExecutionResult:
+        """Materialize as a durable run-scoped table (visible across pool checkouts)."""
         require_safe_identifier(temp_name)
-        compiled = compiler.compile_query(query, context=context)
-        bound = dict(compiled.metadata.get("_bound_params") or {})
+        compiled = seal(compiler.compile_query(query, context=context))
+        bound = dict(self._bound_params.get(compiled.statement_id) or {})
         bound.update(params)
+        # Re-register after peek so execute can consume.
+        if bound:
+            self._bound_params[compiled.statement_id] = bound
         qid = quote_identifier(temp_name, dialect=self.dialect)
-        if self.dialect == "postgresql":
-            sql = (
-                f"DROP TABLE IF EXISTS {qid};;"
-                f"CREATE TEMP TABLE {qid} AS {compiled.text}"
+        sql = f"DROP TABLE IF EXISTS {qid};;CREATE TABLE {qid} AS {compiled.text}"
+        stmt = seal(
+            CompiledSql(
+                statement_id=f"temp:{temp_name}:{compiled.statement_id}",
+                text=sql,
+                param_names=tuple(bound.keys()),
+                redacted_params={k: "<redacted>" for k in bound},
+                dialect=self.dialect,
+                logical_nodes=(context.step_name,),
+                metadata={"_bound_params": bound},
             )
-        else:
-            sql = (
-                f"DROP TABLE IF EXISTS {qid};;"
-                f"CREATE TEMPORARY TABLE {qid} AS {compiled.text}"
-            )
-        stmt = CompiledSql(
-            statement_id=f"temp:{temp_name}",
-            text=sql,
-            param_names=tuple(bound.keys()),
-            redacted_params={k: "<redacted>" for k in bound},
-            dialect=self.dialect,
-            logical_nodes=(context.step_name,),
-            metadata={"_bound_params": bound},
         )
         result = self.execute([stmt], params={}, context=context, fetch=False)
-        result.relation = RelationRef(name=temp_name)
+        if result.outcome is TransactionOutcome.COMMITTED:
+            result.relation = RelationRef(name=temp_name)
+            if temp_name not in self._staging_tables:
+                self._staging_tables.append(temp_name)
+        else:
+            result.relation = None
         result.metrics.fused_steps = 1
         return result
+
+    def publish_replace(
+        self,
+        *,
+        target: RelationRef,
+        staging: RelationRef,
+        compiler: SqlCompiler,
+        context: SqlExecutionContext,
+    ) -> SqlExecutionResult:
+        """Swap staging into target without dropping the live table first."""
+        _ = context
+        target_sql = compiler.qid(target)
+        staging_sql = compiler.qid(staging)
+        old_name = f"{target.name}__old_{staging.name[-8:]}"
+        require_safe_identifier(old_name)
+        old = RelationRef(
+            name=old_name, namespace=target.namespace, catalog=target.catalog
+        )
+        old_sql = compiler.qid(old)
+        started = False
+        try:
+            with self.engine.begin() as conn:
+                started = True
+                # Detect existing target.
+                exists = False
+                if self.dialect == "postgresql":
+                    row = conn.execute(
+                        text(
+                            "SELECT 1 FROM information_schema.tables "
+                            "WHERE table_name = :name "
+                            "AND (:schema IS NULL OR table_schema = :schema)"
+                        ),
+                        {"name": target.name, "schema": target.namespace or "public"},
+                    ).first()
+                    exists = row is not None
+                else:
+                    row = conn.execute(
+                        text(
+                            "SELECT 1 FROM sqlite_master "
+                            "WHERE type='table' AND name = :name"
+                        ),
+                        {"name": target.name},
+                    ).first()
+                    exists = row is not None
+                conn.execute(text(f"DROP TABLE IF EXISTS {old_sql}"))
+                if exists:
+                    conn.execute(
+                        text(
+                            f"ALTER TABLE {target_sql} RENAME TO "
+                            f"{quote_identifier(old_name, dialect=self.dialect)}"
+                        )
+                    )
+                conn.execute(
+                    text(
+                        f"ALTER TABLE {staging_sql} RENAME TO "
+                        f"{quote_identifier(target.name, dialect=self.dialect)}"
+                    )
+                )
+                if exists:
+                    conn.execute(text(f"DROP TABLE IF EXISTS {old_sql}"))
+            return SqlExecutionResult(
+                outcome=TransactionOutcome.COMMITTED,
+                relation=target,
+                metrics=SqlMetrics(statements=1, phases=["publish"]),
+                backend_ref=f"sqlalchemy:{self.dialect}",
+            )
+        except Exception as exc:
+            return SqlExecutionResult(
+                outcome=_classify_failure(exc, started=started),
+                diagnostics=[
+                    {"code": "PMSQL520", "severity": "error", "message": str(exc)}
+                ],
+            )
 
     def load_records(
         self,
@@ -175,8 +277,10 @@ class SqlExecutor:
         create_cols = ", ".join(f"{compiler.quote(c)} TEXT" for c in cols)
         create = f"CREATE TABLE IF NOT EXISTS {target_sql} ({create_cols})"
         insert = f"INSERT INTO {target_sql} ({col_sql}) VALUES ({placeholders})"
+        started = False
         try:
             with self.engine.begin() as conn:
+                started = True
                 conn.execute(text(create))
                 for row in rows:
                     conn.execute(text(insert), row)
@@ -192,7 +296,7 @@ class SqlExecutor:
             )
         except Exception as exc:
             return SqlExecutionResult(
-                outcome=TransactionOutcome.ROLLED_BACK,
+                outcome=_classify_failure(exc, started=started),
                 diagnostics=[
                     {"code": "PMSQL510", "severity": "error", "message": str(exc)}
                 ],
@@ -206,9 +310,12 @@ class SqlExecutor:
         params: Mapping[str, Any],
         context: SqlExecutionContext,
         contract_type: type[Any] | None = None,
+        seal: Any = None,
     ) -> SqlExecutionResult:
         if isinstance(relation, SqlQuery):
             compiled = compiler.compile_query(relation, context=context)
+            if seal is not None:
+                compiled = seal(compiled)
         else:
             compiled = CompiledSql(
                 statement_id=f"fetch:{relation.qualified_name}",
@@ -220,3 +327,18 @@ class SqlExecutor:
         if contract_type is not None and result.records:
             result.records = [contract_type.model_validate(r) for r in result.records]
         return result
+
+    def cleanup_staging(self) -> None:
+        if not self._staging_tables:
+            return
+        try:
+            with self.engine.begin() as conn:
+                for name in list(self._staging_tables):
+                    try:
+                        require_safe_identifier(name)
+                        qid = quote_identifier(name, dialect=self.dialect)
+                        conn.execute(text(f"DROP TABLE IF EXISTS {qid}"))
+                    except Exception:
+                        continue
+        finally:
+            self._staging_tables.clear()

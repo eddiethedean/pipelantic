@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import re
 from typing import Any
 
 from pipelantic.exceptions import NodeExecutionError
@@ -9,6 +11,7 @@ from pipelantic.model import Node
 from pipelantic.plan.model import PipelinePlan
 from pipelantic.runtime.state import FailureStage
 from pipelantic.sql.discovery import load_sql_plugin
+from pipelantic.sql.helpers import require_safe_identifier
 from pipelantic.sql.protocol import (
     SQL_ENGINES,
     RelationRef,
@@ -18,6 +21,7 @@ from pipelantic.sql.protocol import (
     SqlQuery,
     SqlWrite,
     TransactionOutcome,
+    TrustedSqlFragment,
     WriteIntentKind,
 )
 from pipelantic.transformation import ImplementationRecord
@@ -66,6 +70,39 @@ def _context(
     )
 
 
+def _contains_trusted_fragment(value: Any) -> bool:
+    if isinstance(value, TrustedSqlFragment):
+        return True
+    if isinstance(value, SqlQuery):
+        if any(isinstance(c, TrustedSqlFragment) for c in value.columns):
+            return True
+        if isinstance(value.where, TrustedSqlFragment):
+            return True
+    if isinstance(value, SqlWrite) and isinstance(value.source, SqlQuery):
+        return _contains_trusted_fragment(value.source)
+    return False
+
+
+def _assert_trusted_sql_allowed(
+    *,
+    value: Any,
+    plugin: SqlPlugin,
+    allow_trusted_sql: bool,
+    node_name: str,
+) -> None:
+    if not _contains_trusted_fragment(value):
+        return
+    caps = plugin.capabilities()
+    if not allow_trusted_sql or not caps.supports("sql_trusted_fragments"):
+        raise NodeExecutionError(
+            "Trusted SQL fragments are disabled by profile policy "
+            "or plugin capability; failing closed.",
+            node_name=node_name,
+            stage=FailureStage.TRANSFORM.value,
+            code="PMEXEC435",
+        )
+
+
 async def execute_sql_source(
     *,
     plugin: SqlPlugin,
@@ -101,7 +138,7 @@ async def execute_sql_step(
     Intermediate Python row materialization is forbidden: implementations must
     return ``SqlQuery`` / ``RelationRef`` / ``SqlWrite`` handles.
     """
-    _ = _context(
+    _context(
         plan=plan,
         node=node,
         run_id=run_id,
@@ -111,7 +148,20 @@ async def execute_sql_step(
     kwargs = {**dict(params), **dict(inputs)}
     result = impl.callable(**kwargs)
     if isinstance(result, (SqlQuery, RelationRef, SqlWrite)):
+        _assert_trusted_sql_allowed(
+            value=result,
+            plugin=plugin,
+            allow_trusted_sql=allow_trusted_sql,
+            node_name=node.name,
+        )
         return result
+    if isinstance(result, TrustedSqlFragment):
+        _assert_trusted_sql_allowed(
+            value=result,
+            plugin=plugin,
+            allow_trusted_sql=allow_trusted_sql,
+            node_name=node.name,
+        )
     raise NodeExecutionError(
         f"SQL implementation for {node.name!r} must return SqlQuery, "
         f"RelationRef, or SqlWrite; got {type(result)!r}.",
@@ -148,22 +198,33 @@ async def execute_sql_sink(
     )
     try:
         intent = WriteIntentKind(write_intent)
-    except ValueError:
-        intent = WriteIntentKind.INSERT_SELECT
+    except ValueError as exc:
+        raise NodeExecutionError(
+            f"Unknown SQL write_intent {write_intent!r}; failing before mutation.",
+            node_name=node.name,
+            stage=FailureStage.WRITE.value,
+            code="PMEXEC432",
+        ) from exc
 
     if isinstance(source_value, SqlWrite):
         write = source_value
     else:
         write = SqlWrite(intent=intent, target=target, source=source_value)
 
-    # Fail closed for unsupported merge / partition replace before mutation.
+    _assert_trusted_sql_allowed(
+        value=write,
+        plugin=plugin,
+        allow_trusted_sql=allow_trusted_sql,
+        node_name=node.name,
+    )
+
     caps = plugin.capabilities()
     if write.intent is WriteIntentKind.MERGE and not caps.supports("sql_merge"):
         raise NodeExecutionError(
             f"Write intent {write.intent.value!r} unsupported by SQL plugin; "
             "failing before target mutation.",
             node_name=node.name,
-            stage=FailureStage.PUBLICATION.value,
+            stage=FailureStage.WRITE.value,
             code="PMEXEC432",
         )
     if write.intent is WriteIntentKind.REPLACE_PARTITION:
@@ -171,13 +232,12 @@ async def execute_sql_sink(
             "replace_partition is not supported by the 0.6 reference plugin; "
             "failing before target mutation.",
             node_name=node.name,
-            stage=FailureStage.PUBLICATION.value,
+            stage=FailureStage.WRITE.value,
             code="PMEXEC432",
         )
 
     result = plugin.execute_write(write, params=params or {}, context=context)
     if result.outcome is TransactionOutcome.UNKNOWN:
-        # Caller must not retry blindly.
         result.diagnostics.append(
             {
                 "code": "PMSQL440",
@@ -186,6 +246,16 @@ async def execute_sql_sink(
             }
         )
     return result
+
+
+def safe_staging_name(*, run_id: str, node_name: str, port_name: str) -> str:
+    """Build a durable cross-connection staging table name from safe parts."""
+    digest = hashlib.sha1(run_id.encode("utf-8")).hexdigest()[:10]
+    raw = f"pl_tmp_{digest}_{node_name}_{port_name}"
+    cleaned = re.sub(r"[^A-Za-z0-9_]", "_", raw)
+    if cleaned[0].isdigit():
+        cleaned = f"t_{cleaned}"
+    return require_safe_identifier(cleaned[:60])
 
 
 async def materialize_sql_temp(
@@ -200,7 +270,7 @@ async def materialize_sql_temp(
     params: dict[str, Any] | None = None,
     allow_trusted_sql: bool = False,
 ) -> RelationRef:
-    """Materialize an intermediate SQL query as a temp relation (no Python fetch)."""
+    """Materialize an intermediate SQL query as a durable staging relation."""
     context = _context(
         plan=plan,
         node=node,
@@ -208,12 +278,19 @@ async def materialize_sql_temp(
         attempt=attempt,
         allow_trusted_sql=allow_trusted_sql,
     )
+    _assert_trusted_sql_allowed(
+        value=query,
+        plugin=plugin,
+        allow_trusted_sql=allow_trusted_sql,
+        node_name=node.name,
+    )
     result = plugin.materialize_temp(
         query, temp_name=temp_name, params=params or {}, context=context
     )
-    if result.relation is None:
+    if result.outcome is not TransactionOutcome.COMMITTED or result.relation is None:
         raise NodeExecutionError(
-            f"SQL temp materialization for {node.name!r} produced no relation.",
+            f"SQL temp materialization for {node.name!r} failed "
+            f"(outcome={result.outcome.value}).",
             node_name=node.name,
             stage=FailureStage.TRANSFORM.value,
             code="PMEXEC433",

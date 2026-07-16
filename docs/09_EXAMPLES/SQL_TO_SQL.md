@@ -213,7 +213,7 @@ unstructured string.
 
 from pipelantic.sql import (
     SqlQuery,
-    SqlRelation,
+    RelationRef,
     coalesce,
     count,
     parameter,
@@ -227,8 +227,8 @@ from .transformations import BuildCustomerOrderSummary
 
 @BuildCustomerOrderSummary.implementation("sql")
 def build_customer_order_summary_sql(
-    customers: SqlRelation[Customer],
-    orders: SqlRelation[Order],
+    customers: RelationRef,
+    orders: RelationRef,
     included_status: str,
 ) -> SqlQuery[CustomerOrderSummary]:
     paid_orders = (
@@ -278,7 +278,7 @@ The exact SQL expression API may evolve.
 
 The important requirements are:
 
-- Inputs are typed `SqlRelation[T]` objects.
+- Inputs are typed `RelationRef` objects.
 - The result is a typed `SqlQuery[T]`.
 - Parameters are bound safely.
 - The SQL plugin compiles the logical query for the selected dialect.
@@ -1324,7 +1324,7 @@ Suggested actions:
 This example now demonstrates:
 
 - SQL-native transformation execution
-- Typed `SqlRelation[T]` inputs
+- Typed `RelationRef` inputs
 - Typed `SqlQuery[T]` outputs
 - Parameterized SQL compilation
 - Dialect-aware capability validation

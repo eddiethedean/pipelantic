@@ -135,8 +135,8 @@ Conceptually:
 ```python
 @BuildCustomerSummary.implementation("sql")
 def build_customer_summary(
-    customers: SqlRelation[Customer],
-    orders: SqlRelation[Order],
+    customers: RelationRef,
+    orders: RelationRef,
     included_status: str,
 ) -> SqlQuery[CustomerSummary]:
     return (
@@ -202,7 +202,7 @@ Raw SQL should not be the only SQL authoring model.
 SQL inputs should be represented as typed logical relations.
 
 ```python
-customers: SqlRelation[Customer]
+customers: RelationRef
 ```
 
 A relation may refer to:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from typing import Any
 
 from sqlalchemy import create_engine
@@ -20,6 +21,8 @@ from pipelantic.sql.protocol import (
     SqlPluginInfo,
     SqlQuery,
     SqlWrite,
+    TransactionOutcome,
+    WriteIntentKind,
 )
 from pipelantic_sql.catalog import inspect_relation as catalog_inspect
 from pipelantic_sql.compiler import SqlCompiler
@@ -43,12 +46,15 @@ class PostgresSqlPlugin:
         )
         self._engine: Engine | None = None
         self._rows_fetched = [0]
+        self._bound_params: dict[str, dict[str, Any]] = {}
+        self._staging_tables: list[str] = []
         dialect = detect_dialect(self._url)
         extras = (
             frozenset({"postgresql", "sqlalchemy"})
             if dialect == "postgresql"
             else frozenset({"sqlite", "sqlalchemy"})
         )
+        # MERGE is not implemented in 0.6 — never advertise it.
         caps = PluginCapabilities(
             engine="sql",
             async_execution=False,
@@ -57,7 +63,7 @@ class PostgresSqlPlugin:
             transactions=True,
             cancellation=False,
             schema_inspection=True,
-            sql_merge=dialect == "postgresql",
+            sql_merge=False,
             sql_cte=True,
             sql_returning=dialect == "postgresql",
             sql_transactional_ddl=dialect == "postgresql",
@@ -76,9 +82,7 @@ class PostgresSqlPlugin:
             protocol_version=SQL_PROTOCOL_VERSION,
             capabilities=caps,
         )
-        self._compiler = SqlCompiler(
-            dialect=dialect, supports_merge=caps.supports("sql_merge")
-        )
+        self._compiler = SqlCompiler(dialect=dialect, supports_merge=False)
 
     @property
     def info(self) -> SqlPluginInfo:
@@ -101,7 +105,17 @@ class PostgresSqlPlugin:
             engine=self._get_engine(),
             dialect=self.info.dialect,
             rows_fetched_counter=self._rows_fetched,
+            bound_params=self._bound_params,
+            staging_tables=self._staging_tables,
         )
+
+    def _seal(self, compiled: CompiledSql) -> CompiledSql:
+        """Move live bound values into a private map; strip from public metadata."""
+        meta = dict(compiled.metadata)
+        bound = dict(meta.pop("_bound_params", {}) or {})
+        if bound:
+            self._bound_params[compiled.statement_id] = bound
+        return replace(compiled, metadata=meta)
 
     def quote_identifier(self, name: str) -> str:
         return quote_identifier(name, dialect=self.info.dialect)
@@ -128,7 +142,7 @@ class PostgresSqlPlugin:
         *,
         context: SqlExecutionContext,
     ) -> CompiledSql:
-        return self._compiler.compile_query(query, context=context)
+        return self._seal(self._compiler.compile_query(query, context=context))
 
     def compile_write(
         self,
@@ -136,7 +150,7 @@ class PostgresSqlPlugin:
         *,
         context: SqlExecutionContext,
     ) -> CompiledSql:
-        return self._compiler.compile_write(write, context=context)
+        return self._seal(self._compiler.compile_write(write, context=context))
 
     def execute(
         self,
@@ -158,7 +172,21 @@ class PostgresSqlPlugin:
         context: SqlExecutionContext,
     ) -> SqlExecutionResult:
         compiled = self.compile_write(write, context=context)
-        return self.execute([compiled], params=params, context=context, fetch=False)
+        result = self.execute([compiled], params=params, context=context, fetch=False)
+        if result.outcome is not TransactionOutcome.COMMITTED:
+            return result
+        if write.intent in {WriteIntentKind.REPLACE, WriteIntentKind.SNAPSHOT}:
+            staging_data = compiled.metadata.get("staging") or {}
+            staging = RelationRef.from_dict(dict(staging_data))
+            swap = self._executor().publish_replace(
+                target=write.target,
+                staging=staging,
+                compiler=self._compiler,
+                context=context,
+            )
+            swap.compiled = list(result.compiled) + list(swap.compiled)
+            return swap
+        return result
 
     def materialize_temp(
         self,
@@ -174,6 +202,7 @@ class PostgresSqlPlugin:
             temp_name=temp_name,
             params=params,
             context=context,
+            seal=self._seal,
         )
 
     def load_records(
@@ -201,6 +230,7 @@ class PostgresSqlPlugin:
             params=params,
             context=context,
             contract_type=contract_type,
+            seal=self._seal,
         )
 
     def inspect_relation(
@@ -211,3 +241,7 @@ class PostgresSqlPlugin:
     ) -> dict[str, Any]:
         _ = context
         return catalog_inspect(self._get_engine(), relation, dialect=self.info.dialect)
+
+    def cleanup_staging(self) -> None:
+        """Drop run-scoped durable staging tables."""
+        self._executor().cleanup_staging()
