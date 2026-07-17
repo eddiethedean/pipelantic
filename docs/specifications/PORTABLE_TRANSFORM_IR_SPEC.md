@@ -1,7 +1,8 @@
 # ETLantic Portable Transformation IR Specification
 
 Status: Proposed normative specification  
-Protocol identifier: `etlantic.transform/1`  
+DTCS plan identifier: `dtcs.transform-plan/1`  
+ETLantic authoring profile: `etlantic.transform/1`  
 Target milestones: 0.11 kernel through 0.15 advanced lowering
 
 ## 1. Scope
@@ -10,7 +11,9 @@ This specification defines ETLantic's closed, versioned, backend-independent
 serialization and authoring profile for a DTCS Transformation Plan. DTCS owns
 transformation semantics, expressions, functions, semantic actions, and engine
 capability meaning. This specification defines how ETLantic realizes that
-model as `etlantic.transform/1` and the requirements its plugins MUST preserve.
+model through its authoring profile and the requirements its plugins MUST
+preserve. Canonical plan models and semantic registries belong to the public
+`dtcs` package.
 
 It does not replace DTCS or define physical execution, storage, scheduling,
 backend APIs, or arbitrary Python translation. Where this document and DTCS
@@ -41,7 +44,7 @@ DTCS Transformation Contract
             ↓
 DTCS Transformation Plan semantics
             ↓
-ETLantic `etlantic.transform/1` representation
+DTCS `dtcs.transform-plan/1` representation
             ↓
 Backend Execution Plan
 ```
@@ -55,7 +58,7 @@ A serialized definition has this conceptual shape:
 
 ```json
 {
-  "protocol": "etlantic.transform/1",
+  "protocol": "dtcs.transform-plan/1",
   "transformation_id": "example.NormalizeCustomers",
   "inputs": {
     "customers": {
@@ -350,6 +353,11 @@ minor additions only when every used node and semantic mode is understood.
 Adding an optional operation is backward compatible. Changing existing
 operation meaning, canonicalization, type promotion, or null behavior requires
 a new major protocol version.
+
+The DTCS plan schema, ETLantic authoring profile, and ETLantic compiler protocol
+are independently versioned. The shared ETLantic/DTCS publisher MAY coordinate
+their releases, but implementations MUST still declare and test compatibility
+for each boundary.
 
 ## 14. Conformance
 

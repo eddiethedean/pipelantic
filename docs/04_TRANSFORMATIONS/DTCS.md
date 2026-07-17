@@ -130,6 +130,11 @@ surface. Generated DTCS may carry the normalized Transformation Plan, while
 plugins compile it into backend Execution Plans. If ETLantic-specific syntax
 and DTCS semantics disagree, DTCS remains authoritative.
 
+ETLantic and DTCS share a publisher. Portable design requirements may therefore
+drive coordinated DTCS specification and package releases. ETLantic waits for
+the relevant public `dtcs` models and version before treating the behavior as
+normative or compiler-ready.
+
 ---
 
 ## Identity and Versioning

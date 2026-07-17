@@ -46,6 +46,12 @@ Structured Streaming APIs are experimental.
 Many chapters still describe the intended 1.0 product. Design studies under
 Examples are not a promise that every illustrated API is already available.
 
+Portable PySpark-inspired transformation authoring is accepted future design
+sequenced across 0.11-0.15. Start with
+[Portable Transformations](04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md) for
+the proposed UX and the [roadmap](11_DEVELOPMENT/ROADMAP.md) for delivery
+phases; it is not a 0.10 importable API.
+
 ## Thirty-Second Example
 
 ```python

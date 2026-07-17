@@ -112,6 +112,12 @@ closed `etlantic.transform/1` expression graph. This graph is data-only and
 backend-independent; native Polars, Pandas, SQL, and Spark objects remain
 outside core.
 
+The canonical expression and Transformation Plan models belong to the `dtcs`
+package. `etlantic.transform` is a PySpark-inspired authoring facade over those
+public models, not a parallel semantic model. ETLantic and DTCS share a
+publisher, enabling coordinated standard/package evolution under explicit
+version and compatibility gates.
+
 ## Validation Architecture
 
 Validation is phased so tools can provide precise diagnostics:

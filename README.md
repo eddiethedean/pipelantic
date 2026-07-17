@@ -119,6 +119,12 @@ Run the complete tested version at
 | Plugin allowlists / keyring / SQLModel extras | Available |
 | SparkForge migration adapter | Available (`etlantic-sparkforge`) |
 
+**Next design line:** releases 0.11-0.15 are planned to add a PySpark-inspired
+portable transformation language, followed by Polars, PySpark, Pandas, and safe
+SQL compilers. This is documented future design, not part of the 0.10 API. See
+the [portable transformation design](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
+and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
+
 ## Documentation
 
 - [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)

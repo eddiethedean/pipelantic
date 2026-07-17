@@ -1,5 +1,11 @@
 # Coding Standards
 
+Portable IR nodes are immutable, backend-free, canonically serializable, and
+closed over explicitly registered operations. Core code must not import native
+Polars, Pandas, PySpark, SQL driver, or compiler objects. Never serialize a
+callable, `repr()` fallback, source row, live resource, or resolved secret into
+a portable definition.
+
 ETLantic code should be explicit, typed, testable, and approachable to
 Python developers familiar with Pydantic and FastAPI-style APIs.
 
@@ -161,4 +167,3 @@ or generated schema:
 
 > Make the typed user experience simple while keeping the underlying semantics
 > explicit, deterministic, and portable.
-

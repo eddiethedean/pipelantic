@@ -1,7 +1,9 @@
 # Portable Transformation Implementation Plan
 
 Status: Internal project plan  
-Design protocol: `etlantic.transform/1`  
+DTCS plan protocol: `dtcs.transform-plan/1`  
+ETLantic authoring profile: `etlantic.transform/1`  
+Compiler protocol: `etlantic.transform-compiler/1`  
 Current release boundary: not available in 0.10
 
 ## Outcome
@@ -27,7 +29,7 @@ Pandas, SQL, and PySpark plugins compile it without changing its meaning.
 | Workstream | Deliverable |
 |---|---|
 | Authoring | `@Transformation.portable`, symbolic DataFrame/Column API |
-| IR | immutable nodes, type system, canonical serialization, fingerprint |
+| DTCS kernel | canonical nodes, type system, semantics, serialization, fingerprint |
 | Analysis | definition, name, type, contract, and bounded-structure validation |
 | Planning | capability extraction, compiler selection, explain output |
 | Runtime | compiled-transform execution and normalized outputs |
@@ -38,7 +40,7 @@ Pandas, SQL, and PySpark plugins compile it without changing its meaning.
 
 ## Package layout
 
-Proposed core modules:
+Proposed ETLantic facade modules:
 
 ```text
 src/etlantic/transform/
@@ -47,19 +49,21 @@ src/etlantic/transform/
 ├── column.py
 ├── functions.py
 ├── window.py
-├── types.py
-├── nodes.py
-├── model.py
-├── serialize.py
+├── dtcs_builder.py
 ├── validate.py
 ├── capabilities.py
 ├── protocol.py
 └── discovery.py
 ```
 
-The core MUST NOT import backend libraries. Existing `etlantic.sql` types may
-inspire or receive a lowering from this IR, but SQL types do not become the
-portable model.
+Canonical nodes, portable types, semantics, serialization, and base validation
+belong to public `dtcs` package modules. ETLantic MUST NOT duplicate those
+models. The ETLantic core MUST NOT import backend libraries. Existing
+`etlantic.sql` types may receive a lowering from the DTCS plan, but SQL types do
+not become the portable model.
+
+See [DTCS and Portable Transformation Evolution](DTCS_PORTABLE_EVOLUTION.md)
+for the coordinated specification/package release workflow.
 
 ## 0.11 preparation: decisions and fixtures
 

@@ -17,9 +17,10 @@ would be unsafe, incomplete, and difficult to serialize deterministically.
 
 ## Decision
 
-ETLantic will define a closed, versioned portable relational IR with a
+DTCS will define the closed, versioned portable relational Transformation Plan
+and expose canonical models through the `dtcs` package. ETLantic will define a
 PySpark-inspired DataFrame, Column, functions, grouping, and window authoring
-surface.
+surface that constructs those DTCS models directly.
 
 `@Transformation.portable` invokes trusted definition code with symbolic input
 and parameter objects to construct the IR. It never processes data.
@@ -33,8 +34,14 @@ Native `@Transformation.implementation(engine)` registration remains available
 for optimized or non-portable behavior. The planner records whether it selected
 portable compilation or a native implementation.
 
-The portable IR belongs in `etlantic.transform`, not `etlantic.sql`, Spark, or a
-dataframe plugin. The core remains free of backend dependencies.
+The semantic IR belongs to DTCS, not `etlantic.sql`, Spark, or a dataframe
+plugin. `etlantic.transform` is the ergonomic facade and compiler integration
+surface. The core remains free of backend dependencies.
+
+ETLantic and DTCS share a publisher, so missing normative concepts can be
+standardized and released in DTCS as part of one coordinated roadmap. Shared
+publishing authority does not bypass explicit versions, compatibility fixtures,
+or migration requirements.
 
 ## Consequences
 
@@ -98,10 +105,9 @@ and raw strings weaken typing, lineage, parameter safety, and diagnostics.
 The change is additive to transformation authoring. Existing transformations,
 steps, pipelines, and native implementations continue to work.
 
-The feature requires a new `etlantic.transform/1` protocol, optional DTCS
-portable-definition extension, compiler plugin capability surface, and a
-versioned `PipelinePlan` schema change. Older plugins remain usable for native
+The feature requires `dtcs.transform-plan/1`, an `etlantic.transform/1`
+authoring profile, an `etlantic.transform-compiler/1` plugin protocol, DTCS
+package releases, and a versioned `PipelinePlan` schema change. Older plugins remain usable for native
 implementations but cannot claim portable compilation.
 
 Unknown IR major versions and unsupported operations fail closed.
-

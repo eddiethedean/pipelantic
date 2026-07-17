@@ -38,8 +38,8 @@ def normalize(customers, minimum_age):
 ```
 
 The decorated function runs only with symbolic inputs while ETLantic builds a
-portable expression graph. It does not receive data, contact a backend, or
-execute a pipeline.
+canonical DTCS Transformation Plan through public `dtcs` package models. It
+does not receive data, contact a backend, or execute a pipeline.
 
 ## Design goals
 
@@ -255,13 +255,27 @@ Plugins compile the portable IR to native expressions:
 The planner may fuse adjacent portable steps into one backend region while
 retaining logical step identities for lineage, validation, and diagnostics.
 
-## Semantic authority
+## DTCS semantic authority
 
-Familiar syntax is not sufficient for portability. The normative
+Familiar syntax is not sufficient for portability. DTCS owns the
+Transformation Plan, semantic actions, expressions, functions, types, and
+capability meaning. The `dtcs` package supplies canonical models; ETLantic
+supplies the authoring facade, planning, compiler selection, and runtime
+coordination.
+
+Because ETLantic and DTCS share a publisher, new portable requirements can be
+standardized and released in DTCS before ETLantic exposes them. Shared
+publishing authority shortens the feedback loop but does not remove explicit
+versioning and compatibility gates.
+
+The normative
 [Portable Transformation IR specification](../specifications/PORTABLE_TRANSFORM_IR_SPEC.md)
 defines nulls, casts, arithmetic, strings, timestamps, joins, ordering, and
 aggregation behavior. A plugin must preserve that meaning or reject the
 operation during planning.
+
+See the [DTCS evolution plan](../11_DEVELOPMENT/DTCS_PORTABLE_EVOLUTION.md) for
+the cross-project specification and package release workflow.
 
 ## Related documents
 

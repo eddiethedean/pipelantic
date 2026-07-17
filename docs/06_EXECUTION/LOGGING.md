@@ -156,6 +156,9 @@ must map correlation identifiers into their native task context.
 - profile applied
 - implementation selected
 - capability decision
+- portable protocol and definition fingerprint
+- selected transformation compiler and implementation kind
+- explicit native fallback reason and expression path
 - execution region formed
 - materialization inserted
 - fallback selected

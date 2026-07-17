@@ -32,6 +32,7 @@ These pages sequence future work. They are not product user guides:
 - [SQLModel Integration Plan](SQLMODEL_INTEGRATION_PLAN.md)
 - [SparkForge Feature Adoption](SPARKFORGE_ADOPTION.md)
 - [Portable Transformation Implementation Plan](PORTABLE_TRANSFORM_PLAN.md)
+- [DTCS and Portable Transformation Evolution](DTCS_PORTABLE_EVOLUTION.md)
 
 Start with the roadmap for sequencing and the decision records for architectural
 boundaries.

@@ -1,5 +1,14 @@
 # Testing
 
+## Portable Transformation Conformance (0.14+)
+
+Every compiler runs capability-selected fixtures from
+`etlantic.testing.portable_transform_conformance`. Shared fixtures cover IR
+canonicalization, null/type/error semantics, deterministic compilation,
+multiple outputs, lazy/eager behavior, ownership, hostile bounded input,
+redaction, and cross-engine normalized results. Advertising an operation or
+function makes its fixture mandatory.
+
 ETLantic testing must prove that typed models, portable contracts,
 planning, and backend execution preserve the same semantics.
 

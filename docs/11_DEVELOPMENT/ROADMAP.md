@@ -893,6 +893,10 @@ feature assessment and adapter sequence.
 
 ## 0.11 — Portable Transformation Kernel
 
+**DTCS readiness gate:** publish canonical Transformation Plan kernel models,
+portable types, expression/action identities, serialization, and validation in
+the `dtcs` package before ETLantic exposes the corresponding authoring API.
+
 ### Deliver
 
 - `@Transformation.portable` symbolic definition registration
@@ -926,6 +930,9 @@ yet execute through an engine plugin.
 
 ## 0.12 — Portable Planning and Polars Compiler
 
+**DTCS readiness gate:** publish compiler capability requirements and explain
+metadata for the supported plan version.
+
 ### Deliver
 
 - portable compiler discovery and operation-level capability descriptors
@@ -956,6 +963,10 @@ compilation as a first-class, deterministic implementation kind.
 
 ## 0.13 — PySpark Compiler and Relational Expansion
 
+**DTCS readiness gate:** standardize and publish join, union, grouping,
+aggregation, deduplication, and ordering semantics with canonical edge-case
+fixtures.
+
 ### Deliver
 
 - `etlantic-pyspark` compiler using native Spark DataFrame and Column
@@ -984,6 +995,10 @@ Polars-specific nor merely a PySpark wrapper.
 
 ## 0.14 — Pandas Compiler and Conformance SDK
 
+**DTCS readiness gate:** publish a conformance manifest and differential
+fixture schema that compiler packages can consume without depending on
+ETLantic internals.
+
 ### Deliver
 
 - `etlantic-pandas` compiler for every honestly supported kernel and relational
@@ -1011,6 +1026,9 @@ Portable compiler conformance becomes a public SDK contract suitable for
 third-party engines.
 
 ## 0.15 — Safe SQL Lowering and Advanced Expressions
+
+**DTCS readiness gate:** publish SQL-lowering semantic requirements, windows,
+and each admitted advanced function family before ETLantic compiler support.
 
 ### Deliver
 

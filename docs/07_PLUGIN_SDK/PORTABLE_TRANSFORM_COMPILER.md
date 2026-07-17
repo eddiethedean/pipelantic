@@ -1,16 +1,17 @@
 # Portable Transformation Compiler Protocol
 
 !!! warning "Proposed 0.12+ plugin protocol—not available in ETLantic 0.10"
-    This page defines the intended `etlantic.transform/1` compiler boundary.
-    It is not a currently importable SDK.
+    This page defines the intended `etlantic.transform-compiler/1` boundary for
+    consuming DTCS Transformation Plans. It is not a currently importable SDK.
 
-A portable transformation compiler translates the ETLantic transformation IR
-into backend-native expressions without changing its meaning.
+A portable transformation compiler translates a validated
+`dtcs.transform-plan/1` into backend-native expressions without changing its
+DTCS-defined meaning.
 
 ## Boundary
 
 ```text
-TransformationIR
+DTCS TransformationPlan
       │
       ├── support analysis (pure)
       ├── compilation (no data access)
@@ -34,14 +35,14 @@ class PortableTransformCompiler(Protocol):
 
     def analyze(
         self,
-        definition: TransformationIR,
+        definition: TransformationPlan,
         *,
         context: TransformPlanningContext,
     ) -> TransformSupportReport: ...
 
     def compile(
         self,
-        definition: TransformationIR,
+        definition: TransformationPlan,
         *,
         context: TransformCompileContext,
     ) -> CompiledTransform: ...
@@ -67,7 +68,8 @@ TransformCompilerInfo(
     name="etlantic-polars",
     version="...",
     engine="polars",
-    protocol_versions=("etlantic.transform/1",),
+    compiler_protocol="etlantic.transform-compiler/1",
+    dtcs_plan_versions=("dtcs.transform-plan/1",),
     capabilities=TransformCapabilities(...),
 )
 ```

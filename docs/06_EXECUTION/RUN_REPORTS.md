@@ -376,6 +376,17 @@ It generalizes them by:
 > observability providers, and external runtimes enrich that report without
 > changing its portable meaning.
 
+## Portable Transformation Evidence (0.12+)
+
+When a portable definition is selected, each logical step report records the
+implementation kind, portable protocol and definition fingerprint, compiler
+package/engine/version, capability decision summary, and any explicit native
+fallback reason. Materialization and ownership decisions introduced by
+lowering remain visible.
+
+Reports never include source rows, sensitive runtime parameter values,
+compiled closures, or backend-native expression objects.
+
 ## See Also
 
 - [Execution Model](EXECUTION_MODEL.md)
