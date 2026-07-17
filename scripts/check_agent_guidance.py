@@ -14,6 +14,9 @@ from etlantic.agents import (  # noqa: E402
     PUBLIC_SDK_IMPORTS,
     SECURITY_RULES,
     render_agents_md,
+    render_claude_md,
+    render_codex_skill_md,
+    render_cursor_rule,
 )
 
 
@@ -37,6 +40,29 @@ def main() -> int:
     for required in ("SARIF", "plugin_allowlist", "source rows"):
         if required not in text:
             errors.append(f"missing required phrase: {required}")
+
+    expected = {
+        ROOT / "AGENTS.md": render_agents_md(),
+        ROOT / "CLAUDE.md": render_claude_md(),
+        ROOT / ".codex/skills/etlantic/SKILL.md": render_codex_skill_md(),
+        ROOT / ".cursor/rules/etlantic.mdc": render_cursor_rule(),
+    }
+    for path, rendered in expected.items():
+        if not path.exists():
+            errors.append(f"missing on-disk guidance file: {path.relative_to(ROOT)}")
+            continue
+        on_disk = path.read_text(encoding="utf-8")
+        if on_disk != rendered:
+            errors.append(
+                f"on-disk guidance drift: {path.relative_to(ROOT)} "
+                "(run generate_agent_guidance)"
+            )
+
+    # Codex skill should mention the full public CLI set.
+    skill = render_codex_skill_md()
+    for cmd in PUBLIC_CLI_COMMANDS:
+        if cmd not in skill:
+            errors.append(f"Codex skill missing CLI command: {cmd}")
 
     if errors:
         print("Agent guidance drift check FAILED:")

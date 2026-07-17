@@ -26,6 +26,9 @@ pip install etlantic-pandas
 pip install etlantic-sql
 pip install etlantic-pyspark
 pip install etlantic-airflow
+pip install etlantic-keyring
+pip install etlantic-sqlmodel
+pip install etlantic-sparkforge
 ```
 
 Verify:
@@ -53,8 +56,8 @@ the `dev` dependency group (pytest, ruff, mkdocs) by default.
 Tag a version that matches `src/etlantic/_version.py`, then push the tag:
 
 ```bash
-git tag v0.6.1
-git push origin v0.6.1
+git tag v0.10.0
+git push origin v0.10.0
 ```
 
 GitHub Actions runs checks and publishes to PyPI using the `PYPI_API_TOKEN`

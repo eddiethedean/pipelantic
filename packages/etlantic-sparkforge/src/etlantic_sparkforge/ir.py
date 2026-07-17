@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from etlantic.diagnostics import Diagnostic, Severity
+
 
 class LayerKind(StrEnum):
     """SparkForge medallion layer (adapter-only vocabulary)."""
@@ -25,6 +27,12 @@ class StepKind(StrEnum):
     SILVER_TRANSFORM = "silver_transform"
     GOLD_TRANSFORM = "gold_transform"
     UNKNOWN = "unknown"
+
+
+def _float_field(data: dict[str, Any], key: str, default: float) -> float:
+    if key not in data or data[key] is None:
+        return default
+    return float(data[key])
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +63,12 @@ class SparkForgeStepSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> SparkForgeStepSpec:
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+        *,
+        diagnostics: list[Diagnostic] | None = None,
+    ) -> SparkForgeStepSpec:
         kind_raw = str(data.get("kind") or StepKind.UNKNOWN.value)
         try:
             kind = StepKind(kind_raw)
@@ -66,6 +79,19 @@ class SparkForgeStepSpec:
             layer = LayerKind(layer_raw)
         except ValueError:
             layer = LayerKind.BRONZE
+            if diagnostics is not None:
+                diagnostics.append(
+                    Diagnostic(
+                        code="PMSF308",
+                        severity=Severity.WARNING,
+                        message=(
+                            f"Unknown SparkForge layer {layer_raw!r} on step "
+                            f"{data.get('name')!r}; coerced to bronze."
+                        ),
+                        path=("steps", str(data.get("name") or "?"), "layer"),
+                        phase="sparkforge_adapter",
+                    )
+                )
         return cls(
             name=str(data["name"]),
             kind=kind,
@@ -107,22 +133,50 @@ class SparkForgePipelineSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> SparkForgePipelineSpec:
-        steps = tuple(
-            SparkForgeStepSpec.from_dict(item)
-            for item in (data.get("steps") or ())
-            if isinstance(item, dict)
-        )
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+        *,
+        diagnostics: list[Diagnostic] | None = None,
+    ) -> SparkForgePipelineSpec:
+        steps_raw = data.get("steps") or ()
+        steps_list: list[SparkForgeStepSpec] = []
+        for index, item in enumerate(steps_raw):
+            if not isinstance(item, dict):
+                if diagnostics is not None:
+                    diagnostics.append(
+                        Diagnostic(
+                            code="PMSF309",
+                            severity=Severity.WARNING,
+                            message=(
+                                f"Ignoring non-dict SparkForge step at index {index}."
+                            ),
+                            path=("steps", str(index)),
+                            phase="sparkforge_adapter",
+                        )
+                    )
+                continue
+            steps_list.append(
+                SparkForgeStepSpec.from_dict(item, diagnostics=diagnostics)
+            )
         return cls(
             name=str(data.get("name") or "AdaptedPipeline"),
             schema=str(data.get("schema") or "default"),
-            steps=steps,
-            min_bronze_rate=float(data.get("min_bronze_rate") or 90.0),
-            min_silver_rate=float(data.get("min_silver_rate") or 95.0),
-            min_gold_rate=float(data.get("min_gold_rate") or 98.0),
+            steps=tuple(steps_list),
+            min_bronze_rate=_float_field(data, "min_bronze_rate", 90.0),
+            min_silver_rate=_float_field(data, "min_silver_rate", 95.0),
+            min_gold_rate=_float_field(data, "min_gold_rate", 98.0),
             engine=str(data.get("engine") or "spark"),
             legacy_engine_extensions=tuple(
                 str(x) for x in (data.get("legacy_engine_extensions") or ())
             ),
             metadata=dict(data.get("metadata") or {}),
         )
+
+    @classmethod
+    def parse(
+        cls, data: dict[str, Any]
+    ) -> tuple[SparkForgePipelineSpec, list[Diagnostic]]:
+        """Parse IR and return any coercion / hygiene diagnostics."""
+        diagnostics: list[Diagnostic] = []
+        return cls.from_dict(data, diagnostics=diagnostics), diagnostics

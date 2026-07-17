@@ -34,4 +34,4 @@ artifact.write("dags/my_pipeline.py")
 - Lifecycle correlation keys for normalized run reports
 
 **Not included:** managed Airflow deployments, Dagster/Prefect compilers (future
-plugins), full CLI `compile` command (0.9).
+plugins). CLI `etlantic compile … --target airflow` is available in core 0.9+.

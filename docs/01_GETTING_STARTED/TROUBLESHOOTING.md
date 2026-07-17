@@ -40,14 +40,14 @@ python -m pip install --upgrade etlantic-pyspark
 
 If pip reports no matching distribution:
 
-1. Confirm core is already at 0.7.0 or newer.
+1. Confirm core is already at 0.10.0 or newer.
 2. Confirm Python is 3.11+.
 3. Confirm the package name uses a hyphen (`etlantic-pyspark`), not an
    underscore.
 
-Until 0.7.0 is on PyPI, install from a git checkout with
-`uv sync --group dataframes` / `--group sql` / `--group pyspark`
-instead.
+From a git checkout, install optional groups with
+`uv sync --group dataframes` / `--group sql` / `--group pyspark` /
+`--group airflow` / `--group sparkforge` as needed.
 
 ## A transformation has no implementation
 

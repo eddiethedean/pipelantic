@@ -1,7 +1,8 @@
 # Secrets Management
 
-> **Available in 0.5:** `env` and mounted-file secret providers only.
-> AWS Secrets Manager, Vault, keyring, and cloud identity providers are
+> **Available:** `env` and mounted-file secret providers (0.5+).
+> Optional OS keyring provider via `etlantic-keyring` (0.9+).
+> AWS Secrets Manager, Vault, and cloud identity providers remain
 > **future design**—do not configure them yet.
 
 ETLantic treats secrets as runtime dependencies that are referenced during

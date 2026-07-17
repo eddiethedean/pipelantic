@@ -282,7 +282,23 @@ def test_middleware_order_observable() -> None:
 
 
 def test_redact_message_in_report() -> None:
-    from etlantic.runtime.logging import redact_message
+    from etlantic.runtime.logging import redact_message, redact_value
 
     assert "password=***" in redact_message("failed password=hunter2 for user")
     assert "hunter2" not in redact_message("token=hunter2")
+    bearer = redact_message("Authorization: Bearer abc123token")
+    assert "abc123token" not in bearer
+    assert "Bearer ***" in bearer
+    json_msg = redact_message('{"password": "hunter2", "user": "ada"}')
+    assert "hunter2" not in json_msg
+    assert '"password": "***"' in json_msg
+    mongo = redact_message("mongodb://user:pass@host/db")
+    assert "pass@" not in mongo
+    assert "user:***@" in mongo
+    redis = redact_message("redis://:s3cret@localhost:6379/0")
+    assert "s3cret" not in redis
+    assert redact_value({"passwd": "x", "pwd": "y", "aws_secret_access_key": "z"}) == {
+        "passwd": "***",
+        "pwd": "***",
+        "aws_secret_access_key": "***",
+    }

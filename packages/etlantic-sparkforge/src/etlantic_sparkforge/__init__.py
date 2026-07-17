@@ -9,12 +9,14 @@ from etlantic_sparkforge.adapt import (
     adapt_pipeline,
     adapt_profile,
     adapt_validation_policy,
+    enrich_plan,
 )
 from etlantic_sparkforge.compat import (
     COMPATIBILITY_MATRIX,
     assert_delta_capabilities,
     retry_policy_from_sparkforge,
     write_mode_from_sparkforge,
+    write_mode_metadata,
 )
 from etlantic_sparkforge.ir import (
     LayerKind,
@@ -49,9 +51,11 @@ __all__ = [
     "assert_delta_capabilities",
     "bind_debug_session",
     "debug_request_from_sparkforge",
+    "enrich_plan",
     "intent_from_sparkforge",
     "report_to_sparkforge_explain",
     "retry_policy_from_sparkforge",
     "selection_from_sparkforge",
     "write_mode_from_sparkforge",
+    "write_mode_metadata",
 ]

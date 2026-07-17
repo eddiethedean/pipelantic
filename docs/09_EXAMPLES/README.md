@@ -60,15 +60,16 @@ The remaining pages in this section explore intended integrations. Each page
 opens with a Future design warning. They may contain APIs, packages, or
 commands that do not exist yet (or that go beyond the shipped surface).
 
-| Topic | 0.7 status |
+| Topic | Status |
 |---|---|
 | CSV and JSON through built-in storage | Use `examples/file_storage.py` |
 | Pandas and Polars pipelines | Use `examples/dataframe_parity.py` |
 | SQL execution and pushdown | Use `examples/sql_*.py` (+ SQL docs) |
 | PySpark batch | Use `examples/pyspark_local.py` (+ PySpark docs) |
 | Structured Streaming | Experimental foundation |
-| Airflow compilation | Future plugin design |
-| Generated Graphviz/HTML documentation | Future design |
+| Airflow compilation | Available (`etlantic-airflow`) |
+| Graphviz DOT / HTML lineage | Available (`etlantic.viz`) |
+| SparkForge migration adapter | Available (`etlantic-sparkforge`) |
 
 Do not use a design study as an installation or API reference. The
 [capabilities page](../01_GETTING_STARTED/CAPABILITIES.md) and

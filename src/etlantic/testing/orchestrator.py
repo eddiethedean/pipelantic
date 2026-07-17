@@ -36,7 +36,7 @@ def run_orchestrator_conformance_suite(
     assert artifact is not None
     assert artifact.target == engine or artifact.target == plugin.info.engine
     assert "password" not in (artifact.source or "").lower()
-    assert "secret" not in str(artifact.metadata).lower() or True
+    assert "secret" not in str(artifact.metadata).lower()
     explain = artifact.explain()
     assert "dag_id" in explain
     return artifact

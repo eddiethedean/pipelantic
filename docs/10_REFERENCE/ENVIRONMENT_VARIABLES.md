@@ -1,6 +1,6 @@
 # Environment Variables
 
-!!! warning "Future design—not a ETLantic 0.7 API guide"
+!!! warning "Future design—not a ETLantic 0.10 API guide"
     This page describes a proposed 1.0 configuration surface. ETLantic 0.6
     does not load `etlantic.toml` or most of these environment variables.
     Configure profiles and bindings in Python.

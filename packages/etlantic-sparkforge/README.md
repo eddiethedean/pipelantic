@@ -15,9 +15,9 @@ pip install etlantic-sparkforge
 pip install 'etlantic[sparkforge]'
 ```
 
-Optional live SparkForge bridging is available when the SparkForge /
-`pipeline_builder` package is installed in the same environment. IR fixture
-tests and the core adapter do **not** require it.
+0.10 ships an **IR-only** adapter: feed `SparkForgePipelineSpec` (JSON/YAML
+fixtures or hand-built dataclasses). There is **no** live
+`pipeline_builder` / SparkForge Python API bridge in this release.
 
 ## Quick start (IR → Pipeline)
 
@@ -29,7 +29,9 @@ from etlantic_sparkforge import (
     LayerKind,
     adapt_pipeline,
     debug_request_from_sparkforge,
+    enrich_plan,
 )
+from etlantic.plan import plan_pipeline
 
 spec = SparkForgePipelineSpec(
     name="ecommerce",
@@ -53,16 +55,27 @@ spec = SparkForgePipelineSpec(
 )
 adapted = adapt_pipeline(spec)
 adapted.pipeline_cls.validate(profile=adapted.profile)
+plan = enrich_plan(
+    plan_pipeline(adapted.pipeline_cls, profile=adapted.profile),
+    adapted,
+)
 request = debug_request_from_sparkforge(mode="incremental", skip_writes=True)
 ```
 
 ## Progressive engine deprecation path
 
 1. **Plan-only** — generate/inspect ETLantic plans from SparkForge IR
+   (`strict_delta=False` to warn instead of fail when Delta caps are unknown)
 2. **Dual reporting** — `adapt_run_result` → `PipelineRunReport`
 3. **ETLantic planning** — selections/intents via `debug_request_from_sparkforge`
 4. **Plugin execution** — `Profile.spark_engine="pyspark"` / SQL plugins
 5. **Facade** — SparkForge keeps medallion builder; retire duplicated engines
+
+`transform_ref` / bronze `rules` emit `PMSF411` warnings: the adapter builds
+passthrough transforms for planning parity; it does not execute SparkForge
+callables. Write intents (including MERGE) are attached via `enrich_plan` for
+orchestration; the local runtime still gates materialization with
+`RunRequest.no_write`.
 
 See `docs/11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md`.
 

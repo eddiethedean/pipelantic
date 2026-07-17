@@ -7,10 +7,12 @@ from typing import Any
 from etlantic.runtime.execute import DebugSession
 from etlantic.runtime.request import (
     MaterializationPolicy,
+    RetryPolicy,
     RunIntent,
     RunRequest,
     RunSelection,
 )
+from etlantic_sparkforge.compat import retry_policy_from_sparkforge
 
 _INTENT_MAP: dict[str, RunIntent] = {
     "standard": RunIntent.STANDARD,
@@ -62,19 +64,33 @@ def debug_request_from_sparkforge(
     run_one: str | None = None,
     run_from: str | None = None,
     skip_writes: bool = False,
+    materialization: MaterializationPolicy | None = None,
+    retry: dict[str, Any] | RetryPolicy | None = None,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
 ) -> RunRequest:
-    """Build a RunRequest from SparkForge debug/session options."""
-    materialization = (
-        MaterializationPolicy.NONE if skip_writes else MaterializationPolicy.DEFAULT
-    )
+    """Build a RunRequest from SparkForge debug/session options.
+
+    ``skip_writes`` sets ``no_write=True`` only. Materialization stays
+    ``DEFAULT`` unless the caller passes ``materialization=`` explicitly.
+    ``VALIDATE`` intent also sets ``no_write=True``.
+    """
+    intent = intent_from_sparkforge(mode)
+    no_write = skip_writes or intent is RunIntent.VALIDATE
+    retry_policy: RetryPolicy
+    if isinstance(retry, RetryPolicy):
+        retry_policy = retry
+    elif isinstance(retry, dict):
+        retry_policy = retry_policy_from_sparkforge(retry)
+    else:
+        retry_policy = RetryPolicy()
     return RunRequest(
         selection=selection_from_sparkforge(
             run_until=run_until, run_one=run_one, run_from=run_from
         ),
-        intent=intent_from_sparkforge(mode),
-        materialization=materialization,
-        no_write=skip_writes,
+        intent=intent,
+        materialization=materialization or MaterializationPolicy.DEFAULT,
+        no_write=no_write,
+        retry=retry_policy,
         parameter_overrides=dict(parameter_overrides or {}),
     )
 

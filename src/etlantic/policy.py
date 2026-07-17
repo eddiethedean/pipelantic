@@ -64,6 +64,12 @@ VALIDATION_POLICIES: dict[str, ValidationPolicy] = {
 }
 
 
+def register_validation_policy(policy: ValidationPolicy) -> ValidationPolicy:
+    """Register a named validation policy for later ``resolve_validation_policy``."""
+    VALIDATION_POLICIES[policy.name] = policy
+    return policy
+
+
 def resolve_validation_policy(name: str | ValidationPolicy | None) -> ValidationPolicy:
     """Resolve a policy name or object."""
     if name is None:

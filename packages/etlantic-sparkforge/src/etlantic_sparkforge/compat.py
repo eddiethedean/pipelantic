@@ -7,6 +7,7 @@ from typing import Any
 from etlantic.capabilities import PluginCapabilities
 from etlantic.diagnostics import Diagnostic, Severity
 from etlantic.reliability import WriteMode
+from etlantic.runtime.request import RetryPolicy
 
 # SparkForge write vocabulary → ETLantic WriteMode
 _WRITE_MODE_MAP: dict[str, WriteMode] = {
@@ -39,30 +40,52 @@ def write_mode_from_sparkforge(raw: str | None) -> WriteMode:
     return _WRITE_MODE_MAP[key]
 
 
-def retry_policy_from_sparkforge(raw: dict[str, Any] | None) -> dict[str, Any]:
-    """Normalize SparkForge retry config into portable intent metadata."""
+def write_mode_metadata(raw: str | None) -> dict[str, Any]:
+    """Extra write-mode metadata preserved when modes collapse (e.g. partitions)."""
+    key = (raw or "overwrite").strip().lower()
+    meta: dict[str, Any] = {}
+    if key == "overwrite_partitions":
+        meta["partition_overwrite"] = True
+        meta["sparkforge_write_mode"] = key
+    elif key:
+        meta["sparkforge_write_mode"] = key
+    return meta
+
+
+def retry_policy_from_sparkforge(raw: dict[str, Any] | None) -> RetryPolicy:
+    """Normalize SparkForge retry config into ETLantic ``RetryPolicy``."""
     data = dict(raw or {})
-    return {
-        "max_attempts": int(data.get("max_attempts") or data.get("retries") or 1),
-        "retry_delay_seconds": float(
-            data.get("retry_delay_seconds") or data.get("delay") or 0.0
-        ),
-        "retry_safe": bool(data.get("retry_safe", True)),
-    }
+    retry_on_raw = data.get("retry_on") or data.get("retry_on_exceptions") or ()
+    if isinstance(retry_on_raw, str):
+        retry_on: tuple[str, ...] = (retry_on_raw,)
+    else:
+        retry_on = tuple(str(x) for x in retry_on_raw)
+    backoff = data.get("backoff_seconds")
+    if backoff is None:
+        backoff = data.get("retry_delay_seconds")
+    if backoff is None:
+        backoff = data.get("delay")
+    return RetryPolicy(
+        max_attempts=int(data.get("max_attempts") or data.get("retries") or 1),
+        backoff_seconds=float(0.0 if backoff is None else backoff),
+        retry_on=retry_on,
+    )
 
 
 def assert_delta_capabilities(
     operations: list[str],
     *,
     capabilities: PluginCapabilities | None = None,
+    strict: bool = True,
 ) -> list[Diagnostic]:
     """Fail closed when declared Delta ops are unsupported by capabilities.
 
-    When ``capabilities`` is None (planning without a live plugin), require
-    that operations are listed but emit errors — callers must supply a plugin
-    that supports ``spark_delta`` before execution.
+    When ``capabilities`` is None and ``strict`` is True (default), emit errors
+    so callers must supply a plugin that supports ``spark_delta`` before
+    execution. When ``strict`` is False (plan-only), emit warnings instead.
     """
     diagnostics: list[Diagnostic] = []
+    missing_caps_severity = Severity.ERROR if strict else Severity.WARNING
     for op in operations:
         key = op.strip().lower()
         required = _DELTA_CAPABILITY.get(key)
@@ -81,10 +104,11 @@ def assert_delta_capabilities(
             diagnostics.append(
                 Diagnostic(
                     code="PMSF322",
-                    severity=Severity.ERROR,
+                    severity=missing_caps_severity,
                     message=(
                         f"Delta operation {op!r} requires capability {required!r}; "
-                        "no Spark plugin capabilities were supplied (fail closed)."
+                        "no Spark plugin capabilities were supplied"
+                        + (" (fail closed)." if strict else " (plan-only warning).")
                     ),
                     path=("delta_operations", op),
                     phase="sparkforge_adapter",
@@ -115,5 +139,10 @@ COMPATIBILITY_MATRIX: dict[str, dict[str, str]] = {
         "pyspark": "Profile.spark_engine=pyspark",
         "sql": "Profile.sql_engine=sql",
         "delta": "Profile.spark_engine=pyspark + spark_delta capability",
+    },
+    "notes": {
+        "overwrite_partitions": (
+            "Maps to WriteMode.OVERWRITE with metadata.partition_overwrite=true"
+        ),
     },
 }

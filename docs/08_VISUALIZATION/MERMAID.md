@@ -1,8 +1,8 @@
 # Mermaid
 
-> **Status: Available in ETLantic 0.7.0** for logical pipeline graphs via
-> `Pipeline.to_mermaid()`. Graphviz/HTML exporters and plan-level Mermaid APIs
-> are not shipped.
+> **Status: Available** for logical pipeline graphs via `Pipeline.to_mermaid()`.
+> Graphviz DOT and HTML lineage exporters are also available via `etlantic.viz`
+> (shipped in 0.9+).
 
 ETLantic can generate a **Mermaid** flowchart from a pipeline's logical
 graph. Mermaid renders in Markdown viewers, documentation sites, GitHub,

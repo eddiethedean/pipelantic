@@ -27,7 +27,7 @@ Or with uv:
 uv add etlantic
 ```
 
-Verify the installed version matches these docs (0.7.0 or newer):
+Verify the installed version matches these docs (0.10.0 or newer):
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -44,12 +44,19 @@ pip install etlantic-pandas    # Pandas compatibility plugin
 pip install etlantic-sql       # PostgreSQL SQL reference plugin
 pip install etlantic-pyspark   # PySpark reference plugin + local provider
 pip install etlantic-airflow   # Airflow DAG compiler
+pip install etlantic-keyring   # OS keyring secret provider
+pip install etlantic-sqlmodel  # SQLModel bridge helpers
+pip install etlantic-sparkforge  # SparkForge → ETLantic IR adapter
 # or extras:
 pip install 'etlantic[polars]'
 pip install 'etlantic[pandas]'
 pip install 'etlantic[dataframes]'
 pip install 'etlantic[sql]'
 pip install 'etlantic[pyspark]'
+pip install 'etlantic[airflow]'
+pip install 'etlantic[keyring]'
+pip install 'etlantic[sqlmodel]'
+pip install 'etlantic[sparkforge]'
 ```
 
 For SQL, set a connection URL (PostgreSQL is the reference; SQLite is demo-only):
@@ -67,8 +74,9 @@ Select Spark with `Profile(spark_engine="pyspark")` and
 `@Transformation.implementation("pyspark")`. See
 [Migration 0.6 → 0.7](../11_DEVELOPMENT/MIGRATION_0_6_TO_0_7.md).
 
-Airflow and other orchestrator compilers are not part of 0.7. Do not install
-undocumented extras expecting those backends.
+Airflow compilation is available via `etlantic-airflow` (`compile_plan` /
+`etlantic compile … --target airflow`). Dagster and Prefect remain future
+plugins.
 
 ## Upgrade
 

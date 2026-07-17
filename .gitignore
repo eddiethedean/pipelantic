@@ -20,3 +20,5 @@ htmlcov/
 .DS_Store
 examples/_file_storage_out/
 examples/_generated_*.py
+tmp_cli_contracts/
+tmp_/

@@ -77,6 +77,18 @@ def main() -> None:
         "Public third-party Plugin SDK polish | Continues in 0.9",
         "SparkForge migration adapter | Future design (0.10)",
         "SparkForge migration adapter | Future design",
+        "External orchestration plugins (Airflow and peers) arrive later.",
+        "Airflow and other orchestrator compilers are not part of 0.7",
+        "Until 0.7.0 is on PyPI",
+        "Airflow compilation | Future plugin design",
+        "Generated Graphviz/HTML documentation | Future design",
+        "Graphviz/HTML are future",
+        "Graphviz/HTML exporters and plan-level Mermaid APIs\nare not shipped",
+        "keyring, and cloud identity providers are\n**future design**",
+        "| 0.7.x | Current alpha line",
+        "git tag v0.6.1",
+        "full CLI `compile` command (0.9)",
+        "not a ETLantic 0.9 API guide",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -91,11 +103,33 @@ def main() -> None:
     if "| Capability | 0.9 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.9")
 
+    # Shipped capabilities must not be denied on primary getting-started pages.
+    capabilities = (ROOT / "docs/01_GETTING_STARTED/CAPABILITIES.md").read_text(
+        encoding="utf-8"
+    )
+    for required in (
+        "etlantic-airflow",
+        "etlantic-sparkforge",
+        "etlantic-keyring",
+        "Graphviz",
+    ):
+        if required not in capabilities:
+            raise SystemExit(f"CAPABILITIES.md missing shipped surface {required!r}")
+    security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    if f"| {package_version.rsplit('.', 1)[0]}.x | Current alpha line" not in security:
+        # e.g. 0.10.0 → 0.10.x
+        major_minor = ".".join(package_version.split(".")[:2])
+        if f"| {major_minor}.x | Current alpha line" not in security:
+            raise SystemExit(
+                f"SECURITY.md support table must list {major_minor}.x as current alpha"
+            )
+
     scrub_paths = [
         ROOT / "README.md",
         ROOT / "examples/README.md",
         ROOT / "docs/README.md",
         ROOT / "docs/01_GETTING_STARTED/INSTALLATION.md",
+        ROOT / "docs/01_GETTING_STARTED/TROUBLESHOOTING.md",
         ROOT / "docs/01_GETTING_STARTED/FAQ.md",
         ROOT / "docs/01_GETTING_STARTED/README.md",
         ROOT / "docs/01_GETTING_STARTED/QUICKSTART.md",
@@ -105,11 +139,16 @@ def main() -> None:
         ROOT / "docs/06_EXECUTION/LOCAL_PYTHON.md",
         ROOT / "docs/06_EXECUTION/SECRETS_MANAGEMENT.md",
         ROOT / "docs/08_VISUALIZATION/MERMAID.md",
+        ROOT / "docs/08_VISUALIZATION/DOCUMENTATION.md",
         ROOT / "docs/09_EXAMPLES/README.md",
         ROOT / "docs/10_REFERENCE/API_REFERENCE.md",
         ROOT / "docs/10_REFERENCE/CLI.md",
         ROOT / "docs/10_REFERENCE/COMPATIBILITY.md",
+        ROOT / "docs/10_REFERENCE/CONFIGURATION.md",
+        ROOT / "docs/10_REFERENCE/ENVIRONMENT_VARIABLES.md",
         ROOT / "docs/11_DEVELOPMENT/CONTRIBUTING.md",
+        ROOT / "SECURITY.md",
+        ROOT / "packages/etlantic-airflow/README.md",
         ROOT / "docs/theme/javascripts/status-banner.js",
     ]
     for path in scrub_paths:

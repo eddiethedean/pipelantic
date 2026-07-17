@@ -10,8 +10,10 @@ import pytest
 pytest.importorskip("etlantic_sparkforge")
 
 from etlantic.plan import explain_plan, plan_pipeline
+from etlantic.policy import resolve_validation_policy
 from etlantic.reliability import WriteMode
-from etlantic.runtime.request import MaterializationPolicy, RunIntent
+from etlantic.runtime.request import MaterializationPolicy, RetryPolicy, RunIntent
+from etlantic.runtime.state import RunStatus
 from etlantic_sparkforge import (
     COMPATIBILITY_MATRIX,
     AdapterError,
@@ -20,10 +22,13 @@ from etlantic_sparkforge import (
     adapt_run_result,
     assert_delta_capabilities,
     debug_request_from_sparkforge,
+    enrich_plan,
     intent_from_sparkforge,
     report_to_sparkforge_explain,
+    retry_policy_from_sparkforge,
     selection_from_sparkforge,
     write_mode_from_sparkforge,
+    write_mode_metadata,
 )
 
 pytestmark = pytest.mark.sparkforge
@@ -88,7 +93,11 @@ def test_runtime_mapping() -> None:
     req = debug_request_from_sparkforge(mode="full_refresh", skip_writes=True)
     assert req.intent is RunIntent.REFRESH
     assert req.no_write is True
-    assert req.materialization is MaterializationPolicy.NONE
+    assert req.materialization is MaterializationPolicy.DEFAULT
+    validate_req = debug_request_from_sparkforge(mode="validation_only")
+    assert validate_req.intent is RunIntent.VALIDATE
+    assert validate_req.no_write is True
+    assert validate_req.materialization is MaterializationPolicy.DEFAULT
 
 
 def test_report_normalization_and_redaction() -> None:
@@ -184,3 +193,229 @@ def test_core_has_no_medallion_enums() -> None:
         if "layerkind" in text or "medallionlayer" in text:
             offenders.append(str(path))
     assert offenders == []
+
+
+def test_source_based_wiring_respects_reorder() -> None:
+    data = {
+        "name": "reordered",
+        "schema": "demo",
+        "engine": "local",
+        "steps": [
+            {
+                "name": "bronze",
+                "kind": "bronze_rules",
+                "layer": "bronze",
+                "table_name": "b",
+            },
+            {
+                "name": "gold",
+                "kind": "gold_transform",
+                "layer": "gold",
+                "source": "silver",
+                "table_name": "g",
+                "write_mode": "overwrite",
+            },
+            {
+                "name": "silver",
+                "kind": "silver_transform",
+                "layer": "silver",
+                "source": "bronze",
+                "table_name": "s",
+                "write_mode": "overwrite",
+            },
+        ],
+    }
+    result = adapt_pipeline(SparkForgePipelineSpec.from_dict(data))
+    graph = result.pipeline_cls.inspect()
+    pairs = {(e.producer_node, e.consumer_node) for e in graph.edges}
+    assert ("bronze", "silver") in pairs
+    assert ("silver", "gold") in pairs
+
+
+def test_unknown_source_fail_closed() -> None:
+    data = {
+        "name": "dangling",
+        "engine": "local",
+        "steps": [
+            {
+                "name": "bronze",
+                "kind": "bronze_rules",
+                "layer": "bronze",
+            },
+            {
+                "name": "silver",
+                "kind": "silver_transform",
+                "layer": "silver",
+                "source": "missing",
+                "write_mode": "overwrite",
+            },
+        ],
+    }
+    with pytest.raises(AdapterError) as exc:
+        adapt_pipeline(SparkForgePipelineSpec.from_dict(data))
+    assert any(d.code == "PMSF312" for d in exc.value.report.diagnostics)
+
+
+def test_multi_bronze_source_wiring() -> None:
+    data = {
+        "name": "multi",
+        "engine": "local",
+        "steps": [
+            {"name": "a", "kind": "bronze_rules", "layer": "bronze"},
+            {"name": "b", "kind": "bronze_rules", "layer": "bronze"},
+            {
+                "name": "from_a",
+                "kind": "silver_transform",
+                "layer": "silver",
+                "source": "a",
+                "table_name": "out_a",
+                "write_mode": "overwrite",
+            },
+        ],
+    }
+    result = adapt_pipeline(SparkForgePipelineSpec.from_dict(data))
+    assert "a" in result.step_map
+    assert "b" in result.step_map
+    edges = result.pipeline_cls.inspect().edges
+    assert any(e.producer_node == "a" for e in edges)
+
+
+def test_unknown_report_status_fail_closed() -> None:
+    report = adapt_run_result({"status": "weird_unknown_status", "steps": []})
+    assert report.status is RunStatus.FAILED
+    assert any(d.code == "PMSF500" for d in report.diagnostics)
+
+
+def test_report_preserves_zero_counts_and_aliases() -> None:
+    report = adapt_run_result(
+        {
+            "status": "timeout",
+            "started_at": "2026-01-01T00:00:00+00:00",
+            "ended_at": "2026-01-01T00:00:05+00:00",
+            "records_in": 0,
+            "records_out": 0,
+            "steps": [
+                {
+                    "name": "a",
+                    "status": "skipped",
+                    "attempts": 0,
+                    "records_in": 0,
+                    "records_out": 0,
+                },
+                {"name": "b", "status": "canceled"},
+            ],
+        }
+    )
+    assert report.status is RunStatus.TIMED_OUT
+    assert report.summary.records_in == 0
+    assert report.summary.records_out == 0
+    assert report.summary.skipped == 1
+    assert report.summary.cancelled == 1
+    assert report.steps[0].attempts == 0
+    assert report.steps[0].records_in == 0
+    assert report.ended_at is not None
+    assert report.duration_seconds == 5.0
+
+
+def test_retry_policy_maps_to_core() -> None:
+    policy = retry_policy_from_sparkforge(
+        {"retries": 3, "delay": 1.5, "retry_on": ["TimeoutError"]}
+    )
+    assert isinstance(policy, RetryPolicy)
+    assert policy.max_attempts == 3
+    assert policy.backoff_seconds == 1.5
+    assert policy.retry_on == ("TimeoutError",)
+    req = debug_request_from_sparkforge(
+        mode="standard", retry={"max_attempts": 2, "backoff_seconds": 0.5}
+    )
+    assert req.retry.max_attempts == 2
+    assert req.retry.backoff_seconds == 0.5
+
+
+def test_bad_write_mode_adapter_error() -> None:
+    data = {
+        "name": "bad_write",
+        "engine": "local",
+        "steps": [
+            {"name": "bronze", "kind": "bronze_rules", "layer": "bronze"},
+            {
+                "name": "silver",
+                "kind": "silver_transform",
+                "layer": "silver",
+                "source": "bronze",
+                "write_mode": "truncate",
+            },
+        ],
+    }
+    with pytest.raises(AdapterError) as exc:
+        adapt_pipeline(SparkForgePipelineSpec.from_dict(data))
+    assert any(d.code == "PMSF307" for d in exc.value.report.diagnostics)
+
+
+def test_overwrite_partitions_metadata() -> None:
+    meta = write_mode_metadata("overwrite_partitions")
+    assert meta["partition_overwrite"] is True
+    assert write_mode_from_sparkforge("overwrite_partitions") is WriteMode.OVERWRITE
+
+
+def test_registered_validation_policy_resolves() -> None:
+    result = adapt_pipeline(_load_ecommerce())
+    resolved = resolve_validation_policy(result.profile.validation_policy)
+    assert resolved.metadata["min_accept_rate_ingest"] == 90.0
+    assert resolved.name == result.validation_policy.name
+
+
+def test_enrich_plan_write_intents() -> None:
+    result = adapt_pipeline(_load_ecommerce())
+    plan = plan_pipeline(result.pipeline_cls, profile=result.profile)
+    enriched = enrich_plan(plan, result)
+    intents = enriched.intents["write_intents"]
+    assert intents["gold_order_kpis"]["intent"] == "merge"
+    assert intents["silver_orders"]["mode"] == "overwrite"
+
+
+def test_delta_plan_only_warns() -> None:
+    data = json.loads((FIXTURES / "ecommerce.json").read_text(encoding="utf-8"))
+    data["metadata"] = {**data.get("metadata", {}), "delta_operations": ["merge"]}
+    result = adapt_pipeline(SparkForgePipelineSpec.from_dict(data), strict_delta=False)
+    assert any(
+        d.code == "PMSF322" and d.severity.value == "warning"
+        for d in result.diagnostics
+    )
+    assert "spark_delta" in result.profile.required_spark_capabilities
+
+
+def test_zero_accept_rates_preserved() -> None:
+    spec = SparkForgePipelineSpec.from_dict(
+        {
+            "name": "zero",
+            "min_bronze_rate": 0.0,
+            "min_silver_rate": 0.0,
+            "min_gold_rate": 0.0,
+            "steps": [{"name": "a", "kind": "bronze_rules", "layer": "bronze"}],
+        }
+    )
+    assert spec.min_bronze_rate == 0.0
+    assert spec.min_silver_rate == 0.0
+
+
+def test_no_write_skips_sink_node() -> None:
+    data = {
+        "name": "nowrite",
+        "engine": "local",
+        "steps": [
+            {"name": "bronze", "kind": "bronze_rules", "layer": "bronze"},
+            {
+                "name": "silver",
+                "kind": "silver_transform",
+                "layer": "silver",
+                "source": "bronze",
+                "write_mode": "no_write",
+            },
+        ],
+    }
+    result = adapt_pipeline(SparkForgePipelineSpec.from_dict(data))
+    names = [n.name for n in result.pipeline_cls.inspect().nodes]
+    assert "silver" in names
+    assert "silver_out" not in names
+    assert result.write_intents[0].mode is WriteMode.NO_WRITE

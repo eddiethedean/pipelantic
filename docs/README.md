@@ -91,10 +91,12 @@ From these declarations, ETLantic can derive:
 - Optional Polars and Pandas dataframe plugins (0.5.0)
 - Optional SQL execution via `etlantic-sql` (0.6.0)
 - Optional PySpark execution via `etlantic-pyspark` (0.7+)
-- Optional Airflow DAG compilation via `etlantic-airflow` (0.10.0)
+- Optional Airflow DAG compilation via `etlantic-airflow` (0.8+)
+- Optional SparkForge migration adapter via `etlantic-sparkforge` (0.10+)
 
 Memory, callable, JSON, CSV, and no-write storage are included in core.
-External orchestration plugins (Airflow and peers) arrive later.
+Airflow compilation is available via `etlantic-airflow`; other orchestrators
+(Dagster/Prefect) remain future plugins.
 
 The transformation implementation remains separate:
 
@@ -113,8 +115,9 @@ def normalize_customers_sql(customers):
 ```
 
 Install `etlantic-polars` / `etlantic-pandas` / `etlantic-sql` /
-`etlantic-pyspark` for engines; later milestones may add remote Spark
-providers or orchestrator compilers.
+`etlantic-pyspark` / `etlantic-airflow` / `etlantic-sparkforge` for engines
+and adapters; later milestones may add remote Spark providers or additional
+orchestrator compilers.
 
 ## The Architecture in One View
 
@@ -242,8 +245,8 @@ These pages describe intended 1.0 workflows. They are **not** current API guides
 | [Transformations](04_TRANSFORMATIONS/README.md) | Define typed transformation interfaces |
 | [Pipelines](05_PIPELINES/README.md) | Compose transformations into portable graphs |
 | [Execution](06_EXECUTION/README.md) | Local runtime, secrets, dataframe and SQL engines |
-| [Future Design](06_EXECUTION/PLUGINS.md) | Airflow and other unshipped orchestrators |
-| [Visualization](08_VISUALIZATION/README.md) | Mermaid today; Graphviz/HTML are future |
+| [Orchestration](06_EXECUTION/AIRFLOW.md) | Airflow compiler (`etlantic-airflow`); other orchestrators future |
+| [Visualization](08_VISUALIZATION/README.md) | Mermaid, Graphviz DOT, HTML lineage |
 | [Examples](09_EXAMPLES/README.md) | Runnable pointers + design studies |
 | [Reference](10_REFERENCE/README.md) | CLI, API, compatibility |
 | [Development](11_DEVELOPMENT/README.md) | Contributing, roadmap, release |

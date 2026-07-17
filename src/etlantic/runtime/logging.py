@@ -11,7 +11,8 @@ from typing import Any
 from etlantic.secrets.value import SecretValue
 
 _SECRET_KEY_RE = re.compile(
-    r"(password|secret|token|api[_-]?key|credential|authorization)",
+    r"(password|passwd|pwd|secret|token|api[_-]?key|credential|authorization|"
+    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)",
     re.IGNORECASE,
 )
 
@@ -53,12 +54,20 @@ def redact_value(value: Any) -> Any:
 
 
 _SECRET_INLINE_RE = re.compile(
-    r"(?i)(password|secret|token|api[_-]?key|credential|authorization)"
+    r"(?i)(password|passwd|pwd|secret|token|api[_-]?key|credential|authorization|"
+    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)"
     r"""\s*[=:]\s*['\"]?[^\s'\",;]+"""
 )
+_BEARER_RE = re.compile(r"(?i)(authorization\s*[:=]\s*)?bearer\s+[A-Za-z0-9\-._~+/]+=*")
+_JSON_SECRET_RE = re.compile(
+    r'(?i)("(?:password|passwd|pwd|secret|token|api[_-]?key|credential|'
+    r'authorization|aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)"\s*:\s*)'
+    r'"[^"]*"'
+)
 _DSN_RE = re.compile(
-    r"(?i)((?:postgres(?:ql)?|mysql|mariadb|mssql|oracle|sqlite)"
-    r"(?:\+\w+)?://)([^:@/\s]+):([^@/\s]+)@"
+    r"(?i)((?:postgres(?:ql)?|mysql|mariadb|mssql|oracle|sqlite|mongodb|"
+    r"redis|rediss|amqp|amqps|couchdb|cassandra)"
+    r"(?:\+\w+)?://)([^:@/\s]*):([^@/\s]+)@"
 )
 
 
@@ -66,9 +75,11 @@ def redact_message(message: str) -> str:
     """Redact likely secret assignments and DSN credentials from free-form text."""
     if not message:
         return message
-    redacted = _SECRET_INLINE_RE.sub(r"\1=***", message)
+    redacted = _BEARER_RE.sub("Bearer ***", message)
+    redacted = _JSON_SECRET_RE.sub(r'\1"***"', redacted)
+    redacted = _SECRET_INLINE_RE.sub(r"\1=***", redacted)
     redacted = _DSN_RE.sub(r"\1\2:***@", redacted)
-    return redacted.replace("value=***", "value=***")
+    return redacted
 
 
 class RunLogger:

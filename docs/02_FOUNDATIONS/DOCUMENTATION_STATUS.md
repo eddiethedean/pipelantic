@@ -1,13 +1,15 @@
 # Documentation Status and Conventions
 
-ETLantic 0.8 implements the typed modeling kernel, contract interoperability,
+ETLantic 0.10 implements the typed modeling kernel, contract interoperability,
 Validation / Pipeline Plan IR, the local runtime / operational model,
 dataframe execution (Polars reference + Pandas compatibility), SQL-native
 execution (`etlantic-sql`), distributed Spark batch execution
-(`etlantic-pyspark`), and external orchestration compilation
-(`etlantic-airflow`). Structured Streaming APIs are experimental. Much of the
-documentation still describes the intended 1.0 product. It serves three related
-purposes:
+(`etlantic-pyspark`), external orchestration compilation
+(`etlantic-airflow`), CLI/SDK tooling with Graphviz/HTML lineage exporters,
+optional `etlantic-keyring` / `etlantic-sqlmodel`, and the SparkForge
+migration adapter (`etlantic-sparkforge`). Structured Streaming APIs are
+experimental. Much of the documentation still describes the intended 1.0
+product. It serves three related purposes:
 
 1. Explain the product vision and user experience.
 2. Specify the intended 1.0 architecture and public interfaces.
@@ -30,7 +32,7 @@ Public pages use these visible statuses:
 
 | Page status | Meaning |
 |---|---|
-| Available in 0.8 | Tested against the current package |
+| Available in 0.10 | Tested against the current package |
 | Shipped in 0.x | Available since that milestone (still current) |
 | Experimental | Public APIs that may change without a major version bump |
 | Partially available | Shipped and future behavior are explicitly separated |
@@ -38,11 +40,12 @@ Public pages use these visible statuses:
 | Normative specification | Contract requirements, not package behavior |
 | Internal project plan | Maintainer sequencing and implementation notes |
 
-Unless a chapter says otherwise, user-guide code beyond the shipped 0.8
+Unless a chapter says otherwise, user-guide code beyond the shipped 0.10
 modeling, interchange, validation, planning, local runtime, **dataframe
-plugin**, **SQL plugin**, **PySpark batch**, and **Airflow compilation**
-surface should be read as an **accepted design example**, not as evidence of a
-published package API. The 0.8 surface is defined by the package,
+plugin**, **SQL plugin**, **PySpark batch**, **Airflow compilation**,
+**CLI/viz tooling**, and **SparkForge adapter** surface should be read as an
+**accepted design example**, not as evidence of a published package API. The
+0.10 surface is defined by the package,
 [API reference](../10_REFERENCE/API_REFERENCE.md), tests, and changelog.
 
 **Shipped in 0.5:** dataframe execution protocol, `etlantic-polars`, and
@@ -61,11 +64,17 @@ write intents, and `Profile.spark_engine` (see Execution → PySpark).
 `etlantic-airflow`, `compile_plan`, and `Profile.orchestrator` /
 schedule / execution intents (see Execution → Airflow).
 
+**Shipped in 0.9:** CLI surfaces, SARIF, plugin allowlists, Graphviz DOT /
+HTML lineage exporters (`etlantic.viz`), `etlantic-keyring`,
+`etlantic-sqlmodel`.
+
+**Shipped in 0.10:** SparkForge migration adapter (`etlantic-sparkforge`).
+
 **Experimental in 0.7+:** Structured Streaming foundation APIs.
 
 **Still accepted design until later milestones:** managed Spark providers
-(Databricks/EMR/Connect), Dagster/Prefect compilers, Graphviz/HTML
-visualization, and remaining Plugin SDK surfaces.
+(Databricks/EMR/Connect), Dagster/Prefect compilers, and remaining Plugin SDK
+surfaces.
 
 ## Normative Authority
 

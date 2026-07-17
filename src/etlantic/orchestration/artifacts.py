@@ -75,7 +75,20 @@ def validate_artifact_for_transport(
 
     # Metadata must remain secret-free (same rule as plans/reports).
     meta_blob = str(artifact.metadata).lower()
-    for needle in ("password", "secret_value", "api_key"):
+    for needle in (
+        "password",
+        "passwd",
+        "pwd",
+        "secret_value",
+        "secret",
+        "api_key",
+        "token",
+        "authorization",
+        "credential",
+        "bearer",
+        "aws_secret_access_key",
+        "private_key",
+    ):
         if needle in meta_blob:
             diagnostics.append(
                 CompilationDiagnostic(

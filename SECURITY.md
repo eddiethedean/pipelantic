@@ -9,10 +9,10 @@ documentation, or repository automation are welcome.
 
 | Version | Support |
 |---|---|
-| 0.7.x | Current alpha line; best-effort security fixes |
-| 0.6.x | Critical fixes only when practical |
-| 0.5.x | Critical fixes only when practical |
-| 0.4.x and earlier | Not supported |
+| 0.10.x | Current alpha line; best-effort security fixes |
+| 0.9.x | Critical fixes only when practical |
+| 0.8.x | Critical fixes only when practical |
+| 0.7.x and earlier | Not supported |
 
 Upgrade to the latest patch release before reporting an issue.
 
