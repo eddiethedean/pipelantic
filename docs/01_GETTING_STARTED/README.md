@@ -2,7 +2,7 @@
 
 Welcome to ETLantic!
 
-> **Project status:** 0.8.0 provides the typed modeling kernel, contract
+> **Project status:** 0.9.0 provides the typed modeling kernel, contract
 > interoperability (ODCS/DTCS/DPCS), multi-phase validation, profiles, an
 > immutable secret-free `PipelinePlan`, a local async runtime with run
 > reports, Polars/Pandas dataframe plugins, the `etlantic-sql` SQL plugin, and

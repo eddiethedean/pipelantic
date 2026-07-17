@@ -26,7 +26,7 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-**0.8.0** ships validation, profiles, an immutable secret-free
+**0.9.0** ships validation, profiles, an immutable secret-free
 `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
 and Pandas plugins, a versioned SQL protocol with the `etlantic-sql`
@@ -91,7 +91,7 @@ From these declarations, ETLantic can derive:
 - Optional Polars and Pandas dataframe plugins (0.5.0)
 - Optional SQL execution via `etlantic-sql` (0.6.0)
 - Optional PySpark execution via `etlantic-pyspark` (0.7+)
-- Optional Airflow DAG compilation via `etlantic-airflow` (0.8.0)
+- Optional Airflow DAG compilation via `etlantic-airflow` (0.9.0)
 
 Memory, callable, JSON, CSV, and no-write storage are included in core.
 External orchestration plugins (Airflow and peers) arrive later.

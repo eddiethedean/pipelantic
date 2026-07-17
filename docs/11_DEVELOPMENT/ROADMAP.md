@@ -771,6 +771,8 @@ alternate source of pipeline truth.
 
 ## 0.9 — Tooling, SDK, and Ecosystem Readiness
 
+**Status: shipped in 0.9.0**
+
 ### Deliver
 
 - CLI for inspect, validate, plan, explain, run, compile, generate, diff, and

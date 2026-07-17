@@ -1,8 +1,8 @@
 # Documentation
 
-!!! warning "Future design—not a ETLantic 0.7 API guide"
+!!! warning "Future design—not a ETLantic 0.9 API guide"
     Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
-    Mermaid are not shipped in 0.5. For diagrams today, use
+    Mermaid are not fully shipped in 0.9 (stdlib HTML lineage is available; richer docs continue). For diagrams today, use
     `Pipeline.to_mermaid()`.
 
 

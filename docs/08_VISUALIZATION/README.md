@@ -1,7 +1,7 @@
 # Visualization
 
-> **Available in 0.6:** Mermaid diagrams from `Pipeline.to_mermaid()`.
-> Graphviz, HTML explorers, and generated HTML pipeline docs are future design.
+> **Available in 0.9:** Mermaid, Graphviz DOT, HTML lineage pages, and JSON
+> lineage export via `etlantic.viz` and `etlantic viz …`.
 
 Visualization helps developers understand pipelines without reading every
 implementation. Prefer diagrams generated from the typed model over hand-drawn
@@ -10,14 +10,14 @@ charts.
 ## Shipped
 
 - [Mermaid](MERMAID.md) — `Pipeline.to_mermaid()`
+- [Graphviz](GRAPHVIZ.md) — DOT export (`etlantic.viz.graph_to_dot`)
+- [HTML](HTML.md) — lineage HTML pages (`etlantic.viz.graph_to_html`)
+- [Lineage](LINEAGE.md) — JSON lineage export (`etlantic.viz.lineage_export`)
 
 ## Future design
 
-These pages describe intended 1.0 surfaces and are not installable APIs:
+These pages describe intended richer surfaces beyond the 0.9 exporters:
 
-- [Lineage](LINEAGE.md)
-- [Graphviz](GRAPHVIZ.md)
-- [HTML](HTML.md)
 - [Documentation](DOCUMENTATION.md)
 - [Pipeline Interface](OPENAPI_FOR_PIPELINES.md)
 

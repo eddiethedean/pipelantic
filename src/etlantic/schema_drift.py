@@ -76,6 +76,26 @@ class NormalizedSchema:
             "metadata": dict(self.metadata),
         }
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> NormalizedSchema:
+        """Deserialize a normalized schema (fingerprint is recomputed)."""
+        fields = tuple(
+            NormalizedField(
+                name=str(item["name"]),
+                logical_type=str(item.get("logical_type") or "unknown"),
+                required=bool(item.get("required", True)),
+                nullable=bool(item.get("nullable", False)),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("fields") or ())
+            if isinstance(item, dict)
+        )
+        return cls(
+            identity=str(data.get("identity") or ""),
+            fields=fields,
+            metadata=dict(data.get("metadata") or {}),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class SchemaObservation:

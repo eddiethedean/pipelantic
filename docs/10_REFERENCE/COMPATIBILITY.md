@@ -1,6 +1,6 @@
 # Compatibility Matrix
 
-This table describes the declared compatibility of ETLantic 0.8.0.
+This table describes the declared compatibility of ETLantic 0.9.0.
 
 | Surface | Supported range or version |
 |---|---|
@@ -12,11 +12,13 @@ This table describes the declared compatibility of ETLantic 0.8.0.
 | Pipeline plan schema | `etlantic.plan/1` |
 | Dataframe protocol | `etlantic.dataframe/1` |
 | SQL protocol | `etlantic.sql/1` |
-| Polars plugin | `etlantic-polars==0.8.0` |
-| Pandas plugin | `etlantic-pandas==0.8.0` |
-| SQL plugin | `etlantic-sql==0.8.0` |
-| PySpark plugin | `etlantic-pyspark==0.8.0` |
-| Airflow plugin | `etlantic-airflow==0.8.0` |
+| Polars plugin | `etlantic-polars==0.9.0` |
+| Pandas plugin | `etlantic-pandas==0.9.0` |
+| SQL plugin | `etlantic-sql==0.9.0` |
+| PySpark plugin | `etlantic-pyspark==0.9.0` |
+| Airflow plugin | `etlantic-airflow==0.9.0` |
+| Keyring provider | `etlantic-keyring==0.9.0` |
+| SQLModel bridge | `etlantic-sqlmodel==0.9.0` |
 | Orchestration protocol | `etlantic.orchestration/1` |
 | Package stability | Alpha |
 | Plugin SDK stability | Protocol stable within 0.8; third-party SDK still evolving |

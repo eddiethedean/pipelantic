@@ -169,13 +169,17 @@ def main(
 def validate_cmd(
     target: str = typer.Argument(..., help="module:Class or path.py:Class"),
     profile: str = typer.Option("local", "--profile", "-p"),
-    fmt: str = typer.Option("human", "--format", help="human or json"),
+    fmt: str = typer.Option("human", "--format", help="human, json, or sarif"),
 ) -> None:
     """Validate a pipeline without executing it."""
     pipeline_cls = _load_target(target)
     context = PlanningContext.create(profile=profile, registry=_CLI_RUNTIME.registry)
     report = pipeline_cls.validate(context=context)
-    if fmt == "json":
+    if fmt == "sarif":
+        from etlantic.diagnostics.sarif import validation_report_to_sarif
+
+        _emit(validation_report_to_sarif(report), fmt="json")
+    elif fmt == "json":
         _emit(
             {
                 "valid": report.valid,
@@ -374,6 +378,44 @@ def plan_explain_cmd(
         nodes=nodes,
         explain=True,
     )
+
+
+# 0.9 command surfaces (compile / generate / diff / plugin / schema / …)
+from etlantic.cli.commands import register_commands  # noqa: E402
+
+register_commands(app, load_target=_load_target, runtime=_CLI_RUNTIME)
+
+
+@report_app.command("compare")
+def report_compare_cmd(
+    left: str = typer.Argument(..., help="Left run id or JSON path"),
+    right: str = typer.Argument(..., help="Right run id or JSON path"),
+    store: str | None = typer.Option(
+        None, "--store", help="File report store root (.etlantic/reports)"
+    ),
+    fmt: str = typer.Option("json", "--format"),
+) -> None:
+    """Compare two run reports (process store, file store, or JSON files)."""
+    from etlantic.reports.file_store import FileReportStore, compare_reports
+    from etlantic.reports.model import PipelineRunReport
+
+    def _load(ref: str) -> Any:
+        path = Path(ref)
+        if path.suffix == ".json" and path.exists():
+            return PipelineRunReport.from_dict(
+                json.loads(path.read_text(encoding="utf-8"))
+            )
+        if store:
+            report = FileReportStore(Path(store)).get(ref)
+            if report is not None:
+                return report
+        report = _CLI_RUNTIME.reports.get(ref)
+        if report is None:
+            raise typer.BadParameter(f"Unknown report reference: {ref}")
+        return report
+
+    payload = compare_reports(_load(left), _load(right))
+    _emit(payload, fmt=fmt)
 
 
 def run() -> None:

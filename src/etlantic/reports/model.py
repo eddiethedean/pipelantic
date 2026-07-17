@@ -235,6 +235,75 @@ class PipelineRunReport:
 
         return json.dumps(self.to_dict(), indent=indent, sort_keys=True)
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PipelineRunReport:
+        """Deserialize a run report from its JSON-friendly dict form."""
+        summary_raw = data.get("summary") or {}
+        summary = RunSummary(
+            total_steps=int(summary_raw.get("total_steps") or 0),
+            succeeded=int(summary_raw.get("succeeded") or 0),
+            failed=int(summary_raw.get("failed") or 0),
+            skipped=int(summary_raw.get("skipped") or 0),
+            cancelled=int(summary_raw.get("cancelled") or 0),
+            retried=int(summary_raw.get("retried") or 0),
+            records_in=summary_raw.get("records_in"),
+            records_out=summary_raw.get("records_out"),
+        )
+        steps = tuple(
+            StepRunReport(
+                step_id=str(item.get("step_id") or ""),
+                step_name=str(item.get("step_name") or ""),
+                status=StepStatus(str(item.get("status") or "succeeded")),
+                attempts=int(item.get("attempts") or 1),
+                failure_stage=item.get("failure_stage"),
+                error_message=item.get("error_message"),
+                records_in=item.get("records_in"),
+                records_out=item.get("records_out"),
+                implementation=item.get("implementation"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("steps") or ())
+            if isinstance(item, dict)
+        )
+        artifacts = tuple(
+            ArtifactResult(
+                identity=str(item.get("identity") or ""),
+                logical_output=str(item.get("logical_output") or ""),
+                strategy=str(item.get("strategy") or ""),
+                status=str(item.get("status") or "available"),
+                record_count=item.get("record_count"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("artifacts") or ())
+            if isinstance(item, dict)
+        )
+        started = data.get("started_at")
+        if isinstance(started, str):
+            started_at = datetime.fromisoformat(started)
+        elif isinstance(started, datetime):
+            started_at = started
+        else:
+            started_at = datetime.now()
+        ended = data.get("ended_at")
+        ended_at = datetime.fromisoformat(ended) if isinstance(ended, str) else None
+        return cls(
+            pipeline_id=str(data.get("pipeline_id") or ""),
+            plan_id=str(data.get("plan_id") or ""),
+            run_id=str(data.get("run_id") or ""),
+            intent=RunIntent(str(data.get("intent") or "standard")),
+            profile=str(data.get("profile") or "local"),
+            status=RunStatus(str(data.get("status") or "succeeded")),
+            started_at=started_at,
+            pipeline_version=data.get("pipeline_version"),
+            ended_at=ended_at,
+            summary=summary,
+            steps=steps,
+            artifacts=artifacts,
+            plan_fingerprint=data.get("plan_fingerprint"),
+            metadata=dict(data.get("metadata") or {}),
+            schema=str(data.get("schema") or REPORT_SCHEMA),
+        )
+
     def to_text(self) -> str:
         from etlantic.reports.render import render_text
 

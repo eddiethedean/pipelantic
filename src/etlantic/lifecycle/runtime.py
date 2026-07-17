@@ -198,6 +198,26 @@ class PipelineRuntime:
         self.orchestrator_plugins[engine] = plugin
         register_discovered_plugins(self.registry, plugins={engine: plugin})
 
+    def apply_plugin_allowlist(self, profile: Any) -> list[Any]:
+        """Filter discovered plugins using ``profile.plugin_allowlist``.
+
+        Production profiles fail closed. Returns trust diagnostics.
+        """
+        from etlantic.plugin_trust import filter_plugins_by_allowlist
+
+        diagnostics: list[Any] = []
+        for attr in (
+            "dataframe_plugins",
+            "sql_plugins",
+            "spark_plugins",
+            "orchestrator_plugins",
+        ):
+            plugins = getattr(self, attr)
+            kept, diags = filter_plugins_by_allowlist(plugins, profile)
+            setattr(self, attr, kept)
+            diagnostics.extend(diags)
+        return diagnostics
+
     @asynccontextmanager
     async def session(self) -> AsyncIterator[PipelineRuntime]:
         """Enter runtime lifespan (if any)."""

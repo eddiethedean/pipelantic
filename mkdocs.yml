@@ -242,6 +242,7 @@ nav:
       - Migration 0.5 → 0.6: 11_DEVELOPMENT/MIGRATION_0_5_TO_0_6.md
       - Migration 0.6 → 0.7: 11_DEVELOPMENT/MIGRATION_0_6_TO_0_7.md
       - Migration 0.7 → 0.8: 11_DEVELOPMENT/MIGRATION_0_7_TO_0_8.md
+      - Migration 0.8 → 0.9: 11_DEVELOPMENT/MIGRATION_0_8_TO_0_9.md
       - Contributing: 11_DEVELOPMENT/CONTRIBUTING.md
       - Documentation: 11_DEVELOPMENT/DOCUMENTATION.md
       - Testing: 11_DEVELOPMENT/TESTING.md

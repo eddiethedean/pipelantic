@@ -1,9 +1,9 @@
 # Current Capabilities and Limitations
 
-ETLantic 0.8.0 is an alpha release. This page is the shortest answer to
+ETLantic 0.9.0 is an alpha release. This page is the shortest answer to
 "What can I use today?"
 
-## Available in 0.8
+## Available in 0.9
 
 | Capability | Status |
 |---|---|
@@ -30,19 +30,28 @@ ETLantic 0.8.0 is an alpha release. This page is the shortest answer to
 | Orchestration protocol (`etlantic.orchestration/1`) | Available |
 | Airflow reference compiler | Available (`etlantic-airflow`) |
 | Schedule / retry / artifact-ref mapping | Available |
-| Mermaid diagrams (`Pipeline.to_mermaid`) | Available |
+| CLI compile / generate / diff / plugin / schema / reliability / viz | Available |
+| Plugin allowlists and version pins | Available |
+| SARIF diagnostics and file schema history | Available |
+| File-backed report store and report compare | Available |
+| Mermaid, Graphviz DOT, HTML lineage, JSON lineage | Available |
+| IDE command/result JSON schemas | Available |
+| Optional keyring secret provider | Available (`etlantic-keyring`) |
+| Optional SQLModel bridge | Available (`etlantic-sqlmodel`) |
+| Optional OpenTelemetry adapter | Available (`etlantic[otel]`) |
+| Agent guidance generators | Available |
 
-## Not included in 0.8
+## Not included in 0.9
 
 | Capability | Status |
 |---|---|
 | `MERGE` / upsert in the reference SQL plugin | Not implemented (`sql_merge=False`; fail closed) |
 | Managed Spark providers (Databricks/EMR/Connect) | Future / optional adapters |
 | Event sensors / Dagster / Prefect compilers | Future plugins |
-| Full CLI `compile` / generate tooling | Continues in 0.9 |
-| Public third-party Plugin SDK polish | Continues in 0.9 |
+| Full LSP server productization | Continues in 1.5 |
+| Registry-backed schema history | Continues in 1.2 |
+| FastAPI control plane | Continues in 1.1 |
 | SparkForge migration adapter | Future design (0.10) |
-| Graphviz and generated HTML pipeline documentation | Future design |
 | Stable 1.0 compatibility guarantees | Not yet |
 
 ## Install matrix
@@ -54,20 +63,26 @@ pip install etlantic-pandas          # Pandas compatibility plugin
 pip install etlantic-sql             # PostgreSQL SQL reference plugin
 pip install etlantic-pyspark         # PySpark reference plugin
 pip install etlantic-airflow         # Airflow DAG compiler
+pip install etlantic-keyring         # OS keyring secret provider
+pip install etlantic-sqlmodel        # SQLModel contract bridge
 pip install 'etlantic[sql]'          # same as etlantic-sql via extra
 pip install 'etlantic[pyspark]'      # same as etlantic-pyspark via extra
 pip install 'etlantic[airflow]'      # same as etlantic-airflow via extra
+pip install 'etlantic[keyring]'      # same as etlantic-keyring via extra
+pip install 'etlantic[sqlmodel]'     # same as etlantic-sqlmodel via extra
+pip install 'etlantic[otel]'         # OpenTelemetry adapter dependency
 pip install 'etlantic-polars[arrow]' # optional PyArrow
 ```
 
 Core never imports Polars, Pandas, PyArrow, NumPy, database drivers, PySpark,
-or Airflow.
+Airflow, SQLModel, keyring, or OpenTelemetry unless extras are installed.
 
 Select Spark with `Profile(spark_engine="pyspark")` and
 `@Transformation.implementation("pyspark")`.
 
 Compile to Airflow with `Profile(orchestrator="airflow")` and
-`compile_plan(plan, target="airflow")` (requires `etlantic-airflow`).
+`compile_plan(plan, target="airflow")` (requires `etlantic-airflow`), or
+`etlantic compile TARGET --target airflow -o dags/`.
 
 ## Next Step
 

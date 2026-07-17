@@ -40,9 +40,19 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         run: uv run python scripts/check_docs.py
 
+      - name: Agent guidance drift check
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        run: uv run python scripts/check_agent_guidance.py
+
       - name: Runnable example
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         run: uv run python examples/quickstart.py
+
+      - name: CLI SARIF smoke
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        run: |
+          uv run etlantic validate examples/quickstart.py:CustomerPipeline --format sarif > /tmp/etlantic.sarif
+          python -c "import json; json.load(open('/tmp/etlantic.sarif')); print('sarif ok')"
 
       - name: MkDocs
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
@@ -216,6 +226,40 @@ jobs:
 
       - name: Runnable Airflow compile example
         run: uv run python examples/airflow_compile.py
+
+  keyring:
+    name: Keyring secret provider
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.3"
+          python-version: "3.11"
+          enable-cache: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync with keyring package
+        run: uv sync --locked --group keyring
+      - name: Pytest keyring suite
+        run: uv run pytest -q tests/keyring -m keyring
+
+  sqlmodel:
+    name: SQLModel integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.3"
+          python-version: "3.11"
+          enable-cache: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync with sqlmodel package
+        run: uv sync --locked --group sqlmodel
+      - name: Pytest sqlmodel suite
+        run: uv run pytest -q tests/sqlmodel -m sqlmodel
 
   package:
     name: Build and test wheel

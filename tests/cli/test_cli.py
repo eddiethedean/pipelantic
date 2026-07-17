@@ -23,7 +23,40 @@ def _plain_output(result: object) -> str:
 def test_cli_version() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert "0.8.0" in result.stdout
+    assert "0.9.0" in result.stdout
+
+
+def test_cli_validate_sarif() -> None:
+    target = "tests.fixtures.sample_pipeline:SamplePipeline"
+    result = runner.invoke(
+        app, ["validate", target, "--profile", "local", "--format", "sarif"]
+    )
+    assert result.exit_code == 0
+    assert '"version": "2.1.0"' in result.stdout or '"$schema"' in result.stdout
+
+
+def test_cli_plugin_list() -> None:
+    result = runner.invoke(app, ["plugin", "list", "--format", "json"])
+    assert result.exit_code == 0
+    assert "plugins" in result.stdout
+
+
+def test_cli_generate() -> None:
+    target = "tests.fixtures.sample_pipeline:SamplePipeline"
+    result = runner.invoke(
+        app, ["generate", target, "--output", "tmp_cli_contracts", "--format", "json"]
+    )
+    assert result.exit_code == 0, result.stdout + result.stderr
+    assert (
+        '"ok": true' in result.stdout.replace("True", "true") or "ok" in result.stdout
+    )
+
+
+def test_cli_viz_lineage() -> None:
+    target = "tests.fixtures.sample_pipeline:SamplePipeline"
+    result = runner.invoke(app, ["viz", "lineage", target, "--format", "json"])
+    assert result.exit_code == 0, result.stdout + result.stderr
+    assert "etlantic.lineage/1" in result.stdout
 
 
 def test_cli_validate_and_plan() -> None:

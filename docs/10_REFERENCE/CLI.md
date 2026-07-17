@@ -1,6 +1,6 @@
 # Command-Line Interface
 
-> **Status: Available in ETLantic 0.7.0.** This page documents the commands
+> **Status: Available in ETLantic 0.9.0.** This page documents the commands
 > implemented by the installed package.
 
 ```bash
@@ -23,7 +23,7 @@ etlantic validate examples/quickstart.py:CustomerPipeline \
 Options:
 
 - `--profile`, `-p`: profile name; default `local`
-- `--format`: `human` or `json`
+- `--format`: `human`, `json`, or `sarif`
 
 Exit status is 0 for a valid pipeline and 1 for validation errors.
 
@@ -84,18 +84,82 @@ in-memory data is therefore better run through Python, as shown in the
 quickstart. Use JSON, CSV, callable bindings, or application-owned runtime
 setup for CLI execution.
 
+## `compile`
+
+Compile a planned pipeline to an external orchestrator artifact
+(requires the matching plugin, e.g. `etlantic-airflow`):
+
+```bash
+etlantic compile examples/quickstart.py:CustomerPipeline \
+  --target airflow -o dags/ --profile development
+```
+
+## `generate`
+
+Generate ODCS/DTCS/DPCS contract bundles:
+
+```bash
+etlantic generate examples/quickstart.py:CustomerPipeline -o contracts/
+etlantic generate examples/quickstart.py:CustomerPipeline --sqlmodel
+```
+
+`--sqlmodel` requires `etlantic-sqlmodel`.
+
+## `diff`
+
+Diff data contracts, transformations, or pipelines:
+
+```bash
+etlantic diff PREV CURRENT --kind pipeline --format json
+etlantic diff PREV CURRENT --kind data --format sarif
+```
+
+## `plugin`
+
+```bash
+etlantic plugin list --profile production --format json
+etlantic plugin info polars --kind dataframe
+```
+
+Production profiles honor `Profile.plugin_allowlist` (fail closed).
+
+## `schema`
+
+Schema inspect / check / diff / history / impact / acknowledge / propose /
+monitor. History defaults to `.etlantic/schema-history/` and never stores
+source rows.
+
+```bash
+etlantic schema inspect module:MyContract --format json
+etlantic schema monitor module:MyContract --subject orders
+etlantic schema acknowledge orders --note "accepted additive column"
+```
+
+## `reliability`
+
+Ops helpers for freshness, partition checks, repair explanation, backfill
+preview, reconciliation, plan/env diff, and quality trends.
+
+```bash
+etlantic reliability freshness orders --max-age 3600 --observed-age 120
+etlantic reliability reconcile orders --left 100 --right 100
+```
+
+## `viz`
+
+```bash
+etlantic viz dot examples/quickstart.py:CustomerPipeline -o pipeline.dot
+etlantic viz html examples/quickstart.py:CustomerPipeline -o lineage.html
+etlantic viz lineage examples/quickstart.py:CustomerPipeline --format json
+```
+
 ## `report`
 
 ```bash
 etlantic report show RUN_ID --format text
 etlantic report export RUN_ID --format json --output report.json
+etlantic report compare LEFT RIGHT --store .etlantic/reports
 ```
 
-The built-in CLI report store is process-local. A report created by a previous
-CLI process is not available to a new invocation.
-
-## Commands not included in 0.4
-
-`init`, `compile`, `generate`, `graph`, `plugins`, and `config` are future CLI
-designs. Do not depend on them until they appear in this current-version
-reference and in `etlantic --help`.
+The built-in CLI report store is process-local unless `--store` points at a
+`FileReportStore` root.

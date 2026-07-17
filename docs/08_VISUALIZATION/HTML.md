@@ -1,9 +1,9 @@
 # HTML
 
-!!! warning "Future design—not a ETLantic 0.7 API guide"
-    Graphviz, HTML, lineage exporters, and generated pipeline docs beyond
-    Mermaid are not shipped in 0.5. For diagrams today, use
-    `Pipeline.to_mermaid()`.
+!!! tip "Available in ETLantic 0.9"
+    Use `etlantic.viz` or CLI `etlantic viz dot|html|lineage`.
+    Mermaid remains available via `Pipeline.to_mermaid()`.
+
 
 
 ETLantic can generate **HTML documentation** from a validated Pipeline Plan.

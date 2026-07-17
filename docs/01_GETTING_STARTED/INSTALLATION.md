@@ -1,6 +1,6 @@
 # Installation
 
-ETLantic 0.8.0 provides the typed modeling kernel, contract interoperability
+ETLantic 0.9.0 provides the typed modeling kernel, contract interoperability
 (ODCS/DTCS/DPCS), multi-phase validation, profiles, deterministic planning,
 a local runtime that executes plans with Python callables, in-memory
 artifacts, and stdlib JSON/CSV bindings, plus optional Polars, Pandas, SQL,

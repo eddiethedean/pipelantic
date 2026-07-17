@@ -72,6 +72,9 @@ def main() -> None:
         "Commands are provisional until the implementation toolchain is committed",
         "Airflow or other orchestrator compilation | Future design (0.8)",
         "External orchestrator compilation is not included in 0.7",
+        "Full CLI `compile` / generate tooling | Continues in 0.9",
+        "Graphviz and generated HTML pipeline documentation | Future design",
+        "Public third-party Plugin SDK polish | Continues in 0.9",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -81,6 +84,8 @@ def main() -> None:
         raise SystemExit("README.md capability table still labels the release as 0.6")
     if "| Capability | 0.7 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.7")
+    if "| Capability | 0.8 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
+        raise SystemExit("README.md capability table still labels the release as 0.8")
 
     scrub_paths = [
         ROOT / "README.md",
@@ -119,7 +124,7 @@ def main() -> None:
         if "!!! warning" not in text:
             raise SystemExit(f"{path} missing design/future admonition")
         if (
-            "Future design—not a ETLantic 0.8 API guide" not in text
+            "Future design—not a ETLantic 0.9 API guide" not in text
             and "Design study—" not in text
             and "Experimental design study—" not in text
         ):
@@ -128,10 +133,18 @@ def main() -> None:
     banner_js = (ROOT / "docs/theme/javascripts/status-banner.js").read_text(
         encoding="utf-8"
     )
-    if "Future design—not a ETLantic 0.8 API guide" not in banner_js:
-        raise SystemExit("status-banner.js missing 0.8 future-design banner text")
+    if "Future design—not a ETLantic 0.9 API guide" not in banner_js:
+        raise SystemExit("status-banner.js missing 0.9 future-design banner text")
     if "Experimental in ETLantic 0.7" not in banner_js:
         raise SystemExit("status-banner.js missing experimental streaming banner text")
+    if "/08_VISUALIZATION/GRAPHVIZ/" not in banner_js:
+        raise SystemExit(
+            "status-banner.js must exclude GRAPHVIZ from future viz banner"
+        )
+    if "/08_VISUALIZATION/HTML/" not in banner_js:
+        raise SystemExit("status-banner.js must exclude HTML from future viz banner")
+    if "/08_VISUALIZATION/LINEAGE/" not in banner_js:
+        raise SystemExit("status-banner.js must exclude LINEAGE from future viz banner")
 
     start = banner_js.find("futureExecutionPages = [")
     end = banner_js.find("];", start)
@@ -191,6 +204,8 @@ def main() -> None:
         ROOT / "packages/etlantic-sql/pyproject.toml",
         ROOT / "packages/etlantic-pyspark/pyproject.toml",
         ROOT / "packages/etlantic-airflow/pyproject.toml",
+        ROOT / "packages/etlantic-keyring/pyproject.toml",
+        ROOT / "packages/etlantic-sqlmodel/pyproject.toml",
     ):
         plugin_version = version_from(plugin_pyproject, r'(?m)^version = "([^"]+)"')
         if plugin_version != package_version:

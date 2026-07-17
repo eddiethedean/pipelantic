@@ -38,6 +38,10 @@ class Profile:
     required_sql_capabilities: tuple[str, ...] = ()
     required_spark_capabilities: tuple[str, ...] = ()
     required_orchestrator_capabilities: tuple[str, ...] = ()
+    # Production plugin trust (0.9): names → optional version pins (e.g. ">=0.9,<1").
+    # Empty allowlist means unrestricted in non-production profiles; production
+    # profiles fail closed when allowlist is empty or a discovered plugin is absent.
+    plugin_allowlist: dict[str, str | None] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def identity(self) -> str:
@@ -91,6 +95,10 @@ class Profile:
             required_orchestrator_capabilities=tuple(
                 str(x) for x in (data.get("required_orchestrator_capabilities") or ())
             ),
+            plugin_allowlist={
+                str(k): (None if v in (None, "") else str(v))
+                for k, v in dict(data.get("plugin_allowlist") or {}).items()
+            },
             metadata=dict(data.get("metadata") or {}),
         )
 

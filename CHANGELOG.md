@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-07-17
+
+### Added
+
+- CLI wrappers: `compile`, `generate`, `diff`, `plugin list|info`, schema family,
+  reliability ops, viz exporters, and `report compare`
+- `Profile.plugin_allowlist` with version pins; production fail-closed trust
+- `FileSchemaHistoryProvider`, SARIF/GitHub diagnostic renderers
+- Reliability provider protocols (quality, statistical, reconciliation, env)
+- Observability protocols, JSON console logger, optional OpenTelemetry adapter
+- `FileReportStore` and report comparison helpers
+- Graphviz DOT / HTML lineage / JSON lineage exporters (`etlantic.viz`)
+- Optional packages `etlantic-keyring` and `etlantic-sqlmodel`
+- IDE command/result JSON schemas (`etlantic.ide`)
+- Notebook / IPython display helpers (`etlantic.notebook`)
+- Agent guidance generators + `scripts/check_agent_guidance.py`
+- Expanded `etlantic.testing` (orchestrator, secrets, write-semantics parity)
+- Migration guide `docs/11_DEVELOPMENT/MIGRATION_0_8_TO_0_9.md`
+
+### Changed
+
+- Package version advances to 0.9 (Tooling, SDK, and Ecosystem Readiness)
+- Plugin packages require `etlantic>=0.9.0,<1.0`
+- Graphviz / HTML / lineage docs promoted out of Future Design
+
+### Upgrade notes
+
+- Production profiles should set `plugin_allowlist` explicitly
+- Schema history stores fingerprints only — never source rows
+- Core remains free of Airflow, Spark, SQL drivers, SQLModel, keyring, and OTel
+  unless extras / optional packages are installed
+
 ## [0.8.0] - 2026-07-17
 
 ### Added

@@ -49,7 +49,8 @@ Its focus is:
 
 ETLantic's architecture is designed so future plugins can consume the same
 plans without changing pipeline definitions. External orchestrator compilation
-is available in 0.8 via `etlantic-airflow` (`compile_plan(..., target="airflow")`).
+is available via `etlantic-airflow` (`compile_plan(..., target="airflow")` or
+`etlantic compile … --target airflow`).
 
 ------------------------------------------------------------------------
 
@@ -113,7 +114,8 @@ Examples include:
 - Polars / Pandas (optional plugins)
 - SQL (`etlantic-sql`)
 - PySpark (`etlantic-pyspark`)
-- future Airflow / orchestrator compilers
+- Airflow (`etlantic-airflow`) and other orchestrator plugins
+- Optional SQLModel / keyring packages in 0.9+
 
 Business logic remains unchanged.
 

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Shipped in 0.6: SQL, SQL_EXECUTION, SQL_PUSHDOWN.
   // Shipped in 0.7: PYSPARK, PYSPARK_EXECUTION, SPARK_OPTIMIZATION (batch).
   // Shipped in 0.8: ORCHESTRATION_PLUGINS, AIRFLOW, COMPILATION.
+  // Shipped in 0.9: GRAPHVIZ, HTML, LINEAGE tooling + CLI/SDK polish.
   // Experimental in 0.7+: STRUCTURED_STREAMING (separate experimental banner).
   const futureExecutionPages = [
     "PLUGINS",
@@ -33,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
     path.includes("/08_VISUALIZATION/") &&
     !path.endsWith("/08_VISUALIZATION/") &&
     !path.includes("/08_VISUALIZATION/MERMAID/") &&
+    !path.includes("/08_VISUALIZATION/GRAPHVIZ/") &&
+    !path.includes("/08_VISUALIZATION/HTML/") &&
+    !path.includes("/08_VISUALIZATION/LINEAGE/") &&
     !path.includes("/08_VISUALIZATION/README");
   const isProposedReference =
     path.includes("/10_REFERENCE/CONFIGURATION/") ||
@@ -65,9 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const banner = document.createElement("div");
   banner.className = "admonition warning";
   banner.innerHTML =
-    '<p class="admonition-title">Future design—not a ETLantic 0.8 API guide</p>' +
+    '<p class="admonition-title">Future design—not a ETLantic 0.9 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +
     "Use Current Capabilities, the API reference, and the CLI reference for shipped behavior. " +
-    "Airflow compilation is available via <code>etlantic-airflow</code>.</p>";
+    "CLI tooling, SARIF, plugin trust, Graphviz/HTML lineage, and optional " +
+    "<code>etlantic-keyring</code> / <code>etlantic-sqlmodel</code> are available in 0.9.</p>";
   article.prepend(banner);
 });

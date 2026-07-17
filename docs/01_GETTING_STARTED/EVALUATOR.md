@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is ready in alpha 0.8.0
+## What is ready in alpha 0.9.0
 
 | Area | Ready? |
 |---|---|

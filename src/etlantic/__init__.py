@@ -1,8 +1,9 @@
 """ETLantic — typed, contract-driven data pipeline modeling.
 
-0.8 adds external orchestration with an independently installable Airflow
-reference compiler (``etlantic-airflow``). Structured Streaming APIs remain
-experimental.
+0.9 adds tooling and ecosystem readiness: public CLI wrappers, plugin trust,
+SARIF diagnostics, schema/reliability ops, visualization exporters, IDE
+schemas, and optional ``etlantic-keyring`` / ``etlantic-sqlmodel`` packages.
+Structured Streaming APIs remain experimental.
 """
 
 from __future__ import annotations
