@@ -56,6 +56,18 @@ from etlantic.runtime.events import LifecycleEvent, SecurityEvent
 from etlantic.runtime.invoke import maybe_await
 from etlantic.runtime.logging import RunLogger, redact_message
 from etlantic.runtime.request import MaterializationPolicy, RunRequest
+from etlantic.runtime.spark_exec import (
+    acquire_session,
+    execute_spark_sink,
+    execute_spark_source,
+    execute_spark_step,
+    is_spark_engine,
+    parse_udf_policy,
+    region_for_node,
+    release_session,
+    resolve_spark_plugin,
+    resolve_spark_provider,
+)
 from etlantic.runtime.sql_exec import (
     execute_sql_sink,
     execute_sql_source,
@@ -79,6 +91,7 @@ from etlantic.schema_policy import (
 )
 from etlantic.secrets.provider import SecretResolutionContext
 from etlantic.secrets.ref import SecretRef
+from etlantic.spark.provider import SparkSessionHandle
 from etlantic.sql.protocol import RelationRef, SqlExecutionContext, SqlQuery
 from etlantic.storage.protocol import as_records
 from etlantic.transformation import ImplementationRecord, Transformation
@@ -191,6 +204,8 @@ class LocalOrchestrator:
     schema_history: InMemorySchemaHistory = field(default_factory=InMemorySchemaHistory)
     transform_lookup: dict[str, type[Transformation]] = field(default_factory=dict)
     outbound_events: list[dict[str, Any]] = field(default_factory=list)
+    _spark_session: SparkSessionHandle | None = field(default=None, repr=False)
+    _spark_compiled: dict[str, Any] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
         if self.pipeline_cls is not None:
@@ -413,6 +428,17 @@ class LocalOrchestrator:
                 if callable(cleanup):
                     with contextlib.suppress(Exception):
                         cleanup()
+            if self._spark_session is not None:
+                with contextlib.suppress(Exception):
+                    providers = getattr(self.runtime, "spark_providers", None) or {}
+                    provider = resolve_spark_provider("local", providers=providers)
+                    await release_session(
+                        provider=provider,
+                        handle=self._spark_session,
+                        plan=self.plan,
+                        run_id=run_id,
+                    )
+                self._spark_session = None
             await self.runtime.resources.cleanup_scope("run", run_id)
 
         step_reports = tuple(self._step_report(s) for s in nodes.values())
@@ -795,6 +821,48 @@ class LocalOrchestrator:
     ) -> None:
         node = state.node
         if node.kind is NodeKind.SOURCE:
+            if is_spark_engine(self._engine_for(node.name)):
+                plugin = resolve_spark_plugin(
+                    "pyspark",
+                    plugins=getattr(self.runtime, "spark_plugins", None),
+                )
+                await self._ensure_spark_session(run_id=run_id)
+                binding_name = node.binding or node.name
+                binding_name = self.request.binding_overrides.get(
+                    node.name, binding_name
+                )
+                descriptor = self._binding_descriptor(node, binding_name)
+                location = descriptor.location if descriptor is not None else None
+                # Memory/python sources: read records then let the plugin wrap.
+                provider = descriptor.provider if descriptor is not None else "memory"
+                if provider in {"memory", "local", "python", "json", "csv", "callable"}:
+                    data = await self._read_source(node, run_id=run_id)
+                    self._store_outputs(node, data, artifacts)
+                    state.records_out = _count(data)
+                    state.metadata["spark"] = {
+                        "source_kind": "records",
+                        "provider": provider,
+                    }
+                    return
+                data = await execute_spark_source(
+                    plugin=plugin,
+                    node=node,
+                    plan=self.plan,
+                    location=location,
+                    binding=binding_name,
+                )
+                validations.append(
+                    ValidationResult(
+                        node_name=node.name,
+                        boundary="source",
+                        status="skipped",
+                        message="Spark source resolved as DatasetRef (lazy)",
+                    )
+                )
+                self._store_outputs(node, data, artifacts)
+                state.records_out = 0
+                state.metadata["spark"] = {"source_kind": "dataset_ref"}
+                return
             if is_sql_engine(self._engine_for(node.name)):
                 plugin = resolve_sql_plugin(
                     "sql",
@@ -839,6 +907,90 @@ class LocalOrchestrator:
         if node.kind is NodeKind.SINK:
             inputs = self._gather_inputs(node, graph, artifacts)
             payload = next(iter(inputs.values()), [])
+            if is_spark_engine(self._engine_for(node.name)):
+                plugin = resolve_spark_plugin(
+                    "pyspark",
+                    plugins=getattr(self.runtime, "spark_plugins", None),
+                )
+                await self._ensure_spark_session(run_id=run_id)
+                binding_name = node.binding or node.name
+                binding_name = self.request.binding_overrides.get(
+                    node.name, binding_name
+                )
+                descriptor = self._binding_descriptor(node, binding_name)
+                location = descriptor.location if descriptor is not None else None
+                provider = descriptor.provider if descriptor is not None else "memory"
+                write_mode = "append"
+                merge_keys: tuple[str, ...] = ()
+                partition_by: tuple[str, ...] = ()
+                if descriptor is not None and descriptor.metadata:
+                    write_mode = str(
+                        descriptor.metadata.get("write_mode")
+                        or descriptor.metadata.get("write_intent")
+                        or write_mode
+                    )
+                    merge_keys = tuple(
+                        str(x) for x in (descriptor.metadata.get("merge_keys") or ())
+                    )
+                    partition_by = tuple(
+                        str(x) for x in (descriptor.metadata.get("partition_by") or ())
+                    )
+                if write_mode_for_request(self.request).value == "no_write":
+                    state.records_in = 0
+                    state.records_out = 0
+                    return
+                # Local memory/json/csv sinks: collect Spark frames to records.
+                if provider in {"memory", "local", "python", "json", "csv", "callable"}:
+                    if not isinstance(payload, list):
+                        payload = plugin.to_records(
+                            payload, contract_type=node.contract_type
+                        )
+                    await self._write_sink(node, payload, run_id=run_id)
+                    state.records_in = _count(payload)
+                    state.records_out = state.records_in
+                    state.metadata["spark"] = {
+                        "sink_kind": "records",
+                        "provider": provider,
+                    }
+                    return
+                enable_delta = provider in {"delta", "pyspark"} or write_mode in {
+                    "merge",
+                    "upsert",
+                    "overwrite_partition",
+                }
+                result = await execute_spark_sink(
+                    plugin=plugin,
+                    node=node,
+                    source_value=payload,
+                    plan=self.plan,
+                    run_id=run_id,
+                    attempt=attempt,
+                    target_location=location,
+                    write_mode=write_mode,
+                    merge_keys=merge_keys,
+                    partition_by=partition_by,
+                    session_handle=self._spark_session,
+                    enable_delta=enable_delta,
+                )
+                for diag in result.diagnostics:
+                    diagnostics.append(
+                        RunDiagnostic(
+                            code=str(diag.get("code") or "PMSPARK000"),
+                            severity=str(diag.get("severity") or "warning"),
+                            message=redact_message(str(diag.get("message") or "")),
+                            node_name=node.name,
+                        )
+                    )
+                state.records_in = (
+                    result.metrics.rows_affected or result.metrics.rows_in
+                )
+                state.records_out = (
+                    result.metrics.rows_affected or result.metrics.rows_out
+                )
+                state.metadata["spark"] = result.metrics.to_dict()
+                if result.schema_observation:
+                    state.metadata["spark_schema"] = result.schema_observation
+                return
             if is_sql_engine(self._engine_for(node.name)) and not isinstance(
                 payload, list
             ):
@@ -1188,6 +1340,99 @@ class LocalOrchestrator:
                 }
                 return
 
+            if is_spark_engine(impl.engine):
+                plugin = resolve_spark_plugin(
+                    impl.engine,
+                    plugins=getattr(self.runtime, "spark_plugins", None),
+                )
+                await self._ensure_spark_session(run_id=run_id)
+                udf_policy = parse_udf_policy(
+                    (self.plan.profile_snapshot or {}).get("spark_udf_policy")
+                )
+                spark_region = region_for_node(self.plan, node.name)
+                streaming = bool(spark_region and spark_region.streaming) or bool(
+                    (self.plan.profile_snapshot or {}).get("spark_streaming")
+                )
+                batch_only = False
+                desc = self.plan.implementations.get(node.name)
+                if desc is not None:
+                    batch_only = bool((desc.metadata or {}).get("batch_only"))
+                if not batch_only:
+                    batch_only = bool(getattr(impl.callable, "batch_only", False))
+                # Prefer compiled region metadata once per region
+                if spark_region and spark_region.identity not in self._spark_compiled:
+                    from etlantic.runtime.spark_exec import compile_spark_region
+
+                    compiled = await compile_spark_region(
+                        plugin=plugin,
+                        region=spark_region,
+                        plan=self.plan,
+                        run_id=run_id,
+                        udf_policy=udf_policy,
+                    )
+                    self._spark_compiled[spark_region.identity] = compiled
+                for _port_name in inputs:
+                    validations.append(
+                        ValidationResult(
+                            node_name=node.name,
+                            boundary="input_validation",
+                            status="skipped",
+                            message="delegated to spark plugin",
+                        )
+                    )
+                result = await execute_spark_step(
+                    plugin=plugin,
+                    impl=impl,
+                    node=node,
+                    inputs=inputs,
+                    params=params,
+                    plan=self.plan,
+                    run_id=run_id,
+                    attempt=attempt,
+                    session_handle=self._spark_session,
+                    region_id=spark_region.identity if spark_region else None,
+                    streaming=streaming,
+                    batch_only=batch_only,
+                    udf_policy=udf_policy,
+                )
+                output_ports = [p.name for p in node.outputs] or ["result"]
+                port_name = output_ports[0]
+                strategy = self._strategy_for(node.name, port_name)
+                logical = f"{node.name}.{port_name}"
+                ref = ArtifactRef(
+                    identity=artifact_identity(
+                        pipeline_id=self.plan.pipeline_id,
+                        node_name=node.name,
+                        port_name=port_name,
+                        security_domain=self.plan.security_domain,
+                    ),
+                    logical_output=logical,
+                    strategy=strategy,
+                    security_domain=self.plan.security_domain,
+                )
+                # Keep lazy handles for spark consumers; collect for others later.
+                consumers_spark = True
+                for edge in graph.edges_from(node.name):
+                    if not is_spark_engine(self._engine_for(edge.consumer_node)):
+                        consumers_spark = False
+                        break
+                stored = result
+                if not consumers_spark and not isinstance(result, list):
+                    stored = plugin.to_records(result, contract_type=node.contract_type)
+                artifacts.put(ref, stored, durable=False)
+                compiled_meta = self._spark_compiled.get(
+                    spark_region.identity if spark_region else "", None
+                )
+                state.records_out = _count(stored) if isinstance(stored, list) else 0
+                state.metadata["spark"] = {
+                    "result_kind": type(result).__name__,
+                    "consumers_spark": consumers_spark,
+                    "region": spark_region.identity if spark_region else None,
+                    "compiled": compiled_meta.to_dict() if compiled_meta else None,
+                    "streaming": streaming,
+                }
+                return
+
             for port_name, value in inputs.items():
                 inputs[port_name] = await self._validate_boundary(
                     node,
@@ -1329,10 +1574,42 @@ class LocalOrchestrator:
         if impl is not None:
             return impl.engine
         return str(
-            (self.plan.execution_settings or {}).get("sql_engine")
+            (self.plan.execution_settings or {}).get("spark_engine")
+            or (self.plan.execution_settings or {}).get("sql_engine")
             or (self.plan.execution_settings or {}).get("dataframe_engine")
             or "local"
         )
+
+    async def _ensure_spark_session(self, *, run_id: str) -> SparkSessionHandle:
+        if self._spark_session is not None:
+            return self._spark_session
+        provider_name = str(
+            (self.plan.profile_snapshot or {}).get("resources", {}).get("spark")
+            or "local"
+        )
+        providers = getattr(self.runtime, "spark_providers", None) or {}
+        try:
+            provider = resolve_spark_provider(provider_name, providers=providers)
+        except NodeExecutionError:
+            provider = resolve_spark_provider("local", providers=providers)
+        enable_delta = "spark_delta" in (
+            (self.plan.profile_snapshot or {}).get("required_spark_capabilities") or ()
+        ) or bool(
+            (self.plan.profile_snapshot or {}).get("metadata", {}).get("enable_delta")
+        )
+        streaming = bool((self.plan.profile_snapshot or {}).get("spark_streaming"))
+        self._spark_session = await acquire_session(
+            provider=provider,
+            plan=self.plan,
+            run_id=run_id,
+            enable_delta=enable_delta,
+            streaming=streaming,
+        )
+        # Attach session to plugins that support it
+        for plugin in (getattr(self.runtime, "spark_plugins", None) or {}).values():
+            if hasattr(plugin, "bind_session"):
+                plugin.bind_session(self._spark_session)
+        return self._spark_session
 
     def _coerce_to_records(self, data: Any, *, contract_type: type[Any] | None) -> Any:
         """Convert native frames to records for storage/publication boundaries."""

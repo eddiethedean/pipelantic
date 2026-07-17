@@ -18,7 +18,10 @@ class Profile:
     orchestrator: str = "local"
     dataframe_engine: str | None = "local"
     sql_engine: str | None = None
+    spark_engine: str | None = None
     allow_trusted_sql: bool = False
+    spark_udf_policy: str = "warn"
+    spark_streaming: bool = False
     bindings: dict[str, str] = field(default_factory=dict)
     implementation_overrides: dict[str, str] = field(default_factory=dict)
     secret_providers: dict[str, str] = field(default_factory=dict)
@@ -30,6 +33,7 @@ class Profile:
     timeout_seconds: float | None = None
     retry_max_attempts: int | None = None
     required_sql_capabilities: tuple[str, ...] = ()
+    required_spark_capabilities: tuple[str, ...] = ()
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def identity(self) -> str:
@@ -58,7 +62,10 @@ class Profile:
             orchestrator=str(data.get("orchestrator") or "local"),
             dataframe_engine=data.get("dataframe_engine", "local"),
             sql_engine=data.get("sql_engine"),
+            spark_engine=data.get("spark_engine"),
             allow_trusted_sql=bool(data.get("allow_trusted_sql", False)),
+            spark_udf_policy=str(data.get("spark_udf_policy") or "warn"),
+            spark_streaming=bool(data.get("spark_streaming", False)),
             bindings=dict(data.get("bindings") or {}),
             implementation_overrides=dict(data.get("implementation_overrides") or {}),
             secret_providers=dict(data.get("secret_providers") or {}),
@@ -71,6 +78,9 @@ class Profile:
             retry_max_attempts=data.get("retry_max_attempts"),
             required_sql_capabilities=tuple(
                 str(x) for x in (data.get("required_sql_capabilities") or ())
+            ),
+            required_spark_capabilities=tuple(
+                str(x) for x in (data.get("required_spark_capabilities") or ())
             ),
             metadata=dict(data.get("metadata") or {}),
         )

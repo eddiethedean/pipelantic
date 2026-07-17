@@ -1,6 +1,6 @@
 # Installation
 
-ETLantic 0.6.1 provides the typed modeling kernel, contract interoperability
+ETLantic 0.7.0 provides the typed modeling kernel, contract interoperability
 (ODCS/DTCS/DPCS), multi-phase validation, profiles, deterministic planning,
 a local runtime that executes plans with Python callables, in-memory
 artifacts, and stdlib JSON/CSV bindings, plus optional Polars, Pandas, and
@@ -27,7 +27,7 @@ Or with uv:
 uv add etlantic
 ```
 
-Verify the installed version matches these docs (0.6.1 or newer):
+Verify the installed version matches these docs (0.7.0 or newer):
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"

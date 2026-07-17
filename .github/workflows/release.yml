@@ -37,12 +37,13 @@ jobs:
           POLARS_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-polars/pyproject.toml | head -1)"
           PANDAS_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-pandas/pyproject.toml | head -1)"
           SQL_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-sql/pyproject.toml | head -1)"
+          SPARK_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-pyspark/pyproject.toml | head -1)"
           if [ "$TAG" != "$VERSION" ] || [ "$TAG" != "$MODULE_VERSION" ]; then
             echo "Version mismatch: tag='$TAG' pyproject='$VERSION' module='$MODULE_VERSION'"
             exit 1
           fi
-          if [ "$TAG" != "$POLARS_VERSION" ] || [ "$TAG" != "$PANDAS_VERSION" ] || [ "$TAG" != "$SQL_VERSION" ]; then
-            echo "Plugin version mismatch: tag='$TAG' polars='$POLARS_VERSION' pandas='$PANDAS_VERSION' sql='$SQL_VERSION'"
+          if [ "$TAG" != "$POLARS_VERSION" ] || [ "$TAG" != "$PANDAS_VERSION" ] || [ "$TAG" != "$SQL_VERSION" ] || [ "$TAG" != "$SPARK_VERSION" ]; then
+            echo "Plugin version mismatch: tag='$TAG' polars='$POLARS_VERSION' pandas='$PANDAS_VERSION' sql='$SQL_VERSION' spark='$SPARK_VERSION'"
             exit 1
           fi
 
@@ -54,6 +55,7 @@ jobs:
           uv build --package etlantic-polars --out-dir dist
           uv build --package etlantic-pandas --out-dir dist
           uv build --package etlantic-sql --out-dir dist
+          uv build --package etlantic-pyspark --out-dir dist
 
       - name: Smoke test core wheel
         run: |
@@ -66,6 +68,7 @@ jobs:
           import importlib.util
           assert importlib.util.find_spec('sqlalchemy') is None
           assert importlib.util.find_spec('psycopg') is None
+          assert importlib.util.find_spec('pyspark') is None
           print('core ok, driver-free')
           "
 
@@ -98,6 +101,15 @@ jobs:
             "dist/etlantic_sql-${TAG}-py3-none-any.whl" \
             "dist/etlantic_sql-${TAG}.tar.gz"
 
+      - name: Publish PySpark plugin to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          uv publish \
+            "dist/etlantic_pyspark-${TAG}-py3-none-any.whl" \
+            "dist/etlantic_pyspark-${TAG}.tar.gz"
+
       - name: Smoke discover plugins on installed wheels
         run: |
           TAG="${GITHUB_REF_NAME#v}"
@@ -105,14 +117,18 @@ jobs:
           POLARS="dist/etlantic_polars-${TAG}-py3-none-any.whl"
           PANDAS="dist/etlantic_pandas-${TAG}-py3-none-any.whl"
           SQL="dist/etlantic_sql-${TAG}-py3-none-any.whl"
+          SPARK="dist/etlantic_pyspark-${TAG}-py3-none-any.whl"
           uv run --isolated --no-project \
-            --with "$CORE" --with "$POLARS" --with "$PANDAS" --with "$SQL" \
+            --with "$CORE" --with "$POLARS" --with "$PANDAS" --with "$SQL" --with "$SPARK" \
             python -c "
           from etlantic.dataframe.discovery import discover_dataframe_plugins
           from etlantic.sql.discovery import discover_sql_plugins
+          from etlantic.spark.discovery import discover_spark_plugins
           found = discover_dataframe_plugins()
           assert set(found) >= {'polars', 'pandas'}, found
           sql = discover_sql_plugins()
           assert 'sql' in sql, sql
-          print('ok', sorted(found), sorted(sql))
+          spark = discover_spark_plugins()
+          assert 'pyspark' in spark, spark
+          print('ok', sorted(found), sorted(sql), sorted(spark))
           "

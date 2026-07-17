@@ -300,15 +300,22 @@ def _phase_capability(
 
     diagnostics: list[Diagnostic] = []
     engine_name = (
-        context.profile.sql_engine
-        if context.profile.sql_engine
-        else (context.profile.dataframe_engine or "local")
+        context.profile.spark_engine
+        if context.profile.spark_engine
+        else (
+            context.profile.sql_engine
+            if context.profile.sql_engine
+            else (context.profile.dataframe_engine or "local")
+        )
     )
     available = context.registry.engines.get(engine_name)
     if available is None:
-        engine_field = (
-            "sql_engine" if context.profile.sql_engine else "dataframe_engine"
-        )
+        if context.profile.spark_engine:
+            engine_field = "spark_engine"
+        elif context.profile.sql_engine:
+            engine_field = "sql_engine"
+        else:
+            engine_field = "dataframe_engine"
         diagnostics.append(
             Diagnostic(
                 code="PMPLAN401",

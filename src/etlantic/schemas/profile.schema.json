@@ -8,6 +8,19 @@
     "name": { "type": "string", "minLength": 1 },
     "orchestrator": { "type": "string" },
     "dataframe_engine": { "type": ["string", "null"] },
+    "sql_engine": { "type": ["string", "null"] },
+    "spark_engine": { "type": ["string", "null"] },
+    "allow_trusted_sql": { "type": "boolean" },
+    "spark_udf_policy": { "type": "string" },
+    "spark_streaming": { "type": "boolean" },
+    "required_sql_capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_spark_capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "bindings": { "type": "object", "additionalProperties": { "type": "string" } },
     "implementation_overrides": {
       "type": "object",

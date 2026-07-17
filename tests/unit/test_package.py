@@ -4,7 +4,7 @@ import etlantic
 
 
 def test_version() -> None:
-    assert etlantic.__version__ == "0.6.1"
+    assert etlantic.__version__ == "0.7.0"
 
 
 def test_root_exports() -> None:
@@ -32,6 +32,10 @@ def test_root_exports() -> None:
     assert hasattr(etlantic, "RelationRef")
     assert hasattr(etlantic, "discover_sql_plugins")
     assert hasattr(etlantic, "SQL_PROTOCOL_VERSION")
+    assert hasattr(etlantic, "SPARK_PROTOCOL_VERSION")
+    assert hasattr(etlantic, "STREAMING_STABILITY")
+    assert hasattr(etlantic, "discover_spark_plugins")
+    assert hasattr(etlantic, "DatasetRef")
     assert hasattr(etlantic, "col")
     assert hasattr(etlantic, "concat")
     assert hasattr(etlantic, "select")

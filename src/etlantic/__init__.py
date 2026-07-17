@@ -1,7 +1,8 @@
 """ETLantic — typed, contract-driven data pipeline modeling.
 
-0.6 adds SQL-native execution with an independently installable
-PostgreSQL reference plugin (``etlantic-sql``).
+0.7 adds distributed Spark execution with an independently installable
+PySpark reference plugin (``etlantic-pyspark``). Structured Streaming APIs
+are experimental.
 """
 
 from __future__ import annotations
@@ -122,6 +123,14 @@ from etlantic.schema_drift import (
 )
 from etlantic.schema_policy import DriftAction, SchemaDriftPolicy
 from etlantic.secrets import SecretRef, SecretValue
+from etlantic.spark import (
+    SPARK_PROTOCOL_VERSION,
+    STREAMING_STABILITY,
+    DatasetRef,
+    SparkUdfPolicy,
+    discover_spark_plugins,
+    discover_spark_providers,
+)
 from etlantic.sql import (
     SQL_PROTOCOL_VERSION,
     RelationRef,
@@ -142,7 +151,9 @@ from etlantic.transformation import ImplementationRecord, Step, Transformation
 
 __all__ = [
     "DATAFRAME_PROTOCOL_VERSION",
+    "SPARK_PROTOCOL_VERSION",
     "SQL_PROTOCOL_VERSION",
+    "STREAMING_STABILITY",
     "ArtifactOwnership",
     "ArtifactProvenance",
     "ArtifactRef",
@@ -159,6 +170,7 @@ __all__ = [
     "DataValidationError",
     "DataframeValidationOutcome",
     "DataframeValidationPolicy",
+    "DatasetRef",
     "DebugSession",
     "Diagnostic",
     "DiagnosticAction",
@@ -225,6 +237,7 @@ __all__ = [
     "Sink",
     "Source",
     "SourceLocation",
+    "SparkUdfPolicy",
     "SqlQuery",
     "Step",
     "StepFailureContext",
@@ -245,6 +258,8 @@ __all__ = [
     "diff_pipelines",
     "diff_transformations",
     "discover_dataframe_plugins",
+    "discover_spark_plugins",
+    "discover_spark_providers",
     "discover_sql_plugins",
     "explain_plan",
     "generate_contracts",

@@ -50,6 +50,14 @@ class PluginCapabilities:
     sql_atomic_rename: bool = False
     sql_catalog_inspect: bool = False
     sql_trusted_fragments: bool = False
+    # Spark 0.7 vocabulary
+    spark_delta: bool = False
+    spark_merge: bool = False
+    spark_streaming: bool = False
+    spark_native_exprs: bool = False
+    spark_udf: bool = False
+    spark_cache: bool = False
+    spark_checkpoint: bool = False
     extras: frozenset[str] = field(default_factory=frozenset)
 
     def supports(self, requirement: str) -> bool:
@@ -87,6 +95,14 @@ class PluginCapabilities:
             "catalog_inspect": self.sql_catalog_inspect,
             "sql_trusted_fragments": self.sql_trusted_fragments,
             "trusted_fragments": self.sql_trusted_fragments,
+            "spark_delta": self.spark_delta,
+            "delta": self.spark_delta,
+            "spark_merge": self.spark_merge,
+            "spark_streaming": self.spark_streaming,
+            "spark_native_exprs": self.spark_native_exprs,
+            "spark_udf": self.spark_udf,
+            "spark_cache": self.spark_cache,
+            "spark_checkpoint": self.spark_checkpoint,
         }
         if requirement in known:
             return known[requirement]
@@ -120,6 +136,13 @@ class PluginCapabilities:
             "sql_atomic_rename": self.sql_atomic_rename,
             "sql_catalog_inspect": self.sql_catalog_inspect,
             "sql_trusted_fragments": self.sql_trusted_fragments,
+            "spark_delta": self.spark_delta,
+            "spark_merge": self.spark_merge,
+            "spark_streaming": self.spark_streaming,
+            "spark_native_exprs": self.spark_native_exprs,
+            "spark_udf": self.spark_udf,
+            "spark_cache": self.spark_cache,
+            "spark_checkpoint": self.spark_checkpoint,
             "extras": sorted(self.extras),
         }
 
@@ -153,6 +176,13 @@ class PluginCapabilities:
             sql_atomic_rename=bool(data.get("sql_atomic_rename", False)),
             sql_catalog_inspect=bool(data.get("sql_catalog_inspect", False)),
             sql_trusted_fragments=bool(data.get("sql_trusted_fragments", False)),
+            spark_delta=bool(data.get("spark_delta", False)),
+            spark_merge=bool(data.get("spark_merge", False)),
+            spark_streaming=bool(data.get("spark_streaming", False)),
+            spark_native_exprs=bool(data.get("spark_native_exprs", False)),
+            spark_udf=bool(data.get("spark_udf", False)),
+            spark_cache=bool(data.get("spark_cache", False)),
+            spark_checkpoint=bool(data.get("spark_checkpoint", False)),
             extras=frozenset(str(x) for x in extras),
         )
 

@@ -44,6 +44,8 @@ class PipelineRuntime:
     storage: dict[str, StorageBinding] = field(default_factory=dict)
     dataframe_plugins: dict[str, Any] = field(default_factory=dict)
     sql_plugins: dict[str, Any] = field(default_factory=dict)
+    spark_plugins: dict[str, Any] = field(default_factory=dict)
+    spark_providers: dict[str, Any] = field(default_factory=dict)
     memory: MemoryStorage = field(default_factory=MemoryStorage)
     callables: CallableStorage = field(default_factory=CallableStorage)
     _entered: bool = False
@@ -92,6 +94,28 @@ class PipelineRuntime:
                 msg = f"SQL plugin discovery failed during runtime init: {exc}"
                 logging.getLogger(__name__).warning(msg)
                 warnings.warn(msg, RuntimeWarning, stacklevel=2)
+        if not self.spark_plugins:
+            try:
+                from etlantic.spark.discovery import (
+                    discover_spark_plugins,
+                    discover_spark_providers,
+                )
+                from etlantic.spark.discovery import (
+                    register_discovered_plugins as register_spark_plugins,
+                )
+
+                discovered_spark = discover_spark_plugins()
+                self.spark_plugins.update(discovered_spark)
+                register_spark_plugins(self.registry, plugins=discovered_spark)
+                if not self.spark_providers:
+                    self.spark_providers.update(discover_spark_providers())
+            except Exception as exc:
+                import logging
+                import warnings
+
+                msg = f"Spark plugin discovery failed during runtime init: {exc}"
+                logging.getLogger(__name__).warning(msg)
+                warnings.warn(msg, RuntimeWarning, stacklevel=2)
         if not self.storage:
             self.storage = {
                 "memory": self.memory,
@@ -135,6 +159,17 @@ class PipelineRuntime:
 
         self.sql_plugins[engine] = plugin
         register_discovered_plugins(self.registry, plugins={engine: plugin})
+
+    def register_spark_plugin(self, engine: str, plugin: Any) -> None:
+        """Register a live Spark plugin and its planning descriptor."""
+        from etlantic.spark.discovery import register_discovered_plugins
+
+        self.spark_plugins[engine] = plugin
+        register_discovered_plugins(self.registry, plugins={engine: plugin})
+
+    def register_spark_provider(self, name: str, provider: Any) -> None:
+        """Register a live Spark session provider."""
+        self.spark_providers[name] = provider
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[PipelineRuntime]:

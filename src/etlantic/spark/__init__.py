@@ -1,0 +1,111 @@
+"""Versioned Spark execution protocol (etlantic.spark/1).
+
+Core stays PySpark-free. Install ``etlantic-pyspark`` for the reference plugin.
+Streaming APIs are **experimental** in 0.7.
+"""
+
+from __future__ import annotations
+
+from etlantic.spark.discovery import (
+    SPARK_PLUGIN_ENTRY_POINT,
+    SPARK_PROVIDER_ENTRY_POINT,
+    discover_spark_plugins,
+    discover_spark_providers,
+    load_spark_plugin,
+    load_spark_provider,
+    register_discovered_plugins,
+)
+from etlantic.spark.protocol import (
+    SPARK_ENGINES,
+    SPARK_PROTOCOL_VERSION,
+    STREAMING_STABILITY,
+    CompiledSparkPlan,
+    DatasetRef,
+    ExpressionStrategy,
+    SchemaCompatibility,
+    SparkAction,
+    SparkActionKind,
+    SparkCompilationContext,
+    SparkDataFrameHandle,
+    SparkExecutionContext,
+    SparkExecutionResult,
+    SparkMetrics,
+    SparkPhase,
+    SparkPlanRegion,
+    SparkPlugin,
+    SparkPluginInfo,
+    SparkUdfPolicy,
+    SparkWrite,
+    SparkWriteMode,
+)
+from etlantic.spark.provider import (
+    ResourceContext,
+    SessionOwnership,
+    SparkProvider,
+    SparkProviderInfo,
+    SparkSessionHandle,
+    SparkSessionRequest,
+)
+from etlantic.spark.schema import (
+    FieldMapping,
+    SchemaMappingResult,
+    compare_types,
+    map_contract_schema,
+    observation_from_spark_schema,
+)
+from etlantic.spark.streaming import (
+    LateEventPolicy,
+    StreamingOutputMode,
+    StreamingProgress,
+    StreamingQuerySpec,
+    StreamingTrigger,
+    WatermarkSpec,
+)
+
+__all__ = [
+    "SPARK_ENGINES",
+    "SPARK_PLUGIN_ENTRY_POINT",
+    "SPARK_PROTOCOL_VERSION",
+    "SPARK_PROVIDER_ENTRY_POINT",
+    "STREAMING_STABILITY",
+    "CompiledSparkPlan",
+    "DatasetRef",
+    "ExpressionStrategy",
+    "FieldMapping",
+    "LateEventPolicy",
+    "ResourceContext",
+    "SchemaCompatibility",
+    "SchemaMappingResult",
+    "SessionOwnership",
+    "SparkAction",
+    "SparkActionKind",
+    "SparkCompilationContext",
+    "SparkDataFrameHandle",
+    "SparkExecutionContext",
+    "SparkExecutionResult",
+    "SparkMetrics",
+    "SparkPhase",
+    "SparkPlanRegion",
+    "SparkPlugin",
+    "SparkPluginInfo",
+    "SparkProvider",
+    "SparkProviderInfo",
+    "SparkSessionHandle",
+    "SparkSessionRequest",
+    "SparkUdfPolicy",
+    "SparkWrite",
+    "SparkWriteMode",
+    "StreamingOutputMode",
+    "StreamingProgress",
+    "StreamingQuerySpec",
+    "StreamingTrigger",
+    "WatermarkSpec",
+    "compare_types",
+    "discover_spark_plugins",
+    "discover_spark_providers",
+    "load_spark_plugin",
+    "load_spark_provider",
+    "map_contract_schema",
+    "observation_from_spark_schema",
+    "register_discovered_plugins",
+]

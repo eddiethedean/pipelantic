@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-17
+
+### Added
+
+- Versioned Spark execution protocol (`etlantic.spark/1`) with dataset refs,
+  lazy region compile/execute, write intents, and UDF policy
+- `Profile.spark_engine`, `spark_udf_policy`, `spark_streaming`, and
+  `required_spark_capabilities`
+- Independently installable `etlantic-pyspark` plugin with local Spark provider
+- Lazy Spark region fusion preserving logical step identities
+- Contract ↔ Spark schema mapping that diagnoses lossy/unknown mappings
+- Delta-compatible append/overwrite/merge write intents (fail-closed)
+- Structured Streaming foundation types marked **experimental**
+- Entry-point groups `etlantic.spark_plugins` and `etlantic.spark_providers`
+- Migration guide `docs/11_DEVELOPMENT/MIGRATION_0_6_TO_0_7.md`
+
+### Changed
+
+- Package version advances to 0.7 (Distributed Spark Execution)
+- Planner prefers `spark_engine` over `sql_engine` / `dataframe_engine` when set
+- Plugin packages (polars/pandas/sql/pyspark) require `etlantic>=0.7.0,<0.8`
+
+### Upgrade notes
+
+- Install `etlantic-pyspark` to enable Spark execution
+- Core remains free of PySpark and Delta dependencies
+- Streaming APIs are experimental; batch Spark is the production path
+
 ## [0.6.1] - 2026-07-16
 
 ### Changed

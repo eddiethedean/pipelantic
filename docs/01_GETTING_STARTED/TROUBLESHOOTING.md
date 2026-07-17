@@ -10,7 +10,7 @@ python --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.6.1**. Confirm what you installed:
+These docs describe ETLantic **0.7.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -19,7 +19,7 @@ python -c "import etlantic; print(etlantic.__version__)"
 If the version is older, upgrade:
 
 ```bash
-python -m pip install --upgrade 'etlantic>=0.6.1'
+python -m pip install --upgrade 'etlantic>=0.7.0'
 ```
 
 If pip still resolves an older release, you may be on a mirror or pin. Check
@@ -29,7 +29,7 @@ in your environment.
 
 ## `pip install etlantic-polars` / `etlantic-pandas` / `etlantic-sql` fails
 
-Those packages ship with ETLantic 0.6.1. They are separate distributions:
+Those packages ship with ETLantic 0.7.0. They are separate distributions:
 
 ```bash
 python -m pip install --upgrade etlantic-polars
@@ -39,12 +39,12 @@ python -m pip install --upgrade etlantic-sql
 
 If pip reports no matching distribution:
 
-1. Confirm core is already at 0.6.1 or newer.
+1. Confirm core is already at 0.7.0 or newer.
 2. Confirm Python is 3.11+.
 3. Confirm the package name uses a hyphen (`etlantic-polars`), not an
    underscore.
 
-Until 0.6.1 is on PyPI, install from a git checkout with
+Until 0.7.0 is on PyPI, install from a git checkout with
 `uv sync --group dataframes` (and install `etlantic-sql` from the workspace)
 instead.
 

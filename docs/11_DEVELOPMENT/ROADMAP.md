@@ -702,6 +702,8 @@ logical pipeline, not a special pipeline type.
 
 ## 0.7 — Distributed Spark Execution
 
+**Status: shipped in 0.7.0** (Structured Streaming APIs experimental)
+
 ### Deliver
 
 - PySpark dataframe plugin

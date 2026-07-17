@@ -124,11 +124,15 @@ def _build_plan(
         raise _selection_error("Selection produced an empty graph.")
 
     profile = context.profile
-    # Prefer SQL when profile.sql_engine is set; otherwise dataframe/local.
+    # Prefer Spark, then SQL, otherwise dataframe/local.
     default_engine = (
-        profile.sql_engine
-        if profile.sql_engine
-        else (profile.dataframe_engine or "local")
+        profile.spark_engine
+        if profile.spark_engine
+        else (
+            profile.sql_engine
+            if profile.sql_engine
+            else (profile.dataframe_engine or "local")
+        )
     )
     security_domain = profile.security_domain
 
@@ -139,6 +143,8 @@ def _build_plan(
     _assert_dataframe_engines_available(context, implementations, default_engine)
     _assert_sql_engines_available(context, implementations, default_engine)
     _assert_sql_write_capabilities(context, implementations, default_engine)
+    _assert_spark_engines_available(context, implementations, default_engine)
+    _assert_spark_capabilities(context, implementations, default_engine)
     capability_decisions = _capability_records(context, default_engine)
     _assert_capabilities_supported(capability_decisions, context, default_engine)
 
@@ -153,6 +159,20 @@ def _build_plan(
         security_domain,
         bindings=bindings,
     )
+    if profile.spark_streaming:
+        regions = [
+            ExecutionRegion(
+                identity=r.identity,
+                engine=r.engine,
+                node_names=r.node_names,
+                security_domain=r.security_domain,
+                metadata={
+                    **dict(r.metadata),
+                    "streaming": r.engine in {"pyspark", "spark"},
+                },
+            )
+            for r in regions
+        ]
 
     # 7. Physical units + mappings
     physical_units: list[PhysicalUnit] = []
@@ -257,7 +277,10 @@ def _build_plan(
         "retry_max_attempts": profile.retry_max_attempts,
         "dataframe_engine": profile.dataframe_engine,
         "sql_engine": profile.sql_engine,
+        "spark_engine": profile.spark_engine,
         "allow_trusted_sql": profile.allow_trusted_sql,
+        "spark_udf_policy": profile.spark_udf_policy,
+        "spark_streaming": profile.spark_streaming,
     }
     intents: dict[str, Any] = {}
     if profile.retry_max_attempts is not None:
@@ -291,9 +314,11 @@ def _build_plan(
         execution_settings=execution_settings,
         metadata={
             "planner": "etlantic.plan.planner",
-            "planner_version": "0.6.1",
+            "planner_version": "0.7.0",
             "dataframe_protocol": "etlantic.dataframe/1",
             "sql_protocol": "etlantic.sql/1",
+            "spark_protocol": "etlantic.spark/1",
+            "spark_streaming_stability": "experimental",
             "sql_fusion": [
                 {
                     "region": r.identity,
@@ -303,6 +328,18 @@ def _build_plan(
                 }
                 for r in regions
                 if r.engine == "sql"
+            ],
+            "spark_fusion": [
+                {
+                    "region": r.identity,
+                    "engine": r.engine,
+                    "nodes": list(r.node_names),
+                    "strategy": "lazy_dataframe",
+                    "streaming": bool((r.metadata or {}).get("streaming")),
+                    "logical_identities": list(r.node_names),
+                }
+                for r in regions
+                if r.engine in {"pyspark", "spark"}
             ],
             "collection_points": [
                 {
@@ -318,6 +355,8 @@ def _build_plan(
                     "sink_publication",
                     "cross_engine",
                     "validation_boundary",
+                    "spark_checkpoint",
+                    "spark_cache",
                 }
             ],
             "conversion_boundaries": [
@@ -572,6 +611,86 @@ def _assert_sql_write_capabilities(
         )
 
 
+def _assert_spark_engines_available(
+    context: PlanningContext,
+    implementations: dict[str, ImplementationDescriptor],
+    default_engine: str,
+) -> None:
+    from etlantic.spark.protocol import SPARK_ENGINES
+
+    engines = {default_engine} | {impl.engine for impl in implementations.values()}
+    missing = sorted(
+        engine
+        for engine in engines
+        if engine in SPARK_ENGINES and engine not in context.registry.engines
+    )
+    if not missing:
+        return
+    diagnostics = [
+        Diagnostic(
+            code="PMPLAN414",
+            severity=Severity.ERROR,
+            message=(
+                f"Spark engine {engine!r} is not registered. Install "
+                "etlantic-pyspark and ensure it is discoverable."
+            ),
+            path=("capability", engine),
+            phase="capability",
+        )
+        for engine in missing
+    ]
+    raise PipelineValidationError(
+        "Missing Spark engine plugin(s).",
+        report=ValidationReport.from_diagnostics(diagnostics, phases=("capability",)),
+    )
+
+
+def _assert_spark_capabilities(
+    context: PlanningContext,
+    implementations: dict[str, ImplementationDescriptor],
+    default_engine: str,
+) -> None:
+    """Fail closed when profile requires unsupported Spark capabilities."""
+    from etlantic.spark.protocol import SPARK_ENGINES
+
+    engines = {default_engine} | {impl.engine for impl in implementations.values()}
+    if not any(e in SPARK_ENGINES for e in engines):
+        return
+    required = list(context.profile.required_spark_capabilities)
+    if context.profile.spark_streaming:
+        required = [*required, "spark_streaming", "streaming"]
+    if not required:
+        return
+    for engine in engines:
+        if engine not in SPARK_ENGINES:
+            continue
+        available = context.registry.engines.get(engine)
+        if available is None:
+            continue
+        unsupported = [req for req in required if not available.supports(req)]
+        if not unsupported:
+            continue
+        diagnostics = [
+            Diagnostic(
+                code="PMPLAN415",
+                severity=Severity.ERROR,
+                message=(
+                    f"Spark capability {req!r} unsupported by {engine!r}; "
+                    "failing before execution."
+                ),
+                path=("capability", req),
+                phase="capability",
+            )
+            for req in unsupported
+        ]
+        raise PipelineValidationError(
+            "Unsupported Spark capabilities.",
+            report=ValidationReport.from_diagnostics(
+                diagnostics, phases=("capability",)
+            ),
+        )
+
+
 def _assert_capabilities_supported(
     capability_decisions: list[dict[str, Any]],
     context: PlanningContext,
@@ -696,6 +815,8 @@ def _provider_engine(provider: str | None, default_engine: str) -> str | None:
     """Map a binding provider to an execution engine when unambiguous."""
     if provider == "sql":
         return "sql"
+    if provider in {"pyspark", "spark", "delta"}:
+        return "pyspark" if provider == "delta" else provider
     if provider in {"polars", "pandas"}:
         return provider
     if provider in {"memory", "json", "csv", "callable", "null", "no_write"}:
@@ -754,12 +875,17 @@ def _form_regions(
 
     regions: list[ExecutionRegion] = []
     for engine, names in sorted(by_engine.items()):
+        meta: dict[str, Any] = {}
+        if engine in {"pyspark", "spark"}:
+            meta["strategy"] = "lazy_dataframe"
+            meta["logical_identities"] = list(names)
         regions.append(
             ExecutionRegion(
                 identity=f"region:{security_domain}:{engine}",
                 engine=engine,
                 node_names=tuple(names),
                 security_domain=security_domain,
+                metadata=meta,
             )
         )
     return regions

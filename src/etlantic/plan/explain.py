@@ -69,6 +69,9 @@ def explain_plan(plan: PipelinePlan) -> dict[str, Any]:
         "dataframe_protocol": plan.metadata.get("dataframe_protocol"),
         "sql_protocol": plan.metadata.get("sql_protocol"),
         "sql_fusion": plan.metadata.get("sql_fusion"),
+        "spark_protocol": plan.metadata.get("spark_protocol"),
+        "spark_fusion": plan.metadata.get("spark_fusion"),
+        "spark_streaming_stability": plan.metadata.get("spark_streaming_stability"),
         "regions": [r.to_dict() for r in plan.regions],
         "materialization_boundaries": [
             b.to_dict() for b in plan.materialization_boundaries

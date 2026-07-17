@@ -223,12 +223,14 @@ class PlanningContext:
         registry is supplied, discovered entry-point plugins are registered
         onto a stub registry so plan-only paths work without a runtime.
         When ``sql_engine`` is ``sql``, discovered SQL plugins are registered
-        the same way.
+        the same way. When ``spark_engine`` is ``pyspark``/``spark``,
+        discovered Spark plugins are registered the same way.
         """
         resolved = resolve_profile(profile)
         caps = list(required_capabilities) if required_capabilities is not None else []
         engine = resolved.dataframe_engine or "local"
         sql_engine = resolved.sql_engine
+        spark_engine = resolved.spark_engine
         if not caps and engine in {"polars", "pandas"}:
             caps = ["dataframe", "eager"]
             if engine == "polars":
@@ -236,6 +238,11 @@ class PlanningContext:
         if not caps and sql_engine == "sql":
             caps = ["sql", "transactions", "sql_catalog_inspect"]
             caps.extend(resolved.required_sql_capabilities)
+        if not caps and spark_engine in {"pyspark", "spark"}:
+            caps = ["spark", "lazy", "schema_inspection"]
+            caps.extend(resolved.required_spark_capabilities)
+            if resolved.spark_streaming:
+                caps.extend(["streaming", "spark_streaming"])
         reg = registry
         if reg is None:
             reg = builtin_stub_registry()
@@ -249,6 +256,12 @@ class PlanningContext:
                 )
 
                 register_sql(reg)
+            if spark_engine in {"pyspark", "spark"}:
+                from etlantic.spark.discovery import (
+                    register_discovered_plugins as register_spark,
+                )
+
+                register_spark(reg)
         return cls(
             profile=resolved,
             registry=reg,

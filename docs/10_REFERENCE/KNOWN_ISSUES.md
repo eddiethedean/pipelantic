@@ -2,12 +2,13 @@
 
 - The project is alpha and does not promise 1.0 API stability.
 - Local execution is in-process; ETLantic is not a distributed scheduler.
-- Spark, Airflow, and other non-SQL distributed backends are not included in
-  0.6.
+- Spark batch execution is available via `etlantic-pyspark` (0.7); managed
+  cloud providers (Databricks/EMR/Connect) and Airflow compilation are not.
+- Structured Streaming APIs are experimental in 0.7.
 - SQL plugins do not treat untrusted raw SQL as safe; use the typed expression
   model and dialect identifier/parameter APIs.
-- `MERGE` / upsert is not implemented in the 0.6 reference plugin; requiring
-  `sql_merge` fails closed at planning. Do not rely on merge until a later
+- `MERGE` / upsert is not implemented in the SQL reference plugin; requiring
+  `sql_merge` fails closed at planning. Do not rely on SQL merge until a later
   release advertises and implements it.
 - SQLite via `ETLANTIC_SQL_URL` is demo-only; it is not the SQL conformance
   reference (PostgreSQL via `etlantic-sql` is).

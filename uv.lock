@@ -11,6 +11,7 @@ members = [
     "etlantic",
     "etlantic-pandas",
     "etlantic-polars",
+    "etlantic-pyspark",
     "etlantic-sql",
 ]
 
@@ -188,6 +189,19 @@ wheels = [
 ]
 
 [[package]]
+name = "delta-spark"
+version = "3.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "importlib-metadata" },
+    { name = "pyspark" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8e/c9/a4d34fee1dafcad33d4e810ff2ce14a9f6e8e7af9797a9de79ebc3334987/delta_spark-3.3.2.tar.gz", hash = "sha256:f3e89ec4a15a541988f9d6496016a67cf619475e8eeca71da5e073f6ba0da845", size = 23066, upload-time = "2025-05-29T22:25:49.412Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4b/b7/f484bca84628f9f7a9a16ecfd8b010edbda9fa3f5e3918e967ddd69bf6af/delta_spark-3.3.2-py3-none-any.whl", hash = "sha256:0a34c720b4368f1655e2348e380b5b3baaca0f2b3d519a3198208f00f65e4062", size = 22024, upload-time = "2025-05-29T22:25:48.008Z" },
+]
+
+[[package]]
 name = "dnspython"
 version = "2.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -243,7 +257,7 @@ wheels = [
 
 [[package]]
 name = "etlantic"
-version = "0.6.1"
+version = "0.7.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -273,6 +287,12 @@ polars = [
 postgresql = [
     { name = "etlantic-sql" },
 ]
+pyspark = [
+    { name = "etlantic-pyspark" },
+]
+spark = [
+    { name = "etlantic-pyspark" },
+]
 sql = [
     { name = "etlantic-sql" },
 ]
@@ -299,6 +319,9 @@ polars = [
     { name = "etlantic-polars" },
     { name = "pyarrow" },
 ]
+pyspark = [
+    { name = "etlantic-pyspark" },
+]
 sql = [
     { name = "etlantic-sql" },
 ]
@@ -314,6 +337,8 @@ requires-dist = [
     { name = "etlantic-pandas", marker = "extra == 'pandas'", editable = "packages/etlantic-pandas" },
     { name = "etlantic-polars", marker = "extra == 'dataframes'", editable = "packages/etlantic-polars" },
     { name = "etlantic-polars", marker = "extra == 'polars'", editable = "packages/etlantic-polars" },
+    { name = "etlantic-pyspark", marker = "extra == 'pyspark'", editable = "packages/etlantic-pyspark" },
+    { name = "etlantic-pyspark", marker = "extra == 'spark'", editable = "packages/etlantic-pyspark" },
     { name = "etlantic-sql", marker = "extra == 'postgresql'", editable = "packages/etlantic-sql" },
     { name = "etlantic-sql", marker = "extra == 'sql'", editable = "packages/etlantic-sql" },
     { name = "packaging", specifier = ">=24" },
@@ -321,7 +346,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12,<3" },
     { name = "typer", specifier = ">=0.15,<1" },
 ]
-provides-extras = ["polars", "pandas", "sql", "postgresql", "arrow", "dataframes"]
+provides-extras = ["polars", "pandas", "sql", "postgresql", "pyspark", "spark", "arrow", "dataframes"]
 
 [package.metadata.requires-dev]
 dataframes = [
@@ -345,11 +370,12 @@ polars = [
     { name = "etlantic-polars", editable = "packages/etlantic-polars" },
     { name = "pyarrow", specifier = ">=14" },
 ]
+pyspark = [{ name = "etlantic-pyspark", editable = "packages/etlantic-pyspark" }]
 sql = [{ name = "etlantic-sql", editable = "packages/etlantic-sql" }]
 
 [[package]]
 name = "etlantic-pandas"
-version = "0.6.1"
+version = "0.7.0"
 source = { editable = "packages/etlantic-pandas" }
 dependencies = [
     { name = "etlantic" },
@@ -371,7 +397,7 @@ provides-extras = ["arrow"]
 
 [[package]]
 name = "etlantic-polars"
-version = "0.6.1"
+version = "0.7.0"
 source = { editable = "packages/etlantic-polars" }
 dependencies = [
     { name = "etlantic" },
@@ -392,8 +418,30 @@ requires-dist = [
 provides-extras = ["arrow"]
 
 [[package]]
+name = "etlantic-pyspark"
+version = "0.7.0"
+source = { editable = "packages/etlantic-pyspark" }
+dependencies = [
+    { name = "etlantic" },
+    { name = "pyspark" },
+]
+
+[package.optional-dependencies]
+delta = [
+    { name = "delta-spark" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "delta-spark", marker = "extra == 'delta'", specifier = ">=3.0,<4" },
+    { name = "etlantic", editable = "." },
+    { name = "pyspark", specifier = ">=3.5,<4" },
+]
+provides-extras = ["delta"]
+
+[[package]]
 name = "etlantic-sql"
-version = "0.6.1"
+version = "0.7.0"
 source = { editable = "packages/etlantic-sql" }
 dependencies = [
     { name = "etlantic" },
@@ -500,6 +548,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/cd/63/9496c57188a2ee585e0f1db071d75089a11e98aa86eb99d9d7618fc1edce/idna-3.18.tar.gz", hash = "sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848", size = 196711, upload-time = "2026-06-02T14:34:07.794Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/5e/d4e9f1a599fb8e573b7b87160658329fbf28d19eac2718f51fc3def3aa5a/idna-3.18-py3-none-any.whl", hash = "sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2", size = 65455, upload-time = "2026-06-02T14:34:06.319Z" },
+]
+
+[[package]]
+name = "importlib-metadata"
+version = "9.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "zipp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/01/15bb152d77b21318514a96f43af312635eb2500c96b55398d020c93d86ea/importlib_metadata-9.0.0.tar.gz", hash = "sha256:a4f57ab599e6a2e3016d7595cfd72eb4661a5106e787a95bcc90c7105b831efc", size = 56405, upload-time = "2026-03-20T06:42:56.999Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/3d/2d244233ac4f76e38533cfcb2991c9eb4c7bf688ae0a036d30725b8faafe/importlib_metadata-9.0.0-py3-none-any.whl", hash = "sha256:2d21d1cc5a017bd0559e36150c21c830ab1dc304dedd1b7ea85d20f45ef3edd7", size = 27789, upload-time = "2026-03-20T06:42:55.665Z" },
 ]
 
 [[package]]
@@ -1089,6 +1149,15 @@ wheels = [
 ]
 
 [[package]]
+name = "py4j"
+version = "0.10.9.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/38/31/0b210511177070c8d5d3059556194352e5753602fa64b85b7ab81ec1a009/py4j-0.10.9.9.tar.gz", hash = "sha256:f694cad19efa5bd1dee4f3e5270eb406613c974394035e5bfc4ec1aba870b879", size = 761089, upload-time = "2025-01-15T03:53:18.624Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/db/ea0203e495be491c85af87b66e37acfd3bf756fd985f87e46fc5e3bf022c/py4j-0.10.9.9-py2.py3-none-any.whl", hash = "sha256:c7c26e4158defb37b0bb124933163641a2ff6e3a3913f7811b0ddbe07ed61533", size = 203008, upload-time = "2025-01-15T03:53:15.648Z" },
+]
+
+[[package]]
 name = "pyarrow"
 version = "25.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1269,6 +1338,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/9e/26/d1015444da4d952a1
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7e/85/545a951eecc270fcd688288c600017e2050a1aacb56c711d208586d3e470/pymdown_extensions-10.21.3-py3-none-any.whl", hash = "sha256:d7a5d08014fc571e80ca21dd6f854e31f94c489800350564d55d15b3c41e76b6", size = 269002, upload-time = "2026-05-13T12:57:30.296Z" },
 ]
+
+[[package]]
+name = "pyspark"
+version = "3.5.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "py4j" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/95/ce/81e53e729790556e3983e95de1a7d5df91a34adfcd34b5a5ab0e0c6e9b33/pyspark-3.5.9.tar.gz", hash = "sha256:ea27adc39ddac9413b8951e45aa748cbed6c785971b81386efc41938f6243d93", size = 317858593, upload-time = "2026-07-16T08:52:04.494Z" }
 
 [[package]]
 name = "pytest"
@@ -1572,4 +1650,13 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/07/f6/d0e5b343768e8bcb4cda79f0f2f55051bf26177ecd5651f84c07567461cf/watchdog-6.0.0-py3-none-win32.whl", hash = "sha256:07df1fdd701c5d4c8e55ef6cf55b8f0120fe1aef7ef39a1c6fc6bc2e606d517a", size = 79065, upload-time = "2024-11-01T14:07:09.525Z" },
     { url = "https://files.pythonhosted.org/packages/db/d9/c495884c6e548fce18a8f40568ff120bc3a4b7b99813081c8ac0c936fa64/watchdog-6.0.0-py3-none-win_amd64.whl", hash = "sha256:cbafb470cf848d93b5d013e2ecb245d4aa1c8fd0504e863ccefa32445359d680", size = 79070, upload-time = "2024-11-01T14:07:10.686Z" },
     { url = "https://files.pythonhosted.org/packages/33/e8/e40370e6d74ddba47f002a32919d91310d6074130fe4e17dabcafc15cbf1/watchdog-6.0.0-py3-none-win_ia64.whl", hash = "sha256:a1914259fa9e1454315171103c6a30961236f508b9b623eae470268bbcc6a22f", size = 79067, upload-time = "2024-11-01T14:07:11.845Z" },
+]
+
+[[package]]
+name = "zipp"
+version = "4.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/d8/eab98a517c14134c0b2eb4e2387bc5f457334293ec5d2dd3857ec2966802/zipp-4.1.0.tar.gz", hash = "sha256:4cb57381f544315db7688e976e922a2b18cdb513d21cc194eb42232ba2a3e602", size = 26214, upload-time = "2026-05-18T20:08:57.967Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/13/547360d81e6d88d58492968ffda9f9542854f11310ee556fef14260cc886/zipp-4.1.0-py3-none-any.whl", hash = "sha256:25ad4e16390cd314347dd8f1de67a2ac538ae658ed4ab9db16029c07c188e97f", size = 10238, upload-time = "2026-05-18T20:08:57.045Z" },
 ]

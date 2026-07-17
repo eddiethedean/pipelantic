@@ -10,8 +10,9 @@ Define datasets, transformations, and pipelines as typed Python classes.
 Validate and plan them once. Run locally today; swap Polars, Pandas, or SQL
 backends without rewriting the logical pipeline.
 
-**Status:** Alpha **0.6.1** — local runtime + optional Polars/Pandas/SQL
-plugins. Spark and Airflow compilation are not shipped.
+**Status:** Alpha **0.7.0** — local runtime + optional Polars/Pandas/SQL/PySpark
+plugins. Airflow compilation is not shipped. Structured Streaming is
+experimental.
 
 ## Install
 
@@ -23,6 +24,7 @@ pip install etlantic
 pip install etlantic-polars
 pip install etlantic-pandas
 pip install etlantic-sql
+pip install etlantic-pyspark
 ```
 
 Verify:
@@ -124,14 +126,16 @@ Run the complete tested version at
 
 ## Current capability boundary
 
-| Capability | 0.6 |
+| Capability | 0.7 |
 |---|---|
 | Typed modeling, validation, contracts, and planning | Available |
 | Local Python execution and run reports | Available |
 | Memory, callable, JSON, CSV, and no-write storage | Available |
 | Polars and Pandas dataframe plugins | Available (`etlantic-polars` / `etlantic-pandas`) |
 | SQL plugin | Available (`etlantic-sql`) |
-| Spark and Airflow plugins | Not yet available |
+| PySpark plugin + local provider | Available (`etlantic-pyspark`) |
+| Structured Streaming | Experimental |
+| Airflow plugin | Not yet available |
 
 ## Documentation
 
