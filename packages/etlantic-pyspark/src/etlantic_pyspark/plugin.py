@@ -37,6 +37,27 @@ from etlantic.storage.protocol import as_records, records_to_dicts
 __version__ = "0.7.0"
 
 
+def _set_job_group(session: Any, group: str, description: str) -> None:
+    """Best-effort job group tagging (no-op on sparkless / limited contexts)."""
+    spark_context = getattr(session, "sparkContext", None)
+    setter = getattr(spark_context, "setJobGroup", None)
+    if callable(setter):
+        setter(group, description)
+
+
+def _row_as_dict(row: Any) -> dict[str, Any]:
+    """Row → dict helper compatible with PySpark and sparkless."""
+    as_dict = getattr(row, "asDict", None)
+    if callable(as_dict):
+        try:
+            return as_dict(recursive=True)
+        except TypeError:
+            return as_dict()
+    if isinstance(row, Mapping):
+        return dict(row)
+    return dict(row)  # type: ignore[arg-type]
+
+
 def create_plugin() -> PySparkPlugin:
     """Entry-point factory."""
     return PySparkPlugin()
@@ -161,8 +182,8 @@ class PySparkPlugin:
     ) -> SparkExecutionResult:
         _ = inputs
         if context.job_group and self._session is not None:
-            self._session.sparkContext.setJobGroup(
-                context.job_group, f"etlantic:{compiled.region_id}"
+            _set_job_group(
+                self._session, context.job_group, f"etlantic:{compiled.region_id}"
             )
         metrics = SparkMetrics(
             fused_steps=len(compiled.node_names),
@@ -189,9 +210,7 @@ class PySparkPlugin:
         if session is None:
             raise RuntimeError("No SparkSession bound; acquire a session first.")
         if context.job_group:
-            session.sparkContext.setJobGroup(
-                context.job_group, f"etlantic:{context.step_name}"
-            )
+            _set_job_group(session, context.job_group, f"etlantic:{context.step_name}")
 
         prepared: dict[str, Any] = {}
         for name, value in inputs.items():
@@ -210,8 +229,8 @@ class PySparkPlugin:
         if session is None:
             raise RuntimeError("No SparkSession bound for write.")
         if context.job_group:
-            session.sparkContext.setJobGroup(
-                context.job_group, f"etlantic-write:{context.step_name}"
+            _set_job_group(
+                session, context.job_group, f"etlantic-write:{context.step_name}"
             )
 
         df = self._to_dataframe(session, write.source)
@@ -324,7 +343,7 @@ class PySparkPlugin:
             if isinstance(value, list):
                 return as_records(value, contract_type)
             return []
-        rows = [row.asDict(recursive=True) for row in df.collect()]
+        rows = [_row_as_dict(row) for row in df.collect()]
         return as_records(rows, contract_type)
 
     def split_valid_invalid(

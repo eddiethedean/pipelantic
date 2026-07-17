@@ -88,6 +88,9 @@ class LocalSparkProvider:
                 _session=external,
             )
 
+        from etlantic_pyspark.sparkless_shim import install
+
+        install()
         from pyspark.sql import SparkSession
 
         builder = (

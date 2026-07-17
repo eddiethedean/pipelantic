@@ -78,6 +78,7 @@ sql = [
 ]
 pyspark = [
     "etlantic-pyspark",
+    "sparkless>=4.13,<5",
 ]
 
 [build-system]
@@ -133,7 +134,7 @@ markers = [
     "polars: tests requiring the Polars plugin",
     "pandas: tests requiring the Pandas plugin",
     "sql: tests requiring the SQL plugin",
-    "spark: tests requiring the PySpark plugin",
+    "spark: tests requiring the PySpark plugin (backed by sparkless by default)",
 ]
 
 [tool.ruff]

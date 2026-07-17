@@ -105,10 +105,11 @@ group (pytest, ruff, mkdocs). The lockfile `uv.lock` pins exact versions.
 |---|---|
 | `uv sync` | Create/update `.venv` from `uv.lock` |
 | `uv sync --group dataframes` | Also install Polars and Pandas plugins |
-| `uv sync --group pyspark` | Also install the PySpark plugin |
+| `uv sync --group pyspark` | Also install the PySpark plugin + sparkless (JVM-free tests) |
 | `uv sync --group sql` | Also install the SQL plugin |
 | `uv lock` | Refresh the lockfile after dependency changes |
 | `uv run pytest` | Run tests |
+| `uv run pytest tests/spark` | Run Spark suite (uses sparkless by default) |
 | `uv run ruff check .` | Lint |
 | `uv run ruff format .` | Format |
 | `uv run python scripts/check_docs.py` | Docs consistency gate |

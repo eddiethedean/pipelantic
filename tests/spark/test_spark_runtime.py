@@ -179,7 +179,7 @@ def test_missing_spark_plugin_fails_planning() -> None:
 
 @pytest.mark.spark
 def test_local_spark_provider() -> None:
-    pytest.importorskip("pyspark")
+    pytest.importorskip("sparkless")
     from etlantic_pyspark import create_provider
 
     provider = create_provider()
@@ -213,7 +213,7 @@ def test_local_spark_provider() -> None:
 
 @pytest.mark.spark
 def test_pipeline_with_local_spark() -> None:
-    pytest.importorskip("pyspark")
+    pytest.importorskip("sparkless")
     from etlantic_pyspark import create_plugin, create_provider
 
     plugin = create_plugin()
@@ -243,7 +243,7 @@ def test_pipeline_with_local_spark() -> None:
 
 @pytest.mark.spark
 def test_pyspark_to_delta_pipeline(tmp_path) -> None:
-    pytest.importorskip("pyspark")
+    pytest.importorskip("sparkless")
     from etlantic.spark.protocol import (
         DatasetRef,
         SparkExecutionContext,

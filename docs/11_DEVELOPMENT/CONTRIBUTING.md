@@ -131,6 +131,15 @@ uv run pytest -m polars
 uv run pytest -m pandas
 ```
 
+For Spark plugin work (JVM-free via sparkless by default):
+
+```bash
+uv sync --group pyspark
+uv run pytest tests/spark
+# Optional parity against real PySpark (requires Java):
+SPARKLESS_TEST_MODE=pyspark uv run pytest tests/spark -m spark
+```
+
 The committed toolchain is uv + pytest + ruff + mkdocs. Type checking with
 pyright is not part of CI yet.
 

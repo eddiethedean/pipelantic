@@ -321,6 +321,7 @@ polars = [
 ]
 pyspark = [
     { name = "etlantic-pyspark" },
+    { name = "sparkless" },
 ]
 sql = [
     { name = "etlantic-sql" },
@@ -370,7 +371,10 @@ polars = [
     { name = "etlantic-polars", editable = "packages/etlantic-polars" },
     { name = "pyarrow", specifier = ">=14" },
 ]
-pyspark = [{ name = "etlantic-pyspark", editable = "packages/etlantic-pyspark" }]
+pyspark = [
+    { name = "etlantic-pyspark", editable = "packages/etlantic-pyspark" },
+    { name = "sparkless", specifier = ">=4.13,<5" },
+]
 sql = [{ name = "etlantic-sql", editable = "packages/etlantic-sql" }]
 
 [[package]]
@@ -1521,6 +1525,22 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "sparkless"
+version = "4.13.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/96/a40a3c98eec4ac48bf2a888318cdce61b5aa7abaca0f0be207ac02f143e0/sparkless-4.13.2.tar.gz", hash = "sha256:201daa00306256a974d8a2752ced2e25ba9fd74fe325c2484c058312444b1398", size = 582328, upload-time = "2026-07-14T02:59:54.677Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/60/5fe8c24ba58acd8756287accf1cd21e8156f0d1c377a6fb400cbef1c90bd/sparkless-4.13.2-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:e7d4ed2d7c93a00b4acb7f86ac6fd21a325b75e8ef7e43bc5aa6f5ad43100984", size = 35073796, upload-time = "2026-07-14T03:06:04.52Z" },
+    { url = "https://files.pythonhosted.org/packages/25/9a/c86f896d15db78315195715ba1d09b50b85d7d6945ec7397ac026760bdb0/sparkless-4.13.2-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:22f0dffd77bd8ea78d10cf90aa20e5b56aef6c6d950a8adc55ebbade1a14c754", size = 32749580, upload-time = "2026-07-14T03:03:08.396Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/66/297079a11d921ce72793dbbd69429651422474f94e6989d99c0d0bde8bae/sparkless-4.13.2-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c9edc2ae525ab3ed9eabd0d730c069afda599c196bb276bdbe73e782dcd42a1c", size = 36562730, upload-time = "2026-07-14T03:03:30.438Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/b6/7cafa8b7e77dd0596c1e6532b7d8cc02562772f305877f571a1d38a7a449/sparkless-4.13.2-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:36163e7a90af6eec4fda39af6599610886a4fb58ed197fc92aa1d46fa7dd1a18", size = 34184825, upload-time = "2026-07-14T03:00:31.628Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/59/73a1341c0bccb33c6e99a8228a80b2a5bc5ff1000f2ae965e17d18cc9968/sparkless-4.13.2-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:eff3c97d15ae7d48800c909513a7b9b3f4d1a22600c0b9b5a973ee7be585686c", size = 34195173, upload-time = "2026-07-14T02:59:52.052Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/7a/8947b8bdb8ffcc120dcc10fd5df6409b701fcfd8bd287c738f434ebaa24a/sparkless-4.13.2-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:221bfac19fed7e098e5f3ce65bc3c4752cb949725f3d1eb6a47f9770e2967a0f", size = 36565739, upload-time = "2026-07-14T03:01:38.894Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/12/1bad19aa739a13c99512c7e4ea2bd8199775a13ba8d254fbaecd1686ef10/sparkless-4.13.2-cp38-abi3-win_amd64.whl", hash = "sha256:d5cd48aea4a5b6bb67f8da76552f1b105ecc59e6958f7a2be51012a402258693", size = 38264389, upload-time = "2026-07-14T03:19:15.164Z" },
+    { url = "https://files.pythonhosted.org/packages/05/ed/79c82a46ea3141104e44c306e9cc1850e47007326851fdb1726250733587/sparkless-4.13.2-cp38-abi3-win_arm64.whl", hash = "sha256:cc6198d0620de61c578e3a6c2b9e79d0d86e51286ea4247ebb4acea57f460ff5", size = 35205907, upload-time = "2026-07-14T03:07:51.784Z" },
 ]
 
 [[package]]
