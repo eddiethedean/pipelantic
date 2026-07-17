@@ -80,6 +80,20 @@ semantic modes, maximum supported plan size, lazy/eager behavior, and artifact
 ownership. Plans and reports preserve the originating DTCS capability
 identifiers.
 
+The compiler reports support against the published profiles, never a vague
+"PySpark compatible" flag:
+
+| DTCS profile | Compiler claim |
+|---|---|
+| `dtcs:profile/portable-relational-kernel/1` | all required kernel actions, expressions, operators, and functions |
+| `dtcs:profile/portable-relational/1` | full relational joins, unions, grouping, aggregation, ordering, deduplication, and limits |
+| `dtcs:profile/portable-window/1` | experimental windows, functions, and row/range frames |
+| `dtcs:profile/portable-complex-types/1` | experimental composite types and access operations |
+
+A compiler may advertise a subset as individual capabilities. It may advertise
+a profile only when every requirement and DTCS conformance fixture in that
+profile passes.
+
 ## Support reports
 
 `analyze()` is deterministic and side-effect free. It returns one finding per
@@ -92,7 +106,7 @@ TransformSupportReport(
         TransformSupportFinding(
             code="PMXFORM301",
             expression_path="outputs.result.project.full_name",
-            requirement="function:string.concat_ws/1",
+            requirement="function:dtcs:concat_ws",
             reason="function is not implemented",
         ),
     ),
@@ -102,6 +116,12 @@ TransformSupportReport(
 It MUST NOT import arbitrary user modules, resolve secrets, acquire resources,
 read data, or contact a backend. Optional backend capability probing is a
 separate explicitly requested operation and cannot weaken fail-closed planning.
+
+Analysis MUST cover each required profile, Semantic Action, Function,
+Operator, logical type, action mode, value-state behavior, ordering guarantee,
+and resource limit. A backend that supports `join` but not, for example,
+`nullSafe`, `semi`, or collision policy handling reports the exact unsupported
+mode rather than claiming generic join support.
 
 ## Compiled transform
 
@@ -223,6 +243,12 @@ Required fixture families:
 - bounded hostile IR
 - secret and parameter redaction
 - cross-engine result equivalence
+
+Fixtures are grouped by the four published DTCS profiles. A plugin claiming
+the kernel or relational profile runs the entire corresponding family. Window
+and complex-types fixtures remain experimental and require two independent
+conforming compilers before their DTCS profiles can graduate from experimental
+status.
 
 Advertised capability coverage, not plugin name, determines which fixtures are
 mandatory.

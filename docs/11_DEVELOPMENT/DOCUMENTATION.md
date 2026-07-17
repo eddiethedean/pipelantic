@@ -21,11 +21,12 @@ Future design must not be described as a complete or runnable current example.
 uv run pytest -q
 uv run python scripts/check_docs.py
 uv run python scripts/check_runnable_docs.py
-NO_MKDOCS_2_WARNING=1 uv run mkdocs build --strict
+uv run python scripts/build_docs.py
 ```
 
-Set `NO_MKDOCS_2_WARNING=1` to suppress Material for MkDocs' advisory about
-unreleased MkDocs 2.0 (unrelated to this project's content).
+`scripts/build_docs.py` runs `mkdocs build --strict` and sets
+`NO_MKDOCS_2_WARNING=1` so Material's MkDocs 2.0 advisory does not appear
+(unrelated to this project's content).
 
 The example test imports and runs `examples/quickstart.py`. Documentation CI
 also checks release-version consistency and rejects future-backend claims in

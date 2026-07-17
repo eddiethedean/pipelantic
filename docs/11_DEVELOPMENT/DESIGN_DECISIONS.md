@@ -292,12 +292,13 @@ boundaries.
 
 ## DD-028: Portable Transformations Use a Closed Relational Language
 
-**Status:** Proposed
+**Status:** Accepted for 0.11+
 
 Portable transformation authoring uses a PySpark-inspired DataFrame and Column
-surface backed by the versioned `etlantic.transform/1` IR. ETLantic does not
-trace arbitrary Python or adopt a backend's expression objects as its semantic
-model.
+surface. The versioned `etlantic.transform/1` authoring profile normalizes to
+the published DTCS 2.0 `dtcs.transform-plan/1`; it is not a competing semantic
+IR. ETLantic does not trace arbitrary Python or adopt a backend's expression
+objects as its semantic model.
 
 Plugins compile only the operations they advertise and must preserve normative
 semantics or fail during planning. Native transformation implementations remain

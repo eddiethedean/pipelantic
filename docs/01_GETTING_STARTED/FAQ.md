@@ -93,6 +93,19 @@ They intentionally do not specify implementation details.
 
 ------------------------------------------------------------------------
 
+## Can one transformation run on Polars, PySpark, Pandas, and SQL?
+
+Today, register a native implementation for each selected engine. ETLantic
+0.10 does not ship `@Transformation.portable` or `etlantic.transform`.
+
+The accepted 0.11–0.15 design provides a PySpark-inspired symbolic facade that
+normalizes to the published DTCS 2.0 `dtcs.transform-plan/1`. Plugins will
+compile the same plan only for exact DTCS profiles and capabilities they have
+proven through conformance tests. Native implementations remain the escape
+hatch for behavior outside the portable standard.
+
+------------------------------------------------------------------------
+
 ## What are Pipeline Contracts?
 
 Pipeline contracts describe how data contracts and transformation

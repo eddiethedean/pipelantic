@@ -7,7 +7,8 @@ This table describes the declared compatibility of ETLantic 0.10.0.
 | Python | 3.11, 3.12, 3.13 |
 | Pydantic | `>=2.12,<3` |
 | ContractModel | `>=0.1.2` |
-| DTCS toolkit | `>=0.11,<1` |
+| DTCS specification | `2.0.0` (`dtcsVersion: "2.0.0"`) |
+| DTCS toolkit | `>=0.12,<1` |
 | DPCS toolkit | `>=0.13,<1` |
 | Pipeline plan schema | `etlantic.plan/1` |
 | Dataframe protocol | `etlantic.dataframe/1` |
@@ -21,11 +22,27 @@ This table describes the declared compatibility of ETLantic 0.10.0.
 | SQLModel bridge | `etlantic-sqlmodel==0.10.0` |
 | SparkForge adapter | `etlantic-sparkforge==0.10.0` |
 | Orchestration protocol | `etlantic.orchestration/1` |
-| DTCS Transformation Plan protocol | Not shipped; proposed `dtcs.transform-plan/1` for 0.11+ |
+| DTCS Transformation Plan protocol | Published in DTCS 2.0 / `dtcs` 0.12 as `dtcs.transform-plan/1`; ETLantic authoring not shipped |
 | Portable authoring profile | Not shipped; proposed `etlantic.transform/1` |
 | Portable compiler protocol | Not shipped; proposed `etlantic.transform-compiler/1` for 0.12+ |
 | Package stability | Alpha |
 | Plugin SDK stability | Protocol stable within 0.8; third-party SDK still evolving |
+
+## Portable transformation profiles
+
+DTCS publication does not mean the ETLantic facade or plugin compilers are
+already implemented. Compatibility is tracked independently:
+
+| DTCS 2.0 profile | Standard status | ETLantic 0.10 status |
+|---|---|---|
+| `dtcs:profile/portable-relational-kernel/1` | Published | planned for 0.11 |
+| `dtcs:profile/portable-relational/1` | Published | planned across 0.11–0.13 |
+| `dtcs:profile/portable-window/1` | Experimental | planned for 0.15+ |
+| `dtcs:profile/portable-complex-types/1` | Experimental | planned for 0.15+ |
+
+Plugins will claim exact profiles or individual registered capabilities only
+after passing the associated conformance fixtures. Similar backend behavior is
+not a compatibility claim.
 
 ## Backend dependency ranges
 

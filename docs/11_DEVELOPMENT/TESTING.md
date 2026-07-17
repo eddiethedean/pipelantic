@@ -8,7 +8,7 @@ uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
 uv run python scripts/check_docs.py
-NO_MKDOCS_2_WARNING=1 uv run mkdocs build --strict
+uv run python scripts/build_docs.py
 ```
 
 Run the narrowest relevant test directory while developing, then the complete

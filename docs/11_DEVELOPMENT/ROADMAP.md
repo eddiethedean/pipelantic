@@ -897,9 +897,11 @@ feature assessment and adapter sequence.
 
 **Status: planned — not released in 0.10.**
 
-**DTCS readiness gate:** publish canonical Transformation Plan kernel models,
-portable types, expression/action identities, serialization, and validation in
-the `dtcs` package before ETLantic exposes the corresponding authoring API.
+**DTCS readiness gate: satisfied upstream.** DTCS 2.0 and `dtcs` 0.12 publish
+`dtcs.transform-plan/1`, the portable type and value-state model, structured
+expressions, Semantic Actions/Functions, profiles, serialization, validation,
+and conformance support. ETLantic must consume those public models without
+forking their semantics.
 
 ### Deliver
 
@@ -917,6 +919,7 @@ the `dtcs` package before ETLantic exposes the corresponding authoring API.
   diagnostics
 - `PMXFORMxxx` diagnostic namespace and expression source paths
 - DTCS portable-definition representation and compatibility fixtures
+- complete support for `dtcs:profile/portable-relational-kernel/1`
 
 ### Acceptance scenarios
 
@@ -940,8 +943,10 @@ yet execute through an engine plugin.
 
 **Status: planned — not released in 0.10.**
 
-**DTCS readiness gate:** publish compiler capability requirements and explain
-metadata for the supported plan version.
+**DTCS readiness gate: satisfied upstream.** DTCS 2.0 defines exact profile,
+action, function, operator, type, mode, and limit claims; `dtcs` 0.12 provides
+the validation/conformance foundation. ETLantic still must integrate those
+claims into planning and explain output.
 
 ### Deliver
 
@@ -975,9 +980,10 @@ compilation as a first-class, deterministic implementation kind.
 
 **Status: planned — not released in 0.10.**
 
-**DTCS readiness gate:** standardize and publish join, union, grouping,
-aggregation, deduplication, and ordering semantics with canonical edge-case
-fixtures.
+**DTCS readiness gate: semantics published upstream.** DTCS 2.0 defines joins
+(including semi, anti, cross, null-safe, and collision policy), union modes,
+grouping, aggregation, sorting, deduplication, and limit determinism. The
+remaining gate is ETLantic and plugin passage of the canonical fixtures.
 
 ### Deliver
 
@@ -990,6 +996,7 @@ fixtures.
 - aggregate typing, null behavior, and empty-input rules
 - Polars implementations for the expanded relational operation set
 - shared Polars/PySpark semantic fixtures and differential execution tests
+- complete support for `dtcs:profile/portable-relational/1`
 
 ### Acceptance scenarios
 
@@ -1009,9 +1016,9 @@ Polars-specific nor merely a PySpark wrapper.
 
 **Status: planned — not released in 0.10.**
 
-**DTCS readiness gate:** publish a conformance manifest and differential
-fixture schema that compiler packages can consume without depending on
-ETLantic internals.
+**DTCS readiness gate: foundation published upstream.** `dtcs` 0.12 publishes
+validation and conformance support. ETLantic must expose a public compiler
+suite that consumes it without plugin dependence on ETLantic internals.
 
 ### Deliver
 
@@ -1043,8 +1050,11 @@ third-party engines.
 
 **Status: planned — not released in 0.10.**
 
-**DTCS readiness gate:** publish SQL-lowering semantic requirements, windows,
-and each admitted advanced function family before ETLantic compiler support.
+**DTCS readiness gate: partially satisfied upstream.** DTCS 2.0 publishes the
+experimental `dtcs:profile/portable-window/1` and
+`dtcs:profile/portable-complex-types/1`, plus date/time semantics. SQL-specific
+lowering rules and any additional function families still require normative
+DTCS entries before ETLantic claims them.
 
 ### Deliver
 
@@ -1075,7 +1085,7 @@ with an auditable, secure compiler model.
 See the
 [Portable Transformation Implementation Plan](PORTABLE_TRANSFORM_PLAN.md).
 The required standards work is detailed in the
-[DTCS Portable Relational Change Proposal](DTCS_PORTABLE_SPEC_PROPOSAL.md).
+[DTCS 2.0 Portable Relational Publication Record](DTCS_PORTABLE_SPEC_PROPOSAL.md).
 
 ## 1.0 — Stable Foundation
 

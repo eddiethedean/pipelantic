@@ -29,6 +29,11 @@ The Pandas compiler will lower supported DTCS Transformation Plan expressions
 to DataFrame and Series operations while declaring eager execution and ownership
 copies honestly. Portable behavior cannot depend on a meaningful Pandas index.
 
+It will claim individual capabilities or the published kernel/relational
+profiles only after passing every required DTCS fixture. Eager execution does
+not prevent conformance, but it must be declared in planning and ownership
+metadata.
+
 Where Pandas cannot preserve a required type, null, ordering, or lazy semantic,
 planning fails instead of approximating the operation.
 

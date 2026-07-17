@@ -11,54 +11,87 @@ Portable functions are imported through one stable namespace:
 from etlantic.transform import functions as F
 ```
 
-Each public function maps to a DTCS Function registry identifier. ETLantic does
-not assign independent semantics. Existing standard mappings include:
+Each public function maps to a DTCS Function or Operator registry identifier.
+ETLantic does not assign independent semantics. DTCS 2.0 / `dtcs` 0.12 publish
+the following mappings.
+
+## Construction and conditional expressions
+
+| ETLantic facade | DTCS 2.0 representation | Notes |
+|---|---|---|
+| `F.col(name)` | structured `fieldRef` | Qualified or relation-scoped reference |
+| `F.lit(value)` | structured `literal` | Bounded boolean, string, integer, or decimal kernel literal |
+| `F.when(...).otherwise(...)` | `dtcs:case_when` | Ordered first-match conditional |
+| `F.coalesce(*values)` | `dtcs:coalesce` | First present non-null/non-missing value; skips invalid |
+| `F.if_null(value, fallback)` | `dtcs:if_null` | Replaces null or missing |
+| `F.null_if(left, right)` | `dtcs:null_if` | Returns null when equal |
+| `F.try_cast(value, type)` | `dtcs:try_cast` | Tolerant conversion with defined invalid behavior |
+| `F.is_invalid(value)` | `dtcs:is_invalid` | Tests the invalid value state |
+
+## Strings
+
+| ETLantic facade | DTCS identifier | Registered null behavior |
+|---|---|---|
+| `F.lower` | `dtcs:lower` | propagate |
+| `F.upper` | `dtcs:upper` | propagate |
+| `F.concat` | `dtcs:concat` | propagate; at least two arguments |
+| `F.concat_ws` | `dtcs:concat_ws` | defined |
+| `F.substring` | `dtcs:substr` | propagate |
+| `F.replace` | `dtcs:replace` | propagate |
+| `F.length` | `dtcs:length` | propagate |
+| `Column.contains` / `F.contains` | `dtcs:contains` | propagate |
+| `Column.startswith` | `dtcs:starts_with` | propagate |
+| `Column.endswith` | `dtcs:ends_with` | propagate |
+
+DTCS 2.0 publishes `trim`, `lowercase`, `uppercase`, `capitalize`, and
+`normalize_whitespace` as field-targeted Semantic Actions. Only `lower` and
+`upper` are also general expression Functions. Therefore `F.trim(...)` is not
+part of the strict DTCS 2.0 expression facade; ETLantic may expose a dedicated
+field-shaping method only if it maps without inventing expression semantics.
+
+## Numeric and conversion functions
 
 | ETLantic facade | DTCS identifier |
 |---|---|
-| `F.lower` | `dtcs:lower` |
-| `F.upper` | `dtcs:upper` |
-| `F.concat` | `dtcs:concat` |
-| `F.substring` | `dtcs:substr` |
-| `F.replace` | `dtcs:replace` |
-| `F.coalesce` | `dtcs:coalesce` |
-| `F.length` | `dtcs:length` |
 | `F.abs` | `dtcs:abs` |
-| `F.is_null` / `Column.isNull` | `dtcs:is_null` |
-| `F.is_missing` | `dtcs:is_missing` |
+| `F.round` | `dtcs:round` |
+| `F.floor` | `dtcs:floor` |
+| `F.ceil` | `dtcs:ceil` |
+| `F.pow` / `F.power` | `dtcs:power` |
+| `F.sqrt` | `dtcs:sqrt` |
+| `F.least` | `dtcs:least` |
+| `F.greatest` | `dtcs:greatest` |
+| `F.min` | `dtcs:min` variadic scalar minimum |
+| `F.max` | `dtcs:max` variadic scalar maximum |
+| `F.to_string` | `dtcs:to_string` |
+| `F.to_integer` | `dtcs:to_integer` |
+| `F.to_decimal` | `dtcs:to_decimal` |
 
-Facade functions whose semantics are not yet present in the published DTCS
-registry remain proposals until a reviewed DTCS registry/specification release
-defines them.
+`Column.cast(type)` must resolve to a published, type-correct DTCS conversion;
+unsupported general casts fail definition validation. It must never become a
+backend-native cast with different overflow or invalid-value behavior.
+
+## Null and value-state predicates
+
+| ETLantic facade | DTCS identifier |
+|---|---|
+| `F.is_null` / `Column.isNull()` | `dtcs:is_null` |
+| `Column.isNotNull()` | `dtcs:not(dtcs:is_null(...))` |
+| `F.is_missing` / `Column.isMissing()` | `dtcs:is_missing` |
+| `F.is_invalid` / `Column.isInvalid()` | `dtcs:is_invalid` |
+
+Facade functions whose semantics are absent from the published DTCS registry
+remain excluded or proposals; familiar PySpark spelling is never sufficient.
 
 ## Support levels
 
 | Level | Meaning |
 |---|---|
-| Kernel | Required for the first portable IR release |
-| Relational | Added with joins and aggregation |
-| Advanced | Added after multi-engine conformance |
+| `dtcs:profile/portable-relational-kernel/1` | Required projection, filtering, field shaping, and scalar expressions |
+| `dtcs:profile/portable-relational/1` | Full joins, unions, aggregation, sorting, deduplication, and limits |
+| `dtcs:profile/portable-window/1` | Experimental window functions and frames |
+| `dtcs:profile/portable-complex-types/1` | Experimental list, map, object, tuple, and access semantics |
 | Excluded | Incompatible with portable declarative execution |
-
-## Kernel functions
-
-| Function | Purpose | Required semantics |
-|---|---|---|
-| `F.col(name)` | Reference a column | qualified and unqualified resolution |
-| `F.lit(value)` | Safe bounded literal | normalized portable type |
-| `F.when(condition, value)` | Begin conditional expression | ordered first-match evaluation |
-| `F.coalesce(*values)` | Registry-defined coalescing | DTCS null/missing/invalid semantics |
-| `F.concat(*values)` | Concatenate strings or collections | explicit type rules |
-| `F.concat_ws(separator, *values)` | Join string values | normative null handling |
-| `F.lower(value)` | Lowercase string | Unicode behavior declared |
-| `F.upper(value)` | Uppercase string | Unicode behavior declared |
-| `F.trim(value)` | Trim whitespace | portable whitespace definition |
-| `F.length(value)` | String or collection length | code-point semantics for strings |
-| `F.abs(value)` | Absolute numeric value | overflow behavior declared |
-| `F.round(value, scale=0)` | Round numeric value | half-even by default |
-
-`F.when()` returns a conditional column supporting `.when()` and
-`.otherwise()`.
 
 ## Operators and Column methods
 
@@ -69,11 +102,15 @@ defines them.
 | `a + b`, `a - b`, `a * b`, `a / b`, `a % b` | arithmetic |
 | `a & b`, `a \| b`, `~a` | three-valued boolean operations |
 | `column.alias(name)` | named projection |
-| `column.cast(type)` | explicit portable cast |
+| `column.cast(type)` | published DTCS conversion or `try_cast` semantics |
 | `column.isNull()` | null predicate |
 | `column.isNotNull()` | non-null predicate |
 | `column.isin(*values)` | finite membership test |
 | `column.between(lower, upper)` | inclusive range predicate |
+| `column.eqNullSafe(other)` | `dtcs:null_safe_eq` |
+| `column[index]` | `dtcs:index` |
+| `column.getField(name)` | `dtcs:field` |
+| `F.element_at(column, key)` | `dtcs:element_at` |
 | `column.asc()`, `column.desc()` | sort expression |
 | `column.asc_nulls_first()` | explicit null ordering |
 | `column.desc_nulls_last()` | explicit null ordering |
@@ -81,48 +118,96 @@ defines them.
 Python `and`, `or`, `not`, and implicit boolean conversion are rejected because
 they cannot build symbolic expressions.
 
-## Relational functions
+The exact published operator mappings are:
 
-The relational milestone adds:
-
-| Family | Functions |
+| Family | DTCS identifiers |
 |---|---|
-| Aggregates | `count`, `count_distinct`, `sum`, `avg`, `min`, `max` |
-| Statistical | `stddev`, `variance` after numeric semantics are accepted |
-| Strings | `substring`, `split`, `regexp_extract`, `regexp_replace` |
-| Numeric | `floor`, `ceil`, `sqrt`, `pow`, `greatest`, `least` |
-| Dates | `to_date`, `to_timestamp`, `date_add`, `date_sub`, `datediff` |
-| Date parts | `year`, `month`, `dayofmonth`, `hour`, `date_trunc` |
+| Comparison | `eq`, `not_eq`, `lt`, `lte`, `gt`, `gte`, `null_safe_eq` |
+| Boolean | `and`, `or`, `not` |
+| Arithmetic | `add`, `subtract`, `multiply`, `divide`, `modulo`, `negate` |
+| Membership | `in`, `between` |
+| Access | `field`, `index`, `element_at` |
+
+## Aggregate functions
+
+The full relational profile publishes:
+
+| ETLantic facade | DTCS identifier |
+|---|---|
+| `F.count_all()` / `F.count("*")` | `dtcs:count_all` |
+| `F.count(column)` | `dtcs:count` |
+| `F.count_distinct(column)` | `dtcs:count_distinct` |
+| `F.sum(column)` | `dtcs:sum` |
+| `F.avg(column)` / `F.average(column)` | `dtcs:average` |
+| aggregate `F.min(column)` | aggregate context for `dtcs:min` |
+| aggregate `F.max(column)` | aggregate context for `dtcs:max` |
 
 Aggregate functions carry aggregate context in the IR. They cannot be used as
 ordinary row expressions unless placed in a window.
 
+`stddev` and `variance` are not in the DTCS 2.0 standard catalog and remain
+excluded from the conforming facade.
+
+## Date and time functions
+
+| ETLantic facade | DTCS identifier / lowering |
+|---|---|
+| `F.current_date()` | `dtcs:current_date` |
+| `F.current_timestamp()` | `dtcs:current_timestamp` |
+| `F.date_add(value, amount, unit="day")` | `dtcs:date_add` |
+| `F.date_sub(value, amount, unit="day")` | `dtcs:date_add` with a negative amount |
+| `F.datediff(end, start, unit="day")` | `dtcs:date_diff` |
+| `F.date_trunc(unit, value)` | `dtcs:date_trunc` |
+| `F.year/month/dayofmonth/hour(value)` | `dtcs:extract` with a fixed part |
+| `F.at_timezone(value, offset)` | `dtcs:at_timezone` |
+
+The portable profile uses fixed-offset timezone semantics. IANA/DST calendar
+behavior is outside DTCS 2.0 portability. Clock functions may be deterministic
+only when the execution context supplies a fixed reference clock.
+
 ## Window API
 
-The advanced milestone proposes:
+DTCS 2.0 publishes the following experimental window facade:
 
 ```python
 from etlantic.transform import Window
 
 window = (
-    Window
-    .partitionBy("customer_id")
+    Window.partitionBy("customer_id")
     .orderBy(F.col("created_at").desc())
 )
 
 orders.withColumn("rank", F.row_number().over(window))
 ```
 
-Planned functions include `row_number`, `rank`, `dense_rank`, `lag`, `lead`,
+Published functions include `row_number`, `rank`, `dense_rank`, `lag`, `lead`,
 `first_value`, and `last_value`. Frame boundaries must use explicit portable
-row or range specifications.
+row or range specifications. Framed `sum`, `count`, `average`, `min`, and `max`
+reuse the aggregate functions.
 
 ## Complex types
 
-Arrays, maps, and structs are deferred until type and null behavior are proven
-across Polars, Pandas/Arrow, SQL dialects, and Spark. Candidate functions
-include `array`, `struct`, `create_map`, `explode`, `size`, `array_contains`,
-`element_at`, `map_keys`, and `map_values`.
+DTCS 2.0's experimental complex-types profile covers list/array, map, and
+object/struct logical types plus `field`, `index`, and `element_at` access.
+`array`, `struct`, `create_map`, `explode`, `size`, `array_contains`,
+`map_keys`, `map_values`, and higher-order collection lambdas are not in the
+published standard catalog and remain excluded until standardized.
+
+## Published DTCS 2.0 gaps
+
+These familiar PySpark functions are intentionally not claimed by the strict
+ETLantic facade because no equivalent DTCS 2.0 standard entry exists:
+
+- `split`, `regexp_extract`, and `regexp_replace`
+- `stddev`, `variance`, covariance, and correlation
+- array/map/struct constructors and `explode`
+- random values and UUID generation
+- arbitrary `F.expr(...)` SQL text
+
+They require a future DTCS registry revision or an explicitly namespaced,
+non-portable extension. Native implementations remain the escape hatch.
+The proposed standard additions and their required semantics are collected in
+the [DTCS 3.0 Rich Portable Analytics Proposal](../11_DEVELOPMENT/DTCS_3_0_SPEC_PROPOSAL.md).
 
 ## Determinism
 
@@ -130,7 +215,7 @@ Every function descriptor declares whether it is:
 
 - deterministic
 - stable within one run, such as `current_timestamp()`
-- nondeterministic, such as a random function
+- nondeterministic, when a future DTCS entry explicitly declares that class
 
 Nondeterministic operations require an explicit capability and affect caching,
 retries, and idempotency. Plugins must not strengthen or weaken determinism
@@ -156,10 +241,12 @@ for engine-specific behavior.
 
 A portable function is complete only when it has:
 
-1. A stable function identifier and IR version.
+1. A stable DTCS registry identifier and entry version.
 2. Argument and return-type rules.
 3. Null, error, determinism, and ordering semantics.
 4. Capability vocabulary.
-5. At least two independent compiler implementations.
-6. Shared conformance fixtures, including edge cases.
-7. Documentation and `plan explain` rendering.
+5. Assignment to the kernel, relational, window, or complex-types profile.
+6. At least two independent compiler implementations before an experimental
+   semantic family can become standard.
+7. Shared DTCS conformance fixtures, including edge cases.
+8. Documentation and `plan explain` rendering.

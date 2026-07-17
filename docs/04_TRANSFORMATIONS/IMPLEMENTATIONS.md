@@ -26,10 +26,11 @@ def normalize(customers, minimum_age):
     ...
 ```
 
-## Portable Definitions (Future Design)
+## Portable definitions (planned 0.11+)
 
-ETLantic plans to support one closed, PySpark-inspired relational definition
-that engine plugins compile:
+ETLantic plans to expose one closed, PySpark-inspired relational definition
+that normalizes to the published DTCS 2.0 `dtcs.transform-plan/1` protocol and
+engine plugins compile:
 
 ```python
 from etlantic.transform import functions as F
@@ -44,6 +45,10 @@ This surface is not available in 0.10. Native `@implementation()` registration
 will remain supported for optimized and non-portable behavior. See
 [Portable Transformations](PORTABLE_TRANSFORMATIONS.md) for the accepted
 design.
+
+Portable support is capability-based. Plugins claim exact DTCS profiles,
+actions, functions, operators, types, and modes after passing their conformance
+fixtures; merely offering similar dataframe methods is insufficient.
 
 ## Why Separate Them?
 

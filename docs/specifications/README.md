@@ -3,13 +3,16 @@
 This directory contains normative specifications owned by the ETLantic
 ecosystem.
 
-- [DTCS 1.0 Specification](DTCS_SPEC.md) defines transformation-contract
-  semantics.
+- [DTCS 2.0 Specification](https://github.com/eddiethedean/dtcs/blob/main/SPEC.md)
+  is the canonical transformation-semantics specification. Version 2.0.0 adds
+  the Portable Relational Profile and `dtcs.transform-plan/1`.
+- [Vendored DTCS 1.0 snapshot](DTCS_SPEC.md) is retained only for historical
+  comparison and must not be treated as current authority.
 - [DPCS 1.0 Specification](DPCS_SPEC.md) defines pipeline-contract semantics.
-- [Portable Transformation IR](PORTABLE_TRANSFORM_IR_SPEC.md) proposes
-  ETLantic's DTCS Transformation Plan profile. DTCS remains the normative
-  authority and the public `dtcs` package will own canonical plan models. It is
-  not implemented in ETLantic 0.10.
+- [Portable Transformation IR](PORTABLE_TRANSFORM_IR_SPEC.md) now records
+  ETLantic's authoring and compiler requirements on top of the published DTCS
+  2.0 plan/profile semantics. The canonical models live in `dtcs>=0.12`; the
+  ETLantic authoring API is not implemented in ETLantic 0.10.
 
 ODCS is an external standard and is not copied into this repository. See the
 [ODCS Integration Guide](../03_DATA_CONTRACTS/ODCS.md) for ETLantic's
@@ -36,6 +39,5 @@ vendored `DTCS_SPEC.md` supports local documentation navigation and may lag the
 publisher's latest revision; when they differ, the published DTCS repository is
 authoritative.
 
-The proposed standards delta required for rich PySpark-inspired portable
-authoring is tracked in the
-[DTCS Portable Relational Change Proposal](../11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md).
+The publication history and remaining ETLantic integration gaps are tracked in
+the [DTCS Portable Relational Publication Record](../11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md).

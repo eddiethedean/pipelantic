@@ -8,5 +8,5 @@ build:
     - pip install --upgrade pip setuptools wheel
     - pip install -r docs/requirements.txt
     - pip install .
-    # Suppress Material for MkDocs advisory about unreleased MkDocs 2.0.
-    - NO_MKDOCS_2_WARNING=1 mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html
+    # Build docs with strict validation (suppresses Material MkDocs 2.0 advisory).
+    - python scripts/build_docs.py --site-dir $READTHEDOCS_OUTPUT/html

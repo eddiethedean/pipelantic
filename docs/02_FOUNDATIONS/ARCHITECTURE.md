@@ -75,7 +75,8 @@ ETLantic supports complementary authoring paths.
 - `Data` classes define data contracts.
 - `Transformation` classes define typed interfaces.
 - Portable definitions optionally describe relational behavior once through a
-  PySpark-inspired symbolic API (accepted design for 0.11+).
+  PySpark-inspired symbolic API (accepted design for 0.11+) that normalizes to
+  the published DTCS 2.0 `dtcs.transform-plan/1` representation.
 - `Pipeline` classes connect sources, steps, sinks, and subpipelines.
 
 ### Contract-first

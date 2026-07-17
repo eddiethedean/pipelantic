@@ -166,7 +166,7 @@ uv run ruff format --check .
 | `uv run pytest` | Run tests |
 | `uv run ruff check .` | Lint |
 | `uv run python scripts/check_docs.py` | Docs consistency gate |
-| `NO_MKDOCS_2_WARNING=1 uv run mkdocs build --strict` | Build the documentation site |
+| `uv run python scripts/build_docs.py` | Build the documentation site (`--strict`, no Material advisory) |
 | `uv run mkdocs serve` | Preview docs locally |
 
 ## Repository Layout

@@ -41,8 +41,9 @@ This declaration answers:
 
 It intentionally does **not** answer how the work is performed.
 
-An accepted future design adds a PySpark-inspired, implementation-agnostic
-definition that plugins compile. See
+An accepted 0.11+ design adds a PySpark-inspired, implementation-agnostic
+definition that serializes as a DTCS 2.0 Transformation Plan and plugins
+compile. See
 [Portable Transformations](PORTABLE_TRANSFORMATIONS.md). This API is not
 available in ETLantic 0.10.
 
@@ -162,8 +163,8 @@ Read this section in the following order:
 4. `PARAMETERS.md`
 5. `TYPE_ANNOTATIONS.md`
 6. `IMPLEMENTATIONS.md`
-7. `PORTABLE_TRANSFORMATIONS.md` (accepted future design)
-8. `PORTABLE_FUNCTIONS.md` (proposed future API)
+7. `PORTABLE_TRANSFORMATIONS.md` (accepted 0.11+ authoring design)
+8. `PORTABLE_FUNCTIONS.md` (DTCS 2.0 mapping for the planned facade)
 9. `CALLBACKS.md`
 10. `ERROR_HANDLING.md`
 11. `ASYNC.md`

@@ -1,9 +1,13 @@
 # Plugin SDK Overview
 
-The proposed DTCS Transformation Plan work adds a portable transformation
-compiler role to engine plugins. See
+The published DTCS 2.0 Transformation Plan model enables ETLantic's planned
+portable transformation compiler role for engine plugins. See
 [Portable Transformation Compiler](PORTABLE_TRANSFORM_COMPILER.md). It is
 planned across ETLantic 0.11-0.15 and is not shipped in 0.10.
+
+Compiler support is expressed through exact DTCS profiles, actions, functions,
+operators, types, and modes. Plugin identity alone never implies portable
+coverage.
 
 The ETLantic Plugin SDK defines the public interfaces used to extend
 ETLantic without modifying its core.

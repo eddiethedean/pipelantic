@@ -96,6 +96,11 @@ Pandas UDF fallback is forbidden. If Spark cannot preserve an ETLantic
 semantic, planning rejects the step or requires an explicit native
 implementation policy.
 
+The 0.13 target is complete
+`dtcs:profile/portable-relational/1` conformance, including semi/anti/cross
+joins, null-safe matching, collision policies, union modes, explicit null
+ordering, and deterministic deduplication requirements.
+
 ## Planner Selection
 
 The planner should prefer PySpark when:

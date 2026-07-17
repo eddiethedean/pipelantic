@@ -53,7 +53,7 @@ Tag `vX.Y.Z` publishes nine distributions:
    uv run python scripts/check_docs.py
    uv run python scripts/check_agent_guidance.py
    uv run python scripts/check_release.py
-   NO_MKDOCS_2_WARNING=1 uv run mkdocs build --strict
+   uv run python scripts/build_docs.py
    uv sync --locked --group sparkforge
    uv run pytest -q tests/sparkforge -m sparkforge
    ```

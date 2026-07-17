@@ -26,6 +26,8 @@ manager.
 | PySpark plugin (`etlantic-pyspark`) | Yes (local provider; batch production path) |
 | Structured Streaming | Experimental |
 | Airflow / orchestrator compilation | Yes (`etlantic-airflow`) |
+| DTCS 2.0 portable plan models/profiles | Yes (`dtcs>=0.12`) |
+| PySpark-inspired portable authoring/compiler execution | No (planned 0.11–0.15) |
 | Multi-tenant durable orchestration | No |
 | Formal SLA / support response times | No |
 
@@ -79,8 +81,9 @@ How to read status labels in deeper chapters:
 - Process-local reports as an audit system of record
 - Stable 1.0 compatibility guarantees
 - Managed Databricks/EMR/Connect Spark providers
-- Portable `@Transformation.portable` / `etlantic.transform` (0.11–0.15
-  design—authoring model will change)
+- Portable `@Transformation.portable` / `etlantic.transform` (the DTCS 2.0
+  semantic foundation is published, but ETLantic authoring/compiler APIs are
+  still the 0.11–0.15 design program)
 
 ## Recommended evaluation path
 

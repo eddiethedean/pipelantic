@@ -1,6 +1,6 @@
 # ETLantic Profile for DTCS Portable Transformation Plans
 
-Status: Proposed DTCS profile and requirements draft
+Status: ETLantic integration profile draft over published DTCS 2.0 semantics
 DTCS plan identifier: `dtcs.transform-plan/1`  
 ETLantic authoring profile: `etlantic.transform/1`  
 Target milestones: 0.11 kernel through 0.15 advanced lowering
@@ -20,9 +20,10 @@ backend APIs, or arbitrary Python translation. Where this document and DTCS
 conflict, DTCS is authoritative and this profile must be corrected or
 versioned.
 
-The key words MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY express requirements
-proposed for the DTCS profile. They become normative only through the DTCS
-change, review, and publication process.
+DTCS 2.0.0 and `dtcs` 0.12.0 are normative for Transformation Plan, Portable
+Relational Profile, registry, and conformance semantics. The key words MUST,
+MUST NOT, SHOULD, SHOULD NOT, and MAY in this document apply only to ETLantic's
+authoring and compiler integration. They do not redefine published DTCS meaning.
 
 ## 2. Architectural boundary
 
@@ -68,7 +69,7 @@ A serialized definition has this conceptual shape:
   },
   "parameters": {
     "minimum_age": {
-      "type": {"kind": "int64"}
+      "type": {"kind": "integer"}
     }
   },
   "outputs": {
@@ -78,8 +79,9 @@ A serialized definition has this conceptual shape:
     }
   },
   "requirements": {
-    "operations": ["filter", "project"],
-    "functions": ["string.concat_ws"]
+    "profiles": ["dtcs:profile/portable-relational-kernel/1"],
+    "actions": ["dtcs:filter", "dtcs:project"],
+    "functions": ["dtcs:concat_ws"]
   },
   "fingerprint": "..."
 }
@@ -91,31 +93,35 @@ computed from canonical semantic content rather than display metadata.
 
 ## 4. Type system
 
-The IR type system is independent of backend-specific types:
+The IR uses the DTCS 2.0 logical type vocabulary, independent of
+backend-specific types:
 
 ```text
-null
 boolean
-int8, int16, int32, int64
-float32, float64
-decimal(precision, scale)
+integer
+decimal
 string
 binary
 date
-timestamp(timezone | naive)
-duration(unit)
-array(element_type, element_nullable)
-map(key_type, value_type, value_nullable)
-struct(fields)
-unknown
+time
+datetime
+duration
+list(element_type)
+map(key_type, value_type)
+object(fields)
+tuple(element_types)
 ```
 
-Each value also carries nullability. Plugins MUST either preserve a declared
-type or report a capability/type error before execution. Silent narrowing is
-forbidden.
+Boolean is the DTCS primitive used for predicates. Each value also carries its
+DTCS value-state semantics: present, null, missing, or invalid. Plugins MUST
+either preserve a declared type and state or report a capability/type error
+before execution. Silent narrowing or state collapse is forbidden.
 
-`unknown` MAY exist during partial authoring analysis but MUST NOT remain in a
-validated executable plan where the selected operation requires a known type.
+ETLantic authoring aliases such as `array` and `struct` MUST normalize to DTCS
+`list` and `object`. Backend-width aliases such as `int64` MAY be accepted by
+the facade only when normalization to the DTCS logical type loses no requested
+semantic constraint. An unresolved authoring type MAY exist during partial
+analysis but MUST NOT remain in a validated executable plan.
 
 ## 5. References
 
@@ -148,43 +154,39 @@ Implementations MUST provide configurable size, depth, and collection limits.
 Secret-marked values MUST be represented by references and MUST NOT be encoded
 as literals.
 
-## 6. Scalar expressions
+## 6. Structured expressions
 
-Version 1 defines these expression families:
+DTCS 2.0 defines exactly five structured expression node kinds:
 
-- alias
-- unary and binary operators
-- comparison
-- three-valued boolean logic
-- explicit cast
-- null predicates
-- finite membership
-- conditional expression
-- closed function call
-- sort expression
-- aggregate expression
-- window expression when the window extension is enabled
+- `literal`
+- `fieldRef`
+- `unary`
+- `binary`
+- `call`
+
+Aliases, sort direction, aggregate context, and window placement are expressed
+by their containing action rather than by inventing additional expression node
+kinds. The published operators are comparison (`eq`, `not_eq`, `lt`, `lte`,
+`gt`, `gte`, `null_safe_eq`), boolean (`and`, `or`, `not`), arithmetic (`add`,
+`subtract`, `multiply`, `divide`, `modulo`, `negate`), membership (`in`,
+`between`), and access (`field`, `index`, `element_at`).
 
 Every expression MUST have a stable operation or function identifier. Opaque
 expressions and `repr()`-based serialization are forbidden.
 
 ## 7. Relational expressions
 
-Version 1 defines these relational nodes:
+The DTCS 2.0 dataset Semantic Actions are `project`, `select`, `filter`,
+`with_fields`, `rename_fields`, `drop_fields`, `aggregate`, `group`, `join`,
+`sort`, `union`, `distinct`, `deduplicate`, `limit`, `partition`, `window`, and
+`derive`. Field Semantic Actions are `lowercase`, `uppercase`, `capitalize`,
+`trim`, `normalize_whitespace`, and `hash_sha256`.
 
-- input
-- project
-- with-columns
-- filter
-- rename
-- drop
-- distinct
-- deduplicate
-- limit
-- sort
-- join
-- union-by-name
-- aggregate
+PySpark-inspired ETLantic names are facade syntax only. For example,
+`withColumn` and `withColumns` normalize to `with_fields`; `orderBy` and
+`sort` normalize to `sort`; `dropDuplicates` normalizes to `deduplicate`; and
+`unionByName` normalizes to `union` with mode `byName`. The serialized plan
+MUST contain the DTCS action and its registered modes, not the facade spelling.
 
 Nodes MUST reference child expressions structurally. Cycles are invalid.
 Implementations MUST impose node-count and depth limits during loading and
@@ -319,8 +321,10 @@ until execution.
 A plugin support declaration includes:
 
 - supported protocol versions
-- operation identifiers and versions
+- DTCS profile identifiers
+- Semantic Action identifiers and versions
 - function identifiers and versions
+- operator identifiers and versions
 - supported portable types
 - semantic modes and limits
 - determinism support
@@ -330,6 +334,20 @@ Support is exact. A plugin MUST reject an operation it approximates differently.
 A compiler MAY optimize or fuse expressions only when observable semantics,
 security domains, validation boundaries, and logical identity mappings remain
 unchanged.
+
+The published profile identifiers are:
+
+| Profile | Required semantic family |
+|---|---|
+| `dtcs:profile/portable-relational-kernel/1` | kernel relational actions and scalar expressions |
+| `dtcs:profile/portable-relational/1` | full relational actions, joins, unions, aggregation, ordering, and deduplication |
+| `dtcs:profile/portable-window/1` | experimental windows and frames |
+| `dtcs:profile/portable-complex-types/1` | experimental composite types and access operations |
+
+A plugin MAY advertise individual capabilities without claiming an entire
+profile. It MUST claim a profile only after passing every required DTCS fixture
+for that profile. Window and complex-types claims remain experimental until
+DTCS's two-independent-compiler graduation requirement is met.
 
 ## 12. Security
 

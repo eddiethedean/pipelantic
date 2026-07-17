@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added runnable-document companion validation to the documentation gate
 - Corrected the quickstart CLI boundary for process-local memory storage
 - Expanded core public API behavioral contracts and docstrings
+- Updated the DTCS authority boundary for specification 2.0.0 and toolkit
+  0.12.0; the Portable Relational Profile is now upstream-published while
+  ETLantic authoring/compiler integration remains future work
+- Updated the complete portable-transformation documentation set with exact
+  DTCS 2.0 action, function, operator, value-state, and profile mappings;
+  synchronized examples, backend guides, Plugin SDK requirements, security,
+  compatibility, architecture, and the 0.11–0.15 roadmap
+- Added a DTCS 3.0 specification proposal covering the remaining rich
+  dataframe portability gaps, plan v2, governed semantic-family profiles,
+  migrations, security budgets, and cross-engine conformance requirements
+
+### Changed
+
+- Raised the DTCS toolkit dependency floor from 0.11 to 0.12
 
 ## [0.10.0] - 2026-07-17
 

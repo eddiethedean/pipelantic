@@ -60,10 +60,7 @@ jobs:
 
       - name: MkDocs
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-        env:
-          # Suppress Material for MkDocs advisory about unreleased MkDocs 2.0.
-          NO_MKDOCS_2_WARNING: "1"
-        run: uv run mkdocs build --strict
+        run: uv run python scripts/build_docs.py
 
   dataframes:
     name: Dataframe plugins (${{ matrix.engine }})

@@ -1,11 +1,21 @@
-# DTCS Change Proposal: Rich Portable Relational Transformations
+# DTCS 2.0 Portable Relational Publication Record
 
-Status: Draft proposal for DTCS technical review  
-Proposed target: DTCS next compatible revision plus staged registries  
-Related ETLantic milestones: 0.11-0.15  
-Proposal owner: DTCS publisher and maintainers
+- Status: Published in DTCS specification 2.0.0 and `dtcs` toolkit 0.12.0
+- Published profile: `dtcs:profile/portable-relational/1`
+- Published plan protocol: `dtcs.transform-plan/1`
+- Related ETLantic milestones: 0.11-0.15
+- Proposal owner: DTCS publisher and maintainers
 
-## 1. Problem statement
+!!! success "Proposal adopted upstream"
+    DTCS 2.0.0 now includes structured expressions, operator and profile
+    registries, widened action/function catalogs, canonical Transformation Plan
+    serialization, and semantic-family conformance profiles. The `dtcs` 0.12.0
+    package is ETLantic's public model and conformance dependency. Sections
+    below preserve the original problem statement and requirements as a design
+    record; identifiers described as draft should be read against the published
+    DTCS registries.
+
+## 1. Original problem statement
 
 DTCS already defines the correct architecture for implementation-independent
 transformations: Transformation Plans are the authoritative semantic IR;
@@ -13,11 +23,11 @@ Semantic Actions are the only standardized dataset-modification mechanism;
 Expressions and Functions compute values; Engine Capability Models support
 compiler selection; and registries provide stable `dtcs:` identifiers.
 
-The published standard library provides a strong initial kernel, including
+Before DTCS 2.0, the standard library provided an initial kernel, including
 projection, filtering, aggregation, grouping, joining, sorting, union, and
 partitioning plus common string, conversion, numeric, and null functions.
 
-Its registered parameter shapes are not yet rich enough to represent a modern
+Its registered parameter shapes were not rich enough to represent a modern
 dataframe expression interface comparable to PySpark. Missing or underspecified
 behavior includes:
 
@@ -38,9 +48,9 @@ Without these additions, projects must invent vendor constructs or fall back to
 engine-native logic, reducing interoperability and making cross-engine
 equivalence difficult to prove.
 
-## 2. Proposed solution
+## 2. Adopted solution
 
-Publish a **DTCS Portable Relational Profile** that standardizes a closed,
+DTCS 2.0 publishes a **DTCS Portable Relational Profile** that standardizes a closed,
 typed relational language suitable for dataframe, SQL, and distributed
 compilers.
 
@@ -85,22 +95,22 @@ The proposal affects DTCS Chapters 4, 7, 8, 10-15, 17-26, Appendix A, the
 public `dtcs` package, and canonical schemas, registries, profiles, and
 conformance fixtures.
 
-## 5. Proposed normative profile
+## 5. Published normative profile
 
-Draft profile identity:
+Profile identity:
 
 ```text
 dtcs:profile/portable-relational/1
 ```
 
-Draft canonical plan identity:
+Canonical plan identity:
 
 ```text
 dtcs.transform-plan/1
 ```
 
-Final identifiers follow registry governance and MUST NOT be represented as
-published until adopted.
+These identifiers are published in DTCS 2.0. Their independent registry and
+package versions still follow DTCS governance.
 
 The profile SHALL identify DTCS specification and registry versions, required
 types, expressions, actions, functions, operators, value-state behavior,
@@ -441,14 +451,14 @@ parameters and safe identifiers.
 
 ## 16. Conformance profiles and tests
 
-Proposed staged profiles:
+Published staged profiles:
 
 | Profile | Required family |
 |---|---|
-| `portable-relational-kernel/1` | project, filter, field shaping, scalar core |
-| `portable-relational/1` | joins, unions, grouping, aggregation, ordering |
-| `portable-window/1` | windows and analytics |
-| `portable-complex-types/1` | arrays, maps, structs |
+| `dtcs:profile/portable-relational-kernel/1` | project, filter, field shaping, scalar core |
+| `dtcs:profile/portable-relational/1` | joins, unions, grouping, aggregation, ordering |
+| `dtcs:profile/portable-window/1` | experimental windows and analytics |
+| `dtcs:profile/portable-complex-types/1` | experimental lists, maps, objects, and tuples |
 
 Fixtures cover null/missing/invalid, NaN/infinities/signed zero, numeric and
 decimal edges, Unicode/regex, timezone boundaries, empty/all-null inputs,
@@ -505,39 +515,39 @@ capability-analyzable, diagnostic-producing, and backend/ETLantic independent.
 |---|---|
 | `frame.select(...)` | rich `dtcs:project` |
 | `frame.filter(...)` | rich `dtcs:filter` |
-| `frame.withColumn(...)` | proposed `dtcs:with_fields` |
-| `frame.drop(...)` | proposed `dtcs:drop_fields` |
+| `frame.withColumn(...)` | `dtcs:with_fields` |
+| `frame.drop(...)` | `dtcs:drop_fields` |
 | `frame.join(...)` | rich `dtcs:join` |
 | `frame.groupBy(...).agg(...)` | `dtcs:group` + `dtcs:aggregate` |
-| `frame.unionByName(...)` | proposed union-by-name form |
+| `frame.unionByName(...)` | `dtcs:union` with `byName` mode |
 | `frame.orderBy(...)` | rich `dtcs:sort` |
 | `F.lower(...)` | `dtcs:lower` |
 | `F.concat(...)` | `dtcs:concat` |
-| `F.when(...).otherwise(...)` | proposed `dtcs:case_when` |
+| `F.when(...).otherwise(...)` | `dtcs:case_when` |
 | Column operators | registered DTCS operators |
 
 ETLantic rejects or labels experimental any facade call without a sufficient
 published DTCS mapping.
 
-## 21. Delivery sequence
+## 21. Publication outcome and ETLantic delivery sequence
 
-### DTCS-R1: kernel profile
+### DTCS-R1: kernel profile — published
 
 Canonical serialization, expression/operator registries, rich
 project/filter/field-shaping, value-state/type semantics, and kernel
 conformance. Unblocks ETLantic 0.11 and Polars 0.12.
 
-### DTCS-R2: relational profile
+### DTCS-R2: relational profile — published
 
 Joins, unions, grouping, aggregation, deduplication, ordering, aggregate
 functions, and lineage. Unblocks ETLantic/PySpark parity in 0.13.
 
-### DTCS-R3: conformance publication
+### DTCS-R3: conformance foundation — published
 
 Machine-readable conformance manifests, differential fixtures, reference
 vectors, and diagnostic entries. Unblocks ETLantic 0.14.
 
-### DTCS-R4: advanced profile
+### DTCS-R4: advanced profiles — published as experimental
 
 SQL lowering requirements, windows, date/time, and selected complex types.
 Unblocks ETLantic 0.15+.
@@ -556,7 +566,11 @@ Unblocks ETLantic 0.15+.
 10. Specification, registry, package, profile, and conformance versions and
     publication states remain independent and explicit.
 
-## 23. Open review questions
+## 23. Historical review questions
+
+These questions drove the DTCS 2.0 review. Current implementations must use
+the published specification and registries rather than infer answers from this
+historical list.
 
 1. Version existing action identities or allocate richer successors?
 2. What is the canonical expression grammar?
@@ -581,4 +595,3 @@ and conformance artifacts.
 
 The shared ETLantic/DTCS publisher can coordinate releases and reference
 implementations, while DTCS governance remains the authority for adoption.
-

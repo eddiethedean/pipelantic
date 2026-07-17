@@ -8,7 +8,9 @@ execution (`etlantic-sql`), distributed Spark batch execution
 (`etlantic-airflow`), CLI/SDK tooling with Graphviz/HTML lineage exporters,
 optional `etlantic-keyring` / `etlantic-sqlmodel`, and the SparkForge
 migration adapter (`etlantic-sparkforge`). Structured Streaming APIs are
-experimental. Much of the documentation still describes the intended 1.0
+experimental. ETLantic also consumes DTCS 2.0 Transformation Plan and Portable
+Relational models through `dtcs>=0.12`; ETLantic's portable authoring and
+compiler integrations remain future work. Much of the documentation still describes the intended 1.0
 product. It serves three related purposes:
 
 1. Explain the product vision and user experience.
@@ -86,8 +88,8 @@ The source of truth depends on the subject:
 | Subject | Authority |
 |---|---|
 | Data-contract meaning | Upstream ODCS specification |
-| Transformation-contract meaning | `DTCS_SPEC.md` |
-| Portable Transformation Plan meaning and canonical models | DTCS specification and public `dtcs` package |
+| Transformation-contract meaning | [DTCS 2.0 specification](https://github.com/eddiethedean/dtcs/blob/main/SPEC.md) |
+| Portable Transformation Plan meaning and canonical models | DTCS 2.0 specification and `dtcs>=0.12` |
 | PySpark-inspired portable authoring UX | ETLantic `etlantic.transform/1` profile |
 | Portable compiler lifecycle | ETLantic Plugin SDK |
 | Pipeline-contract meaning | `DPCS_SPEC.md` |

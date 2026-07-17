@@ -3,10 +3,15 @@
 - The project is alpha and does not promise 1.0 API stability.
 - Portable `@Transformation.portable` definitions and
   `etlantic.transform/1` compilers are planned for 0.11+ and are not available
-  in 0.10. Current plugins require native `@implementation(engine)` callables.
+  in 0.10. DTCS 2.0 plan models and profiles are published through
+  `dtcs>=0.12`, but current plugins still require native
+  `@implementation(engine)` callables.
 - The planned PySpark-inspired syntax will intentionally support a closed
   subset; actions, arbitrary Python tracing, raw SQL expressions, and silent
   UDF fallback are excluded.
+- DTCS 2.0 does not publish general regex/split helpers, collection
+  constructors or `explode`, statistical aggregates, random/UUID functions,
+  or raw `F.expr()` text. Similar backend APIs are not portable substitutes.
 - Local execution is in-process; ETLantic is not a distributed scheduler.
 - Spark batch execution is available via `etlantic-pyspark` (0.7+). Managed
   cloud providers (Databricks/EMR/Connect) are not.

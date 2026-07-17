@@ -120,21 +120,24 @@ satisfied.
 
 ## Portable Transformation Plans (0.11+)
 
-DTCS already defines the implementation-independent Transformation Plan,
-expressions, functions, semantic actions, and engine capability model.
-The proposed `dtcs.transform-plan/1` package model is the concrete, closed
-realization of that DTCS model. `etlantic.transform/1` is its ergonomic
-authoring profile—not a separate source of transformation meaning.
+DTCS 2.0.0 defines the implementation-independent Transformation Plan,
+Portable Relational Profile, expressions, functions, semantic actions, and
+engine capability model. The `dtcs` 0.12.0 toolkit publishes the canonical
+`dtcs.transform-plan/1` models and conformance surfaces. ETLantic depends on
+`dtcs>=0.12,<1`.
+
+What remains proposed is ETLantic's `etlantic.transform/1` ergonomic authoring
+profile and its backend compiler integrations—not DTCS Transformation Plan
+semantics themselves.
 
 `@Transformation.portable` provides the PySpark-inspired Python authoring
 surface. Generated DTCS may carry the normalized Transformation Plan, while
 plugins compile it into backend Execution Plans. If ETLantic-specific syntax
 and DTCS semantics disagree, DTCS remains authoritative.
 
-ETLantic and DTCS share a publisher. Portable design requirements may therefore
-drive coordinated DTCS specification and package releases. ETLantic waits for
-the relevant public `dtcs` models and version before treating the behavior as
-normative or compiler-ready.
+ETLantic consumes the public DTCS models rather than maintaining a competing
+plan schema. Compiler readiness still requires ETLantic authoring, capability
+mapping, plugin protocol, and conformance work in the 0.11-0.15 roadmap.
 
 ---
 
@@ -218,7 +221,7 @@ ETLantic follows these principles when integrating with DTCS:
 ## Further Reading
 
 For the normative definition of DTCS, refer to the
-[DTCS 1.0 Specification](../specifications/DTCS_SPEC.md).
+[DTCS 2.0 Specification](https://github.com/eddiethedean/dtcs/blob/main/SPEC.md).
 
 This document describes **how ETLantic integrates with DTCS**, not the DTCS
 specification itself.

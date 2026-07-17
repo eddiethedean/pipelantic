@@ -54,6 +54,10 @@ Portable transform compiler conformance
 (`etlantic.testing.portable_transform_conformance`) is planned with the 0.11+
 portable kernel. Do not require it for 0.10 plugins.
 
+The future suite will consume the conformance foundation published by `dtcs`
+0.12 and select fixtures from the exact DTCS profiles a compiler advertises:
+kernel, relational, experimental window, and experimental complex types.
+
 ## Next Step
 
 See [Dataframe Plugin](DATAFRAME_PLUGIN.md), [SQL Plugin](SQL_PLUGIN.md),

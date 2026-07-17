@@ -63,6 +63,12 @@ definitions cannot contain trusted SQL fragments or raw `F.expr()` strings.
 Unsupported dialect functions, types, null behavior, or ordering fail during
 planning.
 
+Window and complex-type lowering follows the experimental
+`dtcs:profile/portable-window/1` and
+`dtcs:profile/portable-complex-types/1`. A SQL dialect compiler advertises only
+the exact profile or capabilities it passes; syntactic SQL support alone is
+not sufficient.
+
 ## SQL→SQL without Python fetch
 
 When adjacent SQL steps and sinks share a database, ETLantic fuses execution

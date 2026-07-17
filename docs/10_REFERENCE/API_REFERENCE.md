@@ -35,7 +35,8 @@ from etlantic import (
 !!! note "Proposed 0.11+ portable authoring API"
     `etlantic.transform`, `@Transformation.portable`, symbolic DataFrame and
     Column objects, and `functions as F` are accepted future design and are not
-    importable in ETLantic 0.10. See
+    importable in ETLantic 0.10. They will normalize to published DTCS 2.0
+    profiles rather than define independent semantics. See
     [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
 
 ### Core behavioral contracts

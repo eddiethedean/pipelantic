@@ -16,6 +16,10 @@ backends without rewriting the logical pipeline.
 Polars/Pandas/SQL/PySpark/Airflow plugins. Structured Streaming is
 experimental.
 
+DTCS 2.0 portable Transformation Plan semantics are available through
+`dtcs>=0.12`. ETLantic's PySpark-inspired `@Transformation.portable` facade and
+cross-engine compilers are planned for 0.11–0.15 and are not 0.10 APIs.
+
 ## Install
 
 Requires Python 3.11+.

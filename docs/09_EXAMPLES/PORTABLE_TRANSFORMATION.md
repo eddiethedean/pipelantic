@@ -55,7 +55,7 @@ def normalize(customers, minimum_age):
                 F.col("first_name"),
                 F.col("last_name"),
             ).alias("full_name"),
-            F.lower(F.trim(F.col("email"))).alias("email"),
+            F.lower(F.col("email")).alias("email"),
             F.when(F.col("lifetime_value") >= 10_000, F.lit("platinum"))
             .when(F.col("lifetime_value") >= 1_000, F.lit("gold"))
             .otherwise(F.lit("standard"))
@@ -91,8 +91,8 @@ spark_profile = Profile(
 )
 ```
 
-Both profiles select a plugin compiler for the same
-`etlantic.transform/1` definition.
+Both profiles select a plugin compiler for the same `dtcs.transform-plan/1`
+generated through the `etlantic.transform/1` authoring profile.
 
 ## Expected plan evidence
 
@@ -100,15 +100,16 @@ Both profiles select a plugin compiler for the same
 {
   "step": "normalized",
   "implementation_kind": "portable_compiled",
-  "portable_protocol": "etlantic.transform/1",
+  "portable_protocol": "dtcs.transform-plan/1",
+  "authoring_profile": "etlantic.transform/1",
   "compiler_engine": "polars",
   "requirements": {
-    "operations": ["filter", "project"],
+    "profiles": ["dtcs:profile/portable-relational-kernel/1"],
+    "actions": ["dtcs:filter", "dtcs:project"],
     "functions": [
-      "conditional.when",
-      "string.concat_ws",
-      "string.lower",
-      "string.trim"
+      "dtcs:case_when",
+      "dtcs:concat_ws",
+      "dtcs:lower"
     ]
   }
 }
@@ -137,7 +138,9 @@ customer_id  full_name            email                  segment
 ```
 
 Grace is filtered out by age. Segment thresholds are platinum ≥ 10000,
-gold ≥ 1000, otherwise standard. Email is trimmed and lowercased.
+gold ≥ 1000, otherwise standard. Email is lowercased. Trimming is omitted
+because DTCS 2.0 publishes `trim` as a field Semantic Action, not a general
+structured-expression Function.
 
 ## Acceptance assertions
 
@@ -151,4 +154,3 @@ The eventual runnable example must prove:
 6. Plan and report serialization contain no source rows or secrets.
 7. The native implementation mechanism can override this definition only under
    explicit profile policy.
-

@@ -15,7 +15,8 @@ It is deliberately separate from the ETLantic 0.10 user guide.
 - [Compiler protocol](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
 - [Implementation plan](PORTABLE_TRANSFORM_PLAN.md)
 - [DTCS evolution](DTCS_PORTABLE_EVOLUTION.md)
-- [DTCS proposal](DTCS_PORTABLE_SPEC_PROPOSAL.md)
+- [DTCS 2.0 publication record](DTCS_PORTABLE_SPEC_PROPOSAL.md)
+- [DTCS 3.0 rich portable analytics proposal](DTCS_3_0_SPEC_PROPOSAL.md)
 
 ## Maintainer plans
 

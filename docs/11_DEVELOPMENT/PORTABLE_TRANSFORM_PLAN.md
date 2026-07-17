@@ -65,9 +65,14 @@ not become the portable model.
 See [DTCS and Portable Transformation Evolution](DTCS_PORTABLE_EVOLUTION.md)
 for the coordinated specification/package release workflow.
 The proposed normative additions are enumerated in the
-[DTCS Portable Relational Change Proposal](DTCS_PORTABLE_SPEC_PROPOSAL.md).
+[DTCS 2.0 Portable Relational Publication Record](DTCS_PORTABLE_SPEC_PROPOSAL.md).
 
 ## 0.11 preparation: decisions and fixtures
+
+DTCS readiness is satisfied by DTCS 2.0 / `dtcs` 0.12. This phase consumes the
+published `dtcs.transform-plan/1` models and
+`dtcs:profile/portable-relational-kernel/1`; it does not mint parallel ETLantic
+semantics.
 
 Deliver:
 
@@ -139,7 +144,7 @@ requirements are unsupported.
 
 Deliver:
 
-- Polars compiler for the PT-1 kernel
+- Polars compiler for `dtcs:profile/portable-relational-kernel/1`
 - native `pl.Expr` lowering
 - eager and lazy input support
 - lazy preservation and declared collection boundaries
@@ -163,6 +168,10 @@ Deliver:
 Exit gate: Polars and PySpark pass the same semantic fixture corpus.
 
 ## 0.13: relational expansion
+
+This phase targets complete conformance with
+`dtcs:profile/portable-relational/1`, including every advertised join and union
+mode rather than generic operation-name checks.
 
 Deliver:
 
@@ -207,16 +216,23 @@ Deliver windows, arrays, maps, structs, and advanced functions one semantic
 family at a time. Each addition requires specification text, two compilers,
 shared fixtures, capability identifiers, and explain rendering.
 
-## DTCS and plan schema
+The starting standards are the experimental
+`dtcs:profile/portable-window/1` and
+`dtcs:profile/portable-complex-types/1`. ETLantic authoring aliases normalize
+arrays to DTCS lists and structs to DTCS objects.
 
-DTCS should gain an optional portable definition block:
+## DTCS and Pipeline Plan integration
+
+ETLantic's `PipelinePlan` should reference or embed the canonical DTCS plan
+without changing its content. An illustrative ETLantic integration block is:
 
 ```yaml
-specification:
+implementation:
   portableDefinition:
-    protocol: etlantic.transform/1
+    protocol: dtcs.transform-plan/1
+    authoringProfile: etlantic.transform/1
     fingerprint: sha256:...
-    expression: {}
+    plan: {}
 ```
 
 Native implementations remain separate execution metadata. Loading a DTCS

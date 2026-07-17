@@ -4,8 +4,10 @@ Status: Internal standards and release plan
 Owner: ETLantic/DTCS publisher and maintainers  
 Applies to: ETLantic 0.11+
 
-The formal change draft is
-[DTCS Change Proposal: Rich Portable Relational Transformations](DTCS_PORTABLE_SPEC_PROPOSAL.md).
+The adopted change record is
+[DTCS 2.0 Portable Relational Publication Record](DTCS_PORTABLE_SPEC_PROPOSAL.md).
+Remaining rich dataframe gaps are proposed for the next standard generation in
+[DTCS 3.0 Rich Portable Analytics Proposal](DTCS_3_0_SPEC_PROPOSAL.md).
 
 ## Decision
 
@@ -64,9 +66,9 @@ predicates.
 ETLantic's initial portable facade should map to these identifiers wherever
 their published parameter and result semantics are sufficient.
 
-### Gaps for the PySpark-inspired surface
+### Capabilities added for the PySpark-inspired surface
 
-Rich portable authoring requires DTCS proposals for at least:
+DTCS 2.0 now publishes the semantic foundation for:
 
 - expression-bearing project and filter action parameters
 - add/replace column, rename, drop, distinct, deduplicate, and limit actions
@@ -82,10 +84,11 @@ Rich portable authoring requires DTCS proposals for at least:
 - action/function capability identifiers at the granularity compilers need
 - canonical serialized Transformation Plan and conformance-profile schemas
 
-These gaps should be addressed in DTCS before ETLantic advertises the matching
-portable syntax as standard. Experimental vendor extensions may incubate a
-design, but ETLantic must label them and must not present them as standard
-`dtcs:` behavior.
+ETLantic can implement facade syntax for these published capabilities. Window
+and complex-type profiles remain experimental, and functions absent from the
+DTCS 2.0 registries—such as regex helpers, collection constructors, `explode`,
+statistical aggregates, random values, UUIDs, and raw `F.expr()` text—remain
+excluded or require a future governed DTCS revision.
 
 ### Value-state correction
 
@@ -127,7 +130,7 @@ were already normative.
 
 Three identifiers remain distinct:
 
-| Boundary | Proposed identifier | Authority |
+| Boundary | Identifier | Authority |
 |---|---|---|
 | Transformation semantics and plan schema | `dtcs.transform-plan/1` | DTCS |
 | Python authoring profile | `etlantic.transform/1` | ETLantic |
@@ -227,24 +230,27 @@ from dtcs.semantics import (
 from dtcs.validation import validate_transformation_plan
 ```
 
-Names remain proposals until released by DTCS. ETLantic must depend only on
-public DTCS imports and must not duplicate their Pydantic/dataclass models.
+The illustrative Python import names above must be verified against the public
+`dtcs` 0.12 API before implementation; the underlying DTCS 2.0 plan,
+registries, profiles, validation, and conformance semantics are published.
+ETLantic must depend only on public DTCS imports and must not duplicate their
+Pydantic/dataclass models.
 
 ## Release train
 
 Each ETLantic portable milestone begins with a DTCS readiness gate:
 
-| ETLantic | DTCS prerequisite |
-|---|---|
-| 0.11 | canonical kernel plan, types, expressions, serialization, validation |
-| 0.12 | compiler capability requirements and explain metadata |
-| 0.13 | joins, unions, grouping, aggregation, and ordering semantics |
-| 0.14 | conformance manifest and differential fixture schema |
-| 0.15 | SQL lowering requirements, windows, and advanced function semantics |
+| ETLantic | DTCS prerequisite | Current state |
+|---|---|---|
+| 0.11 | canonical kernel plan, types, expressions, serialization, validation | published in DTCS 2.0 / `dtcs` 0.12 |
+| 0.12 | exact compiler capability requirements | published; ETLantic explain integration remains |
+| 0.13 | joins, unions, grouping, aggregation, and ordering semantics | published in `portable-relational/1` |
+| 0.14 | validation and conformance foundation | published; ETLantic plugin-facing fixture packaging remains |
+| 0.15 | windows, complex types, and advanced function semantics | window and complex profiles published as experimental; SQL rules and additional functions remain |
 
-The exact `dtcs` package versions are selected when those releases are
-published. ETLantic dependency bounds must never claim compatibility before CI
-passes the corresponding cross-project fixtures.
+ETLantic selects `dtcs>=0.12,<1` for the published DTCS 2.0 foundation.
+Dependency bounds must never be treated as compiler-profile compatibility
+before CI passes the corresponding cross-project fixtures.
 
 ## Governance artifacts
 
