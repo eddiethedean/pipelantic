@@ -114,11 +114,11 @@ graph is data-only and
 backend-independent; native Polars, Pandas, SQL, and Spark objects remain
 outside core.
 
-!!! warning "Accepted 0.11+ design—not available in ETLantic 0.10"
+!!! success "Available in ETLantic 0.11 (authoring)"
     The canonical expression and Transformation Plan models belong to the
-    `dtcs` package. `etlantic.transform` will be a PySpark-inspired authoring
-    facade over those public models—not a parallel semantic model, and **not
-    an importable 0.10 API**. See
+    `dtcs` package. `etlantic.transform` is a PySpark-inspired authoring
+    facade over those public models—not a parallel semantic model.
+    **Portable compiler execution remains 0.12+.** See
     [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
 
 ## Validation Architecture

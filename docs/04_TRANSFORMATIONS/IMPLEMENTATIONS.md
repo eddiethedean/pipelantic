@@ -41,7 +41,7 @@ def normalize(customers, minimum_age):
     return customers.filter(F.col("age") >= minimum_age)
 ```
 
-This surface is not available in 0.10. Native `@implementation()` registration
+Portable authoring is available in 0.11; compilers remain 0.12+. Native `@implementation()` registration
 will remain supported for optimized and non-portable behavior. See
 [Portable Transformations](PORTABLE_TRANSFORMATIONS.md) for the accepted
 design.

@@ -1,6 +1,6 @@
 # Documentation Status and Conventions
 
-ETLantic 0.10 implements the typed modeling kernel, contract interoperability,
+ETLantic 0.11 implements the typed modeling kernel, contract interoperability,
 Validation / Pipeline Plan IR, the local runtime / operational model,
 dataframe execution (Polars reference + Pandas compatibility), SQL-native
 execution (`etlantic-sql`), distributed Spark batch execution
@@ -35,7 +35,7 @@ Public pages use these visible statuses:
 
 | Page status | Meaning |
 |---|---|
-| Available in 0.10 | Tested against the current package |
+| Available in 0.11 | Tested against the current package |
 | Shipped in 0.x | Available since that milestone (still current) |
 | Experimental | Public APIs that may change without a major version bump |
 | Partially available | Shipped and future behavior are explicitly separated |
@@ -43,12 +43,12 @@ Public pages use these visible statuses:
 | Normative specification | Contract requirements, not package behavior |
 | Internal project plan | Maintainer sequencing and implementation notes |
 
-Unless a chapter says otherwise, user-guide code beyond the shipped 0.10
+Unless a chapter says otherwise, user-guide code beyond the shipped 0.11
 modeling, interchange, validation, planning, local runtime, **dataframe
 plugin**, **SQL plugin**, **PySpark batch**, **Airflow compilation**,
 **CLI/viz tooling**, and **SparkForge adapter** surface should be read as an
 **accepted design example**, not as evidence of a published package API. The
-0.10 surface is defined by the package,
+0.11 surface is defined by the package,
 [API reference](../10_REFERENCE/API_REFERENCE.md), tests, and changelog.
 
 **Shipped in 0.5:** dataframe execution protocol, `etlantic-polars`, and
@@ -71,7 +71,7 @@ schedule / execution intents (see Execution → Airflow).
 HTML lineage exporters (`etlantic.viz`), `etlantic-keyring`,
 `etlantic-sqlmodel`.
 
-**Shipped in 0.10:** SparkForge migration adapter (`etlantic-sparkforge`).
+**Shipped in 0.10+:** SparkForge migration adapter (`etlantic-sparkforge`).
 
 **Experimental in 0.7+:** Structured Streaming foundation APIs.
 

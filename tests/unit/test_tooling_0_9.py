@@ -10,13 +10,18 @@ import pytest
 from etlantic.diagnostics import Diagnostic, Severity
 from etlantic.diagnostics.sarif import diagnostics_to_sarif
 from etlantic.ide import get_command_schema, list_commands, write_schemas
-from etlantic.plugin_trust import filter_plugins_by_allowlist
+from etlantic.plugin_trust import filter_plugins_by_allowlist, plugin_allowed
 from etlantic.profile import Profile
 from etlantic.reports.file_store import FileReportStore, compare_reports
 from etlantic.reports.model import PipelineRunReport, RunSummary
 from etlantic.runtime.request import RunIntent
 from etlantic.runtime.state import RunStatus
-from etlantic.schema_drift import NormalizedField, NormalizedSchema, SchemaObservation
+from etlantic.schema_drift import (
+    NormalizedField,
+    NormalizedSchema,
+    SchemaObservation,
+    diff_normalized_schemas,
+)
 from etlantic.schema_history import FileSchemaHistoryProvider
 from etlantic.viz import graph_to_dot, logical_graph_to_ir
 from tests.fixtures.sample_pipeline import SamplePipeline
@@ -56,6 +61,46 @@ def test_empty_production_allowlist_rejects_all() -> None:
     kept, diags = filter_plugins_by_allowlist({"x": object()}, profile)
     assert kept == {}
     assert any(d.code == "PMPLUG401" for d in diags)
+
+
+def test_bare_version_pin_accepted() -> None:
+    assert plugin_allowed(
+        name="etlantic-polars",
+        version="0.11.0",
+        allowlist={"etlantic-polars": "0.11.0"},
+    )
+    assert not plugin_allowed(
+        name="etlantic-polars",
+        version="0.10.0",
+        allowlist={"etlantic-polars": "0.11.0"},
+    )
+
+
+def test_production_validate_requires_allowlist() -> None:
+    from etlantic.profile import production_profile
+    from tests.fixtures.sample_pipeline import SamplePipeline
+
+    report = SamplePipeline.validate(profile=production_profile())
+    assert not report.valid
+    assert any(d.code == "PMPLUG401" for d in report.diagnostics)
+
+    ok = SamplePipeline.validate(
+        profile=production_profile(plugin_allowlist={"local": None})
+    )
+    assert not any(d.code == "PMPLUG401" for d in ok.diagnostics)
+
+
+def test_schema_type_aliases_are_not_breaking() -> None:
+    left = NormalizedSchema(
+        identity="s",
+        fields=(NormalizedField(name="id", logical_type="int"),),
+    )
+    right = NormalizedSchema(
+        identity="s",
+        fields=(NormalizedField(name="id", logical_type="integer"),),
+    )
+    changes = diff_normalized_schemas(left, right)
+    assert changes.changes == ()
 
 
 def test_file_schema_history(tmp_path: Path) -> None:

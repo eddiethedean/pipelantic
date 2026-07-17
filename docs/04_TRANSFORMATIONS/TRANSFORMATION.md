@@ -10,7 +10,7 @@ Execution implementations are registered separately, allowing the same
 transformation contract to run on different execution engines.
 
 The accepted 0.11+ design also permits a single portable relational definition
-that compatible plugins compile. This API is not available in 0.10.
+that compatible plugins compile. This API is available as authoring in 0.11 (compilers 0.12+).
 
 ## Design Goals
 

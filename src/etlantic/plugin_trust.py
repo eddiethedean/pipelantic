@@ -19,6 +19,22 @@ def _is_production_profile(profile: Profile) -> bool:
     return domain in {"production", "prod"}
 
 
+def _normalize_version_pin(pin: str) -> str:
+    """Accept bare versions as exact pins (``0.11.0`` → ``==0.11.0``)."""
+    text = pin.strip()
+    if not text:
+        return text
+    # Specifiers start with a comparison operator or include a comma/OR.
+    if text[0] in "<>!=-~*" or "," in text or "||" in text:
+        return text
+    # Bare version string → exact match.
+    try:
+        Version(text)
+    except InvalidVersion:
+        return text
+    return f"=={text}"
+
+
 def plugin_allowed(
     *,
     name: str,
@@ -34,7 +50,7 @@ def plugin_allowed(
     if version is None:
         return False
     try:
-        return Version(version) in SpecifierSet(pin)
+        return Version(version) in SpecifierSet(_normalize_version_pin(pin))
     except (InvalidVersion, InvalidSpecifier):
         return False
 

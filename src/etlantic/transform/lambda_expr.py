@@ -16,8 +16,9 @@ def lambda_(
 ) -> ColumnExpr:
     """Build a bounded DTCS lambda Expression node.
 
-    Prefer ``lambda_("element", body=F.col("element") > 0)`` or a callable that
-    receives ``ColumnExpr`` parameters bound with ``scope: "lambda"``.
+    Prefer ``lambda_("element", body=lambda element: element > 0)`` (callable
+    form binds parameters with ``scope: "lambda"``). A pre-built ``ColumnExpr``
+    body is accepted only when it already uses lambda-scoped fieldRefs.
     """
     if not parameters:
         raise ModelDefinitionError("lambda requires at least one parameter name")

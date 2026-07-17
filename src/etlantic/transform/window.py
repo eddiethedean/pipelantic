@@ -5,8 +5,25 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from etlantic.transform.column import coerce_column
+from etlantic.transform.column import ColumnExpr, coerce_column
 from etlantic.transform.protocol import PROFILE_WINDOW_V1, PROFILE_WINDOW_V2
+
+
+def _field_ref_column(name: str) -> ColumnExpr:
+    return ColumnExpr(node={"kind": "fieldRef", "target": name}, path=name)
+
+
+def _coerce_order_key(col: Any) -> ColumnExpr:
+    if isinstance(col, str):
+        return _field_ref_column(col)
+    return coerce_column(col)
+
+
+def _frame_bound(value: Any) -> Any:
+    """Serialize a window frame bound to a JSON-safe value."""
+    if value is None or isinstance(value, (int, float, str, bool)):
+        return value
+    return coerce_column(value).node
 
 
 @dataclass(frozen=True, slots=True)
@@ -68,28 +85,21 @@ class WindowSpec:
                 c if isinstance(c, str) else coerce_column(c).node
                 for c in self.partition_by
             ],
-            "orderBy": [
-                {
-                    "expression": coerce_column(c).node,
-                    **(
-                        {"direction": coerce_column(c).sort_direction}
-                        if coerce_column(c).sort_direction
-                        else {}
-                    ),
-                    **(
-                        {"nulls": coerce_column(c).nulls}
-                        if coerce_column(c).nulls
-                        else {}
-                    ),
-                }
-                for c in self.order_by
-            ],
+            "orderBy": [],
         }
+        for c in self.order_by:
+            expr = _coerce_order_key(c)
+            entry: dict[str, Any] = {"expression": expr.node}
+            if expr.sort_direction:
+                entry["direction"] = expr.sort_direction
+            if expr.nulls:
+                entry["nulls"] = expr.nulls
+            payload["orderBy"].append(entry)
         if self.frame_type is not None:
             payload["frame"] = {
                 "type": self.frame_type,
-                "start": self.start,
-                "end": self.end,
+                "start": _frame_bound(self.start),
+                "end": _frame_bound(self.end),
             }
         return payload
 

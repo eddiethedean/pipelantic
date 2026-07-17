@@ -19,10 +19,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PMXFORM` authoring diagnostics and definition budgets
 - Golden portable fixtures under `tests/fixtures/portable/`
 
+### Fixed
+
+- Portable join/union/set-ops no longer drop sibling actions via colliding
+  `aN_*` IDs; unequal ID collisions fail closed (`PMXFORM210`)
+- `sort` / `orderBy` / `Window.orderBy` treat bare strings as fieldRefs, not
+  string literals
+- Window metadata survives wrappers such as `F.to_string(... .over(w))`
+- `to_transform_plan()` returns a deep copy so callers cannot mutate the cache
+- COM parameter types map from `Parameter` annotations (not always `string`)
+- Window frame bounds coerce expression nodes to JSON-safe values
+- Production `plugin_allowlist` enforced on validate / run / compile; bare
+  version pins accepted as `==version`; `plugin list` exits non-zero on ERROR
+- Declared vs observed schema type aliases (`int`/`integer`, …) no longer
+  report false breaking drift
+- Planner and SparkForge adapter metadata versions track 0.11.0
+
 ### Documentation
 
 - Marked portable authoring as shipped in 0.11; compilers remain 0.12–0.15
 - Refined roadmap 0.11 to full authoring scope and marked the milestone shipped
+- Rolled current-facing docs and install pins from 0.10 → 0.11; hardened
+  `scripts/check_docs.py` stale-version gates
 
 ### Changed
 

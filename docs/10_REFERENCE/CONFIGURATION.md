@@ -1,7 +1,7 @@
 # Configuration Reference
 
-!!! warning "Future design—not a ETLantic 0.10 API guide"
-    This page describes a proposed 1.0 configuration surface. ETLantic 0.10
+!!! warning "Future design—not a ETLantic 0.11 API guide"
+    This page describes a proposed 1.0 configuration surface. ETLantic 0.11
     does not load `etlantic.toml` or these environment variables. Configure
     profiles and bindings in Python. For what is shipped today, see
     [Runtime configuration](RUNTIME_CONFIGURATION.md).

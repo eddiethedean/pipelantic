@@ -85,8 +85,18 @@ async def arun_pipeline(
     artifact_store: ArtifactStore | None = None,
 ) -> PipelineRunReport:
     """Validate, plan, and execute a pipeline asynchronously."""
+    from etlantic.diagnostics import Severity
+    from etlantic.exceptions import ETLanticError
+    from etlantic.profile import resolve_profile
+
     request = request or RunRequest()
     runtime = runtime or PipelineRuntime()
+    # Fail closed on production plugin trust before planning/execution.
+    resolved = resolve_profile(profile)
+    trust_diags = runtime.apply_plugin_allowlist(resolved)
+    errors = [d for d in trust_diags if getattr(d, "severity", None) is Severity.ERROR]
+    if errors:
+        raise ETLanticError("; ".join(d.message for d in errors))
     graph = pipeline_cls.build_graph()
     selection = request.selection.to_plan_selection(graph)
     if context is None:

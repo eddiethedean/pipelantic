@@ -111,7 +111,7 @@ Run the complete tested version at
 
 ## Current capability boundary
 
-| Capability | 0.10 |
+| Capability | 0.11 |
 |---|---|
 | Typed modeling, validation, contracts, and planning | Available |
 | Local Python execution and run reports | Available |
@@ -127,7 +127,7 @@ Run the complete tested version at
 
 **Next design line:** releases 0.11-0.15 are planned to add a PySpark-inspired
 portable transformation language, followed by Polars, PySpark, Pandas, and safe
-SQL compilers. This is documented future design, not part of the 0.10 API. See
+SQL compilers remain planned for 0.12–0.15; portable authoring ships in 0.11. See
 the [portable transformation design](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
 and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 
@@ -136,7 +136,7 @@ and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 Hosted docs: [etlantic.readthedocs.io](https://etlantic.readthedocs.io/)
 
 - [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)
-- [Current 0.10 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
+- [Current 0.11 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)

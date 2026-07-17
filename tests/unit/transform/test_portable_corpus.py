@@ -154,6 +154,21 @@ def test_profile_family_goldens() -> None:
         defn = cls.portable_definition()
         assert defn is not None
         assert profiles <= set(defn.requirements["profiles"])
+        if filename == "window_v2.json":
+            # Window metadata must survive wrappers like F.to_string(...over(w)).
+            assignments: list[object] = []
+            stack: list[object] = [defn.plan]
+            while stack:
+                obj = stack.pop()
+                if isinstance(obj, dict):
+                    if isinstance(obj.get("assignments"), list):
+                        assignments.extend(obj["assignments"])
+                    stack.extend(obj.values())
+                elif isinstance(obj, list):
+                    stack.extend(obj)
+            assert any(isinstance(a, dict) and "window" in a for a in assignments), (
+                "window_v2 assignments must retain window metadata"
+            )
         payload = {
             "actions": sorted(defn.requirements["actions"]),
             "fingerprint": defn.fingerprint,

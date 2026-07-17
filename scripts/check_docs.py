@@ -120,6 +120,14 @@ def main() -> None:
         ".write_odcs(",
         "PluginRegistry.discover()",
         "plan.to_html()",
+        # Stale "current = 0.10" claims after 0.11 ship
+        "| Capability | 0.10 |",
+        "Current 0.10 User Guide",
+        "Current 0.10 guide",
+        "Available in ETLantic 0.10",
+        "does not ship `@Transformation.portable`",
+        "etlantic==0.10.0",
+        "etlantic>=0.10.0",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -133,6 +141,26 @@ def main() -> None:
         raise SystemExit("README.md capability table still labels the release as 0.8")
     if "| Capability | 0.9 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.9")
+    major_minor = ".".join(package_version.split(".")[:2])
+    if f"| Capability | {major_minor} |" not in (ROOT / "README.md").read_text(
+        encoding="utf-8"
+    ):
+        raise SystemExit(
+            f"README.md capability table must label the release as {major_minor}"
+        )
+    # Ban prior minor capability headers once we have advanced past them.
+    prior_minors = []
+    try:
+        major_s, minor_s = major_minor.split(".")
+        prior_minors = [f"{major_s}.{i}" for i in range(int(minor_s))]
+    except ValueError:
+        prior_minors = []
+    readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
+    for prior in prior_minors:
+        if f"| Capability | {prior} |" in readme_text:
+            raise SystemExit(
+                f"README.md capability table still labels the release as {prior}"
+            )
 
     # Shipped capabilities must not be denied on primary getting-started pages.
     capabilities = (ROOT / "docs/01_GETTING_STARTED/CAPABILITIES.md").read_text(
@@ -210,6 +238,7 @@ def main() -> None:
     runnable_guides = {
         "AIRFLOW_COMPILE.md",
         "SPARKFORGE_ADAPTER.md",
+        "PORTABLE_TRANSFORMATION.md",
         "README.md",
     }
     for path in (ROOT / "docs/09_EXAMPLES").glob("*.md"):
@@ -225,10 +254,22 @@ def main() -> None:
         text = path.read_text(encoding="utf-8")
         if "!!! warning" not in text:
             raise SystemExit(f"{path} missing design/future admonition")
+        prior_guide = None
+        try:
+            maj, minor = major_minor.split(".")
+            if int(minor) > 0:
+                prior_guide = f"{maj}.{int(minor) - 1}"
+        except ValueError:
+            prior_guide = None
         if (
-            "Future design—not a ETLantic 0.10 API guide" not in text
+            f"Future design—not a ETLantic {major_minor} API guide" not in text
+            and (
+                prior_guide is None
+                or f"Future design—not a ETLantic {prior_guide} API guide" not in text
+            )
             and "Design study—" not in text
             and "Experimental design study—" not in text
+            and "Available in ETLantic" not in text
         ):
             raise SystemExit(f"{path} missing Future design / design-study admonition")
 

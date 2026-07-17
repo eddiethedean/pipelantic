@@ -57,14 +57,14 @@ class NormalizeCustomers(Transformation):
 The declaration defines ports and parameters. DTCS defines its portable
 semantics. It does not commit the transformation to a dataframe engine.
 
-### Portable Definition (0.11+ design)
+### Portable Definition (0.11)
 
-!!! warning "Accepted 0.11+ design—not available in ETLantic 0.10"
-    `etlantic.transform`, `@Transformation.portable`, and portable compilers
-    are documented future design. Do not import them in 0.10 code. Use
-    `@Transformation.implementation(...)` today.
+!!! success "Available in ETLantic 0.11 (authoring)"
+    `etlantic.transform` and `@Transformation.portable` author to
+    `dtcs.transform-plan/2`. Portable compilers remain 0.12+. Native
+    `@Transformation.implementation(...)` remains the execution path today.
 
-A portable definition will describe common relational behavior once using
+A portable definition describes common relational behavior once using
 PySpark-inspired symbolic DataFrame and Column expressions:
 
 ```python

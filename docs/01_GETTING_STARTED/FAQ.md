@@ -95,15 +95,11 @@ They intentionally do not specify implementation details.
 
 ## Can one transformation run on Polars, PySpark, Pandas, and SQL?
 
-Today, register a native implementation for each selected engine. ETLantic
-0.10 does not ship `@Transformation.portable` or `etlantic.transform`.
-
-The accepted 0.11–0.15 design provides a PySpark-inspired symbolic facade that
-normalizes to the published DTCS 3.0 `dtcs.transform-plan/2` (v1 readable).
-Plugins will
-compile the same plan only for exact DTCS profiles and capabilities they have
-proven through conformance tests. Native implementations remain the escape
-hatch for behavior outside the portable standard.
+ETLantic 0.11 ships `@Transformation.portable` and `etlantic.transform`
+authoring that emits `dtcs.transform-plan/2`. Portable compilers (Polars,
+PySpark, Pandas, SQL) remain planned for 0.12–0.15. Until then, register a
+native `@implementation()` for each selected engine. Native implementations
+remain the escape hatch for behavior outside the portable standard.
 
 ------------------------------------------------------------------------
 

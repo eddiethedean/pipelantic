@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 import itertools
 from collections.abc import Callable
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, TypeVar
 
@@ -263,7 +264,7 @@ class Transformation:
         if definition is None:
             msg = f"{cls.__name__} has no portable definition registered"
             raise ModelDefinitionError(msg)
-        return dict(definition.plan)
+        return deepcopy(definition.plan)
 
     @classmethod
     def portable_fingerprint(cls) -> str:

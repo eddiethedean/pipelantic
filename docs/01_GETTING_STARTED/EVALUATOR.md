@@ -29,7 +29,7 @@ manager.
 | DTCS 3.0 portable plan models/profiles | Yes (`dtcs>=0.13`) |
 | `@Transformation.portable` authoring | Yes (0.11) |
 | Portable compilers | No (0.12+) |
-| PySpark-inspired portable authoring/compiler execution | No (planned 0.11–0.15) |
+| Portable compiler execution | No (planned 0.12–0.15) |
 | Multi-tenant durable orchestration | No |
 | Formal SLA / support response times | No |
 
@@ -52,7 +52,7 @@ For a bounded pilot topology and required controls, read
 
 ## Production readiness gate (do not skip)
 
-**ETLantic 0.10 is alpha.** Plugin allowlists being “Available” does **not**
+**ETLantic 0.11 is alpha.** Plugin allowlists being “Available” does **not**
 mean the product is production-ready.
 
 Do **not** productionize until the security release gate closes (targeted for

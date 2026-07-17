@@ -35,7 +35,7 @@ orchestration protocol with the `etlantic-airflow` reference compiler.
 Structured Streaming APIs are experimental.
 
 !!! tip "Green path (start here only)"
-    1. [Current 0.10 guide](01_GETTING_STARTED/CURRENT_VERSION.md) — task-based map
+    1. [Current 0.11 guide](01_GETTING_STARTED/CURRENT_VERSION.md) — task-based map
     2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic`
     3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
     4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
@@ -52,7 +52,7 @@ and `etlantic.transform`, emitting `dtcs.transform-plan/2`. Compilers remain
 sequenced across 0.12-0.15. Start with
 [Portable Transformations](04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md) for
 the proposed UX and the [roadmap](11_DEVELOPMENT/ROADMAP.md) for delivery
-phases; it is not a 0.10 importable API.
+phases; portable compilers remain 0.12+; authoring is available in 0.11.
 
 ## Thirty-Second Example
 

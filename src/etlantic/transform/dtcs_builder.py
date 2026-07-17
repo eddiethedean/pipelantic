@@ -28,6 +28,27 @@ from etlantic.transform.validate import (
 )
 
 
+def _logical_type_kind(annotation: Any) -> str:
+    """Map a Python/contract annotation to a DTCS parameter type kind."""
+    origin = getattr(annotation, "__origin__", None)
+    if origin is not None:
+        args = getattr(annotation, "__args__", ())
+        non_none = [a for a in args if a is not type(None)]
+        if non_none:
+            return _logical_type_kind(non_none[0])
+    type_name = getattr(annotation, "__name__", str(annotation))
+    return {
+        "int": "integer",
+        "float": "decimal",
+        "bool": "boolean",
+        "str": "string",
+        "integer": "integer",
+        "decimal": "decimal",
+        "boolean": "boolean",
+        "string": "string",
+    }.get(str(type_name), "string")
+
+
 def _schema_from_contract(contract_type: type[Any] | None) -> dict[str, Any]:
     fields: list[dict[str, Any]] = []
     if contract_type is None:
@@ -43,15 +64,19 @@ def _schema_from_contract(contract_type: type[Any] | None) -> dict[str, Any]:
         fields = []
         for name, info in model_fields.items():
             annotation = getattr(info, "annotation", str)
-            type_name = getattr(annotation, "__name__", str(annotation))
-            logical = {
-                "int": "integer",
-                "float": "decimal",
-                "bool": "boolean",
-                "str": "string",
-            }.get(type_name, "string")
+            logical = _logical_type_kind(annotation)
             fields.append({"name": name, "type": logical, "nullable": True})
     return {"fields": fields}
+
+
+def _action_payload(action: Any) -> dict[str, Any]:
+    return {
+        "action": action.action,
+        "target": action.target,
+        "parameters": action.parameters,
+        "functions": sorted(action.functions),
+        "profiles": sorted(action.profiles),
+    }
 
 
 def _action_parameters(action: Any) -> dict[str, Any]:
@@ -99,12 +124,18 @@ def build_com_plan(
     functions_used: set[str] = set()
     profiles_used: set[str] = {KERNEL_PROFILE_V1, KERNEL_PROFILE_V2, DEFAULT_PROFILE}
 
-    seen_action_ids: set[str] = set()
+    seen_actions: dict[str, Any] = {}
     for out_name, frame in produced.items():
         for action in frame.actions:
-            if action.action_id in seen_action_ids:
+            prior = seen_actions.get(action.action_id)
+            if prior is not None:
+                if _action_payload(prior) != _action_payload(action):
+                    raise ModelDefinitionError(
+                        f"Portable action id {action.action_id!r} collides with an "
+                        "unequal payload (PMXFORM210)"
+                    )
                 continue
-            seen_action_ids.add(action.action_id)
+            seen_actions[action.action_id] = action
             actions_used.add(action.action)
             functions_used |= set(action.functions)
             profiles_used |= set(action.profiles)
@@ -179,7 +210,14 @@ def build_com_plan(
             },
         },
         "findings": [],
-        "parameters": {port.name: {"type": {"kind": "string"}} for port in parameters},
+        "parameters": {
+            port.name: {
+                "type": {
+                    "kind": _logical_type_kind(getattr(port, "contract_type", str))
+                }
+            }
+            for port in parameters
+        },
     }
     requirements = extract_requirements(
         actions=actions_used,

@@ -80,14 +80,14 @@ def compile_plan(
             context = CompilationContext(target=target)
 
     if plugin is None:
-        if plugins is not None:
-            plugin = plugins.get(target)
-        else:
+        discovered = plugins if plugins is not None else discover_orchestrator_plugins()
+        if resolved_profile is not None:
+            from etlantic.plugin_trust import assert_plugin_trust
+
+            discovered = assert_plugin_trust(discovered, resolved_profile)
+        plugin = discovered.get(target)
+        if plugin is None and plugins is None:
             plugin = load_orchestrator_plugin(target)
-            if plugin is None:
-                # Allow callers that already discovered plugins.
-                discovered = discover_orchestrator_plugins()
-                plugin = discovered.get(target)
 
     if plugin is None:
         raise OrchestrationCompilationError(

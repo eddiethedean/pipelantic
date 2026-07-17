@@ -13,7 +13,7 @@ validate and plan them once; run locally or through optional engine plugins.
 
 ## Five-minute path
 
-1. [Current 0.10 guide](CURRENT_VERSION.md) — task-based map
+1. [Current 0.11 guide](CURRENT_VERSION.md) — task-based map
 2. [Installation](INSTALLATION.md) — `pip install etlantic`
 3. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
 4. Break a type on purpose and re-run `validate()` — that failure is the product
@@ -61,7 +61,7 @@ PipelinePlan (secret-free, deterministic)
 Run locally  |  Compile (Airflow)  |  Generate contracts
 ```
 
-ETLantic 0.10 can execute registered Python implementations with its local
+ETLantic 0.11 can execute registered Python implementations with its local
 runtime and optional Polars/Pandas/SQL/PySpark plugins, and can compile plans
 to Airflow DAGs via `etlantic-airflow`.
 

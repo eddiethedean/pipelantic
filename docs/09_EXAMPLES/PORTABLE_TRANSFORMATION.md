@@ -1,8 +1,8 @@
 # Portable Customer Transformation
 
-!!! warning "Design study—not available in ETLantic 0.10"
-    This example fixes the intended portable transformation experience before
-    implementation. It is an acceptance fixture, not runnable current code.
+!!! success "**Status: Available in ETLantic 0.11** (authoring; compilers 0.12+)"
+    This example shows `@Transformation.portable` authoring to
+    `dtcs.transform-plan/2`. Compiler execution remains planned for 0.12+.
 
 This example defines one transformation and runs it through any conformant
 dataframe compiler.

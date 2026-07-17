@@ -45,7 +45,7 @@ An accepted 0.11+ design adds a PySpark-inspired, implementation-agnostic
 definition that serializes as a DTCS 3.0 Transformation Plan and plugins
 compile. See
 [Portable Transformations](PORTABLE_TRANSFORMATIONS.md). This API is not
-available in ETLantic 0.10.
+available as authoring in ETLantic 0.11 (compilers 0.12+).
 
 ## Separating Interface from Implementation
 

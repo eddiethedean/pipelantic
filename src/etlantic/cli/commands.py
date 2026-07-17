@@ -260,6 +260,8 @@ def register_commands(
                     }
                 )
         emit_payload({"plugins": items, "diagnostics": diagnostics}, fmt=fmt)
+        if any(d.get("severity") == "error" for d in diagnostics):
+            raise typer.Exit(1)
 
     @plugin_app.command("info")
     def plugin_info_cmd(

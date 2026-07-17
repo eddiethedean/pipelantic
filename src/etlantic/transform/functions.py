@@ -42,11 +42,16 @@ def _call(
     functions = frozenset({callee}).union(*(c.functions for c in cols))
     req = frozenset(profiles or ())
     req = req.union(*(c.profiles for c in cols))
+    window = None
+    for col in cols:
+        if col.window is not None:
+            window = col.window
     return ColumnExpr(
         node={"kind": "call", "callee": callee, "args": [c.node for c in cols]},
         path=f"{callee}(...)",
         functions=functions,
         profiles=req,
+        window=window,
     )
 
 

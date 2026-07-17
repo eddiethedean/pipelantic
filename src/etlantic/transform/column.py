@@ -69,6 +69,10 @@ class ColumnExpr:
             req_profiles |= col.profiles
         if profiles:
             req_profiles |= profiles
+        window = self.window
+        for col in cols:
+            if col.window is not None:
+                window = col.window
         return ColumnExpr(
             node={
                 "kind": "call",
@@ -78,6 +82,7 @@ class ColumnExpr:
             path=f"{callee}({self.path})",
             functions=functions,
             profiles=req_profiles,
+            window=window,
         )
 
     # comparisons
@@ -187,6 +192,7 @@ class ColumnExpr:
             path=f"cast({self.path})",
             functions=self.functions | {"dtcs:cast"},
             profiles=self.profiles | {PROFILE_CONVERSION},
+            window=self.window,
         )
 
     def isNull(self) -> ColumnExpr:

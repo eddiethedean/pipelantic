@@ -213,8 +213,8 @@ def normalize_schema_from_fields(
             (
                 NormalizedField(
                     name=str(f["name"]),
-                    logical_type=str(
-                        f.get("logical_type") or f.get("type") or "unknown"
+                    logical_type=_canonicalize_logical_type(
+                        str(f.get("logical_type") or f.get("type") or "unknown")
                     ),
                     required=bool(f.get("required", True)),
                     nullable=bool(f.get("nullable", False)),
@@ -262,7 +262,9 @@ def diff_normalized_schemas(
         )
     for name in sorted(set(left) & set(right)):
         a, b = left[name], right[name]
-        if a.logical_type != b.logical_type:
+        if _canonicalize_logical_type(a.logical_type) != _canonicalize_logical_type(
+            b.logical_type
+        ):
             changes.append(
                 SchemaChange(
                     kind="type_changed",
@@ -352,9 +354,33 @@ def _logical_type_name(annotation: Any) -> str:
         if non_none:
             return _logical_type_name(non_none[0])
     name = getattr(annotation, "__name__", None)
-    if name:
-        return str(name).lower()
-    return str(annotation).replace("typing.", "").lower()
+    raw = str(name).lower() if name else str(annotation).replace("typing.", "").lower()
+    return _canonicalize_logical_type(raw)
+
+
+def _canonicalize_logical_type(name: str) -> str:
+    """Normalize Python and JSON-schema style logical type aliases."""
+    aliases = {
+        "int": "integer",
+        "integer": "integer",
+        "str": "string",
+        "string": "string",
+        "bool": "boolean",
+        "boolean": "boolean",
+        "float": "number",
+        "number": "number",
+        "decimal": "number",
+        "double": "number",
+        "null": "null",
+        "none": "null",
+        "dict": "object",
+        "object": "object",
+        "mapping": "object",
+        "list": "array",
+        "tuple": "array",
+        "array": "array",
+    }
+    return aliases.get(name, name)
 
 
 def _is_nullable(annotation: Any) -> bool:

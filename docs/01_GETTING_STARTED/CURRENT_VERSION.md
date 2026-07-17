@@ -1,7 +1,7 @@
-# ETLantic 0.10 User Guide
+# ETLantic 0.11 User Guide
 
 This is the current, installable ETLantic manual. Every page linked from this
-guide documents behavior available in ETLantic 0.10 unless it is explicitly
+guide documents behavior available in ETLantic 0.11 unless it is explicitly
 marked **Experimental**.
 
 ## Start here
@@ -32,5 +32,5 @@ marked **Experimental**.
 - [CLI reference](../10_REFERENCE/CLI.md) documents installed commands.
 - [Known limitations](../10_REFERENCE/KNOWN_ISSUES.md) documents hard boundaries.
 
-Material under **Design Proposals** is not part of the 0.10 user guide and must
+Material under **Design Proposals** is not part of the 0.11 user guide and must
 not be copied into current applications.

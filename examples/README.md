@@ -1,6 +1,6 @@
 # Runnable Examples
 
-These examples use APIs and dependencies shipped in ETLantic 0.10. Install
+These examples use APIs and dependencies shipped in ETLantic 0.11. Install
 with `pip install etlantic` (plus optional engine packages), or from a
 checkout with `uv sync` and `uv run python …`.
 

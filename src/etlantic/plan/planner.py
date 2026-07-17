@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from etlantic._version import __version__
 from etlantic.capabilities import CapabilityDecision, negotiate_capabilities
 from etlantic.diagnostics import Diagnostic, Severity, ValidationReport
 from etlantic.exceptions import PipelineValidationError
@@ -314,7 +315,7 @@ def _build_plan(
         execution_settings=execution_settings,
         metadata={
             "planner": "etlantic.plan.planner",
-            "planner_version": "0.10.0",
+            "planner_version": __version__,
             "dataframe_protocol": "etlantic.dataframe/1",
             "sql_protocol": "etlantic.sql/1",
             "spark_protocol": "etlantic.spark/1",

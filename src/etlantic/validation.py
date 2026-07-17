@@ -29,6 +29,7 @@ VALIDATION_PHASES = (
     "semantic",
     "policy",
     "capability",
+    "plugin_trust",
 )
 
 
@@ -71,6 +72,10 @@ def validate_pipeline(
     # Phase 5: capability
     capability = _phase_capability(pipeline_cls, context, resolved_policy)
     diagnostics.extend(_tag_phase(capability, "capability"))
+
+    # Phase 6: plugin trust (production allowlist fail-closed)
+    trust = _phase_plugin_trust(context)
+    diagnostics.extend(_tag_phase(trust, "plugin_trust"))
 
     if resolved_policy.warnings_as_errors:
         diagnostics = [
@@ -362,6 +367,16 @@ def _phase_capability(
                 )
             )
     return diagnostics
+
+
+def _phase_plugin_trust(context: PlanningContext) -> list[Diagnostic]:
+    """Enforce production plugin_allowlist fail-closed (empty list is an error)."""
+    from etlantic.plugin_trust import filter_plugins_by_allowlist
+
+    # Empty-dict filter surfaces PMPLUG401 for production profiles without
+    # rejecting built-in local/null registry stubs used for planning.
+    _kept, diagnostics = filter_plugins_by_allowlist({}, context.profile)
+    return list(diagnostics)
 
 
 def _validate_nested_subpipelines(

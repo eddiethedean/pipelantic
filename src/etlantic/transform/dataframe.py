@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -13,6 +15,39 @@ from etlantic.transform.protocol import (
     RELATIONAL_PROFILE_V1,
     RELATIONAL_PROFILE_V2,
 )
+
+
+def _stable_digest(payload: Any) -> str:
+    """Short stable digest for action-id uniqueness."""
+    encoded = json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()[:8]
+
+
+def _mint_action_id(
+    *,
+    root_input: str,
+    index: int,
+    action: str,
+    target: str,
+    parameters: dict[str, Any],
+) -> str:
+    """Mint a globally unique semantic-action id within a COM plan."""
+    suffix = action.split(":")[-1]
+    digest = _stable_digest(
+        {"action": action, "target": target, "parameters": parameters}
+    )
+    return f"{root_input}__a{index}_{suffix}_{digest}"
+
+
+def _field_ref_column(name: str) -> ColumnExpr:
+    """Treat a bare string as a field reference (PySpark-style)."""
+    return ColumnExpr(node={"kind": "fieldRef", "target": name}, path=name)
+
+
+def _coerce_sort_key(col: Any) -> ColumnExpr:
+    if isinstance(col, str):
+        return _field_ref_column(col)
+    return coerce_column(col)
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,7 +84,13 @@ class FrameExpr:
         path: str = "",
         schema_fields: tuple[str, ...] | None = None,
     ) -> FrameExpr:
-        action_id = f"a{len(self.actions) + 1}_{action.split(':')[-1]}"
+        action_id = _mint_action_id(
+            root_input=self.root_input,
+            index=len(self.actions) + 1,
+            action=action,
+            target=self.relation_id,
+            parameters=parameters,
+        )
         frame_action = FrameAction(
             action_id=action_id,
             action=action,
@@ -186,7 +227,7 @@ class FrameExpr:
         functions: set[str] = set()
         profiles: set[str] = {RELATIONAL_PROFILE_V1, RELATIONAL_PROFILE_V2}
         for col in cols:
-            expr = coerce_column(col)
+            expr = _coerce_sort_key(col)
             functions |= expr.functions
             profiles |= expr.profiles
             key: dict[str, Any] = {"expression": expr.node}
@@ -233,7 +274,13 @@ class FrameExpr:
         # Merge other frame actions into lineage by requiring other.root actions first.
         # Builder flattens both action lists when the joined frame is used.
         merged_actions = (*other.actions, *self.actions)
-        action_id = f"a{len(merged_actions) + 1}_join"
+        action_id = _mint_action_id(
+            root_input=self.root_input,
+            index=len(merged_actions) + 1,
+            action="dtcs:join",
+            target=self.relation_id,
+            parameters=parameters,
+        )
         join_action = FrameAction(
             action_id=action_id,
             action="dtcs:join",
@@ -270,16 +317,23 @@ class FrameExpr:
         self, other: FrameExpr, *, mode: str, allow_missing: bool = False
     ) -> FrameExpr:
         merged_actions = (*other.actions, *self.actions)
-        action_id = f"a{len(merged_actions) + 1}_union"
+        parameters = {
+            "other": other.relation_id,
+            "mode": mode,
+            "allowMissingColumns": allow_missing,
+        }
+        action_id = _mint_action_id(
+            root_input=self.root_input,
+            index=len(merged_actions) + 1,
+            action="dtcs:union",
+            target=self.relation_id,
+            parameters=parameters,
+        )
         action = FrameAction(
             action_id=action_id,
             action="dtcs:union",
             target=self.relation_id,
-            parameters={
-                "other": other.relation_id,
-                "mode": mode,
-                "allowMissingColumns": allow_missing,
-            },
+            parameters=parameters,
             profiles=frozenset({RELATIONAL_PROFILE_V1, RELATIONAL_PROFILE_V2}),
             path=f"union:{mode}",
         )
@@ -342,12 +396,19 @@ class FrameExpr:
 
     def _set_op(self, other: FrameExpr, action: str) -> FrameExpr:
         merged_actions = (*other.actions, *self.actions)
-        action_id = f"a{len(merged_actions) + 1}_{action.split(':')[-1]}"
+        parameters = {"other": other.relation_id}
+        action_id = _mint_action_id(
+            root_input=self.root_input,
+            index=len(merged_actions) + 1,
+            action=action,
+            target=self.relation_id,
+            parameters=parameters,
+        )
         frame_action = FrameAction(
             action_id=action_id,
             action=action,
             target=self.relation_id,
-            parameters={"other": other.relation_id},
+            parameters=parameters,
             profiles=frozenset({PROFILE_RELATIONAL_EXTENDED}),
             path=action,
         )
