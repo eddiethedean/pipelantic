@@ -25,7 +25,7 @@ voyage, vessel, cargo, harbor, or similar substitutes.
 | `assets/etlantic-logo.svg` | Canonical scalable logo |
 | `assets/etlantic-favicon.svg` | Simplified small-size mark |
 | `assets/etlantic-logo.png` | Transparent raster logo |
-| `assets/etlantic-banner.png` | README and documentation hero |
+| `assets/etlantic-banner.png` | Legacy social/banner artwork |
 | `assets/etlantic-logo-source.png` | Generated source; not for publication |
 
 The SVG mark is canonical for documentation and application chrome. The
@@ -69,8 +69,8 @@ photorealistic ships, and decorative waves.
 
 ## Documentation Usage
 
-The Read the Docs site uses the SVG logo, simplified favicon, banner on the
-home page, navy navigation chrome, and cyan/mint accents. Long technical
+The Read the Docs site uses the SVG logo, simplified favicon, a CSS-rendered
+home-page hero, navy navigation chrome, and cyan/mint accents. Long technical
 chapters should not use decorative backgrounds.
 
 ## Writing Rule
