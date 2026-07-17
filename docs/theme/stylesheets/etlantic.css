@@ -243,6 +243,10 @@ html {
   text-transform: uppercase;
 }
 
+.etlantic-hero__nowrap {
+  white-space: nowrap;
+}
+
 .etlantic-hero__content p {
   max-width: 27rem;
   margin: 0;
@@ -406,6 +410,6 @@ html {
   }
 
   .etlantic-hero__content h1 {
-    font-size: clamp(2.3rem, 13vw, 3.25rem);
+    font-size: clamp(2.2rem, 11vw, 3.25rem);
   }
 }

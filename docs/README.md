@@ -1,7 +1,7 @@
 <div class="etlantic-hero">
   <div class="etlantic-hero__content">
     <span class="etlantic-hero__eyebrow">Typed, contract-driven pipelines</span>
-    <h1>Design once.<br>Run anywhere.</h1>
+    <h1>Design once.<br><span class="etlantic-hero__nowrap">Run anywhere.</span></h1>
     <p>Model data pipelines in Python, validate them as contracts, and execute them through interchangeable backends.</p>
     <div class="etlantic-hero__actions">
       <a class="md-button md-button--primary" href="01_GETTING_STARTED/QUICKSTART/">Quickstart</a>
