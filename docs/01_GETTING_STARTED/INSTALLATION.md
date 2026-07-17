@@ -6,67 +6,44 @@ a local runtime that executes plans with Python callables, in-memory
 artifacts, and stdlib JSON/CSV bindings, plus optional Polars, Pandas, SQL,
 PySpark, and Airflow plugins. Structured Streaming APIs are experimental.
 
-!!! warning "PyPI may not have 0.10.0 yet"
-    Until a matching `v0.10.0` release is published to PyPI, **install from
-    source** (recommended path below). Anonymous `pip install etlantic` can
-    fail with “No matching distribution.” See
-    [Troubleshooting](TROUBLESHOOTING.md).
-
 ## Requirements
 
 - Python 3.11 or newer
 - ContractModel as a companion package (installed automatically with ETLantic)
 
-[uv](https://docs.astral.sh/uv/) is recommended. Adopters can also use plain
-`pip` once wheels are on PyPI.
-
-## Recommended: install from source
-
-```bash
-git clone https://github.com/eddiethedean/etlantic.git
-cd etlantic
-uv sync
-uv run python -c "import etlantic; print(etlantic.__version__)"
-uv run python examples/quickstart.py
-```
-
-`uv sync` creates `.venv`, installs the package in editable mode, and installs
-the `dev` group (pytest, ruff, mkdocs).
-
-### Editable install with pip (no uv)
-
-```bash
-git clone https://github.com/eddiethedean/etlantic.git
-cd etlantic
-python3.11 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-python -m pip install -e .
-python -c "import etlantic; print(etlantic.__version__)"
-```
-
-## When wheels are on PyPI
+## Recommended: install from PyPI
 
 ```bash
 python3.11 -m pip install --upgrade pip
 python3.11 -m pip install 'etlantic>=0.10.0'
+etlantic --version
 ```
 
-Or with uv:
+Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv add 'etlantic>=0.10.0'
+uv run etlantic --version
 ```
 
-Verify:
+Verify the import:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
+```
+
+### Windows
+
+```powershell
+py -3.11 -m pip install --upgrade pip
+py -3.11 -m pip install 'etlantic>=0.10.0'
+py -3.11 -m etlantic --version
 ```
 
 ### Optional engine plugins
 
 Core never installs Polars, Pandas, database drivers, or PySpark. Add engines
-explicitly (from a checkout use `uv sync --group …`; from PyPI use pip):
+explicitly:
 
 ```bash
 pip install etlantic-polars    # Polars reference plugin
@@ -91,7 +68,9 @@ pip install 'etlantic[otel]'         # alias: observability
 pip install 'etlantic[arrow]'
 ```
 
-For SQL, set a connection URL (PostgreSQL is the reference; SQLite is demo-only):
+For SQL, set a connection URL (PostgreSQL is the reference; SQLite is
+demo-only). The URL below is an **example placeholder**—do not commit real
+credentials:
 
 ```bash
 export ETLANTIC_SQL_URL=postgresql+psycopg://user:pass@localhost:5432/etlantic
@@ -110,10 +89,43 @@ Airflow compilation is available via `etlantic-airflow` (`compile_plan` /
 `etlantic compile … --target airflow`). Dagster and Prefect remain future
 plugins.
 
-## Upgrade
+## Install from source (contributors)
 
-Prefer a git checkout and `uv sync` until PyPI carries 0.10.0. When wheels
-exist:
+```bash
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
+uv sync
+uv run python -c "import etlantic; print(etlantic.__version__)"
+uv run python examples/quickstart.py
+```
+
+`uv sync` creates `.venv`, installs the package in editable mode, and installs
+the `dev` group (pytest, ruff, mkdocs).
+
+### Editable install with pip (no uv)
+
+```bash
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
+python3.11 -m venv .venv
+source .venv/bin/activate   # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -e .
+python -c "import etlantic; print(etlantic.__version__)"
+```
+
+From a checkout, optional plugins use uv groups:
+
+```bash
+uv sync --group dataframes   # polars + pandas
+uv sync --group sql
+uv sync --group pyspark
+uv sync --group airflow
+uv sync --group sparkforge
+uv sync --group keyring
+uv sync --group sqlmodel
+```
+
+## Upgrade
 
 ```bash
 python -m pip install --upgrade 'etlantic>=0.10.0'
@@ -177,9 +189,8 @@ docs/
 
 ## Installation Problems
 
-See [Troubleshooting](TROUBLESHOOTING.md) for Python-version errors, missing
-PyPI wheels, version mismatches, missing plugins, and stale virtual
-environments.
+See [Troubleshooting](TROUBLESHOOTING.md) for Python-version errors, version
+mismatches, missing plugins, and stale virtual environments.
 
 ## Dependency Philosophy
 
@@ -191,5 +202,4 @@ See [Dependency Strategy](../11_DEVELOPMENT/DEPENDENCY_STRATEGY.md).
 
 ## Next Step
 
-Continue with [Capabilities](CAPABILITIES.md), then
-[Quickstart](QUICKSTART.md).
+Continue with [Quickstart](QUICKSTART.md).

@@ -1,29 +1,32 @@
 # Run Reports
 
+> **Status: Available in ETLantic 0.10.** Every successful or failed local
+> (and plugin-backed) run returns a structured `PipelineRunReport`.
+
 Every ETLantic run returns a structured `PipelineRunReport`.
 
 The report is the canonical, backend-independent summary of what was planned,
-executed, produced, validated, retried, skipped, and failed. It preserves the
-useful reporting experience from SparkForge while removing medallion-specific
-fields and storage-engine assumptions.
+executed, produced, validated, retried, skipped, and failed. It is
+**secret-free** and process-local unless you persist it yourself—do not treat
+it as an audit system of record.
 
 ## Basic Usage
 
 ```python
-report = CustomerPipeline.run(profile="production")
+report = CustomerPipeline.run(profile="development")
 
 print(report.status)
 print(report.duration)
 print(report.summary)
 
 for step in report.steps:
-    print(step.step_id, step.status, step.duration)
+    print(step.step_id, step.status, step.duration_seconds)
 ```
 
 Async execution returns the same model:
 
 ```python
-report = await CustomerPipeline.arun(profile="production")
+report = await CustomerPipeline.arun(profile="development")
 ```
 
 ## Report Versus Result
@@ -37,7 +40,7 @@ PipelineRunReport
 ├── validation and state results
 ├── diagnostics
 ├── plan summary
-└── rendering helpers
+└── rendering helpers (to_text / to_dict / to_html)
 ```
 
 Internal plugins may produce narrower result objects, but the public run API
@@ -46,57 +49,54 @@ normalizes them into `PipelineRunReport`.
 The report is data, not console output. Text, JSON, HTML, and other formats are
 renderings of the same model.
 
-## Proposed Model
+## Shipped Model
+
+Canonical fields live on `etlantic.reports.PipelineRunReport`
+(`schema = "etlantic.run_report/1"`):
 
 ```python
 @dataclass(frozen=True)
 class PipelineRunReport:
     pipeline_id: str
-    pipeline_version: str | None
     plan_id: str
     run_id: str
     intent: RunIntent
     profile: str
     status: RunStatus
-
     started_at: datetime
-    ended_at: datetime | None
-    duration: timedelta | None
-
-    summary: RunSummary
-    steps: tuple[StepRunReport, ...]
-    artifacts: tuple[ArtifactResult, ...]
-    validations: tuple[ValidationResult, ...]
-    state_transitions: tuple[StateTransitionResult, ...]
-    diagnostics: tuple[RunDiagnostic, ...]
-    recommendations: tuple[RunRecommendation, ...]
-    backend_runs: tuple[BackendRunReference, ...]
+    pipeline_version: str | None = None
+    ended_at: datetime | None = None
+    duration: timedelta | None = None
+    summary: RunSummary = ...
+    steps: tuple[StepRunReport, ...] = ()
+    artifacts: tuple[ArtifactResult, ...] = ()
+    validations: tuple[ValidationResult, ...] = ()
+    state_transitions: tuple[StateTransitionResult, ...] = ()
+    diagnostics: tuple[RunDiagnostic, ...] = ()
+    recommendations: tuple[RunRecommendation, ...] = ()
+    backend_runs: tuple[BackendRunReference, ...] = ()
+    schema_observations: tuple[SchemaObservationResult, ...] = ()
+    lineage: tuple[dict[str, str], ...] = ()
+    plan_fingerprint: str | None = None
+    metadata: dict[str, Any] = ...
 ```
 
-The exact field names remain proposed until implementation, but these semantic
-sections are required.
+See the API reference and `src/etlantic/reports/model.py` for nested types.
 
 ## Run Summary
 
-`RunSummary` provides the fast SparkForge-style overview:
+`RunSummary` provides the fast overview (field names as shipped):
 
 ```python
 RunSummary(
     total_steps=8,
-    succeeded_steps=7,
-    failed_steps=0,
-    skipped_steps=1,
-    cancelled_steps=0,
-    retry_attempts=1,
-    records_read=150_000,
-    records_produced=149_850,
-    records_written=149_850,
-    valid_records=149_850,
-    invalid_records=150,
-    validation_pass_rate=0.999,
-    artifacts_produced=10,
-    materializations=3,
-    state_commits=1,
+    succeeded=7,
+    failed=0,
+    skipped=1,
+    cancelled=0,
+    retried=1,
+    records_in=150_000,
+    records_out=149_850,
 )
 ```
 

@@ -1,6 +1,6 @@
 site_name: ETLantic
 site_description: Typed, contract-driven data pipeline modeling for Python.
-site_url: https://github.com/eddiethedean/etlantic/tree/main/docs
+site_url: https://etlantic.readthedocs.io/
 repo_url: https://github.com/eddiethedean/etlantic
 repo_name: eddiethedean/etlantic
 edit_uri: edit/main/docs/
@@ -11,7 +11,7 @@ exclude_docs: |
   theme/README.md
 
 validation:
-  omitted_files: ignore
+  omitted_files: warn
   absolute_links: relative_to_docs
   unrecognized_links: warn
   anchors: warn
@@ -103,24 +103,25 @@ nav:
   - Getting Started:
       - Overview: 01_GETTING_STARTED/README.md
       - Installation: 01_GETTING_STARTED/INSTALLATION.md
-      - Capabilities and Limitations: 01_GETTING_STARTED/CAPABILITIES.md
       - Quickstart: 01_GETTING_STARTED/QUICKSTART.md
       - First Pipeline: 01_GETTING_STARTED/FIRST_PIPELINE.md
-      - Project Structure: 01_GETTING_STARTED/PROJECT_STRUCTURE.md
+      - Capabilities and Limitations: 01_GETTING_STARTED/CAPABILITIES.md
+      - Evaluator Brief: 01_GETTING_STARTED/EVALUATOR.md
       - Troubleshooting: 01_GETTING_STARTED/TROUBLESHOOTING.md
       - FAQ: 01_GETTING_STARTED/FAQ.md
-      - Evaluator Brief: 01_GETTING_STARTED/EVALUATOR.md
+      - Project Structure: 01_GETTING_STARTED/PROJECT_STRUCTURE.md
   - Foundations:
       - Overview: 02_FOUNDATIONS/README.md
-      - Vision: 02_FOUNDATIONS/VISION.md
-      - Why ETLantic: 02_FOUNDATIONS/WHY_ETLANTIC.md
-      - FastAPI Philosophy: 02_FOUNDATIONS/FASTAPI_PHILOSOPHY.md
-      - Design Principles: 02_FOUNDATIONS/DESIGN_PRINCIPLES.md
+      - Documentation Status: 02_FOUNDATIONS/DOCUMENTATION_STATUS.md
       - Core Concepts: 02_FOUNDATIONS/CORE_CONCEPTS.md
       - Architecture: 02_FOUNDATIONS/ARCHITECTURE.md
       - Security: 02_FOUNDATIONS/SECURITY.md
       - Glossary: 02_FOUNDATIONS/GLOSSARY.md
-      - Documentation Status: 02_FOUNDATIONS/DOCUMENTATION_STATUS.md
+      - Philosophy (optional):
+          - Vision: 02_FOUNDATIONS/VISION.md
+          - Why ETLantic: 02_FOUNDATIONS/WHY_ETLANTIC.md
+          - FastAPI Philosophy: 02_FOUNDATIONS/FASTAPI_PHILOSOPHY.md
+          - Design Principles: 02_FOUNDATIONS/DESIGN_PRINCIPLES.md
   - Data Contracts:
       - Overview: 03_DATA_CONTRACTS/README.md
       - DataContractModel: 03_DATA_CONTRACTS/DATACONTRACTMODEL.md
@@ -184,6 +185,8 @@ nav:
       - Airflow: 06_EXECUTION/AIRFLOW.md
       - Compilation: 06_EXECUTION/COMPILATION.md
       - Orchestrator Plugin Protocol: 07_PLUGIN_SDK/ORCHESTRATOR_PLUGIN.md
+      - Secret Provider Protocol: 07_PLUGIN_SDK/SECRET_PROVIDER.md
+      - Testing Plugins: 07_PLUGIN_SDK/TESTING_PLUGINS.md
   - Future Design:
       - Execution Plugins:
           - Overview: 06_EXECUTION/PLUGINS.md
@@ -194,9 +197,7 @@ nav:
           - Architecture: 07_PLUGIN_SDK/OVERVIEW.md
           - Storage Plugin: 07_PLUGIN_SDK/STORAGE_PLUGIN.md
           - Resource Provider: 07_PLUGIN_SDK/RESOURCE_PROVIDER.md
-          - Secret Provider: 07_PLUGIN_SDK/SECRET_PROVIDER.md
           - Observability Provider: 07_PLUGIN_SDK/OBSERVABILITY_PROVIDER.md
-          - Testing Plugins: 07_PLUGIN_SDK/TESTING_PLUGINS.md
           - Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md
           - Distribution: 07_PLUGIN_SDK/DISTRIBUTION.md
       - Visualization (future):
@@ -260,6 +261,7 @@ nav:
       - Dependency Strategy: 11_DEVELOPMENT/DEPENDENCY_STRATEGY.md
       - Design Decisions: 11_DEVELOPMENT/DESIGN_DECISIONS.md
       - Architecture Decisions: 11_DEVELOPMENT/ARCHITECTURE_DECISIONS.md
+      - ADR-013 Portable Transform IR: 11_DEVELOPMENT/adr/ADR-013-PORTABLE-TRANSFORMATION-IR.md
       - Benchmarks: 11_DEVELOPMENT/BENCHMARKS.md
       - Maintainer plans:
           - FastAPI Integration Plan: 11_DEVELOPMENT/FASTAPI_INTEGRATION_PLAN.md

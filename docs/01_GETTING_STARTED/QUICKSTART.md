@@ -11,32 +11,21 @@ core package and in-memory storage.
 | Term | Meaning in this guide |
 |---|---|
 | **Binding** | Logical name for a source or sink (`binding="customer_source"`). The runtime resolves it to storage (here, in-memory). |
-| **Profile** | Named environment for planning and running. Use `development` for the built-in local runtime examples. The CLI `plan` command defaults to `local`; `run` defaults to `development`. |
+| **Profile** | Named environment for planning and running. These docs use `development` for the built-in local runtime. Pass the same name to `validate`, `plan`, and `run`. CLI defaults differ (`plan` → `local`, `run` → `development`)—pass `--profile development` to keep them aligned. |
 | **Implementation** | Engine-specific body registered with `@Transformation.implementation("local")` (or `"polars"` / `"pandas"` after installing those plugins). |
 
 ## 1. Install
 
 ETLantic requires Python 3.11 or newer.
 
-**Recommended (works today):** clone and sync
-
-```bash
-git clone https://github.com/eddiethedean/etlantic.git
-cd etlantic
-uv sync
-uv run python -c "import etlantic; print(etlantic.__version__)"
-```
-
-When wheels are on PyPI:
-
 ```bash
 python -m pip install 'etlantic>=0.10.0'
-python -c "import etlantic; print(etlantic.__version__)"
+etlantic --version
 ```
 
-If `pip install etlantic` fails with “No matching distribution,” use the
-from-source path above. See [Installation](INSTALLATION.md) and
-[Troubleshooting](TROUBLESHOOTING.md).
+From a git checkout (contributors), use `uv sync` and then
+`uv run python …` so the project virtualenv is used. See
+[Installation](INSTALLATION.md).
 
 ## 2. Create `pipeline.py`
 
@@ -89,7 +78,7 @@ class CustomerPipeline(Pipeline):
     )
 
 
-report = CustomerPipeline.validate()
+report = CustomerPipeline.validate(profile="development")
 report.raise_for_errors()
 
 plan = CustomerPipeline.plan(profile="development")
@@ -127,6 +116,46 @@ The final records are:
 The exact generated plan and run identifiers vary, but the run status should
 be `succeeded`.
 
+## 4. See the product value (broken wiring)
+
+Change the sink type so it no longer matches the transformation output, then
+validate again:
+
+```python
+class WrongCustomer(Data):
+    customer_id: int
+    # missing full_name — incompatible with NormalizeCustomers.result
+
+
+class BrokenPipeline(Pipeline):
+    raw: Source[RawCustomer] = Source(binding="customer_source")
+    normalized = NormalizeCustomers.step(customers=raw)
+    curated: Sink[WrongCustomer] = Sink(
+        input=normalized.result,
+        binding="customer_sink",
+    )
+
+
+broken = BrokenPipeline.validate(profile="development")
+print(broken.valid)  # False
+for diagnostic in broken.diagnostics:
+    print(f"{diagnostic.code}: {diagnostic.message}")
+```
+
+That failure—before any data is processed—is the core ETLantic value.
+
+## 5. Same workflow from the CLI
+
+Save the quickstart script as `pipeline.py`, then:
+
+```bash
+etlantic validate pipeline.py:CustomerPipeline --profile development --format json
+etlantic plan pipeline.py:CustomerPipeline --profile development --format json
+etlantic run pipeline.py:CustomerPipeline --profile development
+```
+
+Use the same `--profile` for validate, plan, and run.
+
 ## What happened
 
 1. `Data` classes defined the input and output contracts.
@@ -142,19 +171,8 @@ The same example is available at `examples/quickstart.py`.
 
 ## Next
 
-- Keep going in this file: the full script above is self-contained (no clone
-  required once the package is installed).
-- From a checkout: file-backed JSON/CSV with
-  `uv run python examples/file_storage.py`
-- From a checkout: Polars/Pandas with
-  `uv sync --group dataframes` then
-  `uv run python examples/dataframe_parity.py polars`
-- Inline second step (memory seed pattern already in the script above) —
-  change the seeded rows and re-run.
-- Build the example in smaller steps in [Your First Pipeline](FIRST_PIPELINE.md)
-- Review [Current Capabilities and Limitations](CAPABILITIES.md)
-- See [Troubleshooting](TROUBLESHOOTING.md) if the run fails
-- Airflow compile (checkout): `uv sync --group airflow` then
-  `uv run python examples/airflow_compile.py`
-- SparkForge adapter (checkout): `uv sync --group sparkforge` then
-  `uv run pytest tests/sparkforge -m sparkforge`
+- [Your First Pipeline](FIRST_PIPELINE.md) — inspect Mermaid, contracts, and plan explain
+- [Capabilities](CAPABILITIES.md) — shipped vs not
+- [Troubleshooting](TROUBLESHOOTING.md) if the run fails
+- Optional engines (from a checkout): `examples/file_storage.py`,
+  `examples/dataframe_parity.py`, `examples/airflow_compile.py`

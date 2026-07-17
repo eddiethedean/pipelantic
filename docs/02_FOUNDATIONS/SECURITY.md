@@ -211,17 +211,29 @@ and [compiler protocol](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md).
 Python plugins execute with host-process privileges. Entry-point discovery is a
 trust decision, not a sandbox.
 
-Production profiles should support:
+**Shipped in 0.9+:** production profiles fail closed unless
+`Profile.plugin_allowlist` is set. Configure allowlists in Python (ETLantic
+does **not** load `etlantic.toml` today):
 
-```toml
-[plugins.security]
-discovery = "allowlist"
-allowed = [
-  "etlantic-polars",
-  "etlantic-airflow",
-]
-require_pinned_versions = true
+```python
+from etlantic import Profile
+
+production = Profile(
+    name="production",
+    security_domain="production",
+    plugin_allowlist={
+        "etlantic-polars": ">=0.10.0,<1.0",
+        "etlantic-airflow": ">=0.10.0,<1.0",
+    },
+)
 ```
+
+See [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
+
+!!! note "Future design (1.0)"
+    A proposed `etlantic.toml` `[plugins.security]` block may eventually mirror
+    the same allowlist semantics. Do not configure TOML as if it is loaded in
+    0.10—use `Profile.plugin_allowlist`.
 
 Controls should include:
 
@@ -609,31 +621,28 @@ variables help correctness but are not a security boundary.
 
 ## Configuration
 
-Conceptually:
+**Shipped today:** configure security-relevant controls on `Profile` in Python.
+ETLantic does **not** load `etlantic.toml`. See
+[Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 
-```toml
-[security]
-mode = "strict"
-allow_remote_references = false
-allow_user_code_during_planning = false
-allow_unsafe_serialization = false
-require_plugin_allowlist = true
-require_pinned_plugins = true
+```python
+from etlantic import Profile
 
-[security.limits]
-document_bytes = 10485760
-reference_depth = 20
-graph_nodes = 10000
-diagnostics = 1000
-
-[security.filesystem]
-read_roots = ["contracts", "src"]
-write_roots = ["build"]
-
-[security.network]
-allowed_hosts = ["contracts.example.com"]
-allow_private_addresses = false
+production = Profile(
+    name="production",
+    security_domain="production",
+    plugin_allowlist={
+        "etlantic-polars": ">=0.10.0,<1.0",
+        "etlantic-sql": ">=0.10.0,<1.0",
+    },
+)
 ```
+
+!!! note "Future design (1.0)"
+    A proposed TOML security policy block may eventually participate in
+    planning (document size limits, filesystem roots, network allowlists).
+    That configuration surface is **not** loaded in 0.10. Proposed names live
+    under [Configuration](../10_REFERENCE/CONFIGURATION.md).
 
 Security policy participates in planning. Secret values do not.
 

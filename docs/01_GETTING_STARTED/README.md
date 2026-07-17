@@ -2,123 +2,69 @@
 
 Welcome to ETLantic!
 
-> **Project status:** 0.10.0 provides the typed modeling kernel, contract
-> interoperability (ODCS/DTCS/DPCS), multi-phase validation, profiles, an
-> immutable secret-free `PipelinePlan`, a local async runtime with run
-> reports, Polars/Pandas dataframe plugins, the `etlantic-sql` SQL plugin,
-> the `etlantic-pyspark` Spark plugin (batch), and Airflow DAG compilation
-> via `etlantic-airflow`. Structured Streaming is experimental. See
-> [Capabilities](CAPABILITIES.md) for the shipped boundary.
+ETLantic catches incompatible data-pipeline wiring **before** you process
+data. Define typed datasets, transformations, and pipelines in Python;
+validate and plan them once; run locally or through optional engine plugins.
 
-This section is designed to get you productive as quickly as possible.
-Rather than starting with implementation details, you'll learn the core
-ideas that make ETLantic different from traditional ETL frameworks.
+> **Project status:** Alpha **0.10.0**. See [Capabilities](CAPABILITIES.md)
+> for the shipped boundary and [Evaluator brief](EVALUATOR.md) for
+> decision-makers. How to read status labels:
+> [Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
+
+## Five-minute path
+
+1. [Installation](INSTALLATION.md) — `pip install etlantic`
+2. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
+3. Break a type on purpose and re-run `validate()` — that failure is the product
+4. [Capabilities](CAPABILITIES.md) — only after first success
+5. [Evaluator brief](EVALUATOR.md) — if you are deciding whether to adopt
 
 ## What You'll Learn
 
-By the end of this guide you will be able to:
-
--   Install ETLantic
--   Define typed data contracts
--   Define typed transformations
--   Wire transformations into pipelines
--   Validate your pipeline before execution
--   Generate portable contract specifications
--   Run pipelines locally (and optionally with Polars/Pandas/SQL/PySpark plugins)
--   Know which chapters are shipped vs future design
+- Install ETLantic from PyPI
+- Define typed data contracts and transformations
+- Wire a pipeline and validate it before execution
+- Run locally with in-memory storage
+- Use the CLI (`validate` / `plan` / `run`)
+- Tell shipped APIs from future design
 
 ## Prerequisites
 
-You should be comfortable with:
-
--   Python 3.11+
--   Basic type annotations
--   Pydantic models
--   ETL concepts
-
-No prior experience with orchestration frameworks is required.
+- Python 3.11+
+- Basic type annotations
+- Familiarity with ETL concepts helps; orchestration experience is optional
 
 ## Documentation Roadmap
 
-Read the Getting Started section in this order:
-
 1. [Installation](INSTALLATION.md)
-2. [Current Capabilities and Limitations](CAPABILITIES.md)
-3. [Quickstart](QUICKSTART.md)
-4. [Your First Pipeline](FIRST_PIPELINE.md)
-5. [Project Structure](PROJECT_STRUCTURE.md)
+2. [Quickstart](QUICKSTART.md)
+3. [Your First Pipeline](FIRST_PIPELINE.md)
+4. [Capabilities and Limitations](CAPABILITIES.md)
+5. [Evaluator Brief](EVALUATOR.md)
 6. [Troubleshooting](TROUBLESHOOTING.md)
 7. [FAQ](FAQ.md)
+8. [Project Structure](PROJECT_STRUCTURE.md) (after a second pipeline)
 
 ## The ETLantic Mental Model
 
-ETLantic separates **modeling** from **execution**.
-
-You describe *what* the pipeline is:
-
--   Data Contracts
--   Transformation Contracts
--   Pipeline Contracts
-
-ETLantic validates and plans the pipeline.
+``` text
+Typed Python classes
+      │
+      ▼
+Validation (catch bad wiring)
+      │
+      ▼
+PipelinePlan (secret-free, deterministic)
+      │
+      ▼
+Run locally  |  Compile (Airflow)  |  Generate contracts
+```
 
 ETLantic 0.10 can execute registered Python implementations with its local
 runtime and optional Polars/Pandas/SQL/PySpark plugins, and can compile plans
 to Airflow DAGs via `etlantic-airflow`.
 
-``` text
-Python Classes
-      │
-      ▼
-ODCS + DTCS + DPCS
-      │
-      ▼
-Pipeline Validation
-      │
-      ▼
-Execution Planning
-      │
-      ▼
-Local + Dataframe + SQL + PySpark + Airflow (0.10)
-```
-
-## A Preview
-
-``` python
-from etlantic import (
-    Data,
-    Pipeline,
-    Transformation,
-    Input,
-    Output,
-)
-
-class Customer(Data):
-    id: int
-    name: str
-
-class NormalizeCustomers(Transformation):
-    customers: Input[Customer]
-    result: Output[Customer]
-
-class CustomerPipeline(Pipeline):
-    ...
-```
-
-This should feel familiar if you've used FastAPI: Python type
-annotations are the source of truth.
-
-## Philosophy
-
-ETLantic is built around a few core ideas:
-
--   Types describe interfaces.
--   Contracts are generated from code.
--   Pipelines model intent, not execution.
--   Validation happens before execution.
--   Execution engines are replaceable.
-
 ## Next Step
 
-Continue with [Installation](INSTALLATION.md), then check the
-[current capability boundary](CAPABILITIES.md).
+Continue with [Installation](INSTALLATION.md), then
+[Quickstart](QUICKSTART.md).

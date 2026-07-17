@@ -5,15 +5,21 @@ boundaries, vocabulary, and documentation stability model.
 
 ## Recommended Order
 
-1. [Vision](VISION.md)
-2. [Why ETLantic](WHY_ETLANTIC.md)
-3. [FastAPI Philosophy](FASTAPI_PHILOSOPHY.md)
-4. [Design Principles](DESIGN_PRINCIPLES.md)
-5. [Core Concepts](CORE_CONCEPTS.md)
-6. [Architecture](ARCHITECTURE.md)
-7. [Security Model](SECURITY.md)
-8. [Documentation Status](DOCUMENTATION_STATUS.md)
-9. [Glossary](GLOSSARY.md)
+**Start here (required):**
+
+1. [Documentation Status](DOCUMENTATION_STATUS.md) — how to read Available vs Future design
+2. [Core Concepts](CORE_CONCEPTS.md)
+3. [Architecture](ARCHITECTURE.md)
+4. [Security Model](SECURITY.md)
+5. [Glossary](GLOSSARY.md)
+
+**Optional philosophy** (same thesis, different angles—skip on the first pass):
+
+- [Vision](VISION.md)
+- [Why ETLantic](WHY_ETLANTIC.md)
+- [FastAPI Philosophy](FASTAPI_PHILOSOPHY.md)
+- [Design Principles](DESIGN_PRINCIPLES.md)
+- [Manifesto](../ETLANTIC_MANIFESTO.md)
 
 ## Foundation in One Sentence
 

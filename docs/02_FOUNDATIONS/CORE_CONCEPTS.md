@@ -59,7 +59,12 @@ semantics. It does not commit the transformation to a dataframe engine.
 
 ### Portable Definition (0.11+ design)
 
-A portable definition describes common relational behavior once using
+!!! warning "Accepted 0.11+ design—not available in ETLantic 0.10"
+    `etlantic.transform`, `@Transformation.portable`, and portable compilers
+    are documented future design. Do not import them in 0.10 code. Use
+    `@Transformation.implementation(...)` today.
+
+A portable definition will describe common relational behavior once using
 PySpark-inspired symbolic DataFrame and Column expressions:
 
 ```python
@@ -71,10 +76,10 @@ def normalize(customers, minimum_age):
     return customers.filter(F.col("age") >= minimum_age)
 ```
 
-ETLantic normalizes this definition into the canonical DTCS Transformation
+ETLantic will normalize this definition into the canonical DTCS Transformation
 Plan (`dtcs.transform-plan/1`) through the public `dtcs` package. Plugins
-compile that plan to native operations. The definition does not process data
-and is not a native implementation.
+will compile that plan to native operations. The definition does not process
+data and is not a native implementation.
 
 ## Implementation
 

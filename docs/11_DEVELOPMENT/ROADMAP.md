@@ -122,6 +122,8 @@ The releases below combine eight continuing workstreams:
 
 ## 0.1 — Typed Modeling Kernel
 
+**Status: shipped** (superseded by later milestones; retained for history).
+
 ### Deliver
 
 - `DataContractModel` integration boundary
@@ -893,6 +895,8 @@ feature assessment and adapter sequence.
 
 ## 0.11 — Portable Transformation Kernel
 
+**Status: planned — not released in 0.10.**
+
 **DTCS readiness gate:** publish canonical Transformation Plan kernel models,
 portable types, expression/action identities, serialization, and validation in
 the `dtcs` package before ETLantic exposes the corresponding authoring API.
@@ -934,6 +938,8 @@ yet execute through an engine plugin.
 
 ## 0.12 — Portable Planning and Polars Compiler
 
+**Status: planned — not released in 0.10.**
+
 **DTCS readiness gate:** publish compiler capability requirements and explain
 metadata for the supported plan version.
 
@@ -967,6 +973,8 @@ compilation as a first-class, deterministic implementation kind.
 
 ## 0.13 — PySpark Compiler and Relational Expansion
 
+**Status: planned — not released in 0.10.**
+
 **DTCS readiness gate:** standardize and publish join, union, grouping,
 aggregation, deduplication, and ordering semantics with canonical edge-case
 fixtures.
@@ -999,6 +1007,8 @@ Polars-specific nor merely a PySpark wrapper.
 
 ## 0.14 — Pandas Compiler and Conformance SDK
 
+**Status: planned — not released in 0.10.**
+
 **DTCS readiness gate:** publish a conformance manifest and differential
 fixture schema that compiler packages can consume without depending on
 ETLantic internals.
@@ -1030,6 +1040,8 @@ Portable compiler conformance becomes a public SDK contract suitable for
 third-party engines.
 
 ## 0.15 — Safe SQL Lowering and Advanced Expressions
+
+**Status: planned — not released in 0.10.**
 
 **DTCS readiness gate:** publish SQL-lowering semantic requirements, windows,
 and each admitted advanced function family before ETLantic compiler support.

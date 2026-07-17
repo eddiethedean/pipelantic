@@ -27,7 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
     !path.includes("/07_PLUGIN_SDK/SQL_DIALECT/") &&
     !path.includes("/07_PLUGIN_SDK/PYSPARK_PLUGIN/") &&
     !path.includes("/07_PLUGIN_SDK/SPARK_PROVIDER/") &&
-    !path.includes("/07_PLUGIN_SDK/ORCHESTRATOR_PLUGIN/");
+    !path.includes("/07_PLUGIN_SDK/ORCHESTRATOR_PLUGIN/") &&
+    !path.includes("/07_PLUGIN_SDK/SECRET_PROVIDER/") &&
+    !path.includes("/07_PLUGIN_SDK/TESTING_PLUGINS/");
   const isDesignExample =
     path.includes("/09_EXAMPLES/") &&
     !path.endsWith("/09_EXAMPLES/") &&

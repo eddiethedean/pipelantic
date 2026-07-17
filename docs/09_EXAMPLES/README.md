@@ -2,9 +2,12 @@
 
 ## Green path
 
-Start with Capabilities → Installation → Quickstart, then use the runnable
-scripts below. Pages under **Design Studies** are aspirational and may show
-APIs that are not shipped.
+1. [Installation](../01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic`
+2. [Quickstart](../01_GETTING_STARTED/QUICKSTART.md)
+3. Runnable scripts below
+
+Pages under **Design Studies** are aspirational and may show APIs that are not
+shipped.
 
 ## Runnable guides (docs)
 

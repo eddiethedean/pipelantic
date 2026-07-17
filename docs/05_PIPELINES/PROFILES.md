@@ -75,14 +75,25 @@ from etlantic import Profile
 
 production = Profile(
     name="production",
+    security_domain="production",
     dataframe_engine="polars",
+    plugin_allowlist={
+        "etlantic-polars": ">=0.10.0,<1.0",
+    },
 )
 
 sql_prod = Profile(
     name="sql-prod",
     sql_engine="sql",
+    plugin_allowlist={
+        "etlantic-sql": ">=0.10.0,<1.0",
+    },
 )
 ```
+
+Production and staging profiles fail closed when `plugin_allowlist` is empty.
+Development profiles may omit the allowlist. See
+[Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 
 Use `dataframe_engine` for Polars/Pandas/local implementations. Use
 `sql_engine="sql"` when SQL implementations and bindings should run through a
@@ -189,17 +200,19 @@ These settings influence planning but never alter pipeline semantics.
 
 ## Secrets
 
-Profiles reference external secret providers.
+Profiles reference external secret providers. Secrets must never be embedded in
+pipeline contracts, plans, or generated DPCS artifacts.
 
-Examples:
+**Shipped in 0.10:**
 
-- Environment variables
-- Cloud secret managers
-- Vault systems
-- Organization-specific providers
+- Environment variables (`EnvSecretProvider`)
+- Mounted files (`MountedFileSecretProvider`)
+- Optional OS keyring via `etlantic-keyring`
 
-Secrets should never be embedded in pipeline contracts or generated DPCS
-artifacts.
+!!! warning "Future design—not shipped"
+    Cloud secret managers (AWS Secrets Manager, HashiCorp Vault, and peers)
+    are **not** available in 0.10. Do not configure them yet. See
+    [Secrets Management](../06_EXECUTION/SECRETS_MANAGEMENT.md).
 
 ## Environment Overrides
 

@@ -52,7 +52,7 @@ etlantic = "etlantic.cli:run"
 
 [project.urls]
 Homepage = "https://github.com/eddiethedean/etlantic"
-Documentation = "https://github.com/eddiethedean/etlantic/tree/main/docs"
+Documentation = "https://etlantic.readthedocs.io/"
 Repository = "https://github.com/eddiethedean/etlantic"
 Issues = "https://github.com/eddiethedean/etlantic/issues"
 Changelog = "https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md"

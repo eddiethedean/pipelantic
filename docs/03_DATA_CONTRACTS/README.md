@@ -160,9 +160,9 @@ ETLantic should support both workflows.
 Developers define ContractModel classes and generate ODCS artifacts:
 
 ```python
-Customer.write_odcs(
-    "contracts/data/customer.odcs.yaml",
-)
+from etlantic import write_odcs
+
+write_odcs(Customer, "contracts/data/customer.odcs.yaml")
 ```
 
 ### Contract-first

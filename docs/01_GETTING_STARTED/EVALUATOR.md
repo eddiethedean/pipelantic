@@ -35,12 +35,37 @@ manager.
 - SQL plugins use structured compilation with identifier/parameter safety;
   untrusted raw SQL is out of scope
 - Spark session credentials resolve at acquire time and never embed in plans
-- Threat model documents residual Gaps (DoS budgets, stronger isolation);
-  plugin allowlists / version pins are **available** in 0.9+ via
-  `Profile.plugin_allowlist`. Read
-  [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
-  [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md)
+- Plugin allowlists / version pins are **available** in 0.9+ via
+  `Profile.plugin_allowlist` (production profiles fail closed when empty)
+- Threat model documents residual Gaps (provenance, artifact/cache isolation,
+  DoS budgets, outbound constraints, unsafe-serialization prohibition)
 - Report vulnerabilities privately; alpha has best-effort fixes only
+
+Read [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
+[security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md).
+
+## Production readiness gate (do not skip)
+
+**ETLantic 0.10 is alpha.** Plugin allowlists being “Available” does **not**
+mean the product is production-ready.
+
+Do **not** productionize until the security release gate closes (targeted for
+1.0). Residual Gaps that still block a production claim include:
+
+| Gap (from Security Evaluation) | Why it matters |
+|---|---|
+| Plugin provenance beyond allowlist/pins | Supply-chain attestation incomplete |
+| Artifact and cache isolation | Cross-run / cross-tenant exposure risk |
+| Outbound destination constraints | SSRF / exfiltration controls incomplete |
+| Denial-of-service budgets | Unbounded planning/load work |
+| Unsafe serialization prohibition | Deserialization attack surface |
+| In-process multi-tenancy | Explicitly out of scope—use process isolation |
+
+Treat process-local run reports as operational evidence for a single process,
+not an audit system of record.
+
+How to read status labels in deeper chapters:
+[Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
 
 ## What not to bet on yet
 
@@ -52,19 +77,22 @@ manager.
 - Process-local reports as an audit system of record
 - Stable 1.0 compatibility guarantees
 - Managed Databricks/EMR/Connect Spark providers
+- Portable `@Transformation.portable` / `etlantic.transform` (0.11–0.15
+  design—authoring model will change)
 
 ## Recommended evaluation path
 
-1. [Capabilities](CAPABILITIES.md)
+1. [Installation](INSTALLATION.md) — `pip install etlantic`
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
-3. Optional: `examples/dataframe_parity.py` with Polars or Pandas
-4. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
+3. [Capabilities](CAPABILITIES.md)
+4. Optional: `examples/dataframe_parity.py` with Polars or Pandas
+5. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
    `etlantic-sql`
-5. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
-6. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
-7. Optional: SparkForge adapter via `uv sync --group sparkforge`
-8. [Migration 0.9 → 0.10](../11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md) if upgrading
-9. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
+6. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
+7. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
+8. Optional: SparkForge adapter via `uv sync --group sparkforge`
+9. [Migration 0.9 → 0.10](../11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md) if upgrading
+10. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
 
 ## Support channel
 

@@ -44,7 +44,7 @@ ETLantic
        ├── Planning
        ▼
 Execution Plugins
-(Polars, Pandas, Airflow, ...)
+(Polars, Pandas, SQL, PySpark, Airflow, …)
 ```
 
 ## Why Python Types?

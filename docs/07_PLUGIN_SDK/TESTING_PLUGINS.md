@@ -1,169 +1,61 @@
 # Testing Plugins
 
-Testing plugins provide standardized ways to verify that ETLantic plugins
-conform to the Plugin SDK and preserve pipeline semantics.
+> **Status: Available in ETLantic 0.9+** via `etlantic.testing`.
 
-A plugin should not merely "work" with one example pipeline—it should
-demonstrate that it correctly implements the contracts defined by the SDK
-across a broad range of scenarios.
+Testing helpers provide conformance suites so third-party plugins can prove
+they implement the public protocols correctly.
 
-Portable compiler plugins must also run the future
-`etlantic.testing.portable_transform_conformance` suite for every operation,
-function, type, and semantic mode they advertise. Capability claims select
-mandatory fixtures; unsupported behavior produces planning diagnostics rather
-than backend-dependent results.
+## Shipped suites
 
-## Goals
+| Suite | Module | Use for |
+|---|---|---|
+| Dataframe conformance | `etlantic.testing.run_conformance_suite` | Polars/Pandas-style plugins |
+| SQL conformance | `etlantic.testing.run_sql_conformance_suite` | `SqlPlugin` |
+| Orchestrator conformance | `etlantic.testing.run_orchestrator_conformance_suite` | `OrchestratorPlugin` |
+| Secret conformance | `etlantic.testing.run_secret_conformance_suite` | `SecretProvider` |
+| Write-semantics parity | `etlantic.testing.run_write_semantics_parity_suite` | Cross-engine write modes |
 
-Testing plugins should:
+Example:
 
-- Verify SDK conformance.
-- Validate semantic correctness.
-- Detect regressions.
-- Produce deterministic results.
-- Support automated CI/CD.
-- Encourage interoperability across plugins.
+```python
+from etlantic.testing import run_conformance_suite
+
+run_conformance_suite(my_plugin, engine="my-engine", sample_rows=rows)
+```
+
+```python
+from etlantic.testing import run_sql_conformance_suite
+
+run_sql_conformance_suite(my_sql_plugin)
+```
 
 ## Philosophy
 
-Every plugin should be tested against the same expectations.
+Every plugin should be tested against the same expectations:
 
 ```text
 Plugin
    │
    ▼
-SDK Test Suite
+SDK Conformance Suite
    │
-   ├── API Conformance
-   ├── Capability Validation
-   ├── Semantic Tests
-   ├── Failure Tests
-   ├── Compatibility Tests
-   └── Performance Benchmarks
+   ├── Discovery / registration
+   ├── Capability advertisement
+   ├── Semantic behavior
+   └── Failure / diagnostic shape
 ```
 
-A plugin that passes the same conformance suite should behave predictably with
-ETLantic.
+A plugin that passes the matching suite should behave predictably with
+ETLantic planning and runtime.
 
-## What Should Be Tested?
+## Future design
 
-Depending on plugin type:
-
-- Registration
-- Discovery
-- Capability advertisement
-- Version compatibility
-- Error handling
-- Structured diagnostics
-- Async and sync behavior
-- Resource lifecycle
-- Deterministic execution
-
-Execution plugins should additionally verify:
-
-- Dependency ordering
-- Retry semantics
-- Callback ordering
-- Failure propagation
-
-Dataframe plugins should verify:
-
-- Transformation execution
-- Contract validation
-- Backend equivalence
-- Output correctness
-
-Storage plugins should verify:
-
-- Read/write operations
-- Binding resolution
-- Persistence semantics
-
-Resource providers should verify:
-
-- Resource resolution
-- Lifecycle
-- Cleanup
-- Pooling
-- Authentication hooks
-
-## Conformance Testing
-
-ETLantic should provide reusable conformance suites.
-
-Conceptually:
-
-```python
-from etlantic.testing import run_conformance_suite
-
-results = run_conformance_suite(plugin)
-```
-
-Passing the suite demonstrates compatibility with the published SDK version.
-
-## Reference Test Pipelines
-
-The SDK should ship small reference pipelines covering:
-
-- Linear pipelines
-- Branching pipelines
-- Fan-in / fan-out
-- Nested subpipelines
-- Failures
-- Retries
-- Async execution
-
-Every plugin should produce equivalent observable behavior.
-
-## Performance Testing
-
-Performance tests measure implementation quality rather than correctness.
-
-Metrics may include:
-
-- Startup time
-- Throughput
-- Memory usage
-- Parallel scaling
-- Resource reuse
-
-Performance should never be confused with semantic correctness.
-
-## CI/CD
-
-Recommended workflow:
-
-1. Unit tests
-2. SDK conformance suite
-3. Compatibility tests
-4. Integration tests
-5. Performance benchmarks
-
-## Best Practices
-
-- Automate all plugin tests.
-- Run conformance tests in CI.
-- Keep fixtures deterministic.
-- Test both success and failure paths.
-- Version-lock conformance suites to SDK releases.
-
-## Anti-Patterns
-
-Avoid:
-
-- Testing only happy paths.
-- Depending on backend-specific behavior.
-- Skipping capability validation.
-- Allowing nondeterministic results.
-- Claiming SDK compatibility without conformance testing.
-
-## Key Principle
-
-> Every ETLantic plugin should prove compatibility through standardized,
-> repeatable conformance testing. Correctness is defined by preserved pipeline
-> semantics, not by a specific implementation strategy.
+Portable transform compiler conformance
+(`etlantic.testing.portable_transform_conformance`) is planned with the 0.11+
+portable kernel. Do not require it for 0.10 plugins.
 
 ## Next Step
 
-Continue with [Distribution](DISTRIBUTION.md) to learn how independently
-versioned plugins declare compatibility and are published.
+See [Dataframe Plugin](DATAFRAME_PLUGIN.md), [SQL Plugin](SQL_PLUGIN.md),
+[Orchestrator Plugin](ORCHESTRATOR_PLUGIN.md), and
+[Secret Provider](SECRET_PROVIDER.md) for protocol details.

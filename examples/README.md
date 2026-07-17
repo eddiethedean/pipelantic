@@ -1,11 +1,14 @@
 # Runnable Examples
 
-These examples use APIs and dependencies shipped in ETLantic 0.10. Prefer
-`uv sync` from a checkout until matching wheels are on PyPI.
+These examples use APIs and dependencies shipped in ETLantic 0.10. Install
+with `pip install etlantic` (plus optional engine packages), or from a
+checkout with `uv sync` and `uv run python …`.
 
 ## Quickstart
 
 ```bash
+uv run python examples/quickstart.py
+# or, after pip install etlantic:
 python examples/quickstart.py
 ```
 

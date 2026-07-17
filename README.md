@@ -24,6 +24,7 @@ Requires Python 3.11+.
 
 ```bash
 pip install etlantic
+etlantic --version
 # optional engines / compilers
 pip install etlantic-polars etlantic-pandas etlantic-sql
 pip install etlantic-pyspark etlantic-airflow
@@ -104,6 +105,9 @@ run_report = CustomerPipeline.run(profile="development", runtime=runtime)
 print(runtime.memory.get("customer_sink"))
 ```
 
+Catch bad wiring **before** processing data—change the sink type and
+`validate()` fails with a structured diagnostic instead of a runtime surprise.
+
 Run the complete tested version at
 [examples/quickstart.py](examples/quickstart.py).
 
@@ -131,15 +135,18 @@ and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 
 ## Documentation
 
+Hosted docs: [etlantic.readthedocs.io](https://etlantic.readthedocs.io/)
+
 - [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)
-- [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
+- [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)
 - [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
 - [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)
+- [Contributing](CONTRIBUTING.md)
 - [Roadmap](docs/11_DEVELOPMENT/ROADMAP.md)
 
-Build the docs locally with `uv run mkdocs serve` (hosted site TBD).
+Build the docs locally with `uv run mkdocs serve`.
 
 ## Development
 

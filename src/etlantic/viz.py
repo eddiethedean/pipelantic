@@ -1,4 +1,14 @@
-"""Shared graph IR and visualization exporters beyond Mermaid (0.9)."""
+"""Shared graph IR and visualization exporters beyond Mermaid (0.9).
+
+Public helpers:
+
+- ``logical_graph_to_ir`` / ``plan_to_ir`` — build a ``GraphIR``
+- ``graph_to_dot`` — Graphviz DOT text
+- ``graph_to_html`` — single-page HTML lineage document
+- ``lineage_export`` — JSON lineage document (``etlantic.lineage/1``)
+
+CLI: ``etlantic viz dot|html|lineage``.
+"""
 
 from __future__ import annotations
 

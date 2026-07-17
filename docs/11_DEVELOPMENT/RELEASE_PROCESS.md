@@ -94,9 +94,9 @@ GitHub Actions workflow
 
 1. Verify `pip install etlantic==0.10.0` and plugin extras from a clean venv.
 2. Create or confirm the GitHub Release for `v0.10.0`.
-3. Flip install honesty banners in `README.md` and
-   `docs/01_GETTING_STARTED/INSTALLATION.md` from “from-source until wheels
-   exist” to normal `pip install` guidance (follow-up commit).
+3. Confirm install docs remain pip-first (`README.md`,
+   `docs/01_GETTING_STARTED/INSTALLATION.md`) and hosted docs
+   (`https://etlantic.readthedocs.io/`) build for the tag.
 4. Monitor issues for install / import regressions.
 
 ## Compatibility Matrix
@@ -190,8 +190,7 @@ must still include focused tests, release notes, and artifact verification.
 After publishing:
 
 - Verify package installation.
-- Verify documentation links.
+- Verify documentation links and the Read the Docs build for the tag.
 - Monitor issue reports.
-- Update install banners once wheels are live.
 - Open follow-up issues for deferred work.
 - Record lessons from release incidents.

@@ -142,15 +142,33 @@ Examples include:
 
 ## Visualization
 
-Lineage may be exported as:
+Shipped lineage export (0.9):
 
-- Mermaid
-- Graphviz
-- SVG
-- HTML
-- Interactive explorer
+```python
+from etlantic.viz import lineage_export, logical_graph_to_ir, plan_to_ir
 
-All visualizations should derive from the same Pipeline Plan.
+# From a pipeline class
+doc = lineage_export(logical_graph_to_ir(CustomerPipeline.inspect()))
+
+# From a resolved plan
+plan = CustomerPipeline.plan(profile="development")
+doc = lineage_export(plan_to_ir(plan))
+# doc["schema"] == "etlantic.lineage/1"
+```
+
+CLI equivalent:
+
+```bash
+etlantic viz lineage path/to/pipeline.py:CustomerPipeline --format json
+```
+
+Related views:
+
+- Mermaid via `Pipeline.to_mermaid()`
+- Graphviz DOT via `etlantic.viz.graph_to_dot`
+- HTML via `etlantic.viz.graph_to_html`
+
+All of these derive from the same logical graph / plan IR.
 
 ## Best Practices
 

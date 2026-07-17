@@ -14,7 +14,7 @@ ETLantic is intentionally designed around a small, stable core and a rich
 plugin ecosystem. The SDK defines the public interfaces, lifecycle, and
 conformance requirements for building those plugins.
 
-## Public imports (0.9)
+## Public imports (0.10)
 
 Third-party plugins and tools should import only these public surfaces:
 
@@ -23,6 +23,7 @@ Third-party plugins and tools should import only these public surfaces:
 - `etlantic.spark` — Spark protocol + discovery
 - `etlantic.orchestration` — orchestrator protocol + `compile_plan`
 - `etlantic.secrets` — secret refs / providers
+- `etlantic.viz` — Graphviz DOT / HTML / lineage export
 - `etlantic.testing` — conformance suites (dataframe, SQL, orchestrator,
   secrets, write-semantics)
 

@@ -130,19 +130,29 @@ These views are useful for architecture and governance reviews.
 
 ## Generation API
 
-Conceptually:
+Shipped in 0.9 via `etlantic.viz` (DOT text only; rendering SVG/PNG/PDF is
+left to the Graphviz CLI or other tools):
 
 ```python
-dot = pipeline.to_graphviz()
+from pathlib import Path
+
+from etlantic.viz import graph_to_dot, logical_graph_to_ir, plan_to_ir
+
+# From a pipeline class
+ir = logical_graph_to_ir(CustomerPipeline.inspect())
+dot = graph_to_dot(ir)
+Path("customer_pipeline.dot").write_text(dot)
+
+# From a resolved plan
+plan = CustomerPipeline.plan(profile="development")
+dot = graph_to_dot(plan_to_ir(plan))
 ```
 
-or:
+CLI equivalent:
 
-```python
-dot = plan.to_graphviz()
+```bash
+etlantic viz dot path/to/pipeline.py:CustomerPipeline -o customer_pipeline.dot
 ```
-
-The generator should consume the validated Pipeline Plan.
 
 ## Export Formats
 

@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin packages require `etlantic>=0.10.0,<1.0`
 - SparkForge adoption checklist prerequisites marked complete
 - Release workflow paces PyPI uploads (10 minutes between packages)
-- Install docs prefer from-source until `v0.10.0` wheels exist on PyPI
+- Install docs are pip-first now that `0.10.0` is on PyPI
 - Agent guidance lists `etlantic.viz` and optional `etlantic-airflow` for compile
 
 ### Fixed

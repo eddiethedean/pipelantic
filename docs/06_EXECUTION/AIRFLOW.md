@@ -1,5 +1,11 @@
 **Status: shipped in 0.8.0** via `etlantic-airflow`.
 
+!!! tip "Evaluate with the runnable example"
+    Prefer `examples/airflow_compile.py` and
+    [Airflow Compile](../09_EXAMPLES/AIRFLOW_COMPILE.md) over long design-study
+    prose in this chapter. Sections that say the plugin “should” do something
+    describe target behavior; verify against the installed package.
+
 # Airflow
 
 Future Airflow artifacts may carry tasks whose step logic was compiled from a

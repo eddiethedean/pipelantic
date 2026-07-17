@@ -1,30 +1,13 @@
 # Troubleshooting
 
-## `pip install etlantic` fails with “No matching distribution”
-
-ETLantic 0.10.0 may not be on PyPI yet (git tags historically lagged published
-docs). Install from source:
-
-```bash
-git clone https://github.com/eddiethedean/etlantic.git
-cd etlantic
-uv sync
-uv run python -c "import etlantic; print(etlantic.__version__)"
-```
-
-Or with pip editable install:
-
-```bash
-python3.11 -m venv .venv && source .venv/bin/activate
-python -m pip install -e .
-```
-
 ## `pip install etlantic` rejects my Python version
 
 ETLantic requires Python 3.11 or newer. Check with:
 
 ```bash
 python --version
+# Windows:
+py -3.11 --version
 ```
 
 ## Installed version is older than the docs
@@ -33,20 +16,30 @@ These docs describe ETLantic **0.10.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
+etlantic --version
 ```
 
-If the version is older and wheels exist on PyPI:
+Upgrade from PyPI:
 
 ```bash
 python -m pip install --upgrade 'etlantic>=0.10.0'
 ```
 
-From a checkout, prefer `uv sync` / `git pull` instead of relying on PyPI.
+From a checkout, prefer `uv sync` / `git pull`.
 
 ## Plugin install fails (`etlantic-polars`, `etlantic-pyspark`, …)
 
-Those packages ship with ETLantic 0.10.0 as separate distributions. From a
-checkout:
+Those packages ship with ETLantic 0.10.0 as separate distributions.
+
+From PyPI:
+
+```bash
+python -m pip install --upgrade etlantic-polars etlantic-pandas
+python -m pip install --upgrade etlantic-sql etlantic-pyspark
+python -m pip install --upgrade etlantic-airflow etlantic-sparkforge
+```
+
+From a checkout:
 
 ```bash
 uv sync --group dataframes   # polars + pandas
@@ -56,14 +49,6 @@ uv sync --group airflow
 uv sync --group sparkforge
 uv sync --group keyring
 uv sync --group sqlmodel
-```
-
-If using PyPI once wheels exist:
-
-```bash
-python -m pip install --upgrade etlantic-polars etlantic-pandas
-python -m pip install --upgrade etlantic-sql etlantic-pyspark
-python -m pip install --upgrade etlantic-airflow etlantic-sparkforge
 ```
 
 Confirm Python is 3.11+ and the package name uses a hyphen
@@ -96,8 +81,12 @@ runtime.memory.get("customer_sink")
 
 ## Planning and execution use different profiles
 
-Use `local` for plan-oriented examples or `development` for the built-in local
-runtime examples. Do not silently switch profile names within one workflow.
+Use one profile name for the whole workflow. The built-in local runtime
+examples in these docs use `development`. The CLI `plan` command defaults to
+`local` and `run` defaults to `development`—pass `--profile development`
+explicitly when you want them to match.
+
+Do not silently switch profile names within one workflow.
 
 ## A Pandas, Polars, SQL, Spark, or Airflow example fails
 
@@ -106,11 +95,11 @@ Install the matching plugin and set the corresponding profile engine
 
 | Need | Install | Example |
 |---|---|---|
-| Polars / Pandas | `uv sync --group dataframes` | `examples/dataframe_parity.py` |
-| SQL | `uv sync --group sql` | `examples/sql_to_sql.py` |
-| PySpark | `uv sync --group pyspark` | `examples/pyspark_local.py` |
-| Airflow compile | `uv sync --group airflow` | `examples/airflow_compile.py` |
-| SparkForge adapter | `uv sync --group sparkforge` | `tests/sparkforge/` |
+| Polars / Pandas | `pip install etlantic-polars etlantic-pandas` or `uv sync --group dataframes` | `examples/dataframe_parity.py` |
+| SQL | `pip install etlantic-sql` or `uv sync --group sql` | `examples/sql_to_sql.py` |
+| PySpark | `pip install etlantic-pyspark` or `uv sync --group pyspark` | `examples/pyspark_local.py` |
+| Airflow compile | `pip install etlantic-airflow` or `uv sync --group airflow` | `examples/airflow_compile.py` |
+| SparkForge adapter | `pip install etlantic-sparkforge` or `uv sync --group sparkforge` | `tests/sparkforge/` |
 
 Airflow compilation is **available** via `etlantic-airflow` (0.8+). Dagster
 and Prefect compilers are not shipped.

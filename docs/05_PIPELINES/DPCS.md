@@ -1,5 +1,12 @@
 # DPCS
 
+!!! note "Integration guide + design depth"
+    ODCS/DTCS/DPCS interchange is **Available** in 0.10. This chapter mixes
+    shipped integration guidance with longer normative “should” design prose.
+    For the current capability boundary see
+    [Capabilities](../01_GETTING_STARTED/CAPABILITIES.md). The normative
+    specification remains in `docs/specifications/DPCS_SPEC.md`.
+
 DPCS continues to own pipeline topology. Portable transformation expressions
 belong to referenced DTCS Transformation Plans; they are not duplicated into
 the DPCS graph. Plans retain links from each step to its selected portable or

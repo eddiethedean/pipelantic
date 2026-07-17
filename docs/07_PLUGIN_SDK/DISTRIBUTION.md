@@ -69,17 +69,24 @@ Profiles determine which plugins are used.
 
 ## Discovery
 
-Installed plugins should be discoverable automatically through the Plugin SDK.
-
-Conceptually:
+Installed plugins are discoverable through domain-specific helpers (no global
+registry class):
 
 ```python
-from etlantic import PluginRegistry
+from etlantic.dataframe import discover_dataframe_plugins
+from etlantic.orchestration import discover_orchestrator_plugins
+from etlantic.spark import discover_spark_plugins, discover_spark_providers
+from etlantic.sql import discover_sql_plugins
 
-plugins = PluginRegistry.discover()
+dataframe_plugins = discover_dataframe_plugins()
+sql_plugins = discover_sql_plugins()
+spark_plugins = discover_spark_plugins()
+spark_providers = discover_spark_providers()
+orchestrators = discover_orchestrator_plugins()
 ```
 
-Discovery should not require manual registration in normal deployments.
+CLI: `etlantic plugin list`. Discovery does not require manual registration in
+normal deployments. Secret providers are attached to the runtime / profile.
 
 ## Compatibility Metadata
 

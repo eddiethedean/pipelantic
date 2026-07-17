@@ -59,11 +59,19 @@ ETLantic 0.10.0 is an alpha release. This page is the shortest answer to
 | Portable PySpark compiler and relational expansion | Planned for 0.13 |
 | Portable Pandas compiler and conformance SDK | Planned for 0.14 |
 | Portable SQL lowering and advanced expressions | Planned for 0.15+ |
+| Dedicated deployment / multi-worker ops guide | Not yet (use CLI + Runtime configuration) |
 
-## Install matrix
+## CI starter (no dedicated deployment guide yet)
 
-Prefer **from-source** until a matching `v0.10.0` tag is on PyPI (see
-[Installation](INSTALLATION.md)). When wheels exist:
+```bash
+etlantic validate path/to/pipeline.py:MyPipeline --profile production --format sarif
+etlantic plan path/to/pipeline.py:MyPipeline --profile production --format json
+```
+
+Production profiles require a non-empty `Profile.plugin_allowlist`. Never put
+secrets in plans, reports, or CI logs. See
+[Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md) and the
+[Evaluator brief](EVALUATOR.md).
 
 ```bash
 pip install etlantic                 # core only — no engines
@@ -88,6 +96,8 @@ pip install 'etlantic[otel]'         # alias: observability
 pip install 'etlantic[arrow]'
 pip install 'etlantic-polars[arrow]'
 ```
+
+See [Installation](INSTALLATION.md) for verification and from-source contributor setup.
 
 Core never imports Polars, Pandas, PyArrow, NumPy, database drivers, PySpark,
 Airflow, SQLModel, keyring, OpenTelemetry, or SparkForge unless extras are

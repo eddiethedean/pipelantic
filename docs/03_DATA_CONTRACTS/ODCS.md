@@ -76,9 +76,9 @@ class Customer(Data):
 ContractModel generates the ODCS document.
 
 ```python
-Customer.write_odcs(
-    "contracts/data/customer.odcs.yaml",
-)
+from etlantic import write_odcs
+
+write_odcs(Customer, "contracts/data/customer.odcs.yaml")
 ```
 
 In a code-first project, the Python class remains the authoring source of

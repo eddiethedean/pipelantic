@@ -182,72 +182,35 @@ semantics.
 
 ## Self-Contained Output
 
-A self-contained HTML file may embed:
-
-- Styles
-- Scripts
-- SVG diagrams
-- Contract metadata
-- Navigation data
-
-This format is useful for sharing one portable file.
-
-Conceptually:
-
-```python
-plan.write_html(
-    "customer-pipeline.html",
-    self_contained=True,
-)
-```
-
-## Documentation Site Output
-
-For larger projects, ETLantic may generate a directory:
-
-```text
-site/
-├── index.html
-├── pipelines/
-│   └── customer-pipeline.html
-├── transformations/
-│   └── normalize-customers.html
-├── data-contracts/
-│   └── customer.html
-├── lineage/
-│   └── customer-pipeline.html
-└── assets/
-```
-
-This structure supports multiple pipelines and reusable contracts.
+Shipped HTML is a single self-contained page with nodes, edges, DOT, and an
+optional Mermaid block. Multi-page documentation sites remain future design.
 
 ## Generation API
 
-Conceptually:
+Shipped in 0.9 via `etlantic.viz`:
 
 ```python
-html = plan.to_html()
+from pathlib import Path
+
+from etlantic.viz import graph_to_html, logical_graph_to_ir, plan_to_ir
+
+ir = logical_graph_to_ir(CustomerPipeline.inspect())
+Path("customer_pipeline.html").write_text(graph_to_html(ir))
+
+plan = CustomerPipeline.plan(profile="development")
+Path("customer_plan.html").write_text(graph_to_html(plan_to_ir(plan)))
 ```
 
-or:
+CLI equivalent:
 
-```python
-plan.write_html(
-    "docs/generated/customer-pipeline.html",
-)
+```bash
+etlantic viz html path/to/pipeline.py:CustomerPipeline -o customer_pipeline.html
 ```
 
-Project-level generation may produce a complete site:
-
-```python
-project.write_documentation(
-    output="site/",
-    format="html",
-)
-```
-
-The exact API may evolve, but all HTML output should derive from validated
-ETLantic artifacts.
+!!! note "Future design"
+    Multi-page documentation sites, `project.write_documentation(...)`, and
+    rich interactive explorers are not shipped in 0.10. Use the single-page
+    HTML export above.
 
 ## Profile-Aware Documentation
 

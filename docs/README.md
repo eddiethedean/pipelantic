@@ -1,15 +1,14 @@
 <div class="etlantic-hero">
   <div class="etlantic-hero__content">
-    <h1>ETLantic</h1>
-    <p>Typed, contract-driven data pipeline modeling for Python.</p>
+    <span class="etlantic-hero__eyebrow">Typed, contract-driven pipelines</span>
+    <h1>Design once.<br>Run anywhere.</h1>
+    <p>Model data pipelines in Python, validate them as contracts, and execute them through interchangeable backends.</p>
     <div class="etlantic-hero__actions">
       <a class="md-button md-button--primary" href="01_GETTING_STARTED/QUICKSTART/">Quickstart</a>
       <a class="md-button" href="01_GETTING_STARTED/CAPABILITIES/">Capabilities</a>
     </div>
   </div>
 </div>
-
-# ETLantic Documentation
 
 ETLantic is a Python framework for defining typed, contract-driven data
 pipelines and coordinating their execution through the tools users already
@@ -36,9 +35,10 @@ orchestration protocol with the `etlantic-airflow` reference compiler.
 Structured Streaming APIs are experimental.
 
 !!! tip "Green path (start here only)"
-    1. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
-    2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — prefer from-source until PyPI has 0.10.0
-    3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
+    1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic`
+    2. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
+    3. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
+    4. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
 
     Pages marked **Future design** are not APIs. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)
     is the single source of truth.

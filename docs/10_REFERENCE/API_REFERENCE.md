@@ -3,6 +3,14 @@
 > **Status: Available in ETLantic 0.10.0.** Signatures and docstrings below
 > are generated from the package source.
 
+## Start here by persona
+
+| Persona | Start with | Then |
+|---|---|---|
+| Pipeline author | Root imports below, [CLI](CLI.md) | `etlantic.pipeline`, `etlantic.plan`, `etlantic.reports` |
+| Plugin author | `etlantic.dataframe` / `.sql` / `.spark` / `.orchestration` / `.secrets` | [Testing](#testing-helpers), [Plugin SDK](../07_PLUGIN_SDK/README.md) |
+| CI / ops | [CLI](CLI.md), [Runtime configuration](RUNTIME_CONFIGURATION.md) | `etlantic.plugin_trust`, SARIF validate |
+
 The package root is the supported convenience import surface for common
 authoring, planning, runtime, storage, report, secret, and interchange types:
 
@@ -36,6 +44,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ### Transformations
 
@@ -43,6 +52,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ### Pipelines
 
@@ -50,6 +60,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ### Ports and references
 
@@ -57,6 +68,13 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
+
+::: etlantic.refs
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
 
 ## Validation and diagnostics
 
@@ -64,11 +82,19 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.validation
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
+
+::: etlantic.policy
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
 
 ## Profiles, planning, and registries
 
@@ -76,16 +102,31 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.plan
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.registry
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
+
+::: etlantic.plugin_trust
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
+
+::: etlantic.model
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
 
 ## Local runtime and reports
 
@@ -93,16 +134,19 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.lifecycle
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.reports
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Storage and secrets
 
@@ -110,11 +154,13 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.secrets
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Contract interchange
 
@@ -122,6 +168,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Dataframe protocol
 
@@ -129,6 +176,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## SQL protocol
 
@@ -136,6 +184,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Spark protocol
 
@@ -143,6 +192,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Orchestration protocol
 
@@ -150,6 +200,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Visualization
 
@@ -157,6 +208,13 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
+
+::: etlantic.mermaid
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
 
 ## Agents, IDE, and notebooks
 
@@ -164,16 +222,19 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.ide
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.notebook
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Observability
 
@@ -181,6 +242,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Schema history
 
@@ -188,6 +250,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Capabilities
 
@@ -195,6 +258,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Reliability and schema drift
 
@@ -202,16 +266,19 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.schema_drift
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ::: etlantic.schema_policy
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Testing helpers
 
@@ -219,6 +286,7 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Exceptions
 
@@ -226,9 +294,11 @@ from etlantic import (
     options:
       show_root_heading: true
       members_order: source
+      filters: ["!^_"]
 
 ## Stability
 
 ETLantic is alpha. A root export is public in the current release, but 0.x
 releases may change APIs. Review the changelog and
-[compatibility matrix](COMPATIBILITY.md) before upgrading.
+[compatibility matrix](COMPATIBILITY.md) before upgrading. Narrative CLI docs:
+[CLI](CLI.md).

@@ -92,7 +92,6 @@ def main() -> None:
         "Airflow compilation remains design material",
         "External orchestrators remain future",
         "cloud providers (Databricks/EMR/Connect) and Airflow compilation are not",
-        "etlantic.readthedocs.io",
         "Examples that require Airflow or other orchestrators describe",
         "Spark / remote (future)",
         "# spark/             # future",
@@ -110,6 +109,15 @@ def main() -> None:
         "spark (future)",
         "not installable yet",
         "Design studies (not installable)",
+        "PyPI may not have 0.10.0 yet",
+        "Prefer **from-source** until a matching",
+        "prefer from-source until PyPI has 0.10.0",
+        "hosted site TBD",
+        "pipeline.to_graphviz()",
+        "plan.to_graphviz()",
+        ".write_odcs(",
+        "PluginRegistry.discover()",
+        "plan.to_html()",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -224,18 +232,33 @@ def main() -> None:
 
     # Honesty gate + nav SSOT
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "Install note" not in readme and "from source" not in readme.lower():
-        raise SystemExit("README.md missing from-source install honesty note")
-    if "readthedocs.io" in readme:
-        raise SystemExit("README.md still links to missing ReadTheDocs site")
+    if "pip install etlantic" not in readme:
+        raise SystemExit("README.md missing pip-first install guidance")
+    if "etlantic --version" not in readme:
+        raise SystemExit("README.md missing etlantic --version verify step")
+    if "hosted site TBD" in readme:
+        raise SystemExit("README.md still says hosted site TBD")
+    if "etlantic.readthedocs.io" not in readme:
+        raise SystemExit("README.md missing hosted docs URL")
     if "Green path" not in (ROOT / "docs/README.md").read_text(encoding="utf-8"):
         raise SystemExit("docs/README.md missing Green path rail")
+    docs_home = (ROOT / "docs/README.md").read_text(encoding="utf-8")
+    green_idx = docs_home.find("Green path")
+    if green_idx < 0:
+        raise SystemExit("docs/README.md missing Green path rail")
+    green_block = docs_home[green_idx : green_idx + 500]
+    if "INSTALLATION.md" not in green_block.split("Quickstart")[0]:
+        raise SystemExit("docs/README.md Green path must lead with Installation")
+    if "prefer from-source until PyPI" in docs_home:
+        raise SystemExit("docs/README.md still prefers from-source install")
     known = (ROOT / "docs/10_REFERENCE/KNOWN_ISSUES.md").read_text(encoding="utf-8")
     if "etlantic-airflow" not in known:
         raise SystemExit(
             "KNOWN_ISSUES.md must state Airflow is available via etlantic-airflow"
         )
     mkdocs = (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    if "site_url: https://etlantic.readthedocs.io/" not in mkdocs:
+        raise SystemExit("mkdocs.yml site_url must be https://etlantic.readthedocs.io/")
     viz_idx = mkdocs.find("  - Visualization:")
     future_viz = mkdocs.find("Visualization (beyond Mermaid)")
     if future_viz >= 0:
@@ -314,6 +337,8 @@ def main() -> None:
         "PYSPARK_PLUGIN",
         "SPARK_PROVIDER",
         "ORCHESTRATOR_PLUGIN",
+        "SECRET_PROVIDER",
+        "TESTING_PLUGINS",
     ):
         if f"/07_PLUGIN_SDK/{shipped_sdk}/" not in banner_js:
             raise SystemExit(
