@@ -35,10 +35,11 @@ orchestration protocol with the `etlantic-airflow` reference compiler.
 Structured Streaming APIs are experimental.
 
 !!! tip "Green path (start here only)"
-    1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic`
-    2. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
-    3. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
-    4. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
+    1. [Current 0.10 guide](01_GETTING_STARTED/CURRENT_VERSION.md) — task-based map
+    2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic`
+    3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
+    4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
+    5. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
 
     Pages marked **Future design** are not APIs. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)
     is the single source of truth.

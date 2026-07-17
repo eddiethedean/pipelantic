@@ -11,6 +11,12 @@ shipped.
 
 ## Runnable guides (docs)
 
+- [File-backed pipeline](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md) — JSON and CSV
+- [Polars](../06_EXECUTION/POLARS_TUTORIAL.md)
+- [Pandas](../06_EXECUTION/PANDAS_TUTORIAL.md)
+- [SQL](../06_EXECUTION/SQL_TUTORIAL.md)
+- [PySpark](../06_EXECUTION/PYSPARK_TUTORIAL.md)
+- [Airflow](../06_EXECUTION/AIRFLOW_TUTORIAL.md)
 - [Airflow Compile](AIRFLOW_COMPILE.md) — `examples/airflow_compile.py`
 - [SparkForge Adapter](SPARKFORGE_ADAPTER.md) — `tests/sparkforge/`
 

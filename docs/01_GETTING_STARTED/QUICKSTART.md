@@ -144,17 +144,21 @@ for diagnostic in broken.diagnostics:
 
 That failure—before any data is processed—is the core ETLantic value.
 
-## 5. Same workflow from the CLI
+## 5. Validate and plan from the CLI
 
-Save the quickstart script as `pipeline.py`, then:
+Save the quickstart script as `pipeline.py`, then validate and inspect its plan:
 
 ```bash
 etlantic validate pipeline.py:CustomerPipeline --profile development --format json
 etlantic plan pipeline.py:CustomerPipeline --profile development --format json
-etlantic run pipeline.py:CustomerPipeline --profile development
 ```
 
-Use the same `--profile` for validate, plan, and run.
+The records seeded above live only inside that Python process. A new CLI process
+does not inherit them, so `etlantic run` would not execute the same demonstrated
+input. Continue to the [file-storage guide](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md)
+for a CLI-runnable pipeline backed by JSON or CSV files.
+
+Use the same `--profile` for validation, planning, and execution.
 
 ## What happened
 

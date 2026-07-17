@@ -287,8 +287,17 @@ class Pipeline(metaclass=_PipelineMeta):
     @classmethod
     def validate(
         cls, *, profile: str | Any = None, policy: str | Any = None, context: Any = None
-    ):  # type: ignore[no-untyped-def]
-        """Validate the pipeline and return a structured report."""
+    ) -> Any:
+        """Validate the complete graph without executing transformation code.
+
+        Args:
+            profile: Built-in profile name or explicit ``Profile``.
+            policy: Validation policy name or object.
+            context: Optional planning context with registries and capabilities.
+
+        Returns:
+            A ``ValidationReport`` containing phase results and diagnostics.
+        """
         from etlantic.validation import validate_pipeline
 
         return validate_pipeline(cls, context=context, profile=profile, policy=policy)
@@ -301,7 +310,17 @@ class Pipeline(metaclass=_PipelineMeta):
         context: Any = None,
         selection: dict[str, Any] | None = None,
     ) -> Any:
-        """Resolve an immutable secret-free PipelinePlan for this pipeline."""
+        """Resolve an immutable, secret-free execution plan.
+
+        Args:
+            profile: Built-in profile name or explicit ``Profile``.
+            context: Optional planning context with bindings and plugins.
+            selection: Optional partial-run selection mapping.
+
+        Returns:
+            A deterministic ``PipelinePlan``. Planning does not execute user
+            transformation code or resolve secret values.
+        """
         from etlantic.plan.planner import plan_pipeline
 
         return plan_pipeline(cls, context=context, profile=profile, selection=selection)
@@ -331,7 +350,26 @@ class Pipeline(metaclass=_PipelineMeta):
         context: Any = None,
         workspace: str | Any = None,
     ) -> Any:
-        """Validate, plan, and execute this pipeline locally (sync)."""
+        """Validate, plan, and execute this pipeline in the current process.
+
+        Args:
+            profile: Built-in profile name or explicit ``Profile``.
+            request: Optional run selection, intent, and policy request.
+            runtime: Application-owned ``PipelineRuntime``. A new runtime is
+                created when omitted.
+            context: Optional planning context.
+            workspace: Optional durable workspace root.
+
+        Returns:
+            A structured ``PipelineRunReport``.
+
+        Raises:
+            PipelineValidationError: If validation fails before execution.
+            PipelineExecutionError: If execution cannot produce a run report.
+
+        Storage writes and plugin calls follow the resolved plan. Process-local
+        memory and report stores do not survive a new CLI or Python process.
+        """
         from etlantic.runtime.execute import run_pipeline
 
         return run_pipeline(

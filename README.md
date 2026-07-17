@@ -1,5 +1,3 @@
-![ETLantic banner](https://raw.githubusercontent.com/eddiethedean/etlantic/main/docs/theme/assets/etlantic-banner.png)
-
 # ETLantic
 
 [![CI](https://github.com/eddiethedean/etlantic/actions/workflows/ci.yml/badge.svg)](https://github.com/eddiethedean/etlantic/actions/workflows/ci.yml)
@@ -25,11 +23,10 @@ Requires Python 3.11+.
 ```bash
 pip install etlantic
 etlantic --version
-# optional engines / compilers
-pip install etlantic-polars etlantic-pandas etlantic-sql
-pip install etlantic-pyspark etlantic-airflow
-pip install etlantic-keyring etlantic-sqlmodel etlantic-sparkforge
 ```
+
+This is everything required for the local quickstart. Add an engine only after
+the first successful run: [choose an integration](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/CURRENT_VERSION/#choose-your-next-task).
 
 ### From source
 
@@ -138,6 +135,7 @@ and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 Hosted docs: [etlantic.readthedocs.io](https://etlantic.readthedocs.io/)
 
 - [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)
+- [Current 0.10 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)
@@ -161,24 +159,6 @@ uv run ruff format .
 
 `uv sync` creates `.venv`, installs the package in editable mode, and installs
 the `dev` dependency group (pytest, ruff, mkdocs) by default.
-
-## Release
-
-The first upload of each new package name counts against PyPI’s new-project
-rate limit (`429 Too many new projects created`). Release CI waits **10 minutes**
-between package publishes. See
-[Release Process](docs/11_DEVELOPMENT/RELEASE_PROCESS.md).
-
-Tag a version that matches `src/etlantic/_version.py` (and every
-`packages/*/pyproject.toml`), then push **only that tag**:
-
-```bash
-git tag -a v0.10.0 -m "ETLantic 0.10.0"
-git push origin v0.10.0
-```
-
-Do not use `git push --tags`. GitHub Actions runs checks and publishes to PyPI
-using the `PYPI_API_TOKEN` repository secret.
 
 ## License
 

@@ -184,7 +184,19 @@ class Transformation:
 
     @classmethod
     def implementation(cls, engine: str) -> Callable[[F], F]:
-        """Decorator that registers an execution implementation for ``engine``."""
+        """Register a native callable for one execution engine.
+
+        Args:
+            engine: Registry engine name such as ``"local"``, ``"polars"``,
+                ``"pandas"``, ``"sql"``, or ``"pyspark"``.
+
+        Returns:
+            A decorator that records the callable and returns it unchanged.
+
+        Note:
+            Registration is process-local. Registering the same engine again
+            replaces the earlier callable for this transformation class.
+        """
 
         def decorator(fn: F) -> F:
             record = ImplementationRecord(
@@ -227,7 +239,21 @@ class Transformation:
 
     @classmethod
     def step(cls, **kwargs: Any) -> Step:
-        """Create a concrete step instance of this transformation."""
+        """Create a symbolic use of this transformation inside a pipeline.
+
+        Args:
+            **kwargs: Input bindings and parameter values named exactly as the
+                subclass declarations.
+
+        Returns:
+            A :class:`Step` whose output attributes can be wired downstream.
+
+        Raises:
+            ModelDefinitionError: If a keyword does not name a declared input
+                or parameter, or required declarations cannot be satisfied.
+
+        This method does not execute a registered implementation.
+        """
         input_names = {p.name for p in cls.inputs()}
         param_defs = {p.name: p for p in cls.parameters()}
         bindings: dict[str, Any] = {}

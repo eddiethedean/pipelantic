@@ -27,6 +27,20 @@ This table describes the declared compatibility of ETLantic 0.10.0.
 | Package stability | Alpha |
 | Plugin SDK stability | Protocol stable within 0.8; third-party SDK still evolving |
 
+## Backend dependency ranges
+
+Package metadata is authoritative; these are the 0.10 reference ranges:
+
+| Integration | Backend range / boundary |
+|---|---|
+| Polars | `polars>=1.0,<2` |
+| Pandas | `pandas>=2.0,<3` |
+| SQL | `sqlalchemy>=2.0,<3`; PostgreSQL reference, SQLite demos only |
+| PySpark | `pyspark>=3.5,<4` |
+| Airflow | Compiler emits Python DAG source; Airflow is not imported by the plugin package |
+| SQLModel | `sqlmodel>=0.0.22,<1` |
+| SparkForge | IR adapter only; no live SparkForge dependency in 0.10 |
+
 The package metadata in `pyproject.toml` is authoritative for dependency
 ranges. During the 0.x series, public APIs and persistent formats may change.
 Breaking changes must be called out in the changelog with an upgrade path.

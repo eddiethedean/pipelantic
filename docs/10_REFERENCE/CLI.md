@@ -86,7 +86,9 @@ Supported report formats are `text`, `json`, and `html`. Additional options:
 CLI runs start with a new process-local runtime. A source that requires seeded
 in-memory data is therefore better run through Python, as shown in the
 quickstart. Use JSON, CSV, callable bindings, or application-owned runtime
-setup for CLI execution.
+setup for CLI execution. The
+[file-storage tutorial](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md) provides a
+complete CLI-runnable example.
 
 ## `compile`
 

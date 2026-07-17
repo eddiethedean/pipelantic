@@ -13,11 +13,12 @@ validate and plan them once; run locally or through optional engine plugins.
 
 ## Five-minute path
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic`
-2. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
-3. Break a type on purpose and re-run `validate()` — that failure is the product
-4. [Capabilities](CAPABILITIES.md) — only after first success
-5. [Evaluator brief](EVALUATOR.md) — if you are deciding whether to adopt
+1. [Current 0.10 guide](CURRENT_VERSION.md) — task-based map
+2. [Installation](INSTALLATION.md) — `pip install etlantic`
+3. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
+4. Break a type on purpose and re-run `validate()` — that failure is the product
+5. [Capabilities](CAPABILITIES.md) — only after first success
+6. [Evaluator brief](EVALUATOR.md) — if you are deciding whether to adopt
 
 ## What You'll Learn
 

@@ -38,6 +38,45 @@ from etlantic import (
     importable in ETLantic 0.10. See
     [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
 
+### Core behavioral contracts
+
+The generated signatures below are supplemented by these current guarantees:
+
+| API | Returns | Important failures / side effects |
+|---|---|---|
+| `Transformation.step(**bindings)` | A symbolic `Step`; no user code runs | Unknown bindings raise `ModelDefinitionError`; required ports are validated before execution |
+| `Transformation.implementation(engine)` | A decorator returning the original callable | Registration replaces the implementation for the same class/engine in the current process |
+| `Pipeline.validate(...)` | `ValidationReport` | Does not execute transformation implementations; unknown policies fail closed |
+| `Pipeline.plan(...)` | Immutable, secret-free `PipelinePlan` | Missing plugins, bindings, trust, or capabilities produce planning/validation failure |
+| `Pipeline.run(...)` | `PipelineRunReport` | Executes in-process; storage and plugin side effects follow the resolved plan |
+| `Pipeline.arun(...)` | Awaitable `PipelineRunReport` | Uses the same validation and planning path as `run` |
+| `Pipeline.to_mermaid()` | Mermaid flowchart string | Builds the logical graph but does not plan or execute |
+
+Minimal validation pattern:
+
+```python
+report = CustomerPipeline.validate(profile="development")
+report.raise_for_errors()
+plan = CustomerPipeline.plan(profile="development")
+```
+
+Minimal execution pattern:
+
+```python
+runtime = PipelineRuntime()
+runtime.memory.seed("customer_source", records)
+run_report = CustomerPipeline.run(
+    profile="development",
+    runtime=runtime,
+)
+if run_report.status.value != "succeeded":
+    raise RuntimeError(run_report.to_text())
+```
+
+`PipelineRuntime` is application-owned. A new Python or CLI process receives a
+new process-local memory store and report store unless durable providers are
+configured.
+
 ### Data contracts
 
 ::: etlantic.contracts

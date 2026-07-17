@@ -19,3 +19,7 @@ uv run python scripts/check_docs.py
 
 Please report security issues privately per [SECURITY.md](SECURITY.md).
 Do not open public issues that include credentials or production data.
+
+Participation is governed by the
+[Code of Conduct](docs/11_DEVELOPMENT/CODE_OF_CONDUCT.md), and project decisions
+follow the [Governance guide](docs/11_DEVELOPMENT/GOVERNANCE.md).

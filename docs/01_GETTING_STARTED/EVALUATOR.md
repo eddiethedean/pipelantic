@@ -43,6 +43,8 @@ manager.
 
 Read [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
 [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md).
+For a bounded pilot topology and required controls, read
+[Production Readiness](../06_EXECUTION/PRODUCTION_READINESS.md).
 
 ## Production readiness gate (do not skip)
 

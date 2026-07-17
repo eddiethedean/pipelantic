@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
@@ -289,8 +291,8 @@ def main() -> None:
         raise SystemExit(
             "status-banner.js must exclude runnable example guides from design banner"
         )
-    if "Future design—not a ETLantic 0.10 API guide" not in banner_js:
-        raise SystemExit("status-banner.js missing 0.10 future-design banner text")
+    if 'banner.dataset.etlanticStatus = "future"' not in banner_js:
+        raise SystemExit("status-banner.js missing semantic future-status marker")
     if "Experimental in ETLantic 0.7" not in banner_js:
         raise SystemExit("status-banner.js missing experimental streaming banner text")
     if "/08_VISUALIZATION/GRAPHVIZ/" not in banner_js:
@@ -371,6 +373,11 @@ def main() -> None:
             raise SystemExit(
                 f"{plugin_pyproject} version {plugin_version} != core {package_version}"
             )
+
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts/check_runnable_docs.py")],
+        check=True,
+    )
 
     print(f"Documentation consistency checks passed for {package_version}.")
 

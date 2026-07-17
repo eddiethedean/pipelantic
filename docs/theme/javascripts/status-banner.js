@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (isExperimentalExecution) {
     const banner = document.createElement("div");
     banner.className = "admonition warning";
+    banner.dataset.etlanticStatus = "experimental";
     banner.innerHTML =
       '<p class="admonition-title">Experimental in ETLantic 0.7+</p>' +
       "<p>Structured Streaming APIs are experimental. Batch Spark via " +
@@ -73,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const banner = document.createElement("div");
   banner.className = "admonition warning";
+  banner.dataset.etlanticStatus = "future";
   banner.innerHTML =
     '<p class="admonition-title">Future design—not an ETLantic 0.10 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +

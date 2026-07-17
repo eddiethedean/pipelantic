@@ -1,6 +1,42 @@
 # Testing
 
-## Portable Transformation Conformance (0.14+)
+## Run the current test suite
+
+```bash
+uv sync --locked
+uv run pytest -q
+uv run ruff check .
+uv run ruff format --check .
+uv run python scripts/check_docs.py
+NO_MKDOCS_2_WARNING=1 uv run mkdocs build --strict
+```
+
+Run the narrowest relevant test directory while developing, then the complete
+suite before opening a pull request. Current test areas include core validation
+and planning plus `tests/dataframe`, `tests/sql`, `tests/spark`,
+`tests/orchestration`, `tests/airflow`, and `tests/sparkforge` where present.
+
+Current optional markers are `polars`, `pandas`, `sql`, `spark`, `airflow`,
+`keyring`, `sqlmodel`, and `sparkforge`; `pyproject.toml` is authoritative.
+
+```bash
+uv sync --group dataframes
+uv run pytest -m polars
+uv run pytest -m pandas
+
+uv sync --group sql
+uv run pytest -m sql
+
+uv sync --group pyspark
+uv run pytest -m spark
+```
+
+To debug collection or plugin discovery, begin with `pytest --collect-only`,
+then run one failing node with `-vv -x`. Never depend on plugin discovery order,
+ambient environment variables, production credentials, or shared mutable
+runtime state.
+
+## Future requirement: portable transformation conformance (0.14+)
 
 Every compiler runs capability-selected fixtures from
 `etlantic.testing.portable_transform_conformance`. Shared fixtures cover IR
@@ -106,7 +142,7 @@ Equivalent input must produce equivalent canonical plans.
 
 ## Plugin Conformance
 
-The SDK should provide reusable suites:
+The future portable SDK is expected to provide reusable suites:
 
 ```python
 def test_plugin_conformance():
