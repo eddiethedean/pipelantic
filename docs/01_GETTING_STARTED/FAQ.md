@@ -208,15 +208,23 @@ Cloud-specific integrations are implemented through plugins.
 
 Yes.
 
-ETLantic 0.7 generates or exposes:
+ETLantic generates or exposes:
 
 -   contract documentation
 -   pipeline documentation
--   lineage diagrams
+-   lineage diagrams (including Graphviz DOT and HTML exporters in 0.9+)
 -   Mermaid graphs
 -   execution plans
 
-Graphviz and generated HTML pipeline documentation remain future design work.
+------------------------------------------------------------------------
+
+## Does ETLantic include SparkForge / medallion layers?
+
+No.
+
+Bronze / silver / gold stay in SparkForge. Optional package
+`etlantic-sparkforge` maps medallion IR onto ordinary ETLantic nodes,
+profiles, and reports. See [Migrating 0.9 → 0.10](../11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md).
 
 ------------------------------------------------------------------------
 

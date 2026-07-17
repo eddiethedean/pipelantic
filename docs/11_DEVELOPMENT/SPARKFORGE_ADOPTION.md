@@ -687,29 +687,29 @@ them.
 The following deliverables should be tracked before SparkForge can depend on
 ETLantic as its engine:
 
-- [ ] `RunIntent`
-- [ ] `RunSelection`
-- [ ] `RunRequest`
-- [ ] typed `OutputRef` and runtime `ArtifactRef`
-- [ ] run-scoped artifact context
-- [ ] direct upstream-result resolution without required persistence
-- [ ] graph slicing and dependency closure
-- [ ] debug session with downstream invalidation
-- [ ] parameter and implementation overrides scoped to a run
-- [ ] materialization policy
-- [ ] incremental strategy and state provider protocol
-- [ ] quality gate and invalid-artifact model
-- [ ] structured plan explanation
-- [ ] normalized run and step results
-- [ ] lifecycle event protocol
-- [ ] structured logging record and context propagation
-- [ ] redaction and sensitive-data conformance tests
-- [ ] observability provider protocol
-- [ ] write-intent capability checks
-- [ ] retry-safety validation
-- [ ] profile templates
-- [ ] cross-backend semantic conformance fixtures
-- [ ] SparkForge adapter and migration test suite
+- [x] `RunIntent`
+- [x] `RunSelection`
+- [x] `RunRequest`
+- [x] typed `OutputRef` and runtime `ArtifactRef`
+- [x] run-scoped artifact context
+- [x] direct upstream-result resolution without required persistence
+- [x] graph slicing and dependency closure
+- [x] debug session with downstream invalidation
+- [x] parameter and implementation overrides scoped to a run
+- [x] materialization policy
+- [x] incremental strategy and state provider protocol
+- [x] quality gate and invalid-artifact model
+- [x] structured plan explanation
+- [x] normalized run and step results
+- [x] lifecycle event protocol
+- [x] structured logging record and context propagation
+- [x] redaction and sensitive-data conformance tests
+- [x] observability provider protocol
+- [x] write-intent capability checks
+- [x] retry-safety validation
+- [x] profile templates
+- [x] cross-backend semantic conformance fixtures
+- [x] SparkForge adapter and migration test suite (`etlantic-sparkforge`, 0.10)
 
 ## Source Notes
 

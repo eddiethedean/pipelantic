@@ -1,9 +1,9 @@
 # Current Capabilities and Limitations
 
-ETLantic 0.9.0 is an alpha release. This page is the shortest answer to
+ETLantic 0.10.0 is an alpha release. This page is the shortest answer to
 "What can I use today?"
 
-## Available in 0.9
+## Available in 0.10
 
 | Capability | Status |
 |---|---|
@@ -40,8 +40,9 @@ ETLantic 0.9.0 is an alpha release. This page is the shortest answer to
 | Optional SQLModel bridge | Available (`etlantic-sqlmodel`) |
 | Optional OpenTelemetry adapter | Available (`etlantic[otel]`) |
 | Agent guidance generators | Available |
+| SparkForge migration adapter | Available (`etlantic-sparkforge`) |
 
-## Not included in 0.9
+## Not included in 0.10
 
 | Capability | Status |
 |---|---|
@@ -51,7 +52,7 @@ ETLantic 0.9.0 is an alpha release. This page is the shortest answer to
 | Full LSP server productization | Continues in 1.5 |
 | Registry-backed schema history | Continues in 1.2 |
 | FastAPI control plane | Continues in 1.1 |
-| SparkForge migration adapter | Future design (0.10) |
+| Full SparkForge engine retirement inside SparkForge | Progressive path (see migration guide) |
 | Stable 1.0 compatibility guarantees | Not yet |
 
 ## Install matrix
@@ -65,24 +66,20 @@ pip install etlantic-pyspark         # PySpark reference plugin
 pip install etlantic-airflow         # Airflow DAG compiler
 pip install etlantic-keyring         # OS keyring secret provider
 pip install etlantic-sqlmodel        # SQLModel contract bridge
-pip install 'etlantic[sql]'          # same as etlantic-sql via extra
-pip install 'etlantic[pyspark]'      # same as etlantic-pyspark via extra
-pip install 'etlantic[airflow]'      # same as etlantic-airflow via extra
-pip install 'etlantic[keyring]'      # same as etlantic-keyring via extra
-pip install 'etlantic[sqlmodel]'     # same as etlantic-sqlmodel via extra
-pip install 'etlantic[otel]'         # OpenTelemetry adapter dependency
-pip install 'etlantic-polars[arrow]' # optional PyArrow
+pip install etlantic-sparkforge      # SparkForge → ETLantic adapter
+pip install 'etlantic[sql]'
+pip install 'etlantic[pyspark]'
+pip install 'etlantic[airflow]'
+pip install 'etlantic[keyring]'
+pip install 'etlantic[sqlmodel]'
+pip install 'etlantic[sparkforge]'
+pip install 'etlantic[otel]'
+pip install 'etlantic-polars[arrow]'
 ```
 
 Core never imports Polars, Pandas, PyArrow, NumPy, database drivers, PySpark,
-Airflow, SQLModel, keyring, or OpenTelemetry unless extras are installed.
-
-Select Spark with `Profile(spark_engine="pyspark")` and
-`@Transformation.implementation("pyspark")`.
-
-Compile to Airflow with `Profile(orchestrator="airflow")` and
-`compile_plan(plan, target="airflow")` (requires `etlantic-airflow`), or
-`etlantic compile TARGET --target airflow -o dags/`.
+Airflow, SQLModel, keyring, OpenTelemetry, or SparkForge unless extras are
+installed. Medallion bronze/silver/gold types are never part of core.
 
 ## Next Step
 

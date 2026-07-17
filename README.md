@@ -10,7 +10,7 @@ Define datasets, transformations, and pipelines as typed Python classes.
 Validate and plan them once. Run locally today; swap Polars, Pandas, or SQL
 backends without rewriting the logical pipeline.
 
-**Status:** Alpha **0.9.0** — local runtime + optional
+**Status:** Alpha **0.10.0** — local runtime + optional
 Polars/Pandas/SQL/PySpark/Airflow plugins. Structured Streaming is
 experimental.
 
@@ -127,7 +127,7 @@ Run the complete tested version at
 
 ## Current capability boundary
 
-| Capability | 0.9 |
+| Capability | 0.10 |
 |---|---|
 | Typed modeling, validation, contracts, and planning | Available |
 | Local Python execution and run reports | Available |
@@ -139,6 +139,7 @@ Run the complete tested version at
 | Airflow orchestrator compiler | Available (`etlantic-airflow`) |
 | CLI compile / generate / schema / SARIF | Available |
 | Plugin allowlists / keyring / SQLModel extras | Available |
+| SparkForge migration adapter | Available (`etlantic-sparkforge`) |
 
 ## Documentation
 

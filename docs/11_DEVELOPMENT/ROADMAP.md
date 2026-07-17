@@ -857,6 +857,8 @@ support.
 
 ## 0.10 — SparkForge Migration Preview
 
+**Status: shipped in 0.10.0**
+
 This milestone begins only after Local Python, SQL, PySpark, reporting, and the
 Plugin SDK have stable integration surfaces.
 

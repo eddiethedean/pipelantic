@@ -10,7 +10,7 @@ python --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.9.0**. Confirm what you installed:
+These docs describe ETLantic **0.10.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -29,7 +29,7 @@ in your environment.
 
 ## `pip install etlantic-polars` / `etlantic-pandas` / `etlantic-sql` / `etlantic-pyspark` fails
 
-Those packages ship with ETLantic 0.9.0. They are separate distributions:
+Those packages ship with ETLantic 0.10.0. They are separate distributions:
 
 ```bash
 python -m pip install --upgrade etlantic-polars

@@ -75,6 +75,8 @@ def main() -> None:
         "Full CLI `compile` / generate tooling | Continues in 0.9",
         "Graphviz and generated HTML pipeline documentation | Future design",
         "Public third-party Plugin SDK polish | Continues in 0.9",
+        "SparkForge migration adapter | Future design (0.10)",
+        "SparkForge migration adapter | Future design",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -86,6 +88,8 @@ def main() -> None:
         raise SystemExit("README.md capability table still labels the release as 0.7")
     if "| Capability | 0.8 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.8")
+    if "| Capability | 0.9 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
+        raise SystemExit("README.md capability table still labels the release as 0.9")
 
     scrub_paths = [
         ROOT / "README.md",
@@ -124,7 +128,7 @@ def main() -> None:
         if "!!! warning" not in text:
             raise SystemExit(f"{path} missing design/future admonition")
         if (
-            "Future design—not a ETLantic 0.9 API guide" not in text
+            "Future design—not a ETLantic 0.10 API guide" not in text
             and "Design study—" not in text
             and "Experimental design study—" not in text
         ):
@@ -133,8 +137,8 @@ def main() -> None:
     banner_js = (ROOT / "docs/theme/javascripts/status-banner.js").read_text(
         encoding="utf-8"
     )
-    if "Future design—not a ETLantic 0.9 API guide" not in banner_js:
-        raise SystemExit("status-banner.js missing 0.9 future-design banner text")
+    if "Future design—not a ETLantic 0.10 API guide" not in banner_js:
+        raise SystemExit("status-banner.js missing 0.10 future-design banner text")
     if "Experimental in ETLantic 0.7" not in banner_js:
         raise SystemExit("status-banner.js missing experimental streaming banner text")
     if "/08_VISUALIZATION/GRAPHVIZ/" not in banner_js:
@@ -206,6 +210,7 @@ def main() -> None:
         ROOT / "packages/etlantic-airflow/pyproject.toml",
         ROOT / "packages/etlantic-keyring/pyproject.toml",
         ROOT / "packages/etlantic-sqlmodel/pyproject.toml",
+        ROOT / "packages/etlantic-sparkforge/pyproject.toml",
     ):
         plugin_version = version_from(plugin_pyproject, r'(?m)^version = "([^"]+)"')
         if plugin_version != package_version:

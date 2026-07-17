@@ -41,12 +41,13 @@ jobs:
           AIRFLOW_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-airflow/pyproject.toml | head -1)"
           KEYRING_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-keyring/pyproject.toml | head -1)"
           SQLMODEL_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-sqlmodel/pyproject.toml | head -1)"
+          SPARKFORGE_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' packages/etlantic-sparkforge/pyproject.toml | head -1)"
           if [ "$TAG" != "$VERSION" ] || [ "$TAG" != "$MODULE_VERSION" ]; then
             echo "Version mismatch: tag='$TAG' pyproject='$VERSION' module='$MODULE_VERSION'"
             exit 1
           fi
-          if [ "$TAG" != "$POLARS_VERSION" ] || [ "$TAG" != "$PANDAS_VERSION" ] || [ "$TAG" != "$SQL_VERSION" ] || [ "$TAG" != "$SPARK_VERSION" ] || [ "$TAG" != "$AIRFLOW_VERSION" ] || [ "$TAG" != "$KEYRING_VERSION" ] || [ "$TAG" != "$SQLMODEL_VERSION" ]; then
-            echo "Plugin version mismatch: tag='$TAG' polars='$POLARS_VERSION' pandas='$PANDAS_VERSION' sql='$SQL_VERSION' spark='$SPARK_VERSION' airflow='$AIRFLOW_VERSION' keyring='$KEYRING_VERSION' sqlmodel='$SQLMODEL_VERSION'"
+          if [ "$TAG" != "$POLARS_VERSION" ] || [ "$TAG" != "$PANDAS_VERSION" ] || [ "$TAG" != "$SQL_VERSION" ] || [ "$TAG" != "$SPARK_VERSION" ] || [ "$TAG" != "$AIRFLOW_VERSION" ] || [ "$TAG" != "$KEYRING_VERSION" ] || [ "$TAG" != "$SQLMODEL_VERSION" ] || [ "$TAG" != "$SPARKFORGE_VERSION" ]; then
+            echo "Plugin version mismatch: tag='$TAG' polars='$POLARS_VERSION' pandas='$PANDAS_VERSION' sql='$SQL_VERSION' spark='$SPARK_VERSION' airflow='$AIRFLOW_VERSION' keyring='$KEYRING_VERSION' sqlmodel='$SQLMODEL_VERSION' sparkforge='$SPARKFORGE_VERSION'"
             exit 1
           fi
 
@@ -62,6 +63,7 @@ jobs:
           uv build --package etlantic-airflow --out-dir dist
           uv build --package etlantic-keyring --out-dir dist
           uv build --package etlantic-sqlmodel --out-dir dist
+          uv build --package etlantic-sparkforge --out-dir dist
 
       - name: Smoke test core wheel
         run: |
@@ -126,7 +128,7 @@ jobs:
             "dist/etlantic_airflow-${TAG}-py3-none-any.whl" \
             "dist/etlantic_airflow-${TAG}.tar.gz"
 
-      - name: Publish keyring and sqlmodel packages to PyPI
+      - name: Publish keyring, sqlmodel, and sparkforge packages to PyPI
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
@@ -135,7 +137,9 @@ jobs:
             "dist/etlantic_keyring-${TAG}-py3-none-any.whl" \
             "dist/etlantic_keyring-${TAG}.tar.gz" \
             "dist/etlantic_sqlmodel-${TAG}-py3-none-any.whl" \
-            "dist/etlantic_sqlmodel-${TAG}.tar.gz"
+            "dist/etlantic_sqlmodel-${TAG}.tar.gz" \
+            "dist/etlantic_sparkforge-${TAG}-py3-none-any.whl" \
+            "dist/etlantic_sparkforge-${TAG}.tar.gz"
 
       - name: Smoke discover plugins on installed wheels
         run: |

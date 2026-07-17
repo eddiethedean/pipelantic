@@ -261,6 +261,23 @@ jobs:
       - name: Pytest sqlmodel suite
         run: uv run pytest -q tests/sqlmodel -m sqlmodel
 
+  sparkforge:
+    name: SparkForge migration adapter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.3"
+          python-version: "3.11"
+          enable-cache: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync with sparkforge package
+        run: uv sync --locked --group sparkforge
+      - name: Pytest sparkforge parity suite
+        run: uv run pytest -q tests/sparkforge -m sparkforge
+
   package:
     name: Build and test wheel
     runs-on: ubuntu-latest

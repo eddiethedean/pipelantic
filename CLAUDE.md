@@ -20,6 +20,7 @@ surfaces; fail closed on secrets, plugin trust, and schema mutations.
 - Production profiles require Profile.plugin_allowlist and fail closed.
 - Schema history stores fingerprints/metadata only — never source rows.
 - Prefer public SDK imports; do not rely on private underscore modules.
+- Medallion bronze/silver/gold stay in SparkForge / etlantic-sparkforge — never in core.
 
 ## Workflows
 

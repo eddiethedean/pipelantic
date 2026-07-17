@@ -1,9 +1,8 @@
 """ETLantic — typed, contract-driven data pipeline modeling.
 
-0.9 adds tooling and ecosystem readiness: public CLI wrappers, plugin trust,
-SARIF diagnostics, schema/reliability ops, visualization exporters, IDE
-schemas, and optional ``etlantic-keyring`` / ``etlantic-sqlmodel`` packages.
-Structured Streaming APIs remain experimental.
+0.10 adds the optional SparkForge migration adapter (``etlantic-sparkforge``)
+that maps medallion pipelines onto existing ETLantic models without introducing
+bronze/silver/gold into core. Structured Streaming APIs remain experimental.
 """
 
 from __future__ import annotations

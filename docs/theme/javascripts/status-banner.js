@@ -69,10 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const banner = document.createElement("div");
   banner.className = "admonition warning";
   banner.innerHTML =
-    '<p class="admonition-title">Future design—not a ETLantic 0.9 API guide</p>' +
+    '<p class="admonition-title">Future design—not a ETLantic 0.10 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +
     "Use Current Capabilities, the API reference, and the CLI reference for shipped behavior. " +
     "CLI tooling, SARIF, plugin trust, Graphviz/HTML lineage, and optional " +
-    "<code>etlantic-keyring</code> / <code>etlantic-sqlmodel</code> are available in 0.9.</p>";
+    "<code>etlantic-keyring</code> / <code>etlantic-sqlmodel</code> are available in 0.9+; SparkForge adapter via <code>etlantic-sparkforge</code> in 0.10.</p>";
   article.prepend(banner);
 });

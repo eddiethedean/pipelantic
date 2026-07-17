@@ -1,6 +1,6 @@
 # Five-Minute Quickstart
 
-> **Status: Available in ETLantic 0.9.0.** Every API in this guide is shipped
+> **Status: Available in ETLantic 0.10.0.** Every API in this guide is shipped
 > and the complete example is tested in CI.
 
 This guide defines, validates, plans, and runs a typed pipeline using only the

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-07-17
+
+### Added
+
+- Optional `etlantic-sparkforge` migration adapter (IR → Pipeline / Profile)
+- SparkForge debug/run-mode mapping to `RunSelection` / `RunIntent` / `DebugSession`
+- SparkForge-shaped result normalization to `PipelineRunReport` with redaction
+- Write / Delta capability compatibility helpers (fail closed)
+- Representative ecommerce IR fixture and semantic parity suite
+- Migration guide `docs/11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md`
+
+### Changed
+
+- Package version advances to 0.10 (SparkForge Migration Preview)
+- Plugin packages require `etlantic>=0.10.0,<1.0`
+- SparkForge adoption checklist prerequisites marked complete
+
+### Upgrade notes
+
+- Install `etlantic-sparkforge` (or `etlantic[sparkforge]`) for the adapter
+- ETLantic core remains free of bronze / silver / gold types
+- Full SparkForge engine retirement remains a progressive path (see migration guide)
+
 ## [0.9.0] - 2026-07-17
 
 ### Added
