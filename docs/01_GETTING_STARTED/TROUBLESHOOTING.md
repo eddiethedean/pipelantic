@@ -57,13 +57,34 @@ Confirm Python is 3.11+ and the package name uses a hyphen
 ## A transformation has no implementation
 
 Declaring a `Transformation` defines its contract, not its executable code.
-Register a local implementation before running:
+Either register a native implementation:
 
 ```python
 @MyTransformation.implementation("local")
 def run_locally(rows):
     return rows
 ```
+
+…or, for Polars **kernel** portable plans in 0.12, author with
+`@MyTransformation.portable`, install `etlantic-polars`, and set
+`Profile(dataframe_engine="polars", portable_transform_policy="require")`.
+See `examples/portable_polars_kernel.py`.
+
+## Portable compiler not discovered / `PMXFORM302`
+
+```bash
+python -c "from etlantic.transform.discovery import discover_transform_compilers; print(discover_transform_compilers())"
+```
+
+If the map is empty, install a matching `etlantic-polars==0.12.0` into the
+same environment as core and reinstall if you changed Python interpreters.
+
+## `PMXFORM301` unsupported action or function
+
+The Polars kernel claim rejects joins, windows, and conversion-profile ops such
+as `dtcs:cast`. Narrow the portable definition, add a native
+`@implementation(...)`, or use `portable_transform_policy="prefer"` /
+`"native"`.
 
 ## My memory source returns no records
 
@@ -95,7 +116,8 @@ Install the matching plugin and set the corresponding profile engine
 
 | Need | Install | Example |
 |---|---|---|
-| Polars / Pandas | `pip install etlantic-polars etlantic-pandas` or `uv sync --group dataframes` | `examples/dataframe_parity.py` |
+| Polars portable kernel | `pip install etlantic-polars` or `uv sync --group dataframes` | `examples/portable_polars_kernel.py` |
+| Polars / Pandas native | `pip install etlantic-polars etlantic-pandas` or `uv sync --group dataframes` | `examples/dataframe_parity.py` |
 | SQL | `pip install etlantic-sql` or `uv sync --group sql` | `examples/sql_to_sql.py` |
 | PySpark | `pip install etlantic-pyspark` or `uv sync --group pyspark` | `examples/pyspark_local.py` |
 | Airflow compile | `pip install etlantic-airflow` or `uv sync --group airflow` | `examples/airflow_compile.py` |

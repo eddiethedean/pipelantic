@@ -185,6 +185,7 @@ nav:
       - Polars: 06_EXECUTION/POLARS.md
       - Pandas: 06_EXECUTION/PANDAS.md
       - Dataframe Plugin Protocol: 07_PLUGIN_SDK/DATAFRAME_PLUGIN.md
+      - Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md
       - SQL: 06_EXECUTION/SQL.md
       - SQL Execution: 06_EXECUTION/SQL_EXECUTION.md
       - SQL Pushdown: 06_EXECUTION/SQL_PUSHDOWN.md
@@ -204,8 +205,7 @@ nav:
       - Testing Plugins: 07_PLUGIN_SDK/TESTING_PLUGINS.md
   - Design Proposals:
       - Read this first: 11_DEVELOPMENT/DESIGN_PROPOSALS.md
-      - Portable compilers and plans:
-          - Compiler protocol: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md
+      - Portable compilers and plans (history):
           - Implementation plan: 11_DEVELOPMENT/PORTABLE_TRANSFORM_PLAN.md
           - DTCS evolution: 11_DEVELOPMENT/DTCS_PORTABLE_EVOLUTION.md
           - DTCS 2.0 Publication Record: 11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md
@@ -220,7 +220,6 @@ nav:
           - Storage Plugin: 07_PLUGIN_SDK/STORAGE_PLUGIN.md
           - Resource Provider: 07_PLUGIN_SDK/RESOURCE_PROVIDER.md
           - Observability Provider: 07_PLUGIN_SDK/OBSERVABILITY_PROVIDER.md
-          - Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md
           - Distribution: 07_PLUGIN_SDK/DISTRIBUTION.md
       - Visualization (future):
           - Documentation: 08_VISUALIZATION/DOCUMENTATION.md
@@ -234,10 +233,7 @@ nav:
           - ETL Reliability Plan: 11_DEVELOPMENT/ETL_RELIABILITY_PLAN.md
           - SQLModel Integration Plan: 11_DEVELOPMENT/SQLMODEL_INTEGRATION_PLAN.md
           - SparkForge Adoption: 11_DEVELOPMENT/SPARKFORGE_ADOPTION.md
-          - Portable Transformation Plan: 11_DEVELOPMENT/PORTABLE_TRANSFORM_PLAN.md
-          - DTCS Portable Evolution: 11_DEVELOPMENT/DTCS_PORTABLE_EVOLUTION.md
-          - DTCS 2.0 Publication Record: 11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md
-          - DTCS 3.0 Publication Record: 11_DEVELOPMENT/DTCS_3_0_SPEC_PROPOSAL.md
+
   - Visualization:
       - Overview: 08_VISUALIZATION/README.md
       - Mermaid: 08_VISUALIZATION/MERMAID.md
@@ -249,6 +245,7 @@ nav:
       - Runnable Guides:
           - Airflow Compile: 09_EXAMPLES/AIRFLOW_COMPILE.md
           - SparkForge Adapter: 09_EXAMPLES/SPARKFORGE_ADAPTER.md
+          - Portable Polars Kernel: 09_EXAMPLES/PORTABLE_TRANSFORMATION.md
       - Design Studies:
           - CSV to CSV: 09_EXAMPLES/CSV_TO_CSV.md
           - CSV to SQL: 09_EXAMPLES/CSV_TO_SQL.md
@@ -266,7 +263,6 @@ nav:
           - PySpark to SQL: 09_EXAMPLES/PYSPARK_TO_SQL.md
           - PySpark to Delta: 09_EXAMPLES/PYSPARK_TO_DELTA.md
           - Streaming PySpark: 09_EXAMPLES/STREAMING_PYSPARK.md
-          - Portable Transformation: 09_EXAMPLES/PORTABLE_TRANSFORMATION.md
   - Reference:
       - Overview: 10_REFERENCE/README.md
       - CLI: 10_REFERENCE/CLI.md
@@ -290,6 +286,7 @@ nav:
       - Migration 0.8 → 0.9: 11_DEVELOPMENT/MIGRATION_0_8_TO_0_9.md
       - Migration 0.9 → 0.10: 11_DEVELOPMENT/MIGRATION_0_9_TO_0_10.md
       - Migration 0.10 → 0.11: 11_DEVELOPMENT/MIGRATION_0_10_TO_0_11.md
+      - Migration 0.11 → 0.12: 11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md
       - Contributing: 11_DEVELOPMENT/CONTRIBUTING.md
       - Documentation: 11_DEVELOPMENT/DOCUMENTATION.md
       - Testing: 11_DEVELOPMENT/TESTING.md

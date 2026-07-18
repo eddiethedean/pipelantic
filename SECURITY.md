@@ -10,6 +10,7 @@ documentation, or repository automation are welcome.
 | Version | Support |
 |---|---|
 | 0.12.x | Current alpha line; best-effort security fixes |
+| 0.11.x | Critical fixes only when practical |
 | 0.10.x | Critical fixes only when practical |
 | 0.9.x | Critical fixes only when practical |
 | 0.8.x and earlier | Not supported |
@@ -53,10 +54,23 @@ Security-sensitive areas include:
 The detailed threat model is documented in
 [docs/02_FOUNDATIONS/SECURITY.md](docs/02_FOUNDATIONS/SECURITY.md).
 
+## Severity (informal)
+
+| Severity | Examples |
+|---|---|
+| Critical | Remote code execution, credential exfiltration from plans/logs |
+| High | Privilege escalation via plugins, path traversal writes |
+| Medium | Fail-open trust controls, secret leakage in edge diagnostics |
+| Low | Hardening gaps without practical exploit path |
+
 ## Disclosure
 
 The project follows coordinated disclosure: acknowledge the report, assess
 impact, prepare and test a fix, publish an upgrade, and then disclose technical
 details at an appropriate time.
 
-Formal response-time guarantees are not available during the alpha series.
+Target acknowledgement is seven days when possible. Formal response-time
+guarantees and CVE assignment are not available during the alpha series.
+Patch ownership sits with the lead maintainer ([MAINTAINERS.md](MAINTAINERS.md)).
+If a release token is compromised, revoke it immediately, yank affected
+artifacts if necessary, and publish a replacement after rotating credentials.

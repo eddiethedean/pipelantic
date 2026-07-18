@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Treated 0.12.0 as the published current line across guides, banners, support,
+  navigation, migration, and examples
+- Added `examples/portable_polars_kernel.py`, Migration 0.11 → 0.12, maintainers /
+  CODEOWNERS / issue+PR templates, and release smoke-before-publish ordering
+
 ## [0.12.0] - 2026-07-17
 
 ### Added

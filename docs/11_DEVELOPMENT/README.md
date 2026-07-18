@@ -10,6 +10,10 @@ released.
 - [Testing](TESTING.md)
 - [Documentation](DOCUMENTATION.md)
 - [Release Process](RELEASE_PROCESS.md)
+- [Support policy](SUPPORT.md)
+- [Governance](GOVERNANCE.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [API stability and deprecation](DEPRECATION_POLICY.md)
 - [Migration 0.4 → 0.5](MIGRATION_0_4_TO_0_5.md)
 - [Migration 0.5 → 0.6](MIGRATION_0_5_TO_0_6.md)
 - [Migration 0.6 → 0.7](MIGRATION_0_6_TO_0_7.md)
@@ -17,6 +21,7 @@ released.
 - [Migration 0.8 → 0.9](MIGRATION_0_8_TO_0_9.md)
 - [Migration 0.9 → 0.10](MIGRATION_0_9_TO_0_10.md)
 - [Migration 0.10 → 0.11](MIGRATION_0_10_TO_0_11.md)
+- [Migration 0.11 → 0.12](MIGRATION_0_11_TO_0_12.md)
 - [Roadmap](ROADMAP.md)
 - [Dependency Strategy](DEPENDENCY_STRATEGY.md)
 

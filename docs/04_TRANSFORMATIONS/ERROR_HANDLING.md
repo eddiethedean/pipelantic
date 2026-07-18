@@ -1,5 +1,11 @@
 # Error Handling
 
+!!! warning "Partially available in ETLantic 0.12"
+    Structured diagnostics, validation failures, and runtime
+    `NodeExecutionError` paths are shipped. Snippets that import
+    `RetryAction` or other unshipped helpers are design studies—use Profile
+    retry/schedule intents and orchestrator plugins for production retries.
+
 Error handling in ETLantic is designed to make failures predictable,
 typed, and portable across execution backends.
 

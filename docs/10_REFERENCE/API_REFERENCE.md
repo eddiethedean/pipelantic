@@ -32,11 +32,14 @@ from etlantic import (
 
 ## Authoring
 
-!!! note "Portable authoring (0.11)"
+!!! note "Portable authoring (0.11) and Polars kernel compiler (0.12)"
     `etlantic.transform`, `@Transformation.portable`, symbolic DataFrame and
-    Column objects, and `functions as F` are available and normalize to published
-    DTCS 3.0 `dtcs.transform-plan/2` models. Compilers remain 0.12+. See
-    [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
+    Column objects, and `functions as F` normalize to published DTCS 3.0
+    `dtcs.transform-plan/2` models. `etlantic.transform.compiler` defines the
+    `etlantic.transform-compiler/1` protocol; `etlantic-polars` provides
+    `create_transform_compiler()` for kernel execution. See
+    [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
+    and [Portable Transform Compiler](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md).
 
 ### Core behavioral contracts
 
@@ -105,7 +108,27 @@ configured.
       filters: ["!^_"]
 
 Symbolic only: `FrameExpr` / `ColumnExpr` trees lower to DTCS plans. They are
-not Polars/Pandas/Spark objects. Compilers that execute plans are 0.12+.
+not Polars/Pandas/Spark objects. Polars kernel compilation ships in 0.12.
+
+### Portable transform compiler protocol (`etlantic.transform.compiler`)
+
+::: etlantic.transform.compiler
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
+
+Discovery helpers:
+
+::: etlantic.transform.discovery
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
+
+Optional package factories (install `etlantic-polars`):
+`etlantic_polars.create_plugin`, `etlantic_polars.create_transform_compiler`,
+`etlantic_polars.PolarsTransformCompiler`.
 
 ### Pipelines
 

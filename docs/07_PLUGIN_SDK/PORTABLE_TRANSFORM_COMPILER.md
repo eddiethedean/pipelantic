@@ -25,7 +25,7 @@ Support analysis and compilation belong to planning. Execution belongs to the
 runtime. A serialized `PipelinePlan` contains IR, requirements, compiler
 identity, and fingerprints—not live compiled objects or closures.
 
-## Proposed protocol
+## Protocol
 
 ```python
 @runtime_checkable

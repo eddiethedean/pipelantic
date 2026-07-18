@@ -1,24 +1,25 @@
 # Design Proposals
 
-This section contains **unshipped** APIs, internal plans, and normative
-proposals. It is deliberately separate from the ETLantic 0.11 user guide.
+This section contains **unshipped** APIs, historical plans, and normative
+proposals. It is deliberately separate from the ETLantic 0.12 user guide.
 
 !!! warning "Not current API documentation"
-    Do not copy unshipped interfaces from these pages into a 0.11 application.
+    Do not copy unshipped interfaces from these pages into a 0.12 application.
     Start with the [current-version guide](../01_GETTING_STARTED/CURRENT_VERSION.md)
     and [capabilities](../01_GETTING_STARTED/CAPABILITIES.md).
 
-    **Exception:** portable **authoring** (`@Transformation.portable`,
-    `etlantic.transform`) ships in 0.11—see
-    [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
-    under Transformations. This section keeps **compiler** protocols and
-    maintainer plans only.
+    **Exceptions (shipped):**
+    - portable **authoring** (`@Transformation.portable`, `etlantic.transform`)
+      — see [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
+    - portable **compiler protocol** and Polars kernel compiler — see
+      [Portable Transform Compiler](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
+      under Integrations and Execution
 
-## Portable transformation program (compilers and plans)
+## Portable transformation program (history and remaining work)
 
 - [Authoring experience (shipped 0.11)](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
 - [Function catalog (shipped 0.11)](../04_TRANSFORMATIONS/PORTABLE_FUNCTIONS.md)
-- [Compiler protocol (future)](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
+- [Compiler protocol (shipped 0.12; Polars kernel)](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
 - [Implementation plan](PORTABLE_TRANSFORM_PLAN.md)
 - [DTCS evolution](DTCS_PORTABLE_EVOLUTION.md)
 - [DTCS 2.0 publication record](DTCS_PORTABLE_SPEC_PROPOSAL.md)

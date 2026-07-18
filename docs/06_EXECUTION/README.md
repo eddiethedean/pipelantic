@@ -1,16 +1,21 @@
 # Execution
 
-!!! note "Portable transformations are a 0.11+ design"
-    ETLantic 0.11 executes registered native implementations. Future engine
-    plugins will also compile closed DTCS Transformation Plans described in
-    [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
+!!! success "Portable Polars kernel compilation ships in 0.12"
+    ETLantic executes registered native implementations and, when
+    `Profile.portable_transform_policy` is `prefer` or `require`, can compile
+    and run Polars **kernel** DTCS plans through `etlantic-polars` without a
+    native `@implementation("polars")`. Relational / PySpark / Pandas / SQL
+    portable compilers remain 0.13–0.15. See
+    [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
+    and
+    [`examples/portable_polars_kernel.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/portable_polars_kernel.py).
 
 Execution is the final stage of the ETLantic lifecycle.
 
 After a pipeline has been modeled, validated, and planned, an execution plugin
 realizes the resulting **Pipeline Plan** using a specific runtime such as local
 Python, Polars, Airflow, or another supported backend. Dagster and Prefect
-compilers remain future plugins.
+orchestrator compilers remain future plugins.
 
 ETLantic intentionally separates execution from modeling. The core library
 coordinates execution from a resolved `PipelinePlan`, while plugins and

@@ -52,7 +52,7 @@ For a bounded pilot topology and required controls, read
 
 ## Production readiness gate (do not skip)
 
-**ETLantic 0.11 is alpha.** Plugin allowlists being “Available” does **not**
+**ETLantic 0.12.0 is alpha.** Plugin allowlists being “Available” does **not**
 mean the product is production-ready.
 
 Do **not** productionize until the security release gate closes (targeted for
@@ -83,28 +83,44 @@ How to read status labels in deeper chapters:
 - Process-local reports as an audit system of record
 - Stable 1.0 compatibility guarantees
 - Managed Databricks/EMR/Connect Spark providers
-- **Portable compilers** / end-to-end portable execution on Polars, PySpark,
-  Pandas, or SQL (planned 0.12–0.15). `@Transformation.portable` **authoring**
-  to `dtcs.transform-plan/2` ships in 0.11; keep `@implementation(...)` for
-  runtime until compilers land.
+- **Portable compilers beyond the Polars kernel** — PySpark, relational,
+  Pandas, and SQL compilers remain planned for 0.13–0.15. Polars **kernel**
+  portable compilation ships in 0.12 (`etlantic-polars`); keep a native
+  `@implementation(...)` for profiles outside that claim set, or for
+  `portable_transform_policy="native"`.
+
+## Enterprise readiness matrix
+
+| Concern | Status in 0.12 |
+|---|---|
+| License | MIT (core and official plugins) |
+| Supported versions / EOL | Best-effort on current alpha line; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
+| Compliance attestations (SOC2, GDPR cert) | Adopter-owned — not provided |
+| Identity / RBAC / SSO | Out of scope — use process and network isolation |
+| HA / DR / RPO / RTO | Adopter-owned topology |
+| SBOM / signed provenance | Gap — not yet emitted by release automation |
+| Audit system of record | Gap — process-local reports are operational evidence only |
+| Tested scale | Local/pilot workloads; no published capacity guarantees |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.11 → 0.12](../11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md) |
 
 ## Recommended evaluation path
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic`
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.12.0`
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
 3. [Capabilities](CAPABILITIES.md)
-4. Optional: `examples/dataframe_parity.py` with Polars or Pandas
-5. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
+4. Optional: `examples/portable_polars_kernel.py` with `etlantic-polars`
+5. Optional: `examples/dataframe_parity.py` with Polars or Pandas
+6. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
    `etlantic-sql`
-6. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
-7. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
-8. Optional: SparkForge adapter via `uv sync --group sparkforge`
-9. [Migration 0.10 → 0.11](../11_DEVELOPMENT/MIGRATION_0_10_TO_0_11.md) if
-   upgrading from 0.10
-10. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
+7. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
+8. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
+9. Optional: SparkForge adapter via `uv sync --group sparkforge`
+10. [Migration 0.11 → 0.12](../11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md) if
+    upgrading from 0.11
+11. [Roadmap](../11_DEVELOPMENT/ROADMAP.md) for sequencing
 
 ## Support channel
 
 GitHub issues for bugs and questions. Include ETLantic version, Python
 version, and a minimal reproduction. Never include credentials or production
-data.
+data. See [SUPPORT.md](https://github.com/eddiethedean/etlantic/blob/main/SUPPORT.md).

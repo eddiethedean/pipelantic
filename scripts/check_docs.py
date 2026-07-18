@@ -128,6 +128,19 @@ def main() -> None:
         "does not ship `@Transformation.portable`",
         "etlantic==0.10.0",
         "etlantic>=0.10.0",
+        # Stale "current = 0.11" claims after 0.12 ship
+        "Current 0.11 guide",
+        "Current 0.11 User Guide",
+        "Available in 0.11\n",
+        "## Available in 0.11",
+        "ETLantic 0.11 is alpha",
+        "not an ETLantic 0.10 API guide",
+        "once compilers ship",
+        "eventual runnable example",
+        "Profile selection (planned 0.12+)",
+        "compilers remain 0.12+",
+        "from etlantic.plugins import register_sql_plugin",
+        "from etlantic.plugins import register_pyspark_plugin",
     ]
     if "| Capability | 0.4 |" in (ROOT / "README.md").read_text(encoding="utf-8"):
         raise SystemExit("README.md capability table still labels the release as 0.4")
@@ -182,6 +195,33 @@ def main() -> None:
         raise SystemExit(
             "EVALUATOR.md must not tell readers not to bet on portable authoring "
             "while Capabilities marks authoring Available"
+        )
+    if "Portable Polars kernel compiler | Yes (0.12)" not in evaluator:
+        raise SystemExit(
+            "EVALUATOR.md must list Portable Polars kernel compiler as ready"
+        )
+    if "end-to-end portable execution on Polars, PySpark" in evaluator:
+        raise SystemExit(
+            "EVALUATOR.md must not deny Polars portable execution after 0.12"
+        )
+    if "MIGRATION_0_11_TO_0_12.md" not in (
+        ROOT / "docs/11_DEVELOPMENT/README.md"
+    ).read_text(encoding="utf-8"):
+        raise SystemExit("Development README missing Migration 0.11 → 0.12")
+    if not (ROOT / "docs/11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md").exists():
+        raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md")
+    if not (ROOT / "examples/portable_polars_kernel.py").exists():
+        raise SystemExit("Missing examples/portable_polars_kernel.py")
+    if "MIGRATION_0_11_TO_0_12.md" not in (ROOT / "mkdocs.yml").read_text(
+        encoding="utf-8"
+    ):
+        raise SystemExit("mkdocs.yml missing Migration 0.11 → 0.12 nav entry")
+    if (
+        "Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md"
+        not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    ):
+        raise SystemExit(
+            "mkdocs.yml must promote Portable Transform Compiler under Integrations"
         )
     design_proposals = (ROOT / "docs/11_DEVELOPMENT/DESIGN_PROPOSALS.md").read_text(
         encoding="utf-8"
@@ -373,6 +413,18 @@ def main() -> None:
         raise SystemExit("status-banner.js missing semantic future-status marker")
     if "Experimental in ETLantic 0.7" not in banner_js:
         raise SystemExit("status-banner.js missing experimental streaming banner text")
+    if f"not an ETLantic {major_minor} API guide" not in banner_js:
+        raise SystemExit(
+            f"status-banner.js future banner must reference ETLantic {major_minor}"
+        )
+    if "PORTABLE_TRANSFORM_COMPILER/" not in banner_js:
+        raise SystemExit(
+            "status-banner.js must exclude PORTABLE_TRANSFORM_COMPILER from future SDK banner"
+        )
+    if "PORTABLE_TRANSFORMATION/" not in banner_js:
+        raise SystemExit(
+            "status-banner.js must exclude PORTABLE_TRANSFORMATION from design-example banner"
+        )
     if "/08_VISUALIZATION/GRAPHVIZ/" not in banner_js:
         raise SystemExit(
             "status-banner.js must exclude GRAPHVIZ from future viz banner"
@@ -419,6 +471,7 @@ def main() -> None:
         "ORCHESTRATOR_PLUGIN",
         "SECRET_PROVIDER",
         "TESTING_PLUGINS",
+        "PORTABLE_TRANSFORM_COMPILER",
     ):
         if f"/07_PLUGIN_SDK/{shipped_sdk}/" not in banner_js:
             raise SystemExit(
@@ -451,6 +504,60 @@ def main() -> None:
             raise SystemExit(
                 f"{plugin_pyproject} version {plugin_version} != core {package_version}"
             )
+
+    # Embedded plugin component versions must also match.
+    for component in (
+        ROOT / "packages/etlantic-airflow/src/etlantic_airflow/plugin.py",
+        ROOT / "packages/etlantic-pyspark/src/etlantic_pyspark/plugin.py",
+        ROOT / "packages/etlantic-pyspark/src/etlantic_pyspark/provider.py",
+        ROOT / "packages/etlantic-sql/src/etlantic_sql/plugin.py",
+        ROOT / "packages/etlantic-polars/src/etlantic_polars/__init__.py",
+        ROOT / "packages/etlantic-polars/src/etlantic_polars/compiler.py",
+    ):
+        text = component.read_text(encoding="utf-8")
+        match = re.search(r'__version__\s*=\s*"([^"]+)"', text)
+        if match is None:
+            raise SystemExit(f"{component} missing __version__")
+        if match.group(1) != package_version:
+            raise SystemExit(
+                f"{component} __version__ {match.group(1)} != core {package_version}"
+            )
+
+    # Getting-started / support pages must not present the prior minor as current.
+    prior_minor = None
+    try:
+        maj_s, min_s = major_minor.split(".")
+        if int(min_s) > 0:
+            prior_minor = f"{maj_s}.{int(min_s) - 1}"
+    except ValueError:
+        prior_minor = None
+    if prior_minor is not None:
+        for path in (
+            ROOT / "docs/01_GETTING_STARTED/README.md",
+            ROOT / "docs/01_GETTING_STARTED/CAPABILITIES.md",
+            ROOT / "docs/01_GETTING_STARTED/EVALUATOR.md",
+            ROOT / "docs/02_FOUNDATIONS/DOCUMENTATION_STATUS.md",
+            ROOT / "docs/10_REFERENCE/README.md",
+            ROOT / "SUPPORT.md",
+        ):
+            text = path.read_text(encoding="utf-8")
+            for phrase in (
+                f"Current {prior_minor} guide",
+                f"## Available in {prior_minor}",
+                f"ETLantic {prior_minor} is alpha",
+                f"separates ETLantic **{prior_minor}**",
+            ):
+                if phrase in text:
+                    raise SystemExit(
+                        f"{path} still presents {prior_minor} as current: {phrase!r}"
+                    )
+            if (
+                f"`{prior_minor}.x`" in text
+                and "current published minor" in text.lower()
+            ):
+                raise SystemExit(
+                    f"{path} support line still names {prior_minor}.x as current"
+                )
 
     subprocess.run(
         [sys.executable, str(ROOT / "scripts/check_runnable_docs.py")],

@@ -5,7 +5,7 @@
 ## When to use `@Transformation.portable`
 
 Use portable authoring when you want one closed relational definition that
-emits `dtcs.transform-plan/2` for future multi-engine compilers:
+emits `dtcs.transform-plan/2` for compilers:
 
 ```python
 from etlantic.transform import functions as F
@@ -16,28 +16,32 @@ def normalize(rows):
 ```
 
 Inspect with `Normalize.to_transform_plan()` / `portable_fingerprint()`.
+In **0.12**, Polars can execute kernel-shaped plans without a native
+`@implementation("polars")` when `portable_transform_policy` is `prefer` or
+`require`.
 
 ## When to use `@Transformation.implementation`
 
-Use native implementations for **execution today** and for behavior outside the
-portable profile:
+Use native implementations for engines without a shipped compiler, for
+behavior outside the portable claim set, or when
+`portable_transform_policy="native"`:
 
 ```python
 @Normalize.implementation("local")
 def normalize_local(rows):
     ...
 
-@Normalize.implementation("polars")
-def normalize_polars(rows):
+@Normalize.implementation("pandas")
+def normalize_pandas(rows):
     ...
 ```
 
-In 0.11 you typically register **both**: portable for the plan artifact,
-native for runtime. Compilers that execute portable plans arrive in 0.12–0.15
-(0.12 = Polars kernel only; joins/aggregates and other engines follow).
+Common pattern: keep portable authoring for the plan artifact, keep native
+callables for Pandas/SQL/PySpark until 0.13–0.15 compilers land, and use
+Polars portable kernel execution when the claim set fits.
 
 ## Related
 
 - [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
-- [Implementations](../04_TRANSFORMATIONS/IMPLEMENTATIONS.md)
-- [Capabilities](CAPABILITIES.md)
+- [`examples/portable_polars_kernel.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/portable_polars_kernel.py)
+- [Migration 0.11 → 0.12](../11_DEVELOPMENT/MIGRATION_0_11_TO_0_12.md)

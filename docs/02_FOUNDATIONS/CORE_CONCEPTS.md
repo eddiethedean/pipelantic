@@ -61,7 +61,8 @@ semantics. It does not commit the transformation to a dataframe engine.
 
 !!! success "Available in ETLantic 0.11 (authoring)"
     `etlantic.transform` and `@Transformation.portable` author to
-    `dtcs.transform-plan/2`. Portable compilers remain 0.12+. Native
+    `dtcs.transform-plan/2`. Polars kernel compilation ships in 0.12; other
+    portable compilers remain 0.13+. Native
     `@Transformation.implementation(...)` remains the execution path today.
 
 A portable definition describes common relational behavior once using

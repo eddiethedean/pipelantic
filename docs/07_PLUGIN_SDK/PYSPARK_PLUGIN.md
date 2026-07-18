@@ -1171,18 +1171,21 @@ Requirements include:
 
 ## Plugin Discovery
 
-Conceptually:
+Prefer package entry points (`etlantic.spark_plugins`) or runtime registration:
 
-```python
-from etlantic.plugins import register_pyspark_plugin
-
-register_pyspark_plugin(
-    DefaultPySparkPlugin(),
-)
+```toml
+# pyproject.toml
+[project.entry-points."etlantic.spark_plugins"]
+pyspark = "etlantic_pyspark:create_plugin"
 ```
 
-Normal installations should use standard plugin discovery rather than manual
-registration.
+```python
+from etlantic import PipelineRuntime
+from etlantic_pyspark import create_plugin
+
+runtime = PipelineRuntime()
+runtime.register_spark_plugin("pyspark", create_plugin())
+```
 
 ## Package Naming
 

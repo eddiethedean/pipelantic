@@ -63,9 +63,9 @@ etlantic plan examples/quickstart.py:CustomerPipeline \
   --profile development --explain
 ```
 
-In 0.11, explain output focuses on bindings, implementations, and capability
-decisions. Portable definition fingerprints and selected **compiler** fields
-appear once portable compilers ship (0.12+).
+Explain output includes bindings, implementations, capability decisions, and
+(when selected) portable `implementation_kind`, `ir_fingerprint`, and compiler
+identity for Polars kernel compilation.
 
 ## `run`
 
@@ -127,6 +127,11 @@ etlantic plugin list --profile production --format json
 etlantic plugin info polars --kind dataframe
 ```
 
+Supported `--kind` values today: `dataframe`, `sql`, `spark`, `orchestrator`.
+Transform compilers discovered under `etlantic.transform_compilers` are not yet
+listed by this CLI—inspect them in Python via
+`etlantic.transform.discovery.discover_transform_compilers()`.
+
 Production profiles honor `Profile.plugin_allowlist` (fail closed). When trust
 diagnostics include severity `error` (for example empty allowlist /
 `PMPLUG401`), `plugin list` exits non-zero.
@@ -169,5 +174,8 @@ etlantic report export RUN_ID --format json --output report.json
 etlantic report compare LEFT RIGHT --store .etlantic/reports
 ```
 
-The built-in CLI report store is process-local unless `--store` points at a
-`FileReportStore` root.
+`show` and `export` read the **process-local** CLI runtime store created in the
+same Python process. A separate `etlantic run` invocation cannot see that
+report. Persist across processes with a Python `FileReportStore` on
+`PipelineRuntime(reports=...)`, or use `report compare --store` against a file
+store root that your application already wrote.

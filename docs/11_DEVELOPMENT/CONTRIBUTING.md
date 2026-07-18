@@ -33,31 +33,45 @@ semantics.
 ```bash
 git clone https://github.com/eddiethedean/etlantic.git
 cd etlantic
+git checkout -b topic/my-change
 uv sync
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
-uv run python scripts/check_docs.py
-uv run python scripts/check_runnable_docs.py
-uv run python examples/quickstart.py
-uv run python scripts/build_docs.py
 ```
 
-`uv sync` installs runtime dependencies, the editable package, and the `dev`
-group (pytest, ruff, mkdocs). See [Installation](../01_GETTING_STARTED/INSTALLATION.md)
-for more detail.
+`uv sync` installs runtime dependencies, the editable workspace packages, and
+the `dev` group (pytest, ruff, mkdocs). Optional groups: `dataframes`, `sql`,
+`pyspark`, `airflow`, `sparkforge`, `keyring`, `sqlmodel`. See
+[Installation](../01_GETTING_STARTED/INSTALLATION.md).
 
-Use the supported Python versions documented in `pyproject.toml`.
+Use the supported Python versions documented in `pyproject.toml` (3.11+).
+PySpark real-cluster parity needs a JVM; default Spark tests use sparkless.
+Airflow tests need the `airflow` group. PostgreSQL SQL tests need a live URL
+via `ETLANTIC_SQL_URL` when not using the SQLite demo path.
+
+## CI-equivalent checks
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest -q -m "not sparkforge"
+uv run python scripts/check_docs.py
+uv run python scripts/check_agent_guidance.py
+uv run python scripts/check_release.py
+uv run python examples/quickstart.py
+uv run python examples/portable_polars_kernel.py   # needs dataframes group
+uv run python scripts/build_docs.py
+uv run pytest -q tests/sparkforge -m sparkforge
+```
 
 ## Making a Change
 
-1. Open or identify an issue.
+1. Fork and open a branch from `main` (or identify an issue).
 2. Confirm the architectural owner of the feature.
 3. Add an ADR for difficult-to-reverse architectural changes.
 4. Add tests before or with implementation.
 5. Update affected documentation.
-6. Add a changelog fragment when required.
-7. Run local quality checks.
+6. Update `CHANGELOG.md` under `[Unreleased]` for user-visible changes (no
+   separate fragment tool is required today).
+7. Run the CI-equivalent checks above.
 
 ## Pull Requests
 
@@ -112,25 +126,26 @@ Python package entry points.
 
 ## Testing
 
-Run the narrowest relevant tests during development and the full suite before
-submission.
+### Currently enforced
 
-```bash
-uv sync
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
-uv run python scripts/check_docs.py
-uv run python scripts/check_runnable_docs.py
-uv run python scripts/build_docs.py
-```
+- `pytest` unit/CLI suites on CI
+- `ruff check` / `ruff format --check`
+- `scripts/check_docs.py` + runnable companions + strict MkDocs build
+- Optional dataframe / SparkForge matrix jobs
 
-For dataframe plugin work:
+### Not yet enforced (aspirational)
+
+Coverage gates, property tests, pyright, dependency audit, and secret scanning
+are goals—not CI requirements. See [Testing](TESTING.md) and
+[Dependency Strategy](DEPENDENCY_STRATEGY.md) for future policy.
+
+Run the narrowest relevant tests during development:
 
 ```bash
 uv sync --group dataframes
 uv run pytest -m polars
 uv run pytest -m pandas
+uv run pytest tests/polars_compiler
 ```
 
 For Spark plugin work (JVM-free via sparkless by default):
@@ -150,8 +165,7 @@ uv run pytest tests/orchestration tests/airflow
 uv run python examples/airflow_compile.py
 ```
 
-The committed toolchain is uv + pytest + ruff + mkdocs. Type checking with
-pyright is not part of CI yet.
+The committed toolchain is uv + pytest + ruff + mkdocs.
 
 ## Commit Messages
 

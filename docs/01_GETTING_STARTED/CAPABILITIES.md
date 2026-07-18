@@ -3,7 +3,7 @@
 ETLantic 0.12.0 is an alpha release. This page is the shortest answer to
 "What can I use today?"
 
-## Available in 0.11
+## Available in 0.12
 
 | Capability | Status |
 |---|---|
@@ -43,7 +43,8 @@ ETLantic 0.12.0 is an alpha release. This page is the shortest answer to
 | SparkForge migration adapter | Available (`etlantic-sparkforge`) |
 | DTCS 3.0 Transformation Plan models and Rich Portable Analytics profiles | Available through `dtcs>=0.13` |
 | `@Transformation.portable` / `etlantic.transform` authoring → `dtcs.transform-plan/2` | Available |
-| Portable Polars kernel compiler (planning + kernel execution) | Available (0.12) |
+| `Profile.portable_transform_policy` (`prefer` / `require` / `native`) | Available |
+| Portable Polars **kernel** compiler (plan + execute without native callable) | Available (`etlantic-polars`) |
 | Portable PySpark compiler and relational compiler claims | Planned for 0.13 |
 
 ## Not included in 0.12

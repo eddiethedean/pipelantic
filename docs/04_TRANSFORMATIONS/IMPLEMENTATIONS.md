@@ -42,7 +42,8 @@ def normalize(customers, minimum_age):
     return customers.filter(F.col("age") >= minimum_age)
 ```
 
-Portable authoring is available in 0.11; compilers remain 0.12+. Native
+Portable authoring is available in 0.11+; the Polars **kernel** compiler ships
+in 0.12. Native
 `@implementation()` registration remains required for execution in 0.11 and for
 any profile a compiler has not yet claimed. See
 [Portable Transformations](PORTABLE_TRANSFORMATIONS.md).

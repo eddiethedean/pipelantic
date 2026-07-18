@@ -16,6 +16,7 @@ RUNNABLE_PAGES = {
     "docs/06_EXECUTION/PYSPARK_TUTORIAL.md": "examples/pyspark_local.py",
     "docs/06_EXECUTION/AIRFLOW_TUTORIAL.md": "examples/airflow_compile.py",
     "docs/09_EXAMPLES/AIRFLOW_COMPILE.md": "examples/airflow_compile.py",
+    "docs/09_EXAMPLES/PORTABLE_TRANSFORMATION.md": "examples/portable_polars_kernel.py",
 }
 
 

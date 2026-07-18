@@ -108,11 +108,13 @@ They intentionally do not specify implementation details.
 
 ## Can one transformation run on Polars, PySpark, Pandas, and SQL?
 
-ETLantic 0.11 ships `@Transformation.portable` and `etlantic.transform`
-authoring that emits `dtcs.transform-plan/2`. Portable compilers (Polars,
-PySpark, Pandas, SQL) remain planned for 0.12–0.15. Until then, register a
-native `@implementation()` for each selected engine. Native implementations
-remain the escape hatch for behavior outside the portable standard.
+ETLantic ships `@Transformation.portable` / `etlantic.transform` authoring
+(0.11+) that emits `dtcs.transform-plan/2`. **0.12** executes Polars
+**kernel** plans without a native `@implementation("polars")` when
+`portable_transform_policy` is `prefer` or `require` and `etlantic-polars` is
+installed. Portable compilers for PySpark/relational, Pandas, and SQL remain
+planned for 0.13–0.15—register native `@implementation()` for those engines.
+Native implementations remain the escape hatch outside the portable claim.
 
 ------------------------------------------------------------------------
 
@@ -148,12 +150,12 @@ Business logic remains unchanged.
 
 ETLantic is dataframe-engine neutral.
 
-Install `etlantic-polars` or `etlantic-pandas`, register
-`@Transformation.implementation("polars")` / `"pandas"`, and set
+Install `etlantic-polars` or `etlantic-pandas` and set
 `Profile.dataframe_engine` accordingly. Prefer Polars when you need lazy
-preservation; use Pandas when you need the Pandas ecosystem. SQL is available
-via `etlantic-sql` and `Profile.sql_engine="sql"`. Spark is available via
-`etlantic-pyspark` and `Profile.spark_engine="pyspark"`.
+preservation or 0.12 portable kernel compilation; use Pandas when you need the
+Pandas ecosystem (native `@implementation("pandas")` required). SQL is
+available via `etlantic-sql` and `Profile.sql_engine="sql"`. Spark is available
+via `etlantic-pyspark` and `Profile.spark_engine="pyspark"`.
 
 ------------------------------------------------------------------------
 

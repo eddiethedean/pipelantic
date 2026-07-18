@@ -18,6 +18,7 @@ shipped.
 - [PySpark](../06_EXECUTION/PYSPARK_TUTORIAL.md)
 - [Airflow](../06_EXECUTION/AIRFLOW_TUTORIAL.md)
 - [Airflow Compile](AIRFLOW_COMPILE.md) — `examples/airflow_compile.py`
+- [Portable Polars Kernel](PORTABLE_TRANSFORMATION.md) — `examples/portable_polars_kernel.py`
 - [SparkForge Adapter](SPARKFORGE_ADAPTER.md) — `tests/sparkforge/`
 
 ## Runnable scripts (repository `examples/`)
@@ -28,6 +29,13 @@ These scripts are exercised by CI. From a checkout:
 
 ```bash
 uv run python examples/quickstart.py
+```
+
+### Portable Polars kernel
+
+```bash
+uv sync --group dataframes
+uv run python examples/portable_polars_kernel.py
 ```
 
 ### JSON and CSV storage

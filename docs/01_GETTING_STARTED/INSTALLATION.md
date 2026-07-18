@@ -13,18 +13,23 @@ PySpark, and Airflow plugins. Structured Streaming APIs are experimental.
 
 ## Recommended: install from PyPI
 
+For reproducible evaluation, pin the published release:
+
 ```bash
 python3.11 -m pip install --upgrade pip
-python3.11 -m pip install 'etlantic>=0.12.0'
+python3.11 -m pip install 'etlantic==0.12.0'
 etlantic --version
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add 'etlantic>=0.12.0'
+uv add 'etlantic==0.12.0'
 uv run etlantic --version
 ```
+
+Use `etlantic>=0.12.0,<0.13` only when you intentionally accept compatible
+0.12 patches.
 
 Verify the import:
 
@@ -36,25 +41,25 @@ python -c "import etlantic; print(etlantic.__version__)"
 
 ```powershell
 py -3.11 -m pip install --upgrade pip
-py -3.11 -m pip install 'etlantic>=0.12.0'
+py -3.11 -m pip install 'etlantic==0.12.0'
 py -3.11 -m etlantic --version
 ```
 
 ### Optional engine plugins
 
 Core never installs Polars, Pandas, database drivers, or PySpark. Add engines
-explicitly:
+explicitly (match the core minor):
 
 ```bash
-pip install etlantic-polars    # Polars reference plugin
-pip install etlantic-pandas    # Pandas compatibility plugin
-pip install etlantic-sql       # PostgreSQL SQL reference plugin
-pip install etlantic-pyspark   # PySpark reference plugin + local provider
-pip install etlantic-airflow   # Airflow DAG compiler
-pip install etlantic-keyring   # OS keyring secret provider
-pip install etlantic-sqlmodel  # SQLModel bridge helpers
-pip install etlantic-sparkforge  # SparkForge → ETLantic IR adapter
-# or extras:
+pip install 'etlantic-polars==0.12.0'     # dataframe + Polars kernel compiler
+pip install 'etlantic-pandas==0.12.0'     # Pandas compatibility plugin
+pip install 'etlantic-sql==0.12.0'        # PostgreSQL SQL reference plugin
+pip install 'etlantic-pyspark==0.12.0'    # PySpark reference plugin + local provider
+pip install 'etlantic-airflow==0.12.0'    # Airflow DAG compiler
+pip install 'etlantic-keyring==0.12.0'    # OS keyring secret provider
+pip install 'etlantic-sqlmodel==0.12.0'   # SQLModel bridge helpers
+pip install 'etlantic-sparkforge==0.12.0' # SparkForge → ETLantic IR adapter
+# or extras (resolve to the same minor):
 pip install 'etlantic[polars]'
 pip install 'etlantic[pandas]'
 pip install 'etlantic[dataframes]'   # polars + pandas
@@ -66,6 +71,13 @@ pip install 'etlantic[sqlmodel]'
 pip install 'etlantic[sparkforge]'
 pip install 'etlantic[otel]'         # alias: observability
 pip install 'etlantic[arrow]'
+```
+
+Verify discovery after installing Polars:
+
+```bash
+python -c "from etlantic.transform.discovery import discover_transform_compilers; print(sorted(discover_transform_compilers()))"
+# expect: ['polars']
 ```
 
 For SQL, set a connection URL (PostgreSQL is the reference; SQLite is

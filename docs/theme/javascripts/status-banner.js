@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Shipped in 0.7: PYSPARK, PYSPARK_EXECUTION, SPARK_OPTIMIZATION (batch).
   // Shipped in 0.8: ORCHESTRATION_PLUGINS, AIRFLOW, COMPILATION.
   // Shipped in 0.9: GRAPHVIZ, HTML, LINEAGE tooling + CLI/SDK polish.
+  // Shipped in 0.11: portable authoring.
+  // Shipped in 0.12: PORTABLE_TRANSFORM_COMPILER, portable Polars kernel example.
   // Experimental in 0.7+: STRUCTURED_STREAMING (separate experimental banner).
   const futureExecutionPages = [
     "PLUGINS",
@@ -18,8 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const isExperimentalExecution = experimentalExecutionPages.some((name) =>
     path.includes(`/06_EXECUTION/${name}/`)
   );
-  // Dataframe, SQL, Spark, and Orchestrator plugin protocols are shipped;
-  // other Plugin SDK pages are future.
+  // Dataframe, SQL, Spark, Orchestrator, Secret, Testing, and Transform
+  // Compiler plugin protocols are shipped; other Plugin SDK pages are future.
   const isPluginSdk =
     path.includes("/07_PLUGIN_SDK/") &&
     !path.includes("/07_PLUGIN_SDK/DATAFRAME_PLUGIN/") &&
@@ -29,12 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
     !path.includes("/07_PLUGIN_SDK/SPARK_PROVIDER/") &&
     !path.includes("/07_PLUGIN_SDK/ORCHESTRATOR_PLUGIN/") &&
     !path.includes("/07_PLUGIN_SDK/SECRET_PROVIDER/") &&
-    !path.includes("/07_PLUGIN_SDK/TESTING_PLUGINS/");
+    !path.includes("/07_PLUGIN_SDK/TESTING_PLUGINS/") &&
+    !path.includes("/07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER/");
   const isDesignExample =
     path.includes("/09_EXAMPLES/") &&
     !path.endsWith("/09_EXAMPLES/") &&
     !path.includes("/09_EXAMPLES/AIRFLOW_COMPILE/") &&
-    !path.includes("/09_EXAMPLES/SPARKFORGE_ADAPTER/");
+    !path.includes("/09_EXAMPLES/SPARKFORGE_ADAPTER/") &&
+    !path.includes("/09_EXAMPLES/PORTABLE_TRANSFORMATION/");
   const isFutureVisualization =
     path.includes("/08_VISUALIZATION/") &&
     !path.endsWith("/08_VISUALIZATION/") &&
@@ -76,10 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
   banner.className = "admonition warning";
   banner.dataset.etlanticStatus = "future";
   banner.innerHTML =
-    '<p class="admonition-title">Future design—not an ETLantic 0.10 API guide</p>' +
+    '<p class="admonition-title">Future design—not an ETLantic 0.12 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +
     "Use Current Capabilities, the API reference, and the CLI reference for shipped behavior. " +
-    "CLI tooling, SARIF, plugin trust, Graphviz/HTML lineage, and optional " +
-    "<code>etlantic-keyring</code> / <code>etlantic-sqlmodel</code> are available in 0.9+; SparkForge adapter via <code>etlantic-sparkforge</code> in 0.10.</p>";
+    "Polars kernel portable compilation ships in 0.12 via <code>etlantic-polars</code>; " +
+    "relational / PySpark / Pandas / SQL compilers remain 0.13–0.15.</p>";
   article.prepend(banner);
 });

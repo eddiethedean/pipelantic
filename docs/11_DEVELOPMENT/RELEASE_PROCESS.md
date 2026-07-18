@@ -85,7 +85,8 @@ GitHub Actions workflow
 1. Runs the full checks matrix.
 2. Verifies tag == core + all plugin versions.
 3. Builds all nine wheels/sdists.
-4. Smokes the core wheel (driver-free) and plugin discovery/import.
+4. Smokes the core wheel (driver-free) **and** plugin discovery/import
+   **before** any PyPI upload.
 5. Publishes to PyPI with **10-minute** gaps between packages, skips files
    already present via `--check-url`, and retries on transient 429s.
 6. Creates the GitHub Release from `CHANGELOG.md` notes when publish succeeds.
@@ -184,6 +185,21 @@ Generated plans should normally be regenerated rather than hand-edited.
 
 Security and critical correctness fixes may use an accelerated process, but
 must still include focused tests, release notes, and artifact verification.
+
+## Failure recovery
+
+| Failure | Action |
+|---|---|
+| Checks fail before publish | Fix on `main`, retag only after green CI |
+| Wheel smoke fails before publish | Do not publish; fix and retag |
+| Partial PyPI upload (some packages done) | Re-run the release job; already-uploaded filenames are skipped |
+| Bad artifact already on PyPI | Yank the defective file(s), publish a forward-fix patch, announce |
+| Compromised `PYPI_API_TOKEN` | Revoke immediately, rotate, audit recent uploads |
+| GitHub Release missing after PyPI | Re-run the create-release step or create manually from `CHANGELOG.md` |
+
+Release approval authority sits with the lead maintainer
+([MAINTAINERS.md](https://github.com/eddiethedean/etlantic/blob/main/MAINTAINERS.md)).
+Prefer forward-fix patches over yanks unless the artifact is unsafe.
 
 ## Post-Release
 

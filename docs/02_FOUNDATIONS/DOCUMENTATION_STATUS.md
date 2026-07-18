@@ -1,21 +1,22 @@
 # Documentation Status and Conventions
 
-ETLantic 0.11 implements the typed modeling kernel, contract interoperability,
-Validation / Pipeline Plan IR, the local runtime / operational model,
-dataframe execution (Polars reference + Pandas compatibility), SQL-native
-execution (`etlantic-sql`), distributed Spark batch execution
-(`etlantic-pyspark`), external orchestration compilation
+ETLantic **0.12.0** implements the typed modeling kernel, contract
+interoperability, Validation / Pipeline Plan IR, the local runtime /
+operational model, dataframe execution (Polars reference + Pandas
+compatibility), SQL-native execution (`etlantic-sql`), distributed Spark batch
+execution (`etlantic-pyspark`), external orchestration compilation
 (`etlantic-airflow`), CLI/SDK tooling with Graphviz/HTML lineage exporters,
-optional `etlantic-keyring` / `etlantic-sqlmodel`, and the SparkForge
-migration adapter (`etlantic-sparkforge`). Structured Streaming APIs are
-experimental. ETLantic also consumes DTCS 3.0 Transformation Plan and Rich
-Portable Analytics models through `dtcs>=0.13` (`dtcs.transform-plan/2`; v1
-readable); ETLantic's `@Transformation.portable` / `etlantic.transform`
-authoring ships in 0.11 and emits `dtcs.transform-plan/2`. Portable compilers
-remain 0.12–0.15—keep `@implementation(...)` for execution. Prefer pages marked
-**Available in 0.11** and the Green path on the docs home. Design Proposals and
-**Future design** chapters describe intended 1.0 surfaces and are not current
-APIs. Documentation serves three related purposes:
+optional `etlantic-keyring` / `etlantic-sqlmodel`, the SparkForge migration
+adapter (`etlantic-sparkforge`), `@Transformation.portable` /
+`etlantic.transform` authoring to `dtcs.transform-plan/2`, and the Polars
+**kernel** portable compiler (`etlantic-polars`). Structured Streaming APIs
+are experimental. Relational, PySpark, Pandas, and SQL portable compilers
+remain 0.13–0.15—keep `@implementation(...)` for those engines and for
+profiles outside the Polars kernel claim set.
+
+Prefer pages marked **Available in 0.12** and the Green path on the docs home.
+Design Proposals and **Future design** chapters describe intended 1.0 surfaces
+and are not current APIs. Documentation serves three related purposes:
 
 1. Explain the product vision and user experience.
 2. Specify the intended 1.0 architecture and public interfaces.
@@ -38,7 +39,7 @@ Public pages use these visible statuses:
 
 | Page status | Meaning |
 |---|---|
-| Available in 0.11 | Tested against the current package |
+| Available in 0.12 | Tested against the current package |
 | Shipped in 0.x | Available since that milestone (still current) |
 | Experimental | Public APIs that may change without a major version bump |
 | Partially available | Shipped and future behavior are explicitly separated |
@@ -46,13 +47,14 @@ Public pages use these visible statuses:
 | Normative specification | Contract requirements, not package behavior |
 | Internal project plan | Maintainer sequencing and implementation notes |
 
-Unless a chapter says otherwise, user-guide code beyond the shipped 0.11
-modeling, interchange, validation, planning, local runtime, **dataframe
+Unless a chapter says otherwise, user-guide code beyond the shipped 0.12
+modeling, contracts, validation, planning, local runtime, **dataframe
 plugin**, **SQL plugin**, **PySpark batch**, **Airflow compilation**,
-**CLI/viz tooling**, and **SparkForge adapter** surface should be read as an
-**accepted design example**, not as evidence of a published package API. The
-0.11 surface is defined by the package,
-[API reference](../10_REFERENCE/API_REFERENCE.md), tests, and changelog.
+**CLI/viz tooling**, **SparkForge adapter**, **portable authoring**, and
+**Polars kernel compiler** surface should be read as an **accepted design
+example**, not as evidence of a published package API. The 0.12 surface is
+defined by the package, [API reference](../10_REFERENCE/API_REFERENCE.md),
+tests, and changelog.
 
 **Shipped in 0.5:** dataframe execution protocol, `etlantic-polars`, and
 `etlantic-pandas` (see Execution → Polars / Pandas and the Dataframe Plugin
@@ -76,14 +78,19 @@ HTML lineage exporters (`etlantic.viz`), `etlantic-keyring`,
 
 **Shipped in 0.10+:** SparkForge migration adapter (`etlantic-sparkforge`).
 
+**Shipped in 0.11:** `@Transformation.portable` / `etlantic.transform`
+authoring emitting `dtcs.transform-plan/2`.
+
+**Shipped in 0.12:** `Profile.portable_transform_policy`, portable planning
+selection, and Polars **kernel** portable compilation / execution via
+`etlantic-polars` (`etlantic.transform_compilers`).
+
 **Experimental in 0.7+:** Structured Streaming foundation APIs.
 
 **Still accepted design until later milestones:** managed Spark providers
-(Databricks/EMR/Connect), Dagster/Prefect compilers, and remaining Plugin SDK
-surfaces. Portable authoring ships in 0.11 (facade→`dtcs.transform-plan/2`).
-Polars **kernel** portable planning and execution ships in 0.12. Remaining
-compilers are sequenced across 0.13–0.15: relational + PySpark, Pandas and
-public conformance, then SQL lowering and profile graduation.
+(Databricks/EMR/Connect), Dagster/Prefect compilers, remaining Plugin SDK
+surfaces, and portable compilers for relational + PySpark (0.13), Pandas /
+conformance (0.14), and SQL lowering (0.15+).
 
 ## Normative Authority
 
@@ -95,7 +102,7 @@ The source of truth depends on the subject:
 | Transformation-contract meaning | [DTCS 3.0 specification](https://github.com/eddiethedean/dtcs/blob/main/SPEC.md) |
 | Portable Transformation Plan meaning and canonical models | DTCS 3.0 specification and `dtcs>=0.13` |
 | PySpark-inspired portable authoring UX | ETLantic `etlantic.transform/1` profile |
-| Portable compiler lifecycle | ETLantic Plugin SDK |
+| Portable compiler lifecycle | ETLantic Plugin SDK (`etlantic.transform-compiler/1`) |
 | Pipeline-contract meaning | `DPCS_SPEC.md` |
 | ContractModel behavior | ContractModel project |
 | ETLantic architecture and API | This documentation until code and tests supersede it |

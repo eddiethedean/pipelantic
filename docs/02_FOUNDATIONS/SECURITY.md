@@ -11,7 +11,10 @@ boundaries, required controls, and production-readiness gates.
 
 1. Treat contracts, configuration, plugins, metadata, and generated artifacts
    as untrusted input.
-2. Never execute code during loading, validation, inspection, or planning.
+2. Do not execute transformation or runtime plugin callables during loading,
+   validation, inspection, or planning. Loading a Python pipeline target or
+   discovering an installed entry point still runs trusted module-level import
+   code—use curated environments and process isolation.
 3. Keep resolved secrets out of contracts, plans, caches, logs, reports, and
    generated artifacts.
 4. Make filesystem, network, subprocess, plugin, and credential authority
@@ -72,7 +75,7 @@ The analysis boundary must not require runtime privileges.
 | Contract loading | parser abuse, traversal, SSRF | bounded safe loaders and approved resolvers | Partial |
 | Python discovery | import-time execution | static discovery or explicit trusted import | Gap |
 | Planning | code or secret resolution | pure, secret-free planning | Strong |
-| Plugins | supply-chain execution | allowlists, pins, provenance | Partial (allowlists/pins shipped in 0.9+; provenance Gap) |
+| Plugins | supply-chain execution | curated installs, allowlists, pins, provenance | Partial (allowlists/pins select already-discovered plugins; provenance Gap) |
 | Resource providers | excessive authority | scopes, least privilege, cleanup | Strong concept |
 | SQL | injection and query leakage | structured compilation and parameters | Strong |
 | PySpark | remote code and cluster overreach | isolation and provider policy | Partial |
@@ -212,6 +215,12 @@ and [compiler protocol](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md).
 Python plugins execute with host-process privileges. Entry-point discovery is a
 trust decision, not a sandbox.
 
+**Important:** `Profile.plugin_allowlist` filters which discovered plugins may
+be *selected* for planning and execution. Discovery still loads entry-point
+factories at runtime construction time, so an installed malicious package can
+run import-time code before the allowlist is applied. Install only trusted
+packages, prefer locked environments, and isolate untrusted evaluation.
+
 **Shipped in 0.9+:** production profiles fail closed unless
 `Profile.plugin_allowlist` is set. Configure allowlists in Python (ETLantic
 does **not** load `etlantic.toml` today):
@@ -222,9 +231,11 @@ from etlantic import Profile
 production = Profile(
     name="production",
     security_domain="production",
+    dataframe_engine="polars",
+    portable_transform_policy="require",
     plugin_allowlist={
-        "etlantic-polars": ">=0.10.0,<1.0",
-        "etlantic-airflow": ">=0.10.0,<1.0",
+        "etlantic-polars": "==0.12.0",
+        "etlantic-airflow": "==0.12.0",
     },
 )
 ```
@@ -234,7 +245,7 @@ See [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 !!! note "Future design (1.0)"
     A proposed `etlantic.toml` `[plugins.security]` block may eventually mirror
     the same allowlist semantics. Do not configure TOML as if it is loaded in
-    0.10—use `Profile.plugin_allowlist`.
+    0.12—use `Profile.plugin_allowlist`.
 
 Controls should include:
 

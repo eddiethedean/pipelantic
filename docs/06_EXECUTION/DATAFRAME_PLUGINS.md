@@ -4,17 +4,20 @@ Dataframe plugins implement physical transformation execution using a
 specific dataframe library while preserving logical semantics from DTCS and
 the Pipeline Plan.
 
-**Status: shipped in 0.5.0** for Polars and Pandas.
+**Status: shipped in 0.5.0** for Polars and Pandas dataframe execution.
+**0.12** adds Polars **kernel** portable compilation via the same
+`etlantic-polars` package (`etlantic.transform_compilers`).
 
-Portable transformation compilation is a separate accepted 0.11+ design. The
-current 0.10 plugins invoke engine-specific `@implementation()` callables.
+Native `@implementation()` callables remain available for both engines.
+Portable execution without a native Polars callable works for the kernel claim
+set when `Profile.portable_transform_policy` is `prefer` or `require`.
 
 ETLantic does **not** depend on a dataframe library. Install plugins
 separately:
 
 ```bash
-pip install etlantic-polars
-pip install etlantic-pandas
+pip install 'etlantic-polars==0.12.0'
+pip install 'etlantic-pandas==0.12.0'
 ```
 
 ## Protocol
@@ -42,10 +45,10 @@ def normalize_pandas(customers: pd.DataFrame) -> pd.DataFrame: ...
 
 Select the engine with `Profile.dataframe_engine = "polars"` or `"pandas"`.
 
-## Portable compilation (0.11+)
+## Portable compilation (0.12 Polars kernel)
 
-Dataframe plugins will additionally analyze and compile
-DTCS Transformation Plans produced by portable definitions:
+Transform compilers analyze and compile DTCS Transformation Plans produced by
+portable definitions:
 
 ```python
 @NormalizeCustomers.portable
@@ -53,10 +56,10 @@ def normalize(customers):
     return customers.select("customer_id", "full_name")
 ```
 
-The plugin converts symbolic inputs into native expressions, preserves
-portable semantics, validates native frames at contract boundaries, and
-normalizes named outputs. Operation support is advertised individually and
-unsupported expressions fail during planning.
+`etlantic-polars` converts supported kernel IR into native expressions,
+preserves portable semantics, validates frames at contract boundaries, and
+normalizes named outputs. Unsupported expressions fail during planning
+(`PMXFORM301`). See `examples/portable_polars_kernel.py`.
 
 ## Further reading
 

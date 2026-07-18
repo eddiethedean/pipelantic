@@ -1,0 +1,7 @@
+# Default owners for the ETLantic monorepo.
+* @eddiethedean
+
+/docs/ @eddiethedean
+/packages/ @eddiethedean
+/.github/ @eddiethedean
+/scripts/ @eddiethedean

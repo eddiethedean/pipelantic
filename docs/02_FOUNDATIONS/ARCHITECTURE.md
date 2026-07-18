@@ -108,7 +108,7 @@ The logical model captures portable meaning:
 It excludes resolved credentials, dataframe objects, scheduler tasks, database
 connections, and cluster handles.
 
-Beginning with the proposed 0.11 work, the logical model may also contain a
+Beginning with the shipped 0.11+ portable authoring surface, the logical model may also contain a
 closed `dtcs.transform-plan/2` expression graph (v1 remains readable). This
 graph is data-only and
 backend-independent; native Polars, Pandas, SQL, and Spark objects remain

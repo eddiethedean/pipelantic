@@ -1,0 +1,39 @@
+name: Feature request
+description: Propose a capability within project boundaries
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ETLantic owns modeling/validation/planning. Plugins own execution.
+        Standards (ODCS/DTCS/DPCS) own contract meaning.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Likely architectural owner
+      options:
+        - Core modeling / validation / planning
+        - Official plugin
+        - Third-party plugin
+        - Contract standard (ODCS/DTCS/DPCS)
+        - Documentation only
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

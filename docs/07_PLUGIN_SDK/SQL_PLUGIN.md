@@ -906,19 +906,21 @@ Requirements include:
 
 ## Plugin Registration
 
-Conceptually:
+Prefer package entry points (`etlantic.sql_plugins`) or runtime registration:
 
-```python
-from etlantic.plugins import register_sql_plugin
-
-
-register_sql_plugin(
-    PostgreSqlPlugin(),
-)
+```toml
+# pyproject.toml
+[project.entry-points."etlantic.sql_plugins"]
+sql = "etlantic_sql:create_plugin"
 ```
 
-Normal deployments should prefer automatic discovery through package entry
-points or the standard ETLantic plugin registry.
+```python
+from etlantic import PipelineRuntime
+from etlantic_sql import create_plugin
+
+runtime = PipelineRuntime()
+runtime.register_sql_plugin("sql", create_plugin())
+```
 
 ## Package Naming
 

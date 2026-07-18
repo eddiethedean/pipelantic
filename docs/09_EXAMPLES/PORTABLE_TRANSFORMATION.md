@@ -1,16 +1,19 @@
 # Portable Customer Transformation
 
-!!! success "**Status: Available in ETLantic 0.11** (authoring) / **0.12** (Polars kernel)"
-    This example shows `@Transformation.portable` authoring to
-    `dtcs.transform-plan/2`. Polars can execute this **kernel-shaped** plan in
-    0.12 without a native `@implementation("polars")`. Relational multi-engine
-    claims remain 0.13+.
+!!! success "**Status: Available in ETLantic 0.12** (Polars kernel execution)"
+    `@Transformation.portable` authoring shipped in 0.11. This guide runs a
+    **kernel-shaped** plan on Polars in 0.12 without a native
+    `@implementation("polars")`. Relational multi-engine claims remain 0.13+.
 
-This example defines one transformation with `@Transformation.portable` and
-inspects the emitted `dtcs.transform-plan/2` (fingerprint). With
-`portable_transform_policy="require"` (or `"prefer"`) and `etlantic-polars`
-installed, kernel plans compile and run on Polars. Richer profiles still need
-a native `@implementation(...)` until later compilers ship.
+Runnable companion:
+[`examples/portable_polars_kernel.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/portable_polars_kernel.py).
+
+```bash
+pip install 'etlantic==0.12.0' 'etlantic-polars==0.12.0'
+python examples/portable_polars_kernel.py
+```
+
+## Author once
 
 ```python
 from etlantic import (
@@ -19,27 +22,28 @@ from etlantic import (
     Output,
     Parameter,
     Pipeline,
+    PipelineRuntime,
+    Profile,
     Sink,
     Source,
     Transformation,
 )
+from etlantic.plan import explain_plan, plan_pipeline
+from etlantic.registry import PlanningContext
 from etlantic.transform import functions as F
+from etlantic_polars import create_plugin
 
 
 class RawCustomer(Data):
     customer_id: int
-    first_name: str
-    last_name: str
-    email: str | None
+    email: str
     age: int
-    lifetime_value: float
 
 
 class Customer(Data):
     customer_id: int
-    full_name: str
-    email: str | None
-    segment: str
+    email: str
+    age: int
 
 
 class NormalizeCustomers(Transformation):
@@ -51,35 +55,19 @@ class NormalizeCustomers(Transformation):
 @NormalizeCustomers.portable
 def normalize(customers, minimum_age):
     return (
-        customers
-        .filter(F.col("age") >= minimum_age)
-        .select(
-            F.col("customer_id"),
-            F.concat_ws(
-                " ",
-                F.col("first_name"),
-                F.col("last_name"),
-            ).alias("full_name"),
-            F.lower(F.col("email")).alias("email"),
-            F.when(F.col("lifetime_value") >= 10_000, F.lit("platinum"))
-            .when(F.col("lifetime_value") >= 1_000, F.lit("gold"))
-            .otherwise(F.lit("standard"))
-            .alias("segment"),
-        )
+        customers.filter(F.col("age") >= minimum_age)
+        .withColumn("email", F.lower(F.col("email")))
+        .select("customer_id", "email", "age")
     )
 
 
-class CustomerPipeline(Pipeline):
+class PortablePolarsPipeline(Pipeline):
     raw: Source[RawCustomer] = Source(binding="customers")
     normalized = NormalizeCustomers.step(customers=raw)
-    curated: Sink[Customer] = Sink(
-        input=normalized.result,
-        binding="curated_customers",
-    )
+    curated: Sink[Customer] = Sink(input=normalized.result, binding="curated")
 ```
 
-
-## Inspect the portable plan
+Inspect the emitted plan (no engine required):
 
 ```python
 plan = NormalizeCustomers.to_transform_plan()
@@ -87,94 +75,68 @@ assert plan["planIdentity"] == "dtcs.transform-plan/2"
 print(NormalizeCustomers.portable_fingerprint())
 ```
 
-Keep a native `@NormalizeCustomers.implementation("local")` (or another engine)
-registered when you need to **run** the pipeline. Portable authoring alone does
-not execute on Polars, Pandas, SQL, or Spark in 0.11.
-
-## Profile selection (planned 0.12+)
-
-The pipeline definition does not change across engines. Once compilers ship,
-default policy is `prefer` (portable when covered; diagnosed native fallback
-otherwise). `require` is appropriate for production evaluation of portable
-paths:
+## Run on Polars without a native callable
 
 ```python
-polars_profile = Profile(
-    name="polars-local",
+profile = Profile(
+    name="polars-portable",
     dataframe_engine="polars",
-    portable_transform_policy="prefer",  # or "require" for fail-closed portable
+    portable_transform_policy="require",  # fail closed if unsupported
 )
-
-spark_profile = Profile(
-    name="spark-production",
-    spark_engine="pyspark",
-    portable_transform_policy="require",
+runtime = PipelineRuntime()
+runtime.register_dataframe_plugin("polars", create_plugin())
+runtime.memory.seed(
+    "customers",
+    [
+        RawCustomer(customer_id=1, email="A@X.COM", age=30),
+        RawCustomer(customer_id=2, email="b@y.com", age=10),
+    ],
 )
+context = PlanningContext.create(profile=profile, registry=runtime.registry)
+planned = plan_pipeline(PortablePolarsPipeline, context=context)
+assert planned.implementations["normalized"].kind == "portable_compiled"
+report = PortablePolarsPipeline.run(
+    profile=profile, runtime=runtime, context=context
+)
+print(runtime.memory.get("curated"))
 ```
 
-In **0.12**, only the Polars kernel compiler is expected to execute this
-example's claim set. PySpark portable execution for the same IR is **0.13**.
-Both future profiles select a plugin compiler for the same
-`dtcs.transform-plan/2` (v1 readable) generated through the
-`etlantic.transform/1` authoring profile.
+Default policy is `prefer` (portable when covered; diagnosed native fallback
+otherwise). Use `native` to ignore compilers.
 
 ## Expected plan evidence
 
 ```json
 {
-  "step": "normalized",
+  "node": "normalized",
   "implementation_kind": "portable_compiled",
-  "portable_protocol": "dtcs.transform-plan/2",
-  "authoring_profile": "etlantic.transform/1",
-  "compiler_engine": "polars",
-  "requirements": {
-    "profiles": ["dtcs:profile/portable-relational-kernel/1"],
-    "actions": ["dtcs:filter", "dtcs:project"],
-    "functions": [
-      "dtcs:case_when",
-      "dtcs:concat_ws",
-      "dtcs:lower"
-    ]
-  }
+  "compiler": {"name": "etlantic-polars"},
+  "ir_fingerprint": "<64-char sha256>"
 }
 ```
 
-The real plan uses stable identities and fingerprints. It does not include
-runtime parameter values or source rows.
+Use `explain_plan(planned)` or `etlantic plan … --format json`.
 
 ## Expected outputs
 
-Sample input (`customers`):
+| customer_id | email | age |
+|---|---|---|
+| 1 | a@x.com | 30 |
 
-```text
-customer_id  first_name  last_name  email                 age  lifetime_value
-1            Ada         Lovelace   Ada@Example.com       36   12000.0
-2            Grace       Hopper     grace@example.com     17   2500.0
-3            Katherine   Johnson    k.johnson@example.com 42   800.0
-```
+Age 10 is filtered out. Email is lowercased.
 
-With `minimum_age=18`, the curated sink (`result` / `curated_customers`) is:
+## Unsupported operations fail closed
 
-```text
-customer_id  full_name            email                  segment
-1            Ada Lovelace         ada@example.com        platinum
-3            Katherine Johnson    k.johnson@example.com  standard
-```
+Joins, windows, and conversion-profile functions such as `dtcs:cast` are
+outside the 0.12 Polars kernel claim. With `portable_transform_policy="require"`,
+planning raises `PipelineValidationError` with `PMXFORM301` (or `PMXFORM302`
+when no compiler is discoverable).
 
-Grace is filtered out by age. Segment thresholds are platinum ≥ 10000,
-gold ≥ 1000, otherwise standard. Email is lowercased. Trimming is omitted
-because DTCS 2.0 publishes `trim` as a field Semantic Action, not a general
-structured-expression Function.
+## What remains future
 
-## Acceptance assertions
+- Portable PySpark / relational compilers (0.13)
+- Portable Pandas compiler (0.14)
+- Portable SQL lowering (0.15+)
 
-The eventual runnable example must prove:
-
-1. Polars and PySpark produce contract-equivalent records.
-2. Polars retains `LazyFrame` until the sink boundary.
-3. PySpark uses native Column expressions and no Python UDF.
-4. `minimum_age` remains a symbolic parameter in the plan.
-5. Missing columns and unsupported functions fail during planning.
-6. Plan and report serialization contain no source rows or secrets.
-7. The native implementation mechanism can override this definition only under
-   explicit profile policy.
+Keep `@implementation("pyspark")` / `"pandas"` / `"sql"` for those engines
+until their compilers ship.

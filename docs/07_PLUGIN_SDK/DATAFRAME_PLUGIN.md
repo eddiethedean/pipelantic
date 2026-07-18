@@ -7,11 +7,11 @@ specific dataframe engine.
 
 Reference packages: `etlantic-polars`, `etlantic-pandas`.
 
-!!! note "Future compiler role"
-    The shipped protocol invokes native transformation callables. In 0.12+,
-    dataframe plugins may additionally implement the
-    [portable transformation compiler](PORTABLE_TRANSFORM_COMPILER.md). The two
-    protocols remain separately versioned.
+!!! note "Companion compiler protocol (0.12)"
+    The dataframe protocol still invokes native transformation callables.
+    Portable compilation uses the separately versioned
+    [portable transformation compiler](PORTABLE_TRANSFORM_COMPILER.md)
+    (`etlantic.transform_compilers`). `etlantic-polars` ships both plugins.
 
 ## Responsibilities
 
