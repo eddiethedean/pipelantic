@@ -1,7 +1,7 @@
-# ETLantic 0.11 User Guide
+# ETLantic 0.12 User Guide
 
 This is the current, installable ETLantic manual. Every page linked from this
-guide documents behavior available in ETLantic 0.11 unless it is explicitly
+guide documents behavior available in ETLantic 0.12 unless it is explicitly
 marked **Experimental**.
 
 ## Start here
@@ -21,6 +21,7 @@ marked **Experimental**.
 | Keep work inside SQL | [SQL tutorial](../06_EXECUTION/SQL_TUTORIAL.md) |
 | Run a local Spark batch | [PySpark tutorial](../06_EXECUTION/PYSPARK_TUTORIAL.md) |
 | Compile a DAG | [Airflow tutorial](../06_EXECUTION/AIRFLOW_TUTORIAL.md) |
+| Author portable transforms | [Portable transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md) |
 | Integrate validation into CI | [CI integration](../06_EXECUTION/CI_INTEGRATION.md) |
 | Evaluate operational boundaries | [Production readiness](../06_EXECUTION/PRODUCTION_READINESS.md) |
 | Build a plugin | [Plugin development](../07_PLUGIN_SDK/README.md) |
@@ -32,5 +33,5 @@ marked **Experimental**.
 - [CLI reference](../10_REFERENCE/CLI.md) documents installed commands.
 - [Known limitations](../10_REFERENCE/KNOWN_ISSUES.md) documents hard boundaries.
 
-Material under **Design Proposals** is not part of the 0.11 user guide and must
+Material under **Design Proposals** is not part of the 0.12 user guide and must
 not be copied into current applications.

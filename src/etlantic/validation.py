@@ -259,6 +259,9 @@ def _phase_policy(
     diagnostics: list[Diagnostic] = []
     if not policy.require_implementations:
         return diagnostics
+    portable_policy = (
+        getattr(context.profile, "portable_transform_policy", "prefer") or "prefer"
+    )
     for node in graph.nodes:
         if node.kind.value != "step" or not node.transformation_id:
             continue
@@ -272,6 +275,23 @@ def _phase_policy(
         if transform_cls is None:
             continue
         impls = transform_cls.implementations()
+        has_portable = (
+            hasattr(transform_cls, "portable_definition")
+            and transform_cls.portable_definition() is not None
+        )
+        # Portable-capable steps may satisfy prefer/require without a native
+        # callable when a transform compiler exists for the engine.
+        if (
+            has_portable
+            and portable_policy in {"prefer", "require"}
+            and engine != "local"
+        ):
+            from etlantic.transform.discovery import load_transform_compiler
+
+            if load_transform_compiler(engine) is not None:
+                continue
+            if portable_policy == "prefer" and engine in impls:
+                continue
         # Strict policy requires a registered transformation implementation;
         # registry engine presence alone is not sufficient.
         if engine not in impls:

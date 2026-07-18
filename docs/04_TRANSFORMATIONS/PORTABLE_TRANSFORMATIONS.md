@@ -1,10 +1,9 @@
 # Portable Transformations
 
-!!! success "Available in ETLantic 0.11"
+!!! success "Available in ETLantic 0.11 (authoring) / 0.12 (Polars kernel execution)"
     `@Transformation.portable` and `etlantic.transform` emit validated
-    `dtcs.transform-plan/2` IR. Backend compilers remain planned for 0.12+
-    (0.12 = planning + Polars **kernel** execution; richer profiles need native
-    implementations or 0.13–0.15 compilers).
+    `dtcs.transform-plan/2` IR. Polars executes **kernel** portable plans in
+    0.12; richer profiles need native implementations or 0.13–0.15 compilers.
 
 A portable transformation expresses dataframe logic once and lets ETLantic
 plugins compile it for Polars, Pandas, SQL, PySpark, and future engines.

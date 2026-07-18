@@ -1170,12 +1170,19 @@ class LocalOrchestrator:
             inputs = self._gather_inputs(node, graph, artifacts)
             state.records_in = sum(_count(v) for v in inputs.values())
             params = self._parameters_for(node)
-            impl = self._resolve_implementation(node)
-            state.implementation = impl.identity
+            descriptor = self.plan.implementations.get(node.name)
+            if descriptor is not None and descriptor.kind == "portable_compiled":
+                impl = None
+                engine = descriptor.engine
+                state.implementation = descriptor.identity
+            else:
+                impl = self._resolve_implementation(node)
+                engine = impl.engine
+                state.implementation = impl.identity
 
-            if is_dataframe_engine(impl.engine):
+            if is_dataframe_engine(engine):
                 plugin = resolve_dataframe_plugin(
-                    impl.engine,
+                    engine,
                     plugins=getattr(self.runtime, "dataframe_plugins", None),
                 )
                 # Skip record-oriented input validation; plugin validates.
@@ -1185,12 +1192,13 @@ class LocalOrchestrator:
                             node_name=node.name,
                             boundary="input_validation",
                             status="skipped",
-                            message=f"delegated to {impl.engine} plugin",
+                            message=f"delegated to {engine} plugin",
                         )
                     )
                 bundle = await execute_dataframe_step(
                     plugin=plugin,
                     impl=impl,
+                    descriptor=descriptor,
                     node=node,
                     inputs=inputs,
                     params=params,

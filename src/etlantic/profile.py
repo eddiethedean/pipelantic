@@ -5,9 +5,11 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from etlantic.secrets import SecretRef
+
+PortableTransformPolicy = Literal["require", "prefer", "native"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +44,8 @@ class Profile:
     # Empty allowlist means unrestricted in non-production profiles; production
     # profiles fail closed when allowlist is empty or a discovered plugin is absent.
     plugin_allowlist: dict[str, str | None] = field(default_factory=dict)
+    # 0.12: portable vs native selection (no silent fallback).
+    portable_transform_policy: PortableTransformPolicy = "prefer"
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def identity(self) -> str:
@@ -99,6 +103,9 @@ class Profile:
                 str(k): (None if v in (None, "") else str(v))
                 for k, v in dict(data.get("plugin_allowlist") or {}).items()
             },
+            portable_transform_policy=_parse_portable_policy(
+                data.get("portable_transform_policy")
+            ),
             metadata=dict(data.get("metadata") or {}),
         )
 
@@ -107,6 +114,15 @@ class Profile:
         current = self.to_dict()
         current.update(kwargs)
         return Profile.from_dict(current)
+
+
+def _parse_portable_policy(value: Any) -> PortableTransformPolicy:
+    policy = str(value or "prefer")
+    if policy not in {"require", "prefer", "native"}:
+        raise ValueError(
+            f"portable_transform_policy must be require|prefer|native, got {policy!r}"
+        )
+    return policy  # type: ignore[return-value]
 
 
 def development_profile(**overrides: Any) -> Profile:

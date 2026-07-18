@@ -1,6 +1,6 @@
 [project]
 name = "etlantic-polars"
-version = "0.11.0"
+version = "0.12.0"
 description = "Polars dataframe execution plugin for ETLantic."
 readme = "README.md"
 license = "MIT"
@@ -17,7 +17,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "etlantic>=0.11.0,<1.0",
+    "etlantic>=0.12.0,<1.0",
     "polars>=1.0,<2",
 ]
 
@@ -33,6 +33,9 @@ arrow = ["pyarrow>=14"]
 
 [project.entry-points."etlantic.dataframe_plugins"]
 polars = "etlantic_polars:create_plugin"
+
+[project.entry-points."etlantic.transform_compilers"]
+polars = "etlantic_polars:create_transform_compiler"
 
 [build-system]
 requires = ["hatchling"]

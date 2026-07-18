@@ -46,6 +46,16 @@ class ImplementationDescriptor:
     engine: str
     identity: str
     is_async: bool = False
+    kind: str = "native"  # "native" | "portable_compiled"
+    ir_fingerprint: str | None = None
+    compiler_name: str | None = None
+    compiler_version: str | None = None
+    compiler_protocol: str | None = None
+    requirements: dict[str, list[str]] = field(default_factory=dict)
+    support_summary: dict[str, Any] = field(default_factory=dict)
+    fallback_reason: str | None = None
+    # Bounded canonical dtcs.transform-plan/2 (data-only); never live objects.
+    portable_plan: dict[str, Any] | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,17 +65,45 @@ class ImplementationDescriptor:
             "engine": self.engine,
             "identity": self.identity,
             "is_async": self.is_async,
+            "kind": self.kind,
+            "ir_fingerprint": self.ir_fingerprint,
+            "compiler_name": self.compiler_name,
+            "compiler_version": self.compiler_version,
+            "compiler_protocol": self.compiler_protocol,
+            "requirements": {
+                key: list(values) for key, values in self.requirements.items()
+            },
+            "support_summary": dict(self.support_summary),
+            "fallback_reason": self.fallback_reason,
+            "portable_plan": dict(self.portable_plan) if self.portable_plan else None,
             "metadata": dict(self.metadata),
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ImplementationDescriptor:
         """Deserialize implementation descriptor."""
+        requirements_raw = data.get("requirements") or {}
         return cls(
             transformation_id=str(data["transformation_id"]),
             engine=str(data["engine"]),
             identity=str(data["identity"]),
             is_async=bool(data.get("is_async", False)),
+            kind=str(data.get("kind") or "native"),
+            ir_fingerprint=data.get("ir_fingerprint"),
+            compiler_name=data.get("compiler_name"),
+            compiler_version=data.get("compiler_version"),
+            compiler_protocol=data.get("compiler_protocol"),
+            requirements={
+                str(k): [str(x) for x in (v or [])]
+                for k, v in dict(requirements_raw).items()
+            },
+            support_summary=dict(data.get("support_summary") or {}),
+            fallback_reason=data.get("fallback_reason"),
+            portable_plan=(
+                dict(data["portable_plan"])
+                if isinstance(data.get("portable_plan"), dict)
+                else None
+            ),
             metadata=dict(data.get("metadata") or {}),
         )
 
@@ -262,6 +300,10 @@ class PlanningContext:
                 )
 
                 register_spark(reg)
+            if engine in {"polars", "pandas"} or spark_engine in {"pyspark", "spark"}:
+                from etlantic.transform.discovery import register_discovered_compilers
+
+                register_discovered_compilers(reg)
         return cls(
             profile=resolved,
             registry=reg,

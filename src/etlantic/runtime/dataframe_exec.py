@@ -17,6 +17,7 @@ from etlantic.dataframe.protocol import (
 from etlantic.exceptions import NodeExecutionError
 from etlantic.model import Node
 from etlantic.plan.model import PipelinePlan
+from etlantic.registry import ImplementationDescriptor
 from etlantic.runtime.logging import redact_message
 from etlantic.runtime.state import FailureStage
 from etlantic.transformation import ImplementationRecord
@@ -117,7 +118,7 @@ def _unpack_validation(
 async def execute_dataframe_step(
     *,
     plugin: DataframePlugin,
-    impl: ImplementationRecord,
+    impl: ImplementationRecord | None,
     node: Node,
     inputs: dict[str, Any],
     params: dict[str, Any],
@@ -125,9 +126,14 @@ async def execute_dataframe_step(
     run_id: str,
     attempt: int,
     collect_outputs: bool | None = None,
+    descriptor: ImplementationDescriptor | None = None,
 ) -> DataframeOutputBundle:
-    """Materialize → invoke → normalize → validate through a dataframe plugin."""
-    engine = impl.engine
+    """Materialize → invoke/compile → normalize → validate through a dataframe plugin."""
+    engine = (
+        (descriptor.engine if descriptor is not None else None)
+        or (impl.engine if impl is not None else None)
+        or "local"
+    )
     output_ports = tuple(p.name for p in node.outputs) or ("result",)
     any_fan_out = any(has_fan_out(plan, node.name, p) for p in output_ports)
     # Initial context; per-port collect overrides applied below.
@@ -206,14 +212,33 @@ async def execute_dataframe_step(
         )
 
     try:
-        raw_result = plugin.invoke(
-            callable_=impl.callable,
-            inputs=materialized,
-            parameters=params,
-            context=context,
-        )
-        if hasattr(raw_result, "__await__"):
-            raw_result = await raw_result
+        if descriptor is not None and descriptor.kind == "portable_compiled":
+            raw_result = await _execute_portable(
+                descriptor=descriptor,
+                inputs=materialized,
+                parameters=params,
+                plan=plan,
+                node=node,
+                context=context,
+            )
+        else:
+            if impl is None:
+                raise NodeExecutionError(
+                    redact_message(
+                        f"No native implementation for dataframe step {node.name}"
+                    ),
+                    node_name=node.name,
+                    stage=FailureStage.TRANSFORM.value,
+                    code="PMEXEC321",
+                )
+            raw_result = plugin.invoke(
+                callable_=impl.callable,
+                inputs=materialized,
+                parameters=params,
+                context=context,
+            )
+            if hasattr(raw_result, "__await__"):
+                raw_result = await raw_result
     except NodeExecutionError:
         raise
     except Exception as exc:
@@ -326,3 +351,71 @@ async def execute_dataframe_step(
             (plugin.row_count(v) or 0) for v in bundle.valid.values()
         )
     return bundle
+
+
+async def _execute_portable(
+    *,
+    descriptor: ImplementationDescriptor,
+    inputs: dict[str, Any],
+    parameters: dict[str, Any],
+    plan: PipelinePlan,
+    node: Node,
+    context: DataframeExecutionContext,
+) -> Any:
+    from etlantic.transform.compiler import (
+        TransformCompileContext,
+        TransformExecutionContext,
+    )
+    from etlantic.transform.discovery import load_transform_compiler
+
+    compiler = load_transform_compiler(descriptor.engine)
+    if compiler is None:
+        raise NodeExecutionError(
+            redact_message(
+                f"No transform compiler for engine {descriptor.engine!r} "
+                f"on step {node.name}"
+            ),
+            node_name=node.name,
+            stage=FailureStage.TRANSFORM.value,
+            code="PMXFORM302",
+        )
+    portable_plan = descriptor.portable_plan
+    if not portable_plan:
+        raise NodeExecutionError(
+            redact_message(
+                f"Plan step {node.name} is portable_compiled but missing embedded IR"
+            ),
+            node_name=node.name,
+            stage=FailureStage.TRANSFORM.value,
+            code="PMXFORM501",
+        )
+    compile_ctx = TransformCompileContext(
+        pipeline_id=plan.pipeline_id,
+        plan_id=plan.plan_id,
+        step_name=node.name,
+        profile_name=plan.profile_name,
+        engine=descriptor.engine,
+    )
+    compiled = compiler.compile(
+        portable_plan,
+        context=compile_ctx,
+        requirements=descriptor.requirements,
+    )
+    exec_ctx = TransformExecutionContext(
+        run_id=context.run_id,
+        pipeline_id=context.pipeline_id,
+        plan_id=context.plan_id,
+        step_name=context.step_name,
+        engine=context.engine,
+        attempt=context.attempt,
+        collect=context.collect,
+    )
+    bundle = await compiler.execute(
+        compiled,
+        inputs=inputs,
+        parameters=parameters,
+        context=exec_ctx,
+    )
+    if len(bundle.valid) == 1:
+        return next(iter(bundle.valid.values()))
+    return dict(bundle.valid)

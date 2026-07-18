@@ -1,15 +1,16 @@
 # Portable Customer Transformation
 
-!!! success "**Status: Available in ETLantic 0.11** (authoring; compilers 0.12+)"
+!!! success "**Status: Available in ETLantic 0.11** (authoring) / **0.12** (Polars kernel)"
     This example shows `@Transformation.portable` authoring to
-    `dtcs.transform-plan/2`. Compiler execution remains planned for 0.12+
-    (0.12 = Polars **kernel** only; relational multi-engine claims in 0.13).
+    `dtcs.transform-plan/2`. Polars can execute this **kernel-shaped** plan in
+    0.12 without a native `@implementation("polars")`. Relational multi-engine
+    claims remain 0.13+.
 
 This example defines one transformation with `@Transformation.portable` and
-inspects the emitted `dtcs.transform-plan/2` (fingerprint). Execution still
-requires a native `@implementation(...)` until portable compilers ship in
-0.12–0.15. The definition below is **kernel-shaped** (filter/project/scalars)
-so it matches the intended 0.12 Polars claim set once compilers land.
+inspects the emitted `dtcs.transform-plan/2` (fingerprint). With
+`portable_transform_policy="require"` (or `"prefer"`) and `etlantic-polars`
+installed, kernel plans compile and run on Polars. Richer profiles still need
+a native `@implementation(...)` until later compilers ship.
 
 ```python
 from etlantic import (

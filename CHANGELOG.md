@@ -7,10 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-07-17
+
+### Added
+
+- `etlantic.transform-compiler/1` protocol types, discovery
+  (`etlantic.transform_compilers`), and capability matching
+- `Profile.portable_transform_policy` (`prefer` / `require` / `native`) with
+  fail-closed unsupported diagnostics (`PMXFORM3xx`)
+- `ImplementationDescriptor.kind` (`portable_compiled` | `native`) with
+  embedded bounded IR, fingerprints, compiler identity, and fallback reason
+- `plan explain` fields for compiler selection, IR fingerprint, and requirements
+- Polars kernel compiler (`create_transform_compiler`) claiming
+  `dtcs:profile/portable-relational-kernel/1` with `pl.Expr` / LazyFrame lowering
+- Runtime path executing portable_compiled dataframe steps without a native
+  transformation callable
+
 ### Documentation
 
-- Refined roadmap 0.12: planning (0.12a) + Polars **kernel-only** compiler
-  (0.12b); locked prefer policy, embedded IR, and 0.13/0.14 deferrals
+- Refined roadmap 0.12: planning (0.12a) + Polars kernel-only compiler (0.12b);
+  locked prefer policy, embedded IR, and 0.13/0.14 deferrals
+- Marked compiler protocol and Polars kernel execution as shipped in 0.12
+
+### Changed
+
+- Package version set to 0.12.0 across core and optional plugins
 
 ## [0.11.0] - 2026-07-17
 
@@ -420,6 +441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
+[0.12.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.12.0
 [0.11.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.11.0
 [0.10.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.10.0
 [0.9.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.9.0

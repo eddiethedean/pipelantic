@@ -962,7 +962,7 @@ an engine plugin.
 
 ## 0.12 — Portable Planning and Polars Kernel Compiler
 
-**Status: planned — next after shipped 0.11.0.**
+**Status: shipped in 0.12.0.**
 
 **DTCS readiness gate: satisfied upstream.** DTCS 3.0 / `dtcs` 0.13 define
 exact profile, action, function, operator, type, mode, and limit claims.

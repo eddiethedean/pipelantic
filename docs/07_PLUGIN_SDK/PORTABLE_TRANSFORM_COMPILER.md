@@ -1,10 +1,8 @@
 # Portable Transformation Compiler Protocol
 
-!!! warning "Proposed for ETLantic 0.12 — not importable in 0.11"
-    This page defines the intended `etlantic.transform-compiler/1` boundary for
-    consuming DTCS Transformation Plans. It is not a currently importable SDK.
-    0.12 ships planning plus a Polars **kernel** compiler; relational and
-    multi-engine claims follow in 0.13+.
+!!! success "Available in ETLantic 0.12"
+    `etlantic.transform-compiler/1` is importable. Polars claims the portable
+    **kernel** profile; relational and multi-engine claims follow in 0.13+.
 
 A portable transformation compiler translates a validated
 `dtcs.transform-plan/2` (and readable v1) into backend-native expressions without changing its

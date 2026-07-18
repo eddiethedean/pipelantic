@@ -26,8 +26,17 @@ from etlantic.dataframe.protocol import (
     ValidationDecision,
 )
 from etlantic.storage.protocol import as_records, records_to_dicts
+from etlantic_polars.compiler import PolarsTransformCompiler, create_transform_compiler
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"
+
+__all__ = [
+    "PolarsDataframePlugin",
+    "PolarsTransformCompiler",
+    "__version__",
+    "create_plugin",
+    "create_transform_compiler",
+]
 
 
 def create_plugin() -> PolarsDataframePlugin:

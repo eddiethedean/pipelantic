@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is ready in alpha 0.11.0
+## What is ready in alpha 0.12.0
 
 | Area | Ready? |
 |---|---|
@@ -28,8 +28,8 @@ manager.
 | Airflow / orchestrator compilation | Yes (`etlantic-airflow`) |
 | DTCS 3.0 portable plan models/profiles | Yes (`dtcs>=0.13`) |
 | `@Transformation.portable` authoring | Yes (0.11) |
-| Portable compilers | No (0.12+) |
-| Portable compiler execution | No (planned 0.12–0.15) |
+| Portable Polars kernel compiler | Yes (0.12) |
+| Portable relational / PySpark / Pandas / SQL compilers | No (0.13–0.15) |
 | Multi-tenant durable orchestration | No |
 | Formal SLA / support response times | No |
 

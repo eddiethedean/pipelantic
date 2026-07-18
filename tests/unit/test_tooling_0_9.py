@@ -66,13 +66,13 @@ def test_empty_production_allowlist_rejects_all() -> None:
 def test_bare_version_pin_accepted() -> None:
     assert plugin_allowed(
         name="etlantic-polars",
-        version="0.11.0",
-        allowlist={"etlantic-polars": "0.11.0"},
+        version="0.12.0",
+        allowlist={"etlantic-polars": "0.12.0"},
     )
     assert not plugin_allowed(
         name="etlantic-polars",
-        version="0.10.0",
-        allowlist={"etlantic-polars": "0.11.0"},
+        version="0.11.0",
+        allowlist={"etlantic-polars": "0.12.0"},
     )
 
 

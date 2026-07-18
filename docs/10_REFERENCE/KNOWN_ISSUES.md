@@ -2,12 +2,10 @@
 
 - The project is alpha and does not promise 1.0 API stability.
 - Portable `@Transformation.portable` definitions and
-  `etlantic.transform/1` authoring are available in 0.11; compilers are planned
-  for 0.12+ and are not available in 0.11 for execution. Authoring emits
-  `dtcs.transform-plan/2` through `@Transformation.portable`; current plugins
-  still require native `@implementation(engine)` callables. **0.12** targets
-  planning plus Polars **kernel** execution only; join/aggregate and richer
-  profiles remain native-or-later until 0.13–0.15.
+  `etlantic.transform/1` authoring are available since 0.11. **0.12** adds
+  planning integration and Polars **kernel** portable execution (no native
+  callable required for kernel plans). Join/aggregate and richer profiles
+  remain native-or-later until 0.13–0.15.
 - The planned PySpark-inspired syntax will intentionally support a closed
   subset; actions, arbitrary Python tracing, raw SQL expressions, and silent
   UDF fallback are excluded.
@@ -49,7 +47,7 @@
 - Generated plans should be regenerated after incompatible schema changes
   rather than edited by hand.
 - Docs on `main` may briefly lead a published tag; pin
-  `etlantic==0.11.0` (or the version you evaluated) in production installs.
+  `etlantic==0.12.0` (or the version you evaluated) in production installs.
 
 Release-specific fixes and changes are recorded in the
 [changelog](https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md).

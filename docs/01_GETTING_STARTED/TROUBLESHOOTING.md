@@ -12,7 +12,7 @@ py -3.11 --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.11.0**. Confirm what you installed:
+These docs describe ETLantic **0.12.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -22,14 +22,14 @@ etlantic --version
 Upgrade from PyPI:
 
 ```bash
-python -m pip install --upgrade 'etlantic>=0.11.0'
+python -m pip install --upgrade 'etlantic>=0.12.0'
 ```
 
 From a checkout, prefer `uv sync` / `git pull`.
 
 ## Plugin install fails (`etlantic-polars`, `etlantic-pyspark`, …)
 
-Those packages ship with ETLantic 0.11.0 as separate distributions.
+Those packages ship with ETLantic 0.12.0 as separate distributions.
 
 From PyPI:
 

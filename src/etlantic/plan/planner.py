@@ -420,8 +420,20 @@ def _select_implementations(
     context: PlanningContext,
     default_engine: str,
 ) -> dict[str, ImplementationDescriptor]:
+    from etlantic.transform.compiler import (
+        COMPILER_PROTOCOL,
+        TransformPlanningContext,
+    )
+    from etlantic.transform.discovery import (
+        discover_transform_compilers,
+        load_transform_compiler,
+    )
+
     selected: dict[str, ImplementationDescriptor] = {}
     members = pipeline_cls.__pipeline_members__
+    policy = getattr(context.profile, "portable_transform_policy", "prefer") or "prefer"
+    compilers = discover_transform_compilers()
+
     for node in graph.nodes:
         if node.kind is not NodeKind.STEP:
             continue
@@ -439,21 +451,23 @@ def _select_implementations(
             selected[node.name] = context.registry.implementations[registry_key]
             continue
 
+        native_record = None
+        native_impls: dict[str, Any] = {}
         if transform is not None:
-            impls = transform.implementations()
-            if engine in impls:
-                record = impls[engine]
-                identity = record.identity
-                is_async = record.is_async
-            elif len(impls) == 1 and not explicit_override:
-                record = next(iter(impls.values()))
-                identity = record.identity
-                is_async = record.is_async
-                engine = record.engine
-            elif len(impls) > 1 and engine not in impls:
+            native_impls = transform.implementations()
+            if engine in native_impls:
+                native_record = native_impls[engine]
+                identity = native_record.identity
+                is_async = native_record.is_async
+            elif len(native_impls) == 1 and not explicit_override:
+                native_record = next(iter(native_impls.values()))
+                identity = native_record.identity
+                is_async = native_record.is_async
+                engine = native_record.engine
+            elif len(native_impls) > 1 and engine not in native_impls:
                 raise PipelineValidationError(
                     f'Step "{node.name}" has ambiguous implementations '
-                    f"{sorted(impls)}; select one via profile override.",
+                    f"{sorted(native_impls)}; select one via profile override.",
                     report=ValidationReport.from_diagnostics(
                         [
                             Diagnostic(
@@ -461,7 +475,7 @@ def _select_implementations(
                                 severity=Severity.ERROR,
                                 message=(
                                     f'Step "{node.name}" has ambiguous '
-                                    f"implementations {sorted(impls)}; "
+                                    f"implementations {sorted(native_impls)}; "
                                     f"select one via profile override."
                                 ),
                                 path=("pipeline", node.name),
@@ -471,11 +485,153 @@ def _select_implementations(
                         phases=("policy",),
                     ),
                 )
+
+        portable_def = None
+        if transform is not None and hasattr(transform, "portable_definition"):
+            portable_def = transform.portable_definition()
+
+        compiler = compilers.get(engine) or load_transform_compiler(engine)
+        use_portable = (
+            policy != "native" and portable_def is not None and compiler is not None
+        )
+
+        if use_portable:
+            assert portable_def is not None and compiler is not None
+            plan_ctx = TransformPlanningContext(
+                pipeline_id=graph.pipeline_id,
+                step_name=node.name,
+                profile_name=context.profile.name,
+                engine=engine,
+            )
+            report = compiler.analyze(
+                portable_def.plan,
+                context=plan_ctx,
+                requirements=portable_def.requirements,
+            )
+            if report.supported:
+                info = compiler.info
+                selected[node.name] = ImplementationDescriptor(
+                    transformation_id=transform_id,
+                    engine=engine,
+                    identity=f"portable:{info.name}@{portable_def.fingerprint[:16]}",
+                    is_async=True,
+                    kind="portable_compiled",
+                    ir_fingerprint=portable_def.fingerprint,
+                    compiler_name=info.name,
+                    compiler_version=info.version,
+                    compiler_protocol=info.compiler_protocol or COMPILER_PROTOCOL,
+                    requirements={
+                        k: list(v) for k, v in portable_def.requirements.items()
+                    },
+                    support_summary=report.to_dict(),
+                    portable_plan=dict(portable_def.plan),
+                )
+                continue
+
+            # Unsupported portable requirements
+            findings_msg = (
+                "; ".join(f"{f.requirement}: {f.reason}" for f in report.findings)
+                or "unsupported portable requirements"
+            )
+            if policy == "require":
+                diags = [
+                    Diagnostic(
+                        code=f.code or "PMXFORM301",
+                        severity=Severity.ERROR,
+                        message=(f'Step "{node.name}": {f.requirement} — {f.reason}'),
+                        path=("pipeline", node.name),
+                        phase="policy",
+                    )
+                    for f in report.findings
+                ]
+                if not diags:
+                    diags = [
+                        Diagnostic(
+                            code="PMXFORM301",
+                            severity=Severity.ERROR,
+                            message=(
+                                f'Step "{node.name}" portable compilation '
+                                f"required but unsupported: {findings_msg}"
+                            ),
+                            path=("pipeline", node.name),
+                            phase="policy",
+                        )
+                    ]
+                raise PipelineValidationError(
+                    f'Step "{node.name}" portable requirements are unsupported '
+                    f"by compiler for engine {engine!r}: {findings_msg}",
+                    report=ValidationReport.from_diagnostics(
+                        diags,
+                        phases=("policy",),
+                    ),
+                )
+            # prefer: fall back to native when available
+            if native_record is None and not native_impls:
+                raise PipelineValidationError(
+                    f'Step "{node.name}" has no portable-compatible compiler '
+                    f"support and no native implementation for {engine!r}: "
+                    f"{findings_msg}",
+                    report=ValidationReport.from_diagnostics(
+                        [
+                            Diagnostic(
+                                code="PMXFORM301",
+                                severity=Severity.ERROR,
+                                message=(
+                                    f'Step "{node.name}": portable unsupported '
+                                    f"and no native fallback ({findings_msg})"
+                                ),
+                                path=("pipeline", node.name),
+                                phase="policy",
+                            )
+                        ],
+                        phases=("policy",),
+                    ),
+                )
+            selected[node.name] = ImplementationDescriptor(
+                transformation_id=transform_id,
+                engine=engine,
+                identity=identity,
+                is_async=is_async,
+                kind="native",
+                fallback_reason=(
+                    f"portable unsupported by {engine} compiler: {findings_msg}"
+                ),
+                requirements=(
+                    {k: list(v) for k, v in portable_def.requirements.items()}
+                    if portable_def is not None
+                    else {}
+                ),
+                support_summary=report.to_dict(),
+            )
+            continue
+
+        if policy == "require" and portable_def is not None and compiler is None:
+            raise PipelineValidationError(
+                f'Step "{node.name}" requires portable compilation but no '
+                f"transform compiler is registered for engine {engine!r}.",
+                report=ValidationReport.from_diagnostics(
+                    [
+                        Diagnostic(
+                            code="PMXFORM302",
+                            severity=Severity.ERROR,
+                            message=(
+                                f"No transform compiler for engine {engine!r} "
+                                f'(step "{node.name}").'
+                            ),
+                            path=("pipeline", node.name),
+                            phase="policy",
+                        )
+                    ],
+                    phases=("policy",),
+                ),
+            )
+
         selected[node.name] = ImplementationDescriptor(
             transformation_id=transform_id,
             engine=engine,
             identity=identity,
             is_async=is_async,
+            kind="native",
         )
     return selected
 
@@ -1032,12 +1188,18 @@ def _resolve_outputs(
                 port_name=port.name,
                 security_domain=security_domain,
             )
+            impl = implementations.get(node.name)
+            compiler_fp = None
+            if impl is not None and impl.compiler_name and impl.compiler_version:
+                compiler_fp = f"{impl.compiler_name}@{impl.compiler_version}"
             cache_key = cache_identity(
                 pipeline_id=graph.pipeline_id,
                 node_name=node.name,
                 port_name=port.name,
                 security_domain=security_domain,
                 plan_fingerprint=plan_fp,
+                ir_fingerprint=impl.ir_fingerprint if impl is not None else None,
+                compiler_fingerprint=compiler_fp,
             )
             metadata: dict[str, Any] = {}
             if key in fanout_ports:

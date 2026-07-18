@@ -69,9 +69,16 @@ def cache_identity(
     port_name: str,
     security_domain: str,
     plan_fingerprint: str,
+    ir_fingerprint: str | None = None,
+    compiler_fingerprint: str | None = None,
 ) -> str:
     """Deterministic cache key that cannot cross security domains."""
-    return (
-        f"cache:{security_domain}/{pipeline_id}/"
-        f"{node_name}.{port_name}@{plan_fingerprint}"
-    )
+    parts = [
+        f"cache:{security_domain}/{pipeline_id}/",
+        f"{node_name}.{port_name}@{plan_fingerprint}",
+    ]
+    if ir_fingerprint:
+        parts.append(f"+ir:{ir_fingerprint}")
+    if compiler_fingerprint:
+        parts.append(f"+cc:{compiler_fingerprint}")
+    return "".join(parts)

@@ -55,6 +55,36 @@ def explain_plan(plan: PipelinePlan) -> dict[str, Any]:
                     if node.name in plan.implementations
                     else None
                 ),
+                "implementation_kind": (
+                    plan.implementations[node.name].kind
+                    if node.name in plan.implementations
+                    else None
+                ),
+                "ir_fingerprint": (
+                    plan.implementations[node.name].ir_fingerprint
+                    if node.name in plan.implementations
+                    else None
+                ),
+                "compiler": (
+                    {
+                        "name": plan.implementations[node.name].compiler_name,
+                        "version": plan.implementations[node.name].compiler_version,
+                        "protocol": plan.implementations[node.name].compiler_protocol,
+                    }
+                    if node.name in plan.implementations
+                    and plan.implementations[node.name].kind == "portable_compiled"
+                    else None
+                ),
+                "requirements": (
+                    plan.implementations[node.name].requirements
+                    if node.name in plan.implementations
+                    else None
+                ),
+                "fallback_reason": (
+                    plan.implementations[node.name].fallback_reason
+                    if node.name in plan.implementations
+                    else None
+                ),
                 "binding": node.binding,
                 "outputs": out_res,
             }

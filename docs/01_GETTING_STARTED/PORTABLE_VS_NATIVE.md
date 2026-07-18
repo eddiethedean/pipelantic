@@ -1,6 +1,6 @@
 # Portable vs Native Implementations
 
-> **Status: Available in ETLantic 0.11.0.**
+> **Status: Available in ETLantic 0.12.0.**
 
 ## When to use `@Transformation.portable`
 

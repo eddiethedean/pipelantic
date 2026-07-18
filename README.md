@@ -12,12 +12,13 @@ Define datasets, transformations, and pipelines as typed Python classes.
 Validate and plan them once. Run locally today with registered
 implementations; optional Polars, Pandas, SQL, PySpark, and Airflow plugins
 attach when installed. Portable `@Transformation.portable` authoring ships in
-0.11; portable compilers remain 0.12–0.15.
+0.11; Polars **kernel** portable compilation ships in 0.12 (relational and
+other engines remain 0.13–0.15).
 
-**Status:** Alpha **0.11.0** — local runtime + optional
-Polars/Pandas/SQL/PySpark/Airflow plugins, plus portable
-`@Transformation.portable` authoring to `dtcs.transform-plan/2`. Structured
-Streaming is experimental. Portable compilers remain planned for 0.12–0.15.
+**Status:** Alpha **0.12.0** — local runtime + optional
+Polars/Pandas/SQL/PySpark/Airflow plugins, portable `@Transformation.portable`
+authoring, and Polars kernel portable compilation. Structured Streaming is
+experimental. Relational/PySpark/Pandas/SQL portable compilers remain 0.13–0.15.
 
 ## Install
 
@@ -113,7 +114,7 @@ Run the complete tested version at
 
 ## Current capability boundary
 
-| Capability | 0.11 |
+| Capability | 0.12 |
 |---|---|
 | Typed modeling, validation, contracts, and planning | Available |
 | Local Python execution and run reports | Available |
@@ -126,10 +127,12 @@ Run the complete tested version at
 | CLI compile / generate / schema / SARIF | Available |
 | Plugin allowlists / keyring / SQLModel extras | Available |
 | SparkForge migration adapter | Available (`etlantic-sparkforge`) |
+| Portable authoring (`@Transformation.portable`) | Available |
+| Polars portable **kernel** compiler | Available (`etlantic-polars`) |
 
-**Next design line:** Portable authoring ships in 0.11. Releases 0.12–0.15 add
-Polars, PySpark, Pandas, and safe SQL compilers for the same
-`dtcs.transform-plan/2` plans. See the
+**Next design line:** Portable authoring ships in 0.11; Polars kernel compilation
+in 0.12. Releases 0.13–0.15 add relational/PySpark, Pandas, and safe SQL
+compilers for the same `dtcs.transform-plan/2` plans. See the
 [portable transformation guide](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
 and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 
@@ -138,7 +141,7 @@ and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
 Hosted docs: [etlantic.readthedocs.io](https://etlantic.readthedocs.io/)
 
 - [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)
-- [Current 0.11 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
+- [Current 0.12 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
 - [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)
