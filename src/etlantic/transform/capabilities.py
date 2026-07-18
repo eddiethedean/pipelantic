@@ -47,23 +47,43 @@ def extract_requirements(
 
 def requirements_from_plan(plan: dict[str, Any]) -> dict[str, list[str]]:
     """Best-effort extraction from an exported portable plan."""
+    from etlantic.transform.protocol import PROFILE_WINDOW_V1, PROFILE_WINDOW_V2
+
     actions: set[str] = set()
     functions: set[str] = set()
+    profiles: set[str] = set()
+    if plan.get("profile"):
+        profiles.add(str(plan["profile"]))
     for item in plan.get("actions") or []:
         kind = item.get("kind") or {}
         action = kind.get("action")
         if isinstance(action, str):
             actions.add(action)
         _collect_call_callees(item, functions)
+        if _plan_has_window(item):
+            profiles.add(PROFILE_WINDOW_V1)
+            profiles.add(PROFILE_WINDOW_V2)
     for output in (plan.get("outputs") or {}).values():
         if isinstance(output, dict):
             _collect_call_callees(output, functions)
-    profiles = {plan.get("profile")} if plan.get("profile") else set()
+            if _plan_has_window(output):
+                profiles.add(PROFILE_WINDOW_V1)
+                profiles.add(PROFILE_WINDOW_V2)
     return extract_requirements(
         actions=actions,
         functions=functions,
-        profiles=profiles,  # type: ignore[arg-type]
+        profiles=profiles,
     )
+
+
+def _plan_has_window(node: Any) -> bool:
+    if isinstance(node, dict):
+        if "window" in node and node["window"] is not None:
+            return True
+        return any(_plan_has_window(v) for v in node.values())
+    if isinstance(node, list):
+        return any(_plan_has_window(item) for item in node)
+    return False
 
 
 def _collect_call_callees(node: Any, functions: set[str]) -> None:
@@ -75,6 +95,26 @@ def _collect_call_callees(node: Any, functions: set[str]) -> None:
     elif isinstance(node, list):
         for item in node:
             _collect_call_callees(item, functions)
+
+
+def merge_requirements(
+    *parts: Mapping[str, Sequence[str]] | None,
+) -> dict[str, list[str]]:
+    """Union requirement lists (profiles/actions/functions) fail-closed."""
+    profiles: set[str] = set()
+    actions: set[str] = set()
+    functions: set[str] = set()
+    for part in parts:
+        if not part:
+            continue
+        profiles.update(str(x) for x in (part.get("profiles") or ()))
+        actions.update(str(x) for x in (part.get("actions") or ()))
+        functions.update(str(x) for x in (part.get("functions") or ()))
+    return {
+        "profiles": sorted(profiles),
+        "actions": sorted(actions),
+        "functions": sorted(functions),
+    }
 
 
 def match_requirements(
@@ -89,6 +129,9 @@ def match_requirements(
     the default plan-v2 profile) is satisfied by a compiler that claims
     ``portable-relational-kernel/1`` only — without granting extra relational
     ops.
+
+    Empty ``capabilities.actions`` / ``capabilities.functions`` deny any
+    required action/function (fail closed).
     """
     req = requirements or {}
     findings: list[TransformSupportFinding] = []
@@ -116,7 +159,7 @@ def match_requirements(
             )
 
     for action in req.get("actions") or ():
-        if capabilities.actions and action not in capabilities.actions:
+        if action not in capabilities.actions:
             findings.append(
                 TransformSupportFinding(
                     code="PMXFORM301",
@@ -127,7 +170,7 @@ def match_requirements(
             )
 
     for function in req.get("functions") or ():
-        if capabilities.functions and function not in capabilities.functions:
+        if function not in capabilities.functions:
             findings.append(
                 TransformSupportFinding(
                     code="PMXFORM301",

@@ -40,9 +40,14 @@ def apply_action(
                 exprs.append(field)
             elif isinstance(field, dict):
                 if "expression" in field:
+                    alias = field.get("name")
+                    if not alias:
+                        raise ValueError(
+                            "dtcs:project expression fields require a name alias"
+                        )
                     exprs.append(
                         lower_expr(field["expression"], parameters=parameters).alias(
-                            str(field.get("name") or "col")
+                            str(alias)
                         )
                     )
                 elif "name" in field:
@@ -53,6 +58,11 @@ def apply_action(
     if name == "dtcs:with_fields":
         assignments = []
         for item in params.get("assignments") or []:
+            if item.get("window") is not None:
+                raise ValueError(
+                    "dtcs:with_fields window specs are not supported by the "
+                    "Polars kernel compiler"
+                )
             expr = lower_expr(item["expression"], parameters=parameters)
             assignments.append(expr.alias(str(item["name"])))
         return frame.with_columns(assignments)

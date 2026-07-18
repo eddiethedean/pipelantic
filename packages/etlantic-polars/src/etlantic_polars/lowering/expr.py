@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any
 
 import polars as pl
@@ -9,14 +10,18 @@ import polars as pl
 _BINARY_OPS = {
     "eq": lambda a, b: a == b,
     "neq": lambda a, b: a != b,
+    "not_eq": lambda a, b: a != b,
     "lt": lambda a, b: a < b,
     "lte": lambda a, b: a <= b,
     "gt": lambda a, b: a > b,
     "gte": lambda a, b: a >= b,
     "add": lambda a, b: a + b,
     "sub": lambda a, b: a - b,
+    "subtract": lambda a, b: a - b,
     "mul": lambda a, b: a * b,
+    "multiply": lambda a, b: a * b,
     "div": lambda a, b: a / b,
+    "divide": lambda a, b: a / b,
     "modulo": lambda a, b: a % b,
     "and": lambda a, b: a & b,
     "or": lambda a, b: a | b,
@@ -27,6 +32,44 @@ _UNARY_OPS = {
     "not": lambda a: ~a,
     "negate": lambda a: -a,
 }
+
+
+def unwrap_literal_value(value: Any) -> Any:
+    """Unwrap DTCS typed literal payloads to Python scalars."""
+    if not isinstance(value, dict) or "type" not in value:
+        return value
+    lit_type = str(value.get("type") or "")
+    payload = value.get("value")
+    if lit_type in {"null", "missing", "invalid"}:
+        return None
+    if lit_type == "boolean":
+        return bool(payload)
+    if lit_type == "integer":
+        return int(payload)
+    if lit_type == "decimal":
+        return Decimal(str(payload))
+    if lit_type == "string":
+        return str(payload)
+    raise ValueError(f"Unsupported DTCS literal type {lit_type!r}")
+
+
+def constant_python(
+    node: Any,
+    *,
+    parameters: dict[str, Any],
+) -> Any:
+    """Extract a Python constant from a literal or parameter fieldRef."""
+    if not isinstance(node, dict):
+        raise ValueError(f"Expected constant expression object, got {type(node)!r}")
+    kind = node.get("kind")
+    if kind == "literal":
+        return unwrap_literal_value(node.get("value"))
+    if kind == "fieldRef" and node.get("scope") == "parameter":
+        target = node.get("target")
+        if target not in parameters:
+            raise KeyError(f"Missing parameter {target!r}")
+        return parameters[target]
+    raise ValueError(f"Expected constant literal/parameter, got kind={kind!r}")
 
 
 def lower_expr(node: Any, *, parameters: dict[str, Any]) -> pl.Expr:
@@ -43,7 +86,7 @@ def lower_expr(node: Any, *, parameters: dict[str, Any]) -> pl.Expr:
             return pl.lit(parameters[target])
         return pl.col(str(target))
     if kind == "literal":
-        return pl.lit(node.get("value"))
+        return pl.lit(unwrap_literal_value(node.get("value")))
     if kind == "binary":
         op = node.get("op")
         if op not in _BINARY_OPS:
@@ -55,7 +98,10 @@ def lower_expr(node: Any, *, parameters: dict[str, Any]) -> pl.Expr:
         op = node.get("op")
         if op not in _UNARY_OPS:
             raise ValueError(f"Unsupported unary op {op!r}")
-        return _UNARY_OPS[op](lower_expr(node["operand"], parameters=parameters))
+        operand = node.get("operand", node.get("expr"))
+        if operand is None:
+            raise ValueError("unary expression missing operand/expr")
+        return _UNARY_OPS[op](lower_expr(operand, parameters=parameters))
     if kind == "call":
         return _lower_call(node, parameters=parameters)
     raise ValueError(f"Unsupported expression kind {kind!r}")
@@ -63,7 +109,8 @@ def lower_expr(node: Any, *, parameters: dict[str, Any]) -> pl.Expr:
 
 def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
     callee = str(node.get("callee") or "")
-    args = [lower_expr(a, parameters=parameters) for a in (node.get("args") or [])]
+    raw_args = list(node.get("args") or [])
+    args = [lower_expr(a, parameters=parameters) for a in raw_args]
     if callee == "dtcs:lower":
         return args[0].str.to_lowercase()
     if callee == "dtcs:upper":
@@ -71,8 +118,10 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
     if callee == "dtcs:concat":
         return pl.concat_str(args, separator="")
     if callee == "dtcs:concat_ws":
-        sep = args[0]
-        return pl.concat_str(args[1:], separator=sep)  # type: ignore[arg-type]
+        sep = constant_python(raw_args[0], parameters=parameters)
+        if not isinstance(sep, str):
+            raise ValueError("dtcs:concat_ws separator must be a string constant")
+        return pl.concat_str(args[1:], separator=sep)
     if callee == "dtcs:length":
         return args[0].str.len_chars()
     if callee == "dtcs:substr":
@@ -80,13 +129,18 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
             return args[0].str.slice(args[1])
         return args[0].str.slice(args[1], args[2])
     if callee == "dtcs:replace":
-        return args[0].str.replace_all(args[1], args[2], literal=True)
+        search = constant_python(raw_args[1], parameters=parameters)
+        replacement = constant_python(raw_args[2], parameters=parameters)
+        return args[0].str.replace_all(str(search), str(replacement), literal=True)
     if callee == "dtcs:contains":
-        return args[0].str.contains(args[1], literal=True)
+        needle = constant_python(raw_args[1], parameters=parameters)
+        return args[0].str.contains(str(needle), literal=True)
     if callee == "dtcs:starts_with":
-        return args[0].str.starts_with(args[1])
+        prefix = constant_python(raw_args[1], parameters=parameters)
+        return args[0].str.starts_with(str(prefix))
     if callee == "dtcs:ends_with":
-        return args[0].str.ends_with(args[1])
+        suffix = constant_python(raw_args[1], parameters=parameters)
+        return args[0].str.ends_with(str(suffix))
     if callee == "dtcs:coalesce":
         return pl.coalesce(args)
     if callee == "dtcs:if_null":
@@ -98,7 +152,8 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
     if callee == "dtcs:abs":
         return args[0].abs()
     if callee == "dtcs:round":
-        return args[0].round(args[1])  # type: ignore[arg-type]
+        scale = constant_python(raw_args[1], parameters=parameters)
+        return args[0].round(int(scale))
     if callee == "dtcs:floor":
         return args[0].floor()
     if callee == "dtcs:ceil":
@@ -111,11 +166,9 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
         return pl.min_horizontal(args)
     if callee == "dtcs:greatest":
         return pl.max_horizontal(args)
-    if callee == "dtcs:cast":
-        # Kernel cast: second arg may be type name literal — best-effort.
-        return args[0]
     if callee == "dtcs:case_when":
         return _lower_case_when(node, parameters=parameters)
+    # dtcs:cast is conversion-profile only; do not silently no-op.
     raise ValueError(f"Unsupported function {callee!r}")
 
 

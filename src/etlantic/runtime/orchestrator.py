@@ -1175,6 +1175,16 @@ class LocalOrchestrator:
                 impl = None
                 engine = descriptor.engine
                 state.implementation = descriptor.identity
+                if not is_dataframe_engine(engine):
+                    raise NodeExecutionError(
+                        redact_message(
+                            f"portable_compiled step {node.name!r} requires a "
+                            f"dataframe engine, got {engine!r}"
+                        ),
+                        node_name=node.name,
+                        stage=FailureStage.TRANSFORM.value,
+                        code="PMXFORM302",
+                    )
             else:
                 impl = self._resolve_implementation(node)
                 engine = impl.engine

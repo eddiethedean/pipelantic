@@ -126,7 +126,13 @@ class StubKernelCompiler:
                     ),
                 ),
             )
-        return match_requirements(requirements, self._info.capabilities)
+        from etlantic.transform.capabilities import (
+            merge_requirements,
+            requirements_from_plan,
+        )
+
+        req = merge_requirements(requirements, requirements_from_plan(dict(definition)))
+        return match_requirements(req, self._info.capabilities)
 
     def compile(
         self,
@@ -197,6 +203,103 @@ def _polars_context() -> PlanningContext:
         )
     )
     return PlanningContext(profile=profile, registry=registry)
+
+
+def test_empty_capability_sets_deny_actions_and_functions() -> None:
+    caps = TransformCapabilities(
+        profiles=frozenset({KERNEL_PROFILE_V1}),
+        actions=frozenset(),
+        functions=frozenset(),
+    )
+    report = match_requirements(
+        {
+            "profiles": [KERNEL_PROFILE_V1],
+            "actions": ["dtcs:filter"],
+            "functions": ["dtcs:lower"],
+        },
+        caps,
+    )
+    assert not report.supported
+    codes = {f.requirement for f in report.findings}
+    assert "action:dtcs:filter" in codes
+    assert "function:dtcs:lower" in codes
+
+
+class PandasOnlyNormalize(Transformation):
+    customers: Input[RawCustomer]
+    minimum_age: Parameter[int] = 18
+    result: Output[Customer]
+
+
+@PandasOnlyNormalize.portable
+def _pandas_only_portable(customers, minimum_age):
+    return (
+        customers.filter(F.col("age") >= minimum_age)
+        .withColumn("email", F.lower(F.col("email")))
+        .select("customer_id", "email", "age")
+    )
+
+
+@PandasOnlyNormalize.implementation("pandas")
+def _pandas_only_native(customers):
+    return customers
+
+
+class PandasOnlyPipeline(Pipeline):
+    raw: Source[RawCustomer] = Source(binding="customers")
+    normalized = PandasOnlyNormalize.step(customers=raw)
+    curated: Sink[Customer] = Sink(input=normalized.result, binding="out")
+
+
+def test_prefer_portable_before_native_autopick(
+    stub_compiler: StubKernelCompiler,
+) -> None:
+    """Do not auto-switch to pandas before attempting polars portable compile."""
+    plan = plan_pipeline(PandasOnlyPipeline, context=_polars_context())
+    impl = plan.implementations["normalized"]
+    assert impl.kind == "portable_compiled"
+    assert impl.engine == "polars"
+
+
+def test_prefer_fallback_uses_sole_native_engine(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stub = StubKernelCompiler(support_all=False)
+
+    def _discover() -> dict[str, Any]:
+        return {"polars": stub}
+
+    monkeypatch.setattr(
+        "etlantic.transform.discovery.discover_transform_compilers",
+        _discover,
+    )
+    monkeypatch.setattr(
+        "etlantic.transform.discovery.load_transform_compiler",
+        lambda engine: stub if engine == "polars" else None,
+    )
+    ctx = _polars_context()
+    from etlantic.capabilities import PluginCapabilities
+    from etlantic.registry import PluginDescriptor
+
+    ctx.registry.register_plugin(
+        PluginDescriptor(
+            name="etlantic-pandas",
+            kind="dataframe",
+            version="0.0.0",
+            engine="pandas",
+            capabilities=PluginCapabilities(
+                engine="pandas",
+                dataframe=True,
+                eager=True,
+                lazy=False,
+            ),
+        )
+    )
+    plan = plan_pipeline(PandasOnlyPipeline, context=ctx)
+    impl = plan.implementations["normalized"]
+    assert impl.kind == "native"
+    assert impl.engine == "pandas"
+    assert impl.fallback_reason is not None
 
 
 def test_prefer_selects_portable_compiled(stub_compiler: StubKernelCompiler) -> None:
@@ -272,3 +375,43 @@ def test_prefer_falls_back_when_unsupported(monkeypatch: pytest.MonkeyPatch) -> 
     assert impl.kind == "native"
     assert impl.fallback_reason is not None
     assert "portable unsupported" in impl.fallback_reason
+
+
+def test_require_ignores_registry_native_bypass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Registry natives must not satisfy require when portable analyze fails."""
+    from etlantic.identity import implementation_id
+    from etlantic.registry import ImplementationDescriptor
+
+    stub = StubKernelCompiler(support_all=False)
+
+    def _discover() -> dict[str, Any]:
+        return {"polars": stub}
+
+    monkeypatch.setattr(
+        "etlantic.transform.discovery.discover_transform_compilers",
+        _discover,
+    )
+    monkeypatch.setattr(
+        "etlantic.transform.discovery.load_transform_compiler",
+        lambda engine: stub if engine == "polars" else None,
+    )
+    ctx = _polars_context()
+    ctx = PlanningContext(
+        profile=ctx.profile.with_updates(portable_transform_policy="require"),
+        registry=ctx.registry,
+    )
+    transform_id = NormalizeCustomers.identity()
+    ctx.registry.implementations[f"{transform_id}::polars"] = ImplementationDescriptor(
+        transformation_id=transform_id,
+        engine="polars",
+        identity=implementation_id(transform_id, "polars"),
+        is_async=False,
+        kind="native",
+    )
+    with pytest.raises(PipelineValidationError) as exc:
+        plan_pipeline(KernelPipeline, context=ctx)
+    assert "PMXFORM301" in {
+        d.code for d in (exc.value.report.diagnostics if exc.value.report else ())
+    }

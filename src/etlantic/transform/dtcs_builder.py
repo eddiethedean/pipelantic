@@ -110,9 +110,16 @@ def build_com_plan(
         frame = produced[port.name]
         schema = _schema_from_contract(port.contract_type)
         if frame.schema_fields:
+            by_name = {
+                str(field["name"]): field
+                for field in (schema.get("fields") or [])
+                if isinstance(field, dict) and field.get("name")
+            }
             schema = {
                 "fields": [
-                    {"name": name, "type": "string", "nullable": True}
+                    dict(by_name[name])
+                    if name in by_name
+                    else {"name": name, "type": "string", "nullable": True}
                     for name in frame.schema_fields
                 ]
             }

@@ -33,6 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Package version set to 0.12.0 across core and optional plugins
 
+### Fixed
+
+- Polars lowering unwraps DTCS typed literals (avoid Struct `pl.lit` payloads)
+- `concat_ws` / `round` / string search helpers require Python constants, not Expr
+- Reject unclaimed `dtcs:cast` in kernel compiler (no silent no-op)
+- Capability matching fail-closes on empty action/function claims
+- Planner defers native auto-pick until after portable analyze (no phantom natives)
+- Validate `require` policy analyzes portable IR instead of fail-opening on compiler presence
+- Compiler `analyze` unions plan-derived requirements; compile collects parameter fieldRefs
+- Warn when multiple transform compilers register the same engine
+- Accept authored DTCS op names (`not_eq`/`subtract`/`multiply`/`divide`, unary `expr`)
+- Registry natives no longer bypass prefer/require portable analyze
+- Window metadata on kernel plans fail-closed (profile + runtime reject)
+- Project expression fields require aliases; authoring mints `_col_N` when missing
+- Output schemas preserve contract field types when subsetting by `schema_fields`
+- Runtime resolves planned `compiler_name`/`version`; portable_compiled requires dataframe engine
+
 ## [0.11.0] - 2026-07-17
 
 ### Added

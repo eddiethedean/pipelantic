@@ -6,6 +6,8 @@ from typing import Any
 
 import pytest
 
+pytest.importorskip("polars")
+
 from etlantic import (
     Data,
     Input,
@@ -23,8 +25,6 @@ from etlantic.plan import explain_plan, plan_pipeline
 from etlantic.registry import PlanningContext
 from etlantic.transform import functions as F
 from etlantic_polars import create_plugin, create_transform_compiler
-
-pytest.importorskip("polars")
 
 
 class RawCustomer(Data):
@@ -143,6 +143,25 @@ def test_run_portable_kernel_on_polars() -> None:
 @pytest.mark.polars
 def test_require_fails_closed_for_join_requirements() -> None:
     """Joins are outside the 0.12 Polars claim set — planning must fail closed."""
+    from etlantic.exceptions import PipelineValidationError
+
+    class JoinCustomers(Transformation):
+        left: Input[RawCustomer]
+        right: Input[Customer]
+        result: Output[Customer]
+
+    @JoinCustomers.portable
+    def _join(left, right):
+        return left.join(right, on="customer_id", how="inner").select(
+            "customer_id", "email", "age"
+        )
+
+    class JoinPipeline(Pipeline):
+        raw_left: Source[RawCustomer] = Source(binding="left")
+        raw_right: Source[Customer] = Source(binding="right")
+        joined = JoinCustomers.step(left=raw_left, right=raw_right)
+        out: Sink[Customer] = Sink(input=joined.result, binding="out")
+
     profile = Profile(
         name="polars-portable",
         dataframe_engine="polars",
@@ -152,28 +171,7 @@ def test_require_fails_closed_for_join_requirements() -> None:
     runtime.register_dataframe_plugin("polars", create_plugin())
     context = PlanningContext.create(profile=profile, registry=runtime.registry)
 
-    # Inject unsupported requirements via a registry-backed descriptor path:
-    # analyze the real compiler claim matrix directly (authoring join needs
-    # multi-input nested classes which are awkward in-function).
-    compiler = create_transform_compiler()
-    from etlantic.transform.compiler import TransformPlanningContext
-
-    report = compiler.analyze(
-        NormalizeCustomers.to_transform_plan(),
-        context=TransformPlanningContext(
-            pipeline_id="p",
-            step_name="normalized",
-            profile_name=profile.name,
-            engine="polars",
-        ),
-        requirements={
-            "profiles": ["dtcs:profile/portable-relational-kernel/2"],
-            "actions": ["dtcs:filter", "dtcs:join"],
-            "functions": ["dtcs:lower"],
-        },
-    )
-    assert report.supported is False
-    # Planning with require + unsupported should raise when we force requirements
-    # by selecting a transformation that needs join — covered by analyze above.
-    _ = context
-    assert any(f.requirement == "action:dtcs:join" for f in report.findings)
+    with pytest.raises(PipelineValidationError) as exc:
+        plan_pipeline(JoinPipeline, context=context)
+    codes = {d.code for d in (exc.value.report.diagnostics if exc.value.report else ())}
+    assert "PMXFORM301" in codes

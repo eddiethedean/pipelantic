@@ -129,6 +129,7 @@ class FrameExpr:
         functions: set[str] = set()
         profiles: set[str] = set()
         names: list[str] = []
+        anon = 0
         for col in cols:
             if isinstance(col, str):
                 fields.append(col)
@@ -141,7 +142,10 @@ class FrameExpr:
                 fields.append({"name": expr.alias_name, "expression": expr.node})
                 names.append(expr.alias_name)
             else:
-                fields.append({"expression": expr.node})
+                alias = f"_col_{anon}"
+                anon += 1
+                fields.append({"name": alias, "expression": expr.node})
+                names.append(alias)
         return self._extend(
             action="dtcs:project",
             parameters={"fields": fields},

@@ -48,7 +48,7 @@ KERNEL_FUNCTIONS = frozenset(
         "dtcs:sqrt",
         "dtcs:least",
         "dtcs:greatest",
-        "dtcs:cast",
+        # dtcs:cast is conversion-profile only — not claimed in kernel 0.12.
     }
 )
 
@@ -88,11 +88,14 @@ class PolarsTransformCompiler:
         context: TransformPlanningContext,
         requirements: Mapping[str, Sequence[str]] | None = None,
     ) -> TransformSupportReport:
-        req = dict(requirements or {})
-        if not req:
-            from etlantic.transform.capabilities import requirements_from_plan
+        from etlantic.transform.capabilities import (
+            merge_requirements,
+            requirements_from_plan,
+        )
 
-            req = requirements_from_plan(dict(definition))
+        # Always union caller requirements with plan-derived ones so incomplete
+        # requirement maps cannot fail-open past unclaimed callees/actions.
+        req = merge_requirements(requirements, requirements_from_plan(dict(definition)))
         return match_requirements(req, self._info.capabilities)
 
     def compile(
@@ -125,7 +128,7 @@ class PolarsTransformCompiler:
         canonical = json.dumps(definition, sort_keys=True, separators=(",", ":"))
         fingerprint = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
         outputs = tuple((definition.get("outputs") or {}).keys()) or ("result",)
-        params = tuple((definition.get("parameters") or {}).keys())
+        params = _parameter_names(definition)
         return CompiledTransform(
             compiler_name=self._info.name,
             compiler_version=self._info.version,
@@ -195,3 +198,26 @@ class PolarsTransformCompiler:
             valid[out_name] = frames[source]
 
         return TransformOutputBundle(valid=valid, metrics={"engine": "polars"})
+
+
+def _parameter_names(plan: Mapping[str, Any]) -> tuple[str, ...]:
+    """Collect parameter fieldRef targets even when ``parameters`` is empty."""
+    names: set[str] = set()
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            if node.get("kind") == "fieldRef" and node.get("scope") == "parameter":
+                target = node.get("target")
+                if isinstance(target, str):
+                    names.add(target)
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(plan)
+    declared = plan.get("parameters") or {}
+    if isinstance(declared, dict):
+        names.update(str(k) for k in declared)
+    return tuple(sorted(names))

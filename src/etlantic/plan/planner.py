@@ -445,52 +445,44 @@ def _select_implementations(
         identity = implementation_id(transform_id, engine)
         explicit_override = node.name in context.profile.implementation_overrides
 
-        # Registry fallback: transform_id::engine
+        portable_def = None
+        if transform is not None and hasattr(transform, "portable_definition"):
+            portable_def = transform.portable_definition()
+
+        requested_engine = engine
+        compiler = compilers.get(requested_engine) or load_transform_compiler(
+            requested_engine
+        )
+
+        # Registry fallback: transform_id::engine. Do not short-circuit
+        # prefer/require when a portable definition + compiler exist — that
+        # bypassed analyze() and let registry natives satisfy require.
         registry_key = f"{transform_id}::{engine}"
-        if registry_key in context.registry.implementations:
-            selected[node.name] = context.registry.implementations[registry_key]
+        registry_impl = context.registry.implementations.get(registry_key)
+        if registry_impl is not None and (
+            policy == "native"
+            or portable_def is None
+            or (compiler is None and policy != "require")
+        ):
+            selected[node.name] = registry_impl
             continue
 
         native_record = None
         native_impls: dict[str, Any] = {}
         if transform is not None:
             native_impls = transform.implementations()
-            if engine in native_impls:
-                native_record = native_impls[engine]
+            # Resolve native for the *requested* engine only. Defer single-impl
+            # auto-pick until after portable analysis so prefer/require cannot
+            # silently switch engines (and emit phantom natives).
+            if requested_engine in native_impls:
+                native_record = native_impls[requested_engine]
                 identity = native_record.identity
                 is_async = native_record.is_async
-            elif len(native_impls) == 1 and not explicit_override:
-                native_record = next(iter(native_impls.values()))
-                identity = native_record.identity
-                is_async = native_record.is_async
-                engine = native_record.engine
-            elif len(native_impls) > 1 and engine not in native_impls:
-                raise PipelineValidationError(
-                    f'Step "{node.name}" has ambiguous implementations '
-                    f"{sorted(native_impls)}; select one via profile override.",
-                    report=ValidationReport.from_diagnostics(
-                        [
-                            Diagnostic(
-                                code="PMPLAN302",
-                                severity=Severity.ERROR,
-                                message=(
-                                    f'Step "{node.name}" has ambiguous '
-                                    f"implementations {sorted(native_impls)}; "
-                                    f"select one via profile override."
-                                ),
-                                path=("pipeline", node.name),
-                                phase="policy",
-                            )
-                        ],
-                        phases=("policy",),
-                    ),
-                )
+            elif registry_impl is not None and registry_impl.kind == "native":
+                native_record = registry_impl
+                identity = registry_impl.identity
+                is_async = registry_impl.is_async
 
-        portable_def = None
-        if transform is not None and hasattr(transform, "portable_definition"):
-            portable_def = transform.portable_definition()
-
-        compiler = compilers.get(engine) or load_transform_compiler(engine)
         use_portable = (
             policy != "native" and portable_def is not None and compiler is not None
         )
@@ -501,7 +493,7 @@ def _select_implementations(
                 pipeline_id=graph.pipeline_id,
                 step_name=node.name,
                 profile_name=context.profile.name,
-                engine=engine,
+                engine=requested_engine,
             )
             report = compiler.analyze(
                 portable_def.plan,
@@ -512,7 +504,7 @@ def _select_implementations(
                 info = compiler.info
                 selected[node.name] = ImplementationDescriptor(
                     transformation_id=transform_id,
-                    engine=engine,
+                    engine=requested_engine,
                     identity=f"portable:{info.name}@{portable_def.fingerprint[:16]}",
                     is_async=True,
                     kind="portable_compiled",
@@ -559,42 +551,30 @@ def _select_implementations(
                     ]
                 raise PipelineValidationError(
                     f'Step "{node.name}" portable requirements are unsupported '
-                    f"by compiler for engine {engine!r}: {findings_msg}",
+                    f"by compiler for engine {requested_engine!r}: {findings_msg}",
                     report=ValidationReport.from_diagnostics(
                         diags,
                         phases=("policy",),
                     ),
                 )
-            # prefer: fall back to native when available
-            if native_record is None and not native_impls:
-                raise PipelineValidationError(
-                    f'Step "{node.name}" has no portable-compatible compiler '
-                    f"support and no native implementation for {engine!r}: "
-                    f"{findings_msg}",
-                    report=ValidationReport.from_diagnostics(
-                        [
-                            Diagnostic(
-                                code="PMXFORM301",
-                                severity=Severity.ERROR,
-                                message=(
-                                    f'Step "{node.name}": portable unsupported '
-                                    f"and no native fallback ({findings_msg})"
-                                ),
-                                path=("pipeline", node.name),
-                                phase="policy",
-                            )
-                        ],
-                        phases=("policy",),
-                    ),
-                )
+            # prefer: fall back to a real native impl only
+            fallback = _resolve_native_fallback(
+                node_name=node.name,
+                requested_engine=requested_engine,
+                native_record=native_record,
+                native_impls=native_impls,
+                explicit_override=explicit_override,
+                findings_msg=findings_msg,
+            )
             selected[node.name] = ImplementationDescriptor(
                 transformation_id=transform_id,
-                engine=engine,
-                identity=identity,
-                is_async=is_async,
+                engine=fallback.engine,
+                identity=fallback.identity,
+                is_async=fallback.is_async,
                 kind="native",
                 fallback_reason=(
-                    f"portable unsupported by {engine} compiler: {findings_msg}"
+                    f"portable unsupported by {requested_engine} compiler: "
+                    f"{findings_msg}"
                 ),
                 requirements=(
                     {k: list(v) for k, v in portable_def.requirements.items()}
@@ -608,14 +588,16 @@ def _select_implementations(
         if policy == "require" and portable_def is not None and compiler is None:
             raise PipelineValidationError(
                 f'Step "{node.name}" requires portable compilation but no '
-                f"transform compiler is registered for engine {engine!r}.",
+                f"transform compiler is registered for engine "
+                f"{requested_engine!r}.",
                 report=ValidationReport.from_diagnostics(
                     [
                         Diagnostic(
                             code="PMXFORM302",
                             severity=Severity.ERROR,
                             message=(
-                                f"No transform compiler for engine {engine!r} "
+                                f"No transform compiler for engine "
+                                f"{requested_engine!r} "
                                 f'(step "{node.name}").'
                             ),
                             path=("pipeline", node.name),
@@ -626,6 +608,19 @@ def _select_implementations(
                 ),
             )
 
+        # Native path (policy=native, or no portable compiler / definition).
+        if native_record is None:
+            native_record = _resolve_native_or_autopick(
+                node_name=node.name,
+                requested_engine=requested_engine,
+                native_impls=native_impls,
+                explicit_override=explicit_override,
+            )
+        if native_record is not None:
+            engine = native_record.engine
+            identity = native_record.identity
+            is_async = native_record.is_async
+
         selected[node.name] = ImplementationDescriptor(
             transformation_id=transform_id,
             engine=engine,
@@ -634,6 +629,102 @@ def _select_implementations(
             kind="native",
         )
     return selected
+
+
+class _NativeFallback:
+    __slots__ = ("engine", "identity", "is_async")
+
+    def __init__(self, *, engine: str, identity: str, is_async: bool) -> None:
+        self.engine = engine
+        self.identity = identity
+        self.is_async = is_async
+
+
+def _ambiguous_impls_error(node_name: str, native_impls: dict[str, Any]) -> None:
+    raise PipelineValidationError(
+        f'Step "{node_name}" has ambiguous implementations '
+        f"{sorted(native_impls)}; select one via profile override.",
+        report=ValidationReport.from_diagnostics(
+            [
+                Diagnostic(
+                    code="PMPLAN302",
+                    severity=Severity.ERROR,
+                    message=(
+                        f'Step "{node_name}" has ambiguous '
+                        f"implementations {sorted(native_impls)}; "
+                        f"select one via profile override."
+                    ),
+                    path=("pipeline", node_name),
+                    phase="policy",
+                )
+            ],
+            phases=("policy",),
+        ),
+    )
+
+
+def _resolve_native_or_autopick(
+    *,
+    node_name: str,
+    requested_engine: str,
+    native_impls: dict[str, Any],
+    explicit_override: bool,
+) -> Any | None:
+    """Pick native for requested engine, or the sole impl when unambiguous."""
+    if requested_engine in native_impls:
+        return native_impls[requested_engine]
+    if len(native_impls) == 1 and not explicit_override:
+        return next(iter(native_impls.values()))
+    if len(native_impls) > 1 and requested_engine not in native_impls:
+        _ambiguous_impls_error(node_name, native_impls)
+    return None
+
+
+def _resolve_native_fallback(
+    *,
+    node_name: str,
+    requested_engine: str,
+    native_record: Any | None,
+    native_impls: dict[str, Any],
+    explicit_override: bool,
+    findings_msg: str,
+) -> _NativeFallback:
+    """Prefer-policy native fallback after portable analyze fails."""
+    if native_record is not None:
+        return _NativeFallback(
+            engine=requested_engine,
+            identity=native_record.identity,
+            is_async=native_record.is_async,
+        )
+    if len(native_impls) == 1 and not explicit_override:
+        record = next(iter(native_impls.values()))
+        return _NativeFallback(
+            engine=record.engine,
+            identity=record.identity,
+            is_async=record.is_async,
+        )
+    if len(native_impls) > 1:
+        _ambiguous_impls_error(node_name, native_impls)
+    raise PipelineValidationError(
+        f'Step "{node_name}" has no portable-compatible compiler '
+        f"support and no native implementation for {requested_engine!r}: "
+        f"{findings_msg}",
+        report=ValidationReport.from_diagnostics(
+            [
+                Diagnostic(
+                    code="PMXFORM301",
+                    severity=Severity.ERROR,
+                    message=(
+                        f'Step "{node_name}": portable unsupported '
+                        f"and no native fallback ({findings_msg})"
+                    ),
+                    path=("pipeline", node_name),
+                    phase="policy",
+                )
+            ],
+            phases=("policy",),
+        ),
+    )
 
 
 def _capability_records(context: PlanningContext, engine: str) -> list[dict[str, Any]]:

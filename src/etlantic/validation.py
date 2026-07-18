@@ -286,11 +286,58 @@ def _phase_policy(
             and portable_policy in {"prefer", "require"}
             and engine != "local"
         ):
+            from etlantic.transform.compiler import TransformPlanningContext
             from etlantic.transform.discovery import load_transform_compiler
 
-            if load_transform_compiler(engine) is not None:
+            compiler = load_transform_compiler(engine)
+            if compiler is not None:
+                if portable_policy == "prefer":
+                    # Prefer: compiler presence is enough at validate-time;
+                    # unsupported IR falls back at plan-time.
+                    continue
+                # Require: fail closed unless analyze() accepts the plan.
+                portable_def = transform_cls.portable_definition()
+                assert portable_def is not None
+                report = compiler.analyze(
+                    portable_def.plan,
+                    context=TransformPlanningContext(
+                        pipeline_id=graph.pipeline_id,
+                        step_name=node.name,
+                        profile_name=context.profile.name,
+                        engine=engine,
+                    ),
+                    requirements=portable_def.requirements,
+                )
+                if report.supported:
+                    continue
+                for finding in report.findings:
+                    diagnostics.append(
+                        Diagnostic(
+                            code=finding.code or "PMXFORM301",
+                            severity=Severity.ERROR,
+                            message=(
+                                f'Step "{node.name}": {finding.requirement} — '
+                                f"{finding.reason}"
+                            ),
+                            path=("pipeline", node.name),
+                        )
+                    )
                 continue
             if portable_policy == "prefer" and engine in impls:
+                continue
+            if portable_policy == "require":
+                diagnostics.append(
+                    Diagnostic(
+                        code="PMXFORM302",
+                        severity=Severity.ERROR,
+                        message=(
+                            f'Step "{node.name}" requires portable compilation '
+                            f"but no transform compiler is registered for "
+                            f"engine {engine!r}."
+                        ),
+                        path=("pipeline", node.name),
+                    )
+                )
                 continue
         # Strict policy requires a registered transformation implementation;
         # registry engine presence alone is not sufficient.

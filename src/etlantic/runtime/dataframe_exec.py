@@ -366,14 +366,57 @@ async def _execute_portable(
         TransformCompileContext,
         TransformExecutionContext,
     )
-    from etlantic.transform.discovery import load_transform_compiler
+    from etlantic.transform.discovery import (
+        discover_transform_compilers,
+        load_transform_compiler,
+    )
 
-    compiler = load_transform_compiler(descriptor.engine)
+    compiler = None
+    if descriptor.compiler_name:
+        for candidate in discover_transform_compilers().values():
+            info = candidate.info
+            if info.name != descriptor.compiler_name:
+                continue
+            if (
+                descriptor.compiler_version
+                and info.version != descriptor.compiler_version
+            ):
+                continue
+            compiler = candidate
+            break
+        if compiler is None:
+            raise NodeExecutionError(
+                redact_message(
+                    f"Planned transform compiler {descriptor.compiler_name!r}"
+                    + (
+                        f"@{descriptor.compiler_version}"
+                        if descriptor.compiler_version
+                        else ""
+                    )
+                    + f" is not available for step {node.name}"
+                ),
+                node_name=node.name,
+                stage=FailureStage.TRANSFORM.value,
+                code="PMXFORM302",
+            )
+    else:
+        compiler = load_transform_compiler(descriptor.engine)
     if compiler is None:
         raise NodeExecutionError(
             redact_message(
                 f"No transform compiler for engine {descriptor.engine!r} "
                 f"on step {node.name}"
+            ),
+            node_name=node.name,
+            stage=FailureStage.TRANSFORM.value,
+            code="PMXFORM302",
+        )
+    if compiler.info.engine and compiler.info.engine != descriptor.engine:
+        raise NodeExecutionError(
+            redact_message(
+                f"Transform compiler {compiler.info.name!r} targets "
+                f"{compiler.info.engine!r}, not planned engine "
+                f"{descriptor.engine!r} on step {node.name}"
             ),
             node_name=node.name,
             stage=FailureStage.TRANSFORM.value,

@@ -31,7 +31,15 @@ def discover_transform_compilers() -> dict[str, PortableTransformCompiler]:
             factory = ep.load()
             compiler = factory() if callable(factory) else factory
             engine = getattr(getattr(compiler, "info", None), "engine", None) or ep.name
-            found[str(engine)] = compiler
+            engine_key = str(engine)
+            if engine_key in found:
+                warnings.warn(
+                    f"Multiple transform compilers for engine {engine_key!r}; "
+                    f"entry point {ep.name!r} overrides the previous registration.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+            found[engine_key] = compiler
         except Exception as exc:
             msg = f"Failed to load transform compiler entry point {ep.name!r}: {exc}"
             _LOG.warning(msg)
