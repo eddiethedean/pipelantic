@@ -75,9 +75,7 @@ def test_operational_diff_detects_add_and_nullability() -> None:
     by_kind = {c.kind: c for c in change_set.changes}
     assert by_kind["field_added"].path == "email"
     assert by_kind["nullability_changed"].path == "name"
-    assert (
-        by_kind["nullability_changed"].impact is DriftImpact.CONDITIONALLY_COMPATIBLE
-    )
+    assert by_kind["nullability_changed"].impact is DriftImpact.CONDITIONALLY_COMPATIBLE
     assert change_set.overall_impact is DriftImpact.CONDITIONALLY_COMPATIBLE
 
 
