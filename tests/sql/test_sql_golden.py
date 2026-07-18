@@ -57,7 +57,7 @@ def test_explain_plan_sql_golden_shape(sql_plugin) -> None:
     explanation = explain_plan(plan)
     assert explanation["sql_protocol"] == "etlantic.sql/1"
     assert explanation["sql_fusion"]
-    # Dialect-sensitive compile fixture
+
     ctx = SqlExecutionContext(
         run_id="g", pipeline_id="g", plan_id=plan.plan_id, step_name="normalized"
     )
@@ -67,21 +67,12 @@ def test_explain_plan_sql_golden_shape(sql_plugin) -> None:
         ),
         context=ctx,
     )
-    snapshot = {
-        "dialect": compiled.dialect,
-        "has_params": bool(compiled.param_names),
-        "text_contains_select": "SELECT" in compiled.text.upper(),
-        "redacted": compiled.redacted_params,
-    }
-    expected_path = FIXTURES / "compile_select_shape.json"
-    # Dialect-sensitive: compare against dialect-specific golden when present.
-    dialect_path = FIXTURES / f"compile_select_shape_{compiled.dialect}.json"
-    path = dialect_path if dialect_path.exists() else expected_path
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
+    path = FIXTURES / f"compile_select_shape_{compiled.dialect}.json"
+    assert path.is_file(), f"Missing committed golden: {path}"
     expected = json.loads(path.read_text(encoding="utf-8"))
-    # Allow dialect field to track the active backend.
-    assert snapshot["text_contains_select"] == expected["text_contains_select"]
-    assert snapshot["has_params"] == expected["has_params"]
-    assert snapshot["dialect"] == compiled.dialect
+    assert compiled.dialect == expected["dialect"]
+    assert compiled.text == expected["text"]
+    assert list(compiled.param_names) == list(expected["param_names"])
+    assert bool(compiled.param_names) is expected["has_params"]
+    assert ("SELECT" in compiled.text.upper()) is expected["text_contains_select"]
+    assert dict(compiled.redacted_params) == dict(expected["redacted"])

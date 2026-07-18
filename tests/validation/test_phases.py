@@ -92,7 +92,7 @@ def test_invalid_output_cannot_feed_consumer() -> None:
     assert any(d.code == "PMPIPE220" for d in report.errors)
 
 
-def test_capability_fail_closed() -> None:
+def test_capability_fail_closed_unsupported_dataframe() -> None:
     registry = RegistryBundle()
     registry.register_plugin(
         PluginDescriptor(
@@ -103,12 +103,22 @@ def test_capability_fail_closed() -> None:
         )
     )
     context = PlanningContext.create(
-        profile="local",
+        profile=Profile(name="limited", dataframe_engine="limited"),
         registry=registry,
         required_capabilities=["dataframe"],
     )
-    report = GoodPipeline.validate(context=context)
-    assert any(d.code in {"PMPLAN401", "PMPLAN402"} for d in report.errors)
+    codes = GoodPipeline.validate(context=context).codes()
+    assert "PMPLAN402" in codes
+    assert "PMPLAN401" not in codes
+
+
+def test_capability_missing_engine_is_plan401() -> None:
+    context = PlanningContext.create(
+        profile=Profile(name="ghost", dataframe_engine="does-not-exist"),
+        registry=RegistryBundle(),
+        required_capabilities=["dataframe"],
+    )
+    assert "PMPLAN401" in GoodPipeline.validate(context=context).codes()
 
 
 def test_strict_policy_requires_bindings() -> None:

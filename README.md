@@ -6,45 +6,46 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Catch incompatible data-pipeline wiring before you process data.
+**Typed, contract-driven data pipelines for Python.**
 
-Define datasets, transformations, and pipelines as typed Python classes.
-Validate and plan them once. Run locally today with registered
-implementations; optional Polars, Pandas, SQL, PySpark, and Airflow plugins
-attach when installed. Portable `@Transformation.portable` authoring ships in
-0.11; Polars **kernel** portable compilation ships in 0.12 (relational and
-other engines remain 0.13–0.15).
+ETLantic catches incompatible pipeline wiring before data is processed. Define
+datasets, transformations, and pipelines as typed Python classes, then validate,
+plan, run, or compile the same logical pipeline for different execution engines.
 
-**Status:** Alpha **0.12.0** — local runtime + optional
-Polars/Pandas/SQL/PySpark/Airflow plugins, portable `@Transformation.portable`
-authoring, and Polars kernel portable compilation. Structured Streaming is
-experimental. Relational/PySpark/Pandas/SQL portable compilers remain 0.13–0.15.
+```text
+typed pipeline → validate → deterministic plan → run locally or compile
+```
 
-## Install
+## Why ETLantic?
 
-Requires Python 3.11+.
+- **Fail earlier.** Detect broken references, incompatible contracts, missing
+  implementations, unsupported capabilities, and untrusted plugins before a
+  write occurs.
+- **Keep logic portable.** Separate logical pipeline structure from local,
+  Polars, Pandas, SQL, PySpark, and orchestration implementations.
+- **Make plans reviewable.** Generate deterministic, immutable, secret-free
+  execution plans with stable fingerprints.
+- **Preserve evidence.** Produce structured diagnostics, lineage, schema
+  observations, and run reports instead of opaque task logs.
+- **Adopt incrementally.** The core has no dataframe, SQL, Spark, or Airflow
+  dependency. Install only the integrations you need.
+
+> **Project status:** Alpha **0.12.0**. The local runtime and reference plugins
+> are available today. Structured Streaming is experimental. Portable
+> transformation authoring and the Polars kernel compiler are available;
+> relational, PySpark, Pandas, and safe SQL portable compilers are planned for
+> 0.13–0.15.
+
+## Quickstart
+
+ETLantic requires Python 3.11 or newer.
 
 ```bash
 pip install etlantic
 etlantic --version
 ```
 
-This is everything required for the local quickstart. Add an engine only after
-the first successful run: [choose an integration](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/CURRENT_VERSION/#choose-your-next-task).
-
-### From source
-
-Requires [uv](https://docs.astral.sh/uv/).
-
-```bash
-git clone https://github.com/eddiethedean/etlantic.git
-cd etlantic
-uv sync
-uv run python -c "import etlantic; print(etlantic.__version__)"
-uv run python examples/quickstart.py
-```
-
-## Quick example
+Create `pipeline.py`:
 
 ```python
 from etlantic import (
@@ -75,17 +76,8 @@ class NormalizeCustomers(Transformation):
     result: Output[Customer]
 
 
-class CustomerPipeline(Pipeline):
-    raw: Source[RawCustomer] = Source(binding="customer_source")
-    normalized = NormalizeCustomers.step(customers=raw)
-    curated: Sink[Customer] = Sink(
-        input=normalized.result,
-        binding="customer_sink",
-    )
-
-
 @NormalizeCustomers.implementation("local")
-def normalize(customers: list[RawCustomer]) -> list[Customer]:
+def normalize_customers(customers: list[RawCustomer]) -> list[Customer]:
     return [
         Customer(
             customer_id=row.customer_id,
@@ -95,77 +87,167 @@ def normalize(customers: list[RawCustomer]) -> list[Customer]:
     ]
 
 
+class CustomerPipeline(Pipeline):
+    raw: Source[RawCustomer] = Source(binding="customer_source")
+    normalized = NormalizeCustomers.step(customers=raw)
+    curated: Sink[Customer] = Sink(
+        input=normalized.result,
+        binding="customer_sink",
+    )
+
+
+# Validation and planning do not execute transformation code.
 CustomerPipeline.validate(profile="development").raise_for_errors()
+plan = CustomerPipeline.plan(profile="development")
+print(plan.fingerprint)
 
 runtime = PipelineRuntime()
 runtime.memory.seed(
     "customer_source",
     [RawCustomer(customer_id=1, first_name="Ada", last_name="Lovelace")],
 )
-run_report = CustomerPipeline.run(profile="development", runtime=runtime)
-print(runtime.memory.get("customer_sink"))
+report = CustomerPipeline.run(profile="development", runtime=runtime)
+
+print(report.status)  # succeeded
+print(runtime.memory.get("customer_sink")[0].model_dump())
+# {"customer_id": 1, "full_name": "Ada Lovelace"}
 ```
 
-Catch bad wiring **before** processing data—change the sink type and
-`validate()` fails with a structured diagnostic instead of a runtime surprise.
+Change the sink contract to an incompatible type and `validate()` returns a
+structured diagnostic before any transformation or write is attempted.
 
-Run the complete tested version at
+The complete tested example is
 [examples/quickstart.py](examples/quickstart.py).
 
-## Current capability boundary
+## CLI workflow
+
+The CLI follows the same validate-first lifecycle:
+
+```bash
+# Inspect and validate a pipeline
+etlantic inspect pipeline.py:CustomerPipeline --format json
+etlantic validate pipeline.py:CustomerPipeline --format json
+
+# Build and explain a deterministic execution plan
+etlantic plan pipeline.py:CustomerPipeline --format json
+etlantic plan explain pipeline.py:CustomerPipeline --format json
+
+# Execute locally
+etlantic run pipeline.py:CustomerPipeline --profile development
+
+# Emit CI diagnostics
+etlantic validate pipeline.py:CustomerPipeline --format sarif
+```
+
+Airflow compilation requires the optional `etlantic-airflow` package:
+
+```bash
+pip install "etlantic[airflow]"
+etlantic compile pipeline.py:CustomerPipeline --target airflow -o dags/
+```
+
+Other public command groups cover contract generation and diffs, plugins,
+schema drift, reliability, visualization, and reports. Run `etlantic --help`
+for the complete command surface.
+
+## Install an integration
+
+Start with the core package, then add engines as needed:
+
+```bash
+pip install "etlantic[polars]"
+pip install "etlantic[pandas]"
+pip install "etlantic[sql]"
+pip install "etlantic[pyspark]"
+pip install "etlantic[airflow]"
+```
+
+| Integration | Package | Purpose |
+|---|---|---|
+| Polars | `etlantic-polars` | Eager/lazy dataframe execution and portable kernel compilation |
+| Pandas | `etlantic-pandas` | Eager dataframe execution |
+| SQL | `etlantic-sql` | Parameterized relational execution and SQL-to-SQL plans |
+| PySpark | `etlantic-pyspark` | Spark execution and local session provider |
+| Airflow | `etlantic-airflow` | Compile plans into Airflow DAG artifacts |
+| Keyring | `etlantic-keyring` | Resolve runtime secrets from the OS keyring |
+| SQLModel | `etlantic-sqlmodel` | Bridge ContractModel schemas and SQLModel |
+| SparkForge | `etlantic-sparkforge` | Migrate SparkForge pipeline definitions |
+
+Plugins are discovered through Python entry points and scoped to a runtime
+registry. Production profiles require an explicit plugin allowlist and reject
+untrusted plugins by default.
+
+## How it works
+
+ETLantic keeps logical intent separate from physical execution:
+
+1. **Author** typed `Data`, `Transformation`, and `Pipeline` classes.
+2. **Inspect** an immutable logical graph without running user code.
+3. **Validate** structure, references, contracts, policies, capabilities, and
+   plugin trust in ordered phases.
+4. **Plan** engine selections, execution regions, bindings, artifacts, and
+   materialization boundaries.
+5. **Execute or compile** the plan through small backend protocols.
+6. **Report** step outcomes, diagnostics, lineage, artifacts, and schema
+   observations.
+
+Plans and reports contain secret references, never resolved secret values.
+Secrets are resolved only at runtime. Capability and trust failures occur
+before mutation.
+
+## Capability boundary
 
 | Capability | 0.12 |
 |---|---|
-| Typed modeling, validation, contracts, and planning | Available |
-| Local Python execution and run reports | Available |
+| Typed modeling, validation, contracts, and deterministic planning | Available |
+| Local Python execution and structured run reports | Available |
 | Memory, callable, JSON, CSV, and no-write storage | Available |
-| Polars and Pandas dataframe plugins | Available (`etlantic-polars` / `etlantic-pandas`) |
-| SQL plugin | Available (`etlantic-sql`) |
-| PySpark plugin + local provider | Available (`etlantic-pyspark`) |
+| Polars and Pandas dataframe plugins | Available |
+| SQL and PySpark plugins | Available |
+| Airflow plan compiler | Available |
+| ODCS, DTCS, and DPCS interchange | Available |
+| Schema drift, reliability, visualization, and SARIF tooling | Available |
+| Production plugin allowlists and runtime secret providers | Available |
+| Portable transformation authoring | Available |
+| Polars portable kernel compiler | Available |
 | Structured Streaming | Experimental |
-| Airflow orchestrator compiler | Available (`etlantic-airflow`) |
-| CLI compile / generate / schema / SARIF | Available |
-| Plugin allowlists / keyring / SQLModel extras | Available |
-| SparkForge migration adapter | Available (`etlantic-sparkforge`) |
-| Portable authoring (`@Transformation.portable`) | Available |
-| Polars portable **kernel** compiler | Available (`etlantic-polars`) |
+| Relational, PySpark, Pandas, and safe SQL portable compilers | Planned for 0.13–0.15 |
 
-**Next design line:** Portable authoring ships in 0.11; Polars kernel compilation
-in 0.12. Releases 0.13–0.15 add relational/PySpark, Pandas, and safe SQL
-compilers for the same `dtcs.transform-plan/2` plans. See the
-[portable transformation guide](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
-and [roadmap](docs/11_DEVELOPMENT/ROADMAP.md).
+See [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
+and the [roadmap](docs/11_DEVELOPMENT/ROADMAP.md) for the precise support
+boundary.
 
 ## Documentation
 
-Hosted docs: [etlantic.readthedocs.io](https://etlantic.readthedocs.io/)
-
-- [Getting Started](docs/01_GETTING_STARTED/README.md) (start here)
+- [Hosted documentation](https://etlantic.readthedocs.io/)
+- [Getting Started](docs/01_GETTING_STARTED/README.md)
 - [Current 0.12 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
-- [Capabilities and Limitations](docs/01_GETTING_STARTED/CAPABILITIES.md)
-- [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)
 - [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
 - [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)
+- [Portable Transformations](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
 - [Contributing](CONTRIBUTING.md)
 - [Roadmap](docs/11_DEVELOPMENT/ROADMAP.md)
 
-Build the docs locally with `uv run mkdocs serve`.
-
 ## Development
 
-Requires [uv](https://docs.astral.sh/uv/).
+The repository uses [uv](https://docs.astral.sh/uv/) for its workspace and
+development environment:
 
 ```bash
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
 uv sync
+uv run python examples/quickstart.py
 uv run pytest
 uv run ruff check .
-uv run ruff format .
+uv run ruff format --check .
+uv run mkdocs serve
 ```
 
-`uv sync` creates `.venv`, installs the package in editable mode, and installs
-the `dev` dependency group (pytest, ruff, mkdocs) by default.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for package-specific test groups and
+development conventions.
 
 ## License
 
-MIT
+[MIT](LICENSE)

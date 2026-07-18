@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from etlantic import (
@@ -149,6 +151,11 @@ def test_unsafe_retries_fail_compilation(planned):
 
 @pytest.mark.airflow
 def test_local_run_and_compile_comparable(planned):
+    """Local execution and Airflow compile share task/step identities.
+
+    This does **not** prove Airflow workers execute ETLantic engines — see
+    ``test_etlantic_step_is_reference_stub``.
+    """
     plan, profile, plugin, runtime = planned
     runtime.memory.seed(
         "customer_source",
@@ -165,6 +172,43 @@ def test_local_run_and_compile_comparable(planned):
     step_names = [s.step_name for s in report.steps]
     assert set(step_names) == artifact.task_ids
     assert report.plan_id == plan.plan_id or report.plan_fingerprint
+
+
+@pytest.mark.airflow
+def test_etlantic_step_is_reference_stub():
+    """Characterize the 0.8 reference operator: XCom refs only, no engine run."""
+    pytest.importorskip("etlantic_airflow")
+    from etlantic_airflow.operator import etlantic_step
+
+    result = etlantic_step(
+        plan_id="plan-1",
+        pipeline_id="pipe-1",
+        node_name="normalized",
+        node_kind="step",
+        artifact_outputs=[
+            {
+                "identity": "artifact:default/pipe-1/normalized.result",
+                "logical_output": "normalized.result",
+                "strategy": "durable",
+            }
+        ],
+    )
+    assert result["status"] == "succeeded"
+    assert result["transport"] == "artifact_ref"
+    assert result["node_name"] == "normalized"
+    assert result["xcom"]
+    payload = json.dumps(result)
+    assert "Ada" not in payload
+    assert "password" not in payload.lower()
+    # Reference operator always succeeds without inspecting live data.
+    empty = etlantic_step(
+        plan_id="plan-1",
+        pipeline_id="pipe-1",
+        node_name="raw",
+        node_kind="source",
+    )
+    assert empty["status"] == "succeeded"
+    assert empty["xcom"][0]["transport"] == "artifact_ref"
 
 
 @pytest.mark.airflow

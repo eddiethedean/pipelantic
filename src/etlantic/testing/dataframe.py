@@ -54,7 +54,8 @@ def assert_roundtrip_records(
         ValidationDecision.OBSERVED,
     }
     records = plugin.to_records(frame, contract_type=contract_type)
-    assert len(records) == len(rows)
+    got = [r.model_dump() if hasattr(r, "model_dump") else dict(r) for r in records]
+    assert got == rows
 
 
 def run_conformance_suite(
@@ -71,9 +72,6 @@ def run_conformance_suite(
     if engine == "pandas":
         assert caps.supports("lazy") is False
     assert_roundtrip_records(plugin, rows=sample_rows, contract_type=contract_type)
-    assert callable(plugin.collect_if_needed)
-    assert callable(plugin.ensure_ownership)
-    assert callable(plugin.inspect_schema)
     context = DataframeExecutionContext(
         run_id="conformance",
         pipeline_id="conformance",
@@ -92,6 +90,9 @@ def run_conformance_suite(
         frame, ownership=ArtifactOwnership.COPIED, context=context
     )
     assert owned is not None
+    schema = plugin.inspect_schema(frame, identity="conformance:in")
+    assert schema is not None
+    assert "fields" in schema or "fingerprint" in schema
     # Collect discipline: LazyFrame must stay lazy when collect=False.
     lazy_candidate = frame
     if caps.supports("lazy") and hasattr(frame, "lazy"):

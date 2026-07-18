@@ -56,6 +56,49 @@ class FreshnessCheckResult:
     message: str | None = None
 
 
+def coerce_observed_at(value: Any) -> datetime | None:
+    """Parse an observed timestamp from metadata or provider payloads."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    if isinstance(value, (int, float)):
+        return datetime.fromtimestamp(float(value), tz=UTC)
+    if isinstance(value, str) and value.strip():
+        text = value.strip()
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        try:
+            parsed = datetime.fromisoformat(text)
+        except ValueError:
+            return None
+        return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=UTC)
+    return None
+
+
+def resolve_freshness_observed_at(
+    expectation: FreshnessExpectation,
+    *,
+    node_name: str,
+    binding: str | None,
+    metadata: dict[str, Any],
+) -> datetime | None:
+    """Resolve observed_at for a freshness check from run metadata.
+
+    Lookup order:
+    1. ``metadata["freshness_observed_at"][node_name|binding]``
+    2. ``expectation.metadata["observed_at"]``
+    """
+    observed_map = metadata.get("freshness_observed_at") or {}
+    if isinstance(observed_map, dict):
+        for key in (node_name, binding or ""):
+            if key and key in observed_map:
+                coerced = coerce_observed_at(observed_map[key])
+                if coerced is not None:
+                    return coerced
+    return coerce_observed_at(expectation.metadata.get("observed_at"))
+
+
 def check_freshness(
     expectation: FreshnessExpectation,
     *,

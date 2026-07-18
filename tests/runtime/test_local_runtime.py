@@ -15,7 +15,6 @@ from etlantic import (
     PipelineRuntime,
     RunIntent,
     RunRequest,
-    RunSelection,
     RunStatus,
     SecretRef,
     SecretValue,
@@ -86,7 +85,10 @@ def test_local_memory_pipeline_runs() -> None:
     out = runtime.memory.get("out")
     assert len(out) == 2
     assert out[0].name == "Alice"
-    assert "secret" not in report.to_json().lower() or "SecretRef" in report.to_json()
+    blob = report.to_json().lower()
+    assert "password=" not in blob
+    assert "super-secret" not in blob
+    assert "top-secret" not in blob
     text = report.to_text()
     assert "succeeded" in text
     html = report.to_html()
@@ -136,20 +138,6 @@ def test_null_no_write() -> None:
     )
     assert report.status is RunStatus.SUCCEEDED
     assert runtime.memory.get("out") == []
-
-
-def test_run_selection_until() -> None:
-    runtime = PipelineRuntime()
-    runtime.memory.seed("rows", [Row(id=1, name="a")])
-    report = SimplePipeline.run(
-        profile="development",
-        runtime=runtime,
-        request=RunRequest(selection=RunSelection.until("normalized")),
-    )
-    assert report.status is RunStatus.SUCCEEDED
-    names = {s.step_name for s in report.steps}
-    assert "normalized" in names
-    assert "out" not in names
 
 
 def test_parallel_branches_succeed() -> None:

@@ -128,8 +128,20 @@ def test_map_plan_to_tasks_preserves_dependencies() -> None:
     assert "raw" in names and "normalized" in names and "curated" in names
     assert "raw" in deps["normalized"]
     assert "normalized" in deps["curated"]
-    # in-memory artifacts may warn/error depending on resolutions
-    _ = diags
+    # Secret-like metadata must never slip through; transport errors are explicit.
+    assert not any(d.code == "PMORCH342" for d in diags)
+    assert not any(getattr(d, "severity", None) == "error" for d in diags)
+
+
+def test_artifact_metadata_secret_like_fails_closed() -> None:
+    ref = ArtifactRef(
+        identity="artifact:x",
+        logical_output="n.out",
+        strategy=ArtifactStrategy.DURABLE,
+        metadata={"password": "hunter2"},
+    )
+    diags = validate_artifact_for_transport(ref)
+    assert any(d.code == "PMORCH342" for d in diags)
 
 
 def test_retry_safety_rejects_unsafe_sink() -> None:

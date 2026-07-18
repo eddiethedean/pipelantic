@@ -1,8 +1,11 @@
-"""CLI smoke tests."""
+"""CLI smoke and workflow tests."""
 
 from __future__ import annotations
 
+import json
 import re
+from importlib.metadata import version
+from pathlib import Path
 
 import pytest
 import typer
@@ -12,6 +15,7 @@ from etlantic.cli import _build_selection, app
 
 runner = CliRunner(env={"NO_COLOR": "1", "TERM": "dumb"})
 _ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+_TARGET = "tests.fixtures.sample_pipeline:SamplePipeline"
 
 
 def _plain_output(result: object) -> str:
@@ -23,61 +27,104 @@ def _plain_output(result: object) -> str:
 def test_cli_version() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert "0.12.0" in result.stdout
+    assert version("etlantic") in result.stdout
 
 
 def test_cli_validate_sarif() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
     result = runner.invoke(
-        app, ["validate", target, "--profile", "local", "--format", "sarif"]
+        app, ["validate", _TARGET, "--profile", "local", "--format", "sarif"]
     )
     assert result.exit_code == 0
-    assert '"version": "2.1.0"' in result.stdout or '"$schema"' in result.stdout
+    payload = json.loads(result.stdout)
+    assert payload["version"] == "2.1.0"
+    assert "$schema" in payload or payload.get("runs")
 
 
 def test_cli_plugin_list() -> None:
     result = runner.invoke(app, ["plugin", "list", "--format", "json"])
     assert result.exit_code == 0
-    assert "plugins" in result.stdout
+    payload = json.loads(result.stdout)
+    assert "plugins" in payload
 
 
-def test_cli_generate() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
+def test_cli_generate(tmp_path: Path) -> None:
+    out = tmp_path / "contracts"
     result = runner.invoke(
-        app, ["generate", target, "--output", "tmp_cli_contracts", "--format", "json"]
+        app,
+        ["generate", _TARGET, "--output", str(out), "--format", "json"],
     )
     assert result.exit_code == 0, result.stdout + result.stderr
-    assert (
-        '"ok": true' in result.stdout.replace("True", "true") or "ok" in result.stdout
-    )
+    payload = json.loads(result.stdout)
+    assert payload.get("ok") is True
+    assert out.exists()
 
 
 def test_cli_viz_lineage() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
-    result = runner.invoke(app, ["viz", "lineage", target, "--format", "json"])
+    result = runner.invoke(app, ["viz", "lineage", _TARGET, "--format", "json"])
     assert result.exit_code == 0, result.stdout + result.stderr
     assert "etlantic.lineage/1" in result.stdout
 
 
 def test_cli_validate_and_plan() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
-    result = runner.invoke(app, ["validate", target, "--profile", "local"])
+    result = runner.invoke(app, ["validate", _TARGET, "--profile", "local"])
     assert result.exit_code == 0
     result = runner.invoke(
-        app, ["plan", target, "--profile", "local", "--format", "json"]
+        app, ["plan", _TARGET, "--profile", "local", "--format", "json"]
     )
     assert result.exit_code == 0, result.stderr
-    assert "etlantic.plan/1" in result.stdout
+    payload = json.loads(result.stdout)
+    assert "fingerprint" in payload
+    assert "plan_id" in payload
+    assert "logical_graph" in payload
 
 
 def test_cli_plan_explain() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
     result = runner.invoke(
-        app, ["plan", "explain", target, "--profile", "local", "--format", "json"]
+        app, ["plan", "explain", _TARGET, "--profile", "local", "--format", "json"]
     )
     assert result.exit_code == 0, result.stderr
-    assert "fingerprint" in result.stdout
-    assert "steps" in result.stdout
+    payload = json.loads(result.stdout)
+    assert "fingerprint" in payload
+    assert "steps" in payload
+
+
+def test_cli_run_json() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "run",
+            _TARGET,
+            "--profile",
+            "development",
+            "--format",
+            "json",
+            "--no-write",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "succeeded"
+
+
+def test_cli_diff_emits_structured_report() -> None:
+    result = runner.invoke(
+        app,
+        ["diff", _TARGET, _TARGET, "--kind", "pipeline", "--format", "json"],
+    )
+    # Same pipeline may still emit compatibility diagnostics depending on DPCS
+    # normalization; the CLI must always return a structured report payload.
+    assert result.stdout.strip(), result.stderr
+    payload = json.loads(result.stdout)
+    assert "valid" in payload
+    assert "diagnostics" in payload
+    assert isinstance(payload["diagnostics"], list)
+
+
+def test_cli_inspect() -> None:
+    result = runner.invoke(app, ["inspect", _TARGET, "--format", "json"])
+    assert result.exit_code == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    assert "nodes" in payload or "pipeline" in str(payload).lower()
 
 
 def test_build_selection_rejects_conflicting_flags() -> None:
@@ -86,16 +133,15 @@ def test_build_selection_rejects_conflicting_flags() -> None:
 
 
 def test_cli_conflicting_selection_flags() -> None:
-    target = "tests.fixtures.sample_pipeline:SamplePipeline"
     result = runner.invoke(
         app,
         [
             "plan",
-            target,
+            _TARGET,
             "--run-one=step",
             "--run-until=step",
         ],
     )
     assert result.exit_code != 0
     output = _plain_output(result)
-    assert "only one" in output or "run-until" in output
+    assert "only one" in output

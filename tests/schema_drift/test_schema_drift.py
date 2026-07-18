@@ -29,16 +29,68 @@ def test_equivalent_models_same_fingerprint() -> None:
 
 
 def test_operational_diff_detects_add_and_nullability() -> None:
-    left = normalize_schema_from_model(Left)
-    right = normalize_schema_from_model(Right)
+    # Use field lists so nullability is explicit (Union types may normalize as
+    # distinct logical types rather than nullable string).
+    left = normalize_schema_from_fields(
+        [
+            {
+                "name": "id",
+                "logical_type": "integer",
+                "nullable": False,
+                "required": True,
+            },
+            {
+                "name": "name",
+                "logical_type": "string",
+                "nullable": False,
+                "required": True,
+            },
+        ],
+        identity="s",
+    )
+    right = normalize_schema_from_fields(
+        [
+            {
+                "name": "id",
+                "logical_type": "integer",
+                "nullable": False,
+                "required": True,
+            },
+            {
+                "name": "name",
+                "logical_type": "string",
+                "nullable": True,
+                "required": False,
+            },
+            {
+                "name": "email",
+                "logical_type": "string",
+                "nullable": False,
+                "required": False,
+            },
+        ],
+        identity="s",
+    )
     change_set = diff_normalized_schemas(left, right)
+    by_kind = {c.kind: c for c in change_set.changes}
+    assert by_kind["field_added"].path == "email"
+    assert by_kind["nullability_changed"].path == "name"
+    assert (
+        by_kind["nullability_changed"].impact is DriftImpact.CONDITIONALLY_COMPATIBLE
+    )
+    assert change_set.overall_impact is DriftImpact.CONDITIONALLY_COMPATIBLE
+
+
+def test_model_union_optional_is_detected() -> None:
+    """ContractModel Optional/Union may surface as type_changed; still must fail closed."""
+    change_set = diff_normalized_schemas(
+        normalize_schema_from_model(Left),
+        normalize_schema_from_model(Right),
+    )
     kinds = {c.kind for c in change_set.changes}
     assert "field_added" in kinds
-    assert change_set.overall_impact in {
-        DriftImpact.BREAKING,
-        DriftImpact.CONDITIONALLY_COMPATIBLE,
-        DriftImpact.COMPATIBLE,
-    }
+    assert kinds & {"nullability_changed", "type_changed"}
+    assert change_set.overall_impact is DriftImpact.BREAKING
 
 
 def test_field_list_normalization_ignores_physical_metadata_in_fingerprint() -> None:

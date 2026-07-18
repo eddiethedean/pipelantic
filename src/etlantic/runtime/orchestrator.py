@@ -34,6 +34,7 @@ from etlantic.reliability_runtime import (
     assert_retry_safe,
     check_freshness,
     check_partition_completeness,
+    resolve_freshness_observed_at,
     write_mode_for_request,
 )
 from etlantic.reports.model import (
@@ -721,12 +722,26 @@ class LocalOrchestrator:
                 if can_retry and (
                     action is FailureAction.RETRY or self._should_retry(exc)
                 ):
-                    assert_retry_safe(
-                        retry_decl,
-                        attempt=attempt + 1,
-                        step_name=name,
-                        run_id=run_id,
-                    )
+                    try:
+                        assert_retry_safe(
+                            retry_decl,
+                            attempt=attempt + 1,
+                            step_name=name,
+                            run_id=run_id,
+                        )
+                    except PipelineExecutionError as retry_exc:
+                        state.status = StepStatus.FAILED
+                        state.ended_at = datetime.now(UTC)
+                        state.error = redact_message(str(retry_exc))
+                        diagnostics.append(
+                            RunDiagnostic(
+                                code=retry_exc.code or "PMEXEC300",
+                                severity="error",
+                                message=redact_message(str(retry_exc)),
+                                node_name=name,
+                            )
+                        )
+                        return
                     backoff = self.request.retry.backoff_seconds * attempt
                     if backoff > 0:
                         await anyio.sleep(backoff)
@@ -749,7 +764,7 @@ class LocalOrchestrator:
                 state.ended_at = datetime.now(UTC)
                 diagnostics.append(
                     RunDiagnostic(
-                        code="PMEXEC300",
+                        code=getattr(exc, "code", None) or "PMEXEC300",
                         severity="error",
                         message=redact_message(str(exc)),
                         node_name=name,
@@ -1888,7 +1903,13 @@ class LocalOrchestrator:
         expectations = self.request.metadata.get("freshness") or {}
         raw = expectations.get(node.name) or expectations.get(node.binding or "")
         if isinstance(raw, FreshnessExpectation):
-            result = check_freshness(raw, observed_at=None)
+            observed_at = resolve_freshness_observed_at(
+                raw,
+                node_name=node.name,
+                binding=node.binding,
+                metadata=dict(self.request.metadata),
+            )
+            result = check_freshness(raw, observed_at=observed_at)
             if not result.ok:
                 raise NodeExecutionError(
                     result.message or "Freshness check failed",

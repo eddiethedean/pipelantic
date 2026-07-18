@@ -41,9 +41,9 @@ def test_value_injection_uses_bound_params(sql_plugin) -> None:
     assert ":p" in compiled.text
     assert all(v == "<redacted>" for v in compiled.redacted_params.values())
     assert "_bound_params" not in compiled.metadata
-    assert "secret" not in str(compiled.to_dict()).lower() or "redacted" in str(
-        compiled.to_dict()
-    )
+    payload = str(compiled.to_dict()).lower()
+    assert "drop table" not in payload
+    assert all(v == "<redacted>" for v in compiled.redacted_params.values())
 
 
 def test_identifier_injection_rejected(sql_plugin) -> None:

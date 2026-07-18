@@ -32,8 +32,6 @@ from etlantic.registry import PlanningContext
 from etlantic.runtime.artifacts import ArtifactStore
 from etlantic.schema_drift import normalize_schema_from_fields
 
-polars = pytest.importorskip("polars")
-
 
 class Customer(Data):
     customer_id: int
@@ -52,9 +50,11 @@ class NormalizeCustomers(Transformation):
 
 
 @NormalizeCustomers.implementation("polars")
-def normalize_polars(customers: polars.DataFrame) -> polars.DataFrame:
+def normalize_polars(customers):  # type: ignore[no-untyped-def]
+    import polars as pl
+
     return customers.with_columns(
-        (polars.col("first_name") + " " + polars.col("last_name")).alias("full_name")
+        (pl.col("first_name") + " " + pl.col("last_name")).alias("full_name")
     ).select("customer_id", "full_name")
 
 
@@ -77,6 +77,7 @@ def _seed(runtime: PipelineRuntime) -> None:
 @pytest.mark.polars
 def test_run_without_explicit_context_uses_discovered_plugins() -> None:
     """Default Pipeline.run must use runtime-discovered plugins (no context=)."""
+    pytest.importorskip("polars")
     runtime = PipelineRuntime()
     assert "polars" in runtime.dataframe_plugins
     _seed(runtime)
@@ -90,6 +91,7 @@ def test_run_without_explicit_context_uses_discovered_plugins() -> None:
 
 @pytest.mark.polars
 def test_discovery_without_manual_register() -> None:
+    pytest.importorskip("polars")
     found = discover_dataframe_plugins()
     assert "polars" in found
     runtime = PipelineRuntime()
@@ -105,6 +107,8 @@ def test_discovery_without_manual_register() -> None:
 
 @pytest.mark.polars
 def test_fan_out_keeps_in_memory_not_durable() -> None:
+    polars = pytest.importorskip("polars")
+
     class Branch(Transformation):
         customers: Input[Customer]
         result: Output[Customer]
@@ -145,6 +149,8 @@ def test_fan_out_keeps_in_memory_not_durable() -> None:
 
 @pytest.mark.polars
 def test_multi_output_port_collect_and_validation() -> None:
+    polars = pytest.importorskip("polars")
+
     class Split(Transformation):
         customers: Input[RawCustomer]
         good: Output[Customer]
@@ -177,6 +183,7 @@ def test_multi_output_port_collect_and_validation() -> None:
 
 @pytest.mark.polars
 def test_schema_observation_uses_frame_inspect() -> None:
+    polars = pytest.importorskip("polars")
     from etlantic.runtime.orchestrator import _observe_records_schema
     from etlantic_polars import create_plugin
 
@@ -196,6 +203,7 @@ def test_schema_observation_uses_frame_inspect() -> None:
 
 @pytest.mark.polars
 def test_quarantine_populates_invalid_channel() -> None:
+    polars = pytest.importorskip("polars")
     from etlantic_polars import create_plugin
 
     plugin = create_plugin()
@@ -231,8 +239,57 @@ def test_quarantine_populates_invalid_channel() -> None:
     assert diags
 
 
+@pytest.mark.pandas
+def test_pandas_quarantine_and_object_dtype_warning() -> None:
+    pytest.importorskip("pandas")
+    import pandas as pd
+
+    from etlantic.dataframe.protocol import ArtifactOwnership
+    from etlantic_pandas import create_plugin
+
+    plugin = create_plugin()
+    context = DataframeExecutionContext(
+        run_id="r",
+        pipeline_id="p",
+        plan_id="plan",
+        step_name="s",
+        engine="pandas",
+        collect=True,
+        validation_policy=DataframeValidationPolicy(
+            input_outcome=DataframeValidationOutcome.QUARANTINE,
+            output_outcome=DataframeValidationOutcome.QUARANTINE,
+        ),
+    )
+    frame = pd.DataFrame(
+        [
+            {"customer_id": 1, "full_name": "Ada"},
+            {"customer_id": "bad", "full_name": "Nope"},
+        ]
+    )
+    valid, decision, diags, invalid = plugin.validate_frame(
+        frame,
+        contract_type=Customer,
+        context=context,
+        boundary="output_validation",
+        port_name="result",
+    )
+    assert decision is ValidationDecision.QUARANTINED
+    assert invalid is not None
+    assert plugin.row_count(invalid) == 1
+    assert plugin.row_count(valid) == 1
+    assert any(d.get("code") == "PMDF420" for d in diags)
+
+    owned = plugin.ensure_ownership(
+        valid, ownership=ArtifactOwnership.COPIED, context=context
+    )
+    owned.loc[:, "full_name"] = "MUTATED"
+    assert list(valid["full_name"]) == ["Ada"]
+    assert list(owned["full_name"]) == ["MUTATED"]
+
+
 @pytest.mark.polars
 def test_durable_store_rejects_native_frames() -> None:
+    polars = pytest.importorskip("polars")
     ref = ArtifactRef(
         identity="test:frame",
         logical_output="n.result",
@@ -247,6 +304,7 @@ def test_durable_store_rejects_native_frames() -> None:
 
 @pytest.mark.polars
 def test_lazyframe_dtype_mismatch_fail_closed() -> None:
+    polars = pytest.importorskip("polars")
     from etlantic_polars import create_plugin
 
     plugin = create_plugin()
