@@ -50,6 +50,7 @@ These pages sequence future work. They are not product user guides:
 - [FastAPI Integration Plan](FASTAPI_INTEGRATION_PLAN.md)
 - [Schema Drift and Evolution Plan](SCHEMA_DRIFT_PLAN.md)
 - [ETL Reliability and Recovery Plan](ETL_RELIABILITY_PLAN.md)
+- [TransformationModel Incubation Plan](TRANSFORMATIONMODEL_PLAN.md)
 - [SQLModel Integration Plan](SQLMODEL_INTEGRATION_PLAN.md)
 - [SparkForge Feature Adoption](SPARKFORGE_ADOPTION.md)
 - [Portable Transformation Implementation Plan](PORTABLE_TRANSFORM_PLAN.md)

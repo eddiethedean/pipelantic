@@ -21,6 +21,14 @@
     "SecretRef",
     "compile_plan"
   ],
+  "plan_helpers_stable": [
+    "verify_plan_fingerprint",
+    "deep_freeze",
+    "resolve_profile"
+  ],
+  "cli_flags_stable": [
+    "--allow-adhoc-profile"
+  ],
   "sdk_root_provisional": ["DataContractModel"],
   "sdk_root_experimental": [],
   "cli_stable": [

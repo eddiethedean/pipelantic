@@ -11,6 +11,7 @@ from etlantic import Profile
 
 profile = Profile(
     name="production",
+    security_mode="production",
     orchestrator="local",
     dataframe_engine="polars",  # or None / "pandas"
     sql_engine="sql",           # requires etlantic-sql
@@ -24,7 +25,8 @@ profile = Profile(
 )
 ```
 
-Pass `profile=` to `validate`, `plan`, `run`, and `compile_plan`.
+Pass `profile=` to `validate`, `plan`, `run`, and `compile_plan`. Production
+fail-closed trust uses `security_mode="production"` only (not the profile name).
 
 ## Environment variables
 
@@ -56,7 +58,7 @@ protocol. JSON console logging is available without OTel. See
 
 ## Not shipped
 
-Do not configure these as if they exist in 0.18:
+Do not configure these as if they exist in 0.19:
 
 - `etlantic.toml` / `ETLANTIC_CONFIG`
 - `ETLANTIC_PROFILE` auto-loading

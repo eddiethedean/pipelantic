@@ -22,7 +22,7 @@ Prefect direct execution via the shipped `etlantic-prefect`
 
 ------------------------------------------------------------------------
 
-## Is ETLantic 0.18 production-supported?
+## Is ETLantic 0.19 production-supported?
 
 ETLantic **0.19.0** is **stable** for documented single-tenant reference
 deployments (not unrestricted enterprise production). See
@@ -35,11 +35,12 @@ remain adopter-owned.
 
 ## What is the difference between Stable and Experimental?
 
-Stable APIs and behaviors are supported within the documented 0.18 reference
+Stable APIs and behaviors are supported within the documented 0.19 reference
 envelope. Features explicitly labeled **Experimental**, currently including
-Structured Streaming foundations, may change and are outside that stable
-claim. A page describing a shipped feature does not make every feature on that
-page stable; check its status label and [Capabilities](CAPABILITIES.md).
+Structured Streaming foundations and `etlantic-datafusion`, may change and are
+outside that stable claim. A page describing a shipped feature does not make
+every feature on that page stable; check its status label and
+[Capabilities](CAPABILITIES.md).
 
 ------------------------------------------------------------------------
 

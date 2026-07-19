@@ -1,6 +1,6 @@
 # Known Limitations
 
-- ETLantic **0.18.x** is production/stable for documented single-tenant
+- ETLantic **0.19.x** is production/stable for documented single-tenant
   reference deployments, but 0.x releases may still introduce breaking API
   changes between minor versions until 1.0.
 - Portable `@Transformation.portable` definitions and

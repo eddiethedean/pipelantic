@@ -1,7 +1,7 @@
 # etlantic-polars
 
 Polars dataframe plugin **and** Polars portable transform compiler for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.18.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.19.
 
 ```bash
 pip install 'etlantic==0.19.0' 'etlantic-polars==0.19.0'

@@ -22,11 +22,11 @@ python -m etlantic --version
 ```
 
 Upgrade from PyPI (pin the published release unless you intend compatible
-0.18.x patches):
+0.19.x patches):
 
 ```bash
 python -m pip install --upgrade 'etlantic==0.19.0'
-# or accept compatible 0.18.x patches:
+# or accept compatible 0.19.x patches:
 python -m pip install --upgrade 'etlantic>=0.19.0,<0.20'
 ```
 
@@ -96,7 +96,7 @@ Compare distributions in the same interpreter:
 python -c "import importlib.metadata as m; print(m.version('etlantic')); print(m.version('etlantic-polars'))"
 ```
 
-Core 0.18.x requires plugins from the 0.18 minor. Remove stale plugin versions
+Core 0.19.x requires plugins from the 0.19 minor. Remove stale plugin versions
 and install matching pins, for example:
 
 ```bash
@@ -162,17 +162,44 @@ install plugins or resolve assets. See
 
 ## My memory source returns no records
 
-Seed the exact binding name used by the pipeline:
+Seed the exact **asset** name used by the pipeline (`Extract(asset=...)` /
+`Load(asset=...)`):
 
 ```python
 runtime.memory.seed("customer_source", records)
 ```
 
-Read sink output using its binding:
+Read load output using its asset:
 
 ```python
 runtime.memory.get("customer_sink")
 ```
+
+## Unknown profile name fails (`PMCFG100`)
+
+Bare profile names that are not built-in templates fail closed:
+
+```bash
+etlantic validate path.py:P --profile typo   # PMCFG100
+etlantic validate path.py:P --profile typo --allow-adhoc-profile
+```
+
+SDK: `resolve_profile("typo", allow_adhoc_profile=True)`. Prefer an explicit
+Profile JSON path for CI.
+
+## Legacy profile `bindings` warning (`PMCFG110`)
+
+Profile JSON that only has `"bindings"` still loads with warning `PMCFG110`.
+Prefer `"assets"`. Fail closed in CI with
+`Profile.from_dict(data, accept_legacy_bindings=False)`.
+
+## Plan fingerprint or schema errors
+
+Persisted plans and run reports must include a wire `"schema"` field
+(`etlantic.plan/1` or `etlantic.run_report/1`). Missing or unknown schemas are
+rejected. Fingerprints are verified on deserialize (default) and again before
+compile/run—regenerate plans after upgrades that change participation rules.
+See [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md).
 
 ## Planning and execution use different profiles
 
@@ -212,7 +239,7 @@ Pandas boundaries only.
 |---|---|
 | Plugin not discovered | Install `etlantic-polars==0.19.0` **and** `etlantic-pandas==0.19.0`; match core minor |
 | Plan fails closed on descriptor / mechanism | Both plugins must advertise compatible `interchange_mechanisms`; see Plugin SDK |
-| Expecting PySpark or SQL Gate A | Out of scope in 0.18 — stay on Polars↔Pandas or keep a single engine |
+| Expecting PySpark or SQL Gate A | Out of scope in 0.19 — stay on Polars↔Pandas or keep a single engine |
 | Treating Arrow helpers as Gate A | Best-effort Arrow conversion is **not** the Gate A contract; use planned descriptors / evidence |
 | `examples/interchange_polars_pandas.py` missing | Script is checkout-only; paste from docs or clone the repo |
 

@@ -4,16 +4,20 @@ ETLantic coordinates contracts, Python code, plugins, credentials, data
 artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
-This chapter covers **implemented 0.18 controls** and the broader
+This chapter covers **implemented 0.19 controls** and the broader
 **proposed threat model**. ETLantic 0.19.0 is production/stable for documented
 single-tenant reference deployments. It does not provide unrestricted
 multi-tenant, compliance, deployment-topology, SBOM/signing, or advanced
 supply-chain guarantees; those controls remain adopter-owned.
 
-## Implemented in 0.18
+## Implemented in 0.19
 
 - Secret-free plans and reports (`SecretRef` metadata only; resolve at runtime)
+- Explicit `Profile.security_mode` (`development` \| `test` \| `production`);
+  production fail-closed plugin trust uses **mode only** (not name/`security_domain`)
 - Production `Profile.plugin_allowlist` fail-closed selection of discovered plugins
+- Strict named profile resolution (`PMCFG100` unless `--allow-adhoc-profile`)
+- Plan fingerprint verification at deserialize / compile / run trust boundaries
 - Multi-phase validation before planning/execution
 - Schema history observations/fingerprints without source rows
 - Parameterized SQL reference paths and trusted-SQL gates
@@ -704,7 +708,7 @@ configuration.
 
 ## Verification
 
-Before expanding beyond the bounded 0.18 support envelope, automated tests
+Before expanding beyond the bounded 0.19 support envelope, automated tests
 should cover:
 
 - malicious YAML tags and deeply nested inputs
@@ -738,7 +742,7 @@ The repository should publish:
 
 ## Unrestricted Production Security Gate
 
-The documented single-tenant/reference 0.18 deployment is bounded stable.
+The documented single-tenant/reference 0.19 deployment is bounded stable.
 Broader production claims require:
 
 - the threat model is reviewed

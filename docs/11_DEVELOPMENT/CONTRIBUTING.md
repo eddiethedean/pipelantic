@@ -39,7 +39,10 @@ uv sync
 
 `uv sync` installs runtime dependencies, the editable workspace packages, and
 the `dev` group (pytest, ruff, mkdocs). Optional groups: `dataframes`, `sql`,
-`pyspark`, `airflow`, `prefect`, `sparkforge`, `keyring`, `sqlmodel`. See
+`pyspark`, `airflow`, `prefect`, `sparkforge`, `keyring`, `sqlmodel`. The
+workspace also includes experimental `etlantic-datafusion` (Alpha; not a
+default group)—install via `uv sync --extra datafusion` or the package path
+when working on Gate B. See
 [Installation](../01_GETTING_STARTED/INSTALLATION.md).
 
 Use the supported Python versions documented in `pyproject.toml` (3.11+).
@@ -61,6 +64,7 @@ uv run ruff format --check .
 uv run python scripts/check_docs.py
 uv run python scripts/check_agent_guidance.py
 uv run python scripts/check_release.py
+uv run python scripts/check_surface_inventory.py
 uv run python scripts/check_transform_compiler_drift.py
 uv run etlantic validate examples/quickstart.py:CustomerPipeline --format sarif > /tmp/etlantic.sarif
 uv run python examples/quickstart.py

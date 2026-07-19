@@ -228,8 +228,8 @@ than `fail`).
 myengine = "my_compiler.plugin:create_transform_compiler"
 ```
 
-Depend on a matching ETLantic minor (`etlantic>=0.19.0,<0.18` for official
-0.18 plugins).
+Depend on a matching ETLantic minor (`etlantic>=0.19.0,<0.20` for official
+0.19 plugins).
 
 ## 3. Run the public conformance suite
 

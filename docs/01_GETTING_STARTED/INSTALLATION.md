@@ -71,6 +71,8 @@ pip install 'etlantic[sql]==0.19.0'          # alias: [postgresql]
 pip install 'etlantic[pyspark]==0.19.0'      # alias: [spark]
 pip install 'etlantic[airflow]==0.19.0'
 pip install 'etlantic[prefect]==0.19.0'
+# Experimental Gate B stub (not graduated; not recommended):
+pip install 'etlantic[datafusion]==0.19.0'
 ```
 
 Also available: `[keyring]`, `[sqlmodel]`, `[sparkforge]`, `[otel]`, `[arrow]`.

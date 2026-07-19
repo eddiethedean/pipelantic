@@ -16,20 +16,21 @@ plugin packages currently share the core minor version (for example `0.19.0`).
 
 ## Packages published on each tag
 
-Tag `vX.Y.Z` publishes ten distributions:
+Tag `vX.Y.Z` publishes eleven distributions:
 
-| PyPI name | Source |
-|---|---|
-| `etlantic` | repo root |
-| `etlantic-polars` | `packages/etlantic-polars` |
-| `etlantic-pandas` | `packages/etlantic-pandas` |
-| `etlantic-sql` | `packages/etlantic-sql` |
-| `etlantic-pyspark` | `packages/etlantic-pyspark` |
-| `etlantic-airflow` | `packages/etlantic-airflow` |
-| `etlantic-prefect` | `packages/etlantic-prefect` |
-| `etlantic-keyring` | `packages/etlantic-keyring` |
-| `etlantic-sqlmodel` | `packages/etlantic-sqlmodel` |
-| `etlantic-sparkforge` | `packages/etlantic-sparkforge` |
+| PyPI name | Source | Notes |
+|---|---|---|
+| `etlantic` | repo root | core |
+| `etlantic-polars` | `packages/etlantic-polars` | stable |
+| `etlantic-pandas` | `packages/etlantic-pandas` | stable |
+| `etlantic-sql` | `packages/etlantic-sql` | stable |
+| `etlantic-pyspark` | `packages/etlantic-pyspark` | stable |
+| `etlantic-airflow` | `packages/etlantic-airflow` | stable |
+| `etlantic-prefect` | `packages/etlantic-prefect` | stable |
+| `etlantic-keyring` | `packages/etlantic-keyring` | stable |
+| `etlantic-sqlmodel` | `packages/etlantic-sqlmodel` | stable |
+| `etlantic-sparkforge` | `packages/etlantic-sparkforge` | stable |
+| `etlantic-datafusion` | `packages/etlantic-datafusion` | **Experimental** (Alpha classifier) |
 
 ## Pre-Release Checklist
 
@@ -61,19 +62,19 @@ Tag `vX.Y.Z` publishes ten distributions:
    uv run pytest -q tests/sparkforge -m sparkforge
    ```
 
-7. **Normal path (all ten projects already on PyPI):** publish uploads to
+7. **Normal path (stable projects already on PyPI):** publish uploads to
    existing projects. Prefer Trusted Publishing / OIDC when configured;
    otherwise use the least-privilege token documented for this repository.
    Treat long-lived user tokens and first-project bootstrap as exceptional.
+   Experimental `etlantic-datafusion` may be a brand-new PyPI name on first
+   publish—pace new-project creates accordingly.
 8. **New distribution bootstrap only:** if introducing a brand-new PyPI name,
    review `scripts/check_release.py` output and PyPI new-project rate limits
    (`429 Too many new projects created`). Release CI waits between brand-new
-   creates; existing projects upload immediately. Before tagging 0.19.0,
-   confirm whether `etlantic-prefect` and `etlantic-sparkforge` already exist
-   on PyPI (they did not after the incomplete `v0.17.0` publish). If the
-   account is still rate-limited for new projects, either wait for the rolling
-   hour window or create those empty projects manually on PyPI first so the
-   release job only uploads versions.
+   creates; existing projects upload immediately. If the account is still
+   rate-limited for new projects, either wait for the rolling hour window or
+   create empty projects manually on PyPI first so the release job only
+   uploads versions.
 9. Prefer tagging only the current release (do not `git push --tags`).
    Treat published tags as immutable. If a publish fails after the tag is
    public, prefer a new patch version rather than moving the tag.

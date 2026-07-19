@@ -80,21 +80,22 @@ production = Profile(
     security_domain="production",
     dataframe_engine="polars",
     plugin_allowlist={
-        "etlantic-polars": ">=0.10.0,<1.0",
+        "etlantic-polars": "==0.19.0",
     },
 )
 
 sql_prod = Profile(
     name="sql-prod",
+    security_mode="production",
     sql_engine="sql",
     plugin_allowlist={
-        "etlantic-sql": ">=0.10.0,<1.0",
+        "etlantic-sql": "==0.19.0",
     },
 )
 ```
 
-Production and staging profiles fail closed when `plugin_allowlist` is empty.
-Development profiles may omit the allowlist. See
+When `security_mode="production"`, profiles fail closed if `plugin_allowlist`
+is empty. Development profiles may omit the allowlist. See
 [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 
 Use `dataframe_engine` for Polars/Pandas/local implementations. Use

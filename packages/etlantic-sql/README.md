@@ -1,7 +1,7 @@
 # etlantic-sql
 
 PostgreSQL reference SQL execution plugin for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.18.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.19.
 
 ```bash
 pip install 'etlantic==0.19.0' 'etlantic-sql==0.19.0'

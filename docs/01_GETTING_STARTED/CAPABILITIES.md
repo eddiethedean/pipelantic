@@ -113,7 +113,9 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 
 Production profiles require a non-empty `Profile.plugin_allowlist` in an
 explicit Profile JSON file (the built-in `production` name is empty and
-fail-closed). Never put secrets in plans, reports, or CI logs.
+fail-closed). Production fail-closed trust keys off
+`security_mode="production"`, not the profile name or `security_domain`.
+Never put secrets in plans, reports, or CI logs.
 
 **Pip users:** create `profiles/prod.json` yourself (the package does not ship
 this file). Start from the JSON below, then **trim `plugin_allowlist` to the
@@ -132,6 +134,7 @@ Starter profile (trim allowlist to one engine for first success):
 ```json
 {
   "name": "prod-example",
+  "security_mode": "production",
   "security_domain": "production",
   "orchestrator": "local",
   "dataframe_engine": "polars",

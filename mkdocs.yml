@@ -111,12 +111,13 @@ nav:
       - First Pipeline: 01_GETTING_STARTED/FIRST_PIPELINE.md
       - Engine selection: 01_GETTING_STARTED/ENGINE_SELECTION.md
       - Current 0.19 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
+      - What's new in 0.19: 01_GETTING_STARTED/WHATS_NEW_0_19.md
+      - Upgrade: 01_GETTING_STARTED/UPGRADE.md
       - FAQ: 01_GETTING_STARTED/FAQ.md
       - Troubleshooting: 01_GETTING_STARTED/TROUBLESHOOTING.md
       - Guides:
           - Cookbook: 01_GETTING_STARTED/COOKBOOK.md
           - Ops examples: 01_GETTING_STARTED/OPS_EXAMPLES.md
-          - Upgrade: 01_GETTING_STARTED/UPGRADE.md
           - Portable failure cookbook: 01_GETTING_STARTED/PORTABLE_FAILURE_COOKBOOK.md
           - Interchange Gate A FAQ: 01_GETTING_STARTED/INTERCHANGE_GATE_A_FAQ.md
           - Portable vs Native: 01_GETTING_STARTED/PORTABLE_VS_NATIVE.md
@@ -272,6 +273,7 @@ nav:
   - Project:
       - Overview: 11_DEVELOPMENT/README.md
       - ContractModel upgrade plan: 11_DEVELOPMENT/CONTRACTMODEL_UPGRADE_PLAN.md
+      - TransformationModel incubation plan: 11_DEVELOPMENT/TRANSFORMATIONMODEL_PLAN.md
       - Upgrade hub: 01_GETTING_STARTED/UPGRADE.md
       - Migration 0.18 → 0.19: 11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md
       - Migration 0.17 → 0.18: 11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md

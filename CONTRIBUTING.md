@@ -25,6 +25,7 @@ uv run ruff format --check .
 uv run python scripts/check_docs.py
 uv run python scripts/check_agent_guidance.py
 uv run python scripts/check_release.py
+uv run python scripts/check_surface_inventory.py
 uv run python scripts/check_transform_compiler_drift.py
 uv run etlantic validate examples/quickstart.py:CustomerPipeline --format sarif > /tmp/etlantic.sarif
 uv run python examples/quickstart.py

@@ -96,7 +96,7 @@ How to read status labels in deeper chapters:
 
 ## Enterprise readiness matrix
 
-| Concern | Status in 0.18 |
+| Concern | Status in 0.19 |
 |---|---|
 | License | MIT (core and official plugins) |
 | Supported versions / EOL | Current stable line is 0.19.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
@@ -106,7 +106,7 @@ How to read status labels in deeper chapters:
 | SBOM / signed provenance | Gap — not yet emitted by release automation |
 | Audit system of record | Gap — process-local reports are operational evidence only |
 | Tested scale | Local/pilot workloads; no published capacity guarantees |
-| Upgrade / rollback | Pin exact versions; see [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) |
 
 ## Recommended evaluation path
 
@@ -123,7 +123,8 @@ Follow this path **after** the green path (Install → Quickstart → First Pipe
    with `etlantic-polars` + `etlantic-pandas` at `==0.19.0`
 7. Optional engine examples from a checkout (portable kernels, SQL, PySpark,
    Airflow compile, Prefect)
-8. [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md)
+8. [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) if
+   upgrading; otherwise [Upgrade hub](UPGRADE.md)
 9. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
 10. Production path: create `profiles/prod.json` from
     [CI starter](CAPABILITIES.md#ci-starter) /

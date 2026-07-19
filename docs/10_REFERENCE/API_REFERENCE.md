@@ -36,11 +36,13 @@ from etlantic import (
 | `Transformation` | `etlantic.transformation` | Typed transform interface + implementations |
 | `Extract` / `Load` | `etlantic.pipeline` | Pipeline entry / publication boundaries |
 | `Pipeline` | `etlantic.pipeline` | Declarative graph; `validate` / `plan` / `run` |
-| `Profile` | `etlantic.profile` | Environment + allowlist + engine selection |
+| `Profile` | `etlantic.profile` | Environment + allowlist + engine selection; `security_mode` for trust |
+| `resolve_profile` | `etlantic.profile` | Named/path resolve; unknown names fail closed unless `allow_adhoc_profile=True` |
 | `PipelineRuntime` | `etlantic.lifecycle` | Process-local plugins, memory, reports |
-| `PipelinePlan` | `etlantic.plan` | Immutable secret-free resolved plan |
+| `PipelinePlan` | `etlantic.plan` | Immutable secret-free resolved plan (`schema` required on wire) |
 | `plan_pipeline` / `explain_plan` | `etlantic.plan` | Functional planning helpers |
-| `compile_plan` | `etlantic.orchestration` | External orchestrator artifact emission |
+| `verify_plan_fingerprint` / `deep_freeze` | `etlantic.plan` | Trust-boundary fingerprint check; deep immutability helper |
+| `compile_plan` | `etlantic.orchestration` | External orchestrator artifact emission (verifies fingerprint first) |
 | `ValidationReport` | `etlantic.diagnostics` | Structured validate findings |
 | `PipelineRunReport` | `etlantic.reports` | Structured run outcomes |
 | `SecretRef` | `etlantic.secrets` | Runtime-only secret reference |
@@ -64,8 +66,8 @@ Optional plugins document factories in package READMEs. See
 | `Transformation.implementation(engine)` | Decorator returning the original callable | Registration replaces same class/engine in-process |
 | `Transformation.portable` | Decorator registering a symbolic definition | Authoring errors raise `ModelDefinitionError` (`PMXFORM*`) |
 | `Pipeline.validate(...)` | `ValidationReport` | Does not execute transforms; empty production allowlist fails closed |
-| `Pipeline.plan(...)` | Immutable, secret-free `PipelinePlan` | Missing plugins/bindings/capabilities fail planning |
-| `Pipeline.run(...)` / `arun(...)` | `PipelineRunReport` | In-process execution; storage side effects follow the plan |
+| `Pipeline.plan(...)` | Immutable, secret-free `PipelinePlan` | Missing plugins/assets/capabilities fail planning; nested nests are deep-frozen |
+| `Pipeline.run(...)` / `arun(...)` | `PipelineRunReport` | Verifies plan fingerprint before execution; storage side effects follow the plan |
 | `Pipeline.to_mermaid()` | Mermaid flowchart string | Does not plan or execute |
 
 ```python

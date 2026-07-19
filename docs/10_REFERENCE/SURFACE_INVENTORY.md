@@ -19,6 +19,7 @@ Stability classes:
 | `Data`, `Transformation`, `Pipeline`, `Extract`, `Load` | stable |
 | `Input`, `Output`, `Parameter`, `Profile`, `PipelineRuntime` | stable |
 | `PipelinePlan`, `plan_pipeline`, `explain_plan` | stable |
+| `verify_plan_fingerprint`, `deep_freeze` (via `etlantic.plan`) | stable |
 | `ValidationReport`, `PipelineRunReport` | stable |
 | `SecretRef`, `compile_plan` | stable |
 | `DataContractModel` | provisional (deprecated alias of `Data`) |
@@ -29,6 +30,9 @@ Stability classes:
 
 `validate`, `inspect`, `plan`, `run`, `compile`, `generate`, `diff`, `plugin`,
 `schema`, `reliability`, `viz`, `report` — **stable** within 0.19.
+
+`--allow-adhoc-profile` on validate/plan/run — **stable** (opt-in fail-open for
+unknown bare profile names; default is fail-closed `PMCFG100`).
 
 ## Wire schemas
 

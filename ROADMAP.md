@@ -1859,6 +1859,66 @@ mutable resources cross the analysis boundary.
 Every mandatory trust and I/O control has an implementation owner, automated
 verification, a stable diagnostic or event, and documented residual risk.
 
+## 0.20+ Incubation Track — TransformationModel
+
+**Objective:** incubate a reusable, Python-native transformation modeling
+package at `packages/transformationmodel` while ETLantic remains the integration,
+planning, and execution system.
+
+TransformationModel is the DTCS counterpart to ContractModel: `dtcs` remains
+the authority for DTCS document parsing, canonical representation, validation,
+diagnostics, portable plans, and compatibility semantics; TransformationModel
+provides ergonomic typed authoring, translation, and fidelity APIs over that
+standard. The package must not import ETLantic or acquire backend execution,
+orchestration, plugin-loading, secret-resolution, or mutable-resource concerns.
+
+### Incubation deliverables
+
+- create `packages/transformationmodel` as an independently buildable, typed
+  package with its own public API, tests, documentation, changelog, and release
+  policy
+- define `TransformationModel`, typed input/output references, expressions,
+  capability requirements, and extension protocols without ETLantic imports
+- depend on public `dtcs` APIs for normative DTCS semantics instead of copying
+  specification rules or portable-plan behavior
+- provide deterministic DTCS import, export, canonical serialization,
+  fingerprinting, structured diagnostics, semantic diff, and explicit
+  loss/fidelity reports
+- extract reusable transformation authoring and lowering behavior from ETLantic
+  incrementally, preserving compatibility shims at the ETLantic public surface
+- keep Pandas, Polars, PySpark, SQL, orchestration, and other backend realization
+  in ETLantic plugins or provider packages rather than TransformationModel core
+- publish a DTCS and Python compatibility matrix and exercise upstream DTCS
+  conformance fixtures across every supported version
+- retain `dtcs` as a direct ETLantic dependency while low-level APIs are used;
+  dependency ownership may become transitive only after the boundary is proven
+
+### Graduation gates
+
+- at least one consumer independent of ETLantic can author, validate, inspect,
+  round-trip, and diff a transformation
+- equivalent definitions serialize and fingerprint identically across supported
+  Python versions and operating systems
+- every conversion reports unsupported or lossy semantics explicitly and fails
+  closed where fidelity is required
+- ETLantic's transformation conformance suite passes through the package without
+  weakening DTCS validation, portability, or diagnostic guarantees
+- the package has a stable public protocol, semantic-versioning policy,
+  deprecation policy, `py.typed` marker, and no dependency on ETLantic internals
+- installation keeps backend engines optional and introduces no runtime plugin
+  imports or external effects during model inspection and validation
+
+### ETLantic adoption
+
+During incubation, ETLantic may consume TransformationModel from the workspace
+behind provisional boundaries. It becomes a required ETLantic dependency only
+after the graduation gates pass and a separately released version has proven
+the package boundary. Before graduation, no ETLantic 1.0 compatibility promise
+may depend exclusively on the incubating API.
+
+See the
+[TransformationModel Incubation Plan](docs/11_DEVELOPMENT/TRANSFORMATIONMODEL_PLAN.md).
+
 ## 0.21 — Cohesive CLI and Authoring Experience
 
 **Objective:** make the supported workflow usable end to end without hidden

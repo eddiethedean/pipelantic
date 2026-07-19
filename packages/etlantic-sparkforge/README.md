@@ -1,6 +1,6 @@
 # etlantic-sparkforge
 
-SparkForge → ETLantic migration adapter for ETLantic 0.18.
+SparkForge → ETLantic migration adapter for ETLantic 0.19.
 
 SparkForge remains the medallion-facing facade (bronze / silver / gold).
 This package maps those conventions onto ordinary ETLantic `Extract` / `Step` /

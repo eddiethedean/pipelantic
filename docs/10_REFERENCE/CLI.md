@@ -24,6 +24,8 @@ Options:
 
 - `--profile`, `-p`: profile name; default `local`
 - `--format`: `human`, `json`, or `sarif`
+- `--allow-adhoc-profile`: allow unknown bare profile names (default fails
+  closed with `PMCFG100`)
 
 Exit status is 0 for a valid pipeline and 1 for validation errors.
 
@@ -50,6 +52,7 @@ The default output format is JSON. Selection options are:
 - `--run-one NODE`
 - `--run-until NODE`
 - `--nodes NAME,NAME`
+- `--allow-adhoc-profile`: allow unknown bare profile names (`PMCFG100` otherwise)
 
 `--run-one` and `--run-until` are mutually exclusive.
 
@@ -86,6 +89,7 @@ Supported report formats are `text`, `json`, and `html`. Additional options:
 - `--run-until NODE`
 - `--intent INTENT`
 - `--no-write`
+- `--allow-adhoc-profile`: allow unknown bare profile names (`PMCFG100` otherwise)
 
 CLI runs start with a new process-local runtime. A source that requires seeded
 in-memory data is therefore better run through Python, as shown in the
