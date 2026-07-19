@@ -403,8 +403,7 @@ def main() -> None:
             "CAPABILITIES.md must not advertise formal Optional Arrow interchange as shipped"
         )
     if (
-        "Versioned tabular interchange (`etlantic.interchange/1`)"
-        not in capabilities
+        "Versioned tabular interchange (`etlantic.interchange/1`)" not in capabilities
         or "**0.18.0 Gate A — Available**" not in capabilities
     ):
         raise SystemExit(

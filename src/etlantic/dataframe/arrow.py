@@ -91,14 +91,11 @@ def to_arrow_table_strict(value: Any) -> Any:
         except ImportError:
             raise
         except Exception as exc:
-            raise TypeError(
-                f"{type(value)!r}.to_arrow() failed: {exc}"
-            ) from exc
+            raise TypeError(f"{type(value)!r}.to_arrow() failed: {exc}") from exc
         if isinstance(table, pa.Table):
             return table
         raise TypeError(
-            f"{type(value)!r}.to_arrow() returned {type(table)!r}, "
-            "not pyarrow.Table"
+            f"{type(value)!r}.to_arrow() returned {type(table)!r}, not pyarrow.Table"
         )
     if hasattr(value, "to_numpy") and hasattr(value, "columns"):
         try:
@@ -106,7 +103,9 @@ def to_arrow_table_strict(value: Any) -> Any:
         except ImportError:
             raise
         except Exception as exc:
-            raise TypeError(f"Cannot convert {type(value)!r} via pandas: {exc}") from exc
+            raise TypeError(
+                f"Cannot convert {type(value)!r} via pandas: {exc}"
+            ) from exc
     if isinstance(value, list):
         try:
             return records_to_arrow_table(value)

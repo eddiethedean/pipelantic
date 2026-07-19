@@ -34,18 +34,12 @@ def run_tabular_interchange_conformance_smoke(
         "producer_engine": producer_caps.engine,
     }
     schema_fingerprint = hashlib.sha256(
-        json.dumps(
-            fingerprint_payload, sort_keys=True, separators=(",", ":")
-        ).encode()
+        json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    copy_required = (
-        not producer_caps.thread_safe
-        or mechanism
-        in {
-            InterchangeMechanism.NATIVE_FALLBACK,
-            InterchangeMechanism.RECORDS_FALLBACK,
-        }
-    )
+    copy_required = not producer_caps.thread_safe or mechanism in {
+        InterchangeMechanism.NATIVE_FALLBACK,
+        InterchangeMechanism.RECORDS_FALLBACK,
+    }
     descriptor = InterchangeDescriptor(
         schema=SCHEMA,
         mechanism=mechanism,
@@ -58,9 +52,7 @@ def run_tabular_interchange_conformance_smoke(
         batching="collected",
         collection=True,
         copy_eligibility=(
-            CopyEligibility.COPY_REQUIRED
-            if copy_required
-            else CopyEligibility.UNKNOWN
+            CopyEligibility.COPY_REQUIRED if copy_required else CopyEligibility.UNKNOWN
         ),
         fallback_reason=fallback_reason,
         evidence_refs=(),
