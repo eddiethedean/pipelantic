@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-07-18
+
+### Added
+
+- `etlantic-pandas` portable transform compiler claiming kernel +
+  `portable-relational/1` (eager-only, index-neutral) with
+  `etlantic.transform_compilers` entry point `pandas`
+- Public `etlantic.testing.portable_transform_conformance` suite with
+  capability-selected fixtures and
+  `run_portable_transform_conformance_suite`
+- Hypothesis property tests for capability matching, null-aware boolean
+  semantics, and compile fingerprint stability
+- Expanded Polars ↔ Pandas differentials (Unicode/ordering, unequal-key joins)
+- CI runs pandas compiler suites, public conformance for Polars/Pandas/PySpark,
+  and three-engine differentials
+- `python -m etlantic` entry via `src/etlantic/__main__.py`
+- Profile JSON path loading for `--profile ./profiles/prod.json`
+- `py.typed` markers for core and every official plugin package
+
 ### Fixed
 
 - Durable `PipelineRunReport.from_dict` round-trips lineage, diagnostics,
@@ -23,32 +42,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PySpark unequal-key joins rename colliding right keys before coalesce
 - PySpark substring lowering passes integer bounds on real Spark as required by
   PySpark 3.x while preserving DTCS zero-based indexing
-- `etlantic-pandas` declares `pandas>=2.2,<3` (matches `include_groups=`)
-
-## [0.14.0] - 2026-07-18
-
-### Added
-
-- `etlantic-pandas` portable transform compiler claiming kernel +
-  `portable-relational/1` (eager-only, index-neutral) with
-  `etlantic.transform_compilers` entry point `pandas`
-- Public `etlantic.testing.portable_transform_conformance` suite with
-  capability-selected fixtures and
-  `run_portable_transform_conformance_suite`
-- Hypothesis property tests for capability matching, null-aware boolean
-  semantics, and compile fingerprint stability
-- Expanded Polars ↔ Pandas differentials (Unicode/ordering, unequal-key joins)
-- CI runs pandas compiler suites, public conformance for Polars/Pandas/PySpark,
-  and three-engine differentials
 
 ### Documentation
 
+- Full 0.14 published-alpha docs overhaul: What’s New, migrations, pilot /
+  production-profile / durable-reports cookbooks, compiler matrix, optional
+  packages page, honest CLI/file-storage claims, and MkDocs nav restructure
 - Marked roadmap 0.14 shipped; updated capabilities, Pandas, testing plugins,
   and compiler protocol docs for the public conformance SDK
 
 ### Changed
 
 - Package version set to 0.14.0 across core and optional plugins
+- Official plugin dependencies bound to `etlantic>=0.14.0,<0.15`
+- `etlantic-pandas` requires `pandas>=2.2,<3` (matches `include_groups=`)
 
 ### Upgrade notes
 
