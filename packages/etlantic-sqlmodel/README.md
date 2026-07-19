@@ -1,10 +1,10 @@
 # etlantic-sqlmodel
 
 Optional bridge between ETLantic `Data` contracts and
-[SQLModel](https://sqlmodel.tiangolo.com/) table models for ETLantic 0.17.
+[SQLModel](https://sqlmodel.tiangolo.com/) table models for ETLantic 0.18.
 
 ```bash
-pip install 'etlantic==0.17.0' 'etlantic-sqlmodel==0.17.0'
+pip install 'etlantic==0.18.0' 'etlantic-sqlmodel==0.18.0'
 # or: pip install 'etlantic[sqlmodel]'
 ```
 

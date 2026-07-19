@@ -1,6 +1,6 @@
 # Current Capabilities and Limitations
 
-ETLantic **0.17.0** is a published **production/stable** release for documented
+ETLantic **0.18.0** is a published **production/stable** release for documented
 single-tenant reference deployments. Experimental features remain
 experimental, and multi-tenant isolation, deployment topology, compliance,
 SBOM/signing, and advanced supply-chain controls remain adopter-owned. This
@@ -18,7 +18,7 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 5. No multi-tenant sharing of a process; no unresolved security Gaps from the
    [Security](../02_FOUNDATIONS/SECURITY.md) chapter
 
-## Available in 0.17
+## Available in 0.18
 
 ### Core authoring and validation
 
@@ -54,7 +54,8 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 | Portable Pandas compiler (kernel + relational `/1`, eager) | Available |
 | Portable SQL compiler (kernel + relational `/1`) | Available (`etlantic-sql`) |
 | Public portable transform conformance suite | Available |
-| Best-effort Arrow-assisted conversion | Available when PyArrow is installed (not the 0.18 interchange contract) |
+| Versioned tabular interchange (`etlantic.interchange/1`) | **0.18.0 Gate A — Available** for Polars↔Pandas boundaries |
+| Best-effort Arrow-assisted conversion | Legacy helper; available when PyArrow is installed, but not the Gate A contract |
 | SQL protocol + PostgreSQL reference plugin | Available (`etlantic-sql`) |
 | Spark protocol + local provider + native impl path | Available (`etlantic-pyspark`) |
 | Lazy Spark region fusion (native path) | Available |
@@ -81,11 +82,10 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 |---|---|
 | Structured Streaming foundation | **Experimental** |
 
-## Not included in 0.17
+## Not included in 0.18
 
 | Capability | Status |
 |---|---|
-| Versioned tabular interchange (`etlantic.interchange/1`) | **0.18.0 Gate A** — see [interoperability plan](../11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md) |
 | PySpark / SQL Arrow physical boundaries | Follow-up after Polars↔Pandas Gate A |
 | `etlantic-datafusion` experimental engine | **Gate B / 0.19+** (non-blocking for 0.18.0) |
 | `MERGE` / upsert in the reference SQL plugin | Not implemented (`sql_merge=False`; fail closed) |

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
+from etlantic.capabilities import PluginCapabilities
 from etlantic.dataframe.discovery import load_dataframe_plugin
 from etlantic.dataframe.protocol import (
     DATAFRAME_ENGINES,
@@ -15,6 +17,7 @@ from etlantic.dataframe.protocol import (
     ValidationDecision,
 )
 from etlantic.exceptions import NodeExecutionError
+from etlantic.interchange.tabular.execute import boundary_for_input
 from etlantic.model import Node
 from etlantic.plan.model import PipelinePlan
 from etlantic.registry import ImplementationDescriptor
@@ -33,8 +36,20 @@ _DECISION_RANK = {
 }
 
 
-def is_dataframe_engine(engine: str) -> bool:
-    return engine in DATAFRAME_ENGINES
+def is_dataframe_engine(engine: str, *, registry: Any | None = None) -> bool:
+    """Return whether an engine is a built-in or registered dataframe engine."""
+    if engine in DATAFRAME_ENGINES:
+        return True
+    if registry is None:
+        return False
+    capabilities = getattr(registry, "engines", {}).get(engine)
+    registered_kind = any(
+        descriptor.engine == engine and descriptor.kind == "dataframe"
+        for descriptor in getattr(registry, "plugins", {}).values()
+    )
+    return bool(
+        (capabilities is not None and capabilities.dataframe) or registered_kind
+    )
 
 
 def resolve_dataframe_plugin(
@@ -93,9 +108,21 @@ def has_fan_out(plan: PipelinePlan, node_name: str, port_name: str) -> bool:
     )
 
 
-def ownership_for_engine(engine: str, *, fan_out: bool = False) -> ArtifactOwnership:
-    if engine == "pandas" or fan_out:
+def ownership_for_engine(
+    engine: str,
+    *,
+    fan_out: bool = False,
+    capabilities: PluginCapabilities | None = None,
+) -> ArtifactOwnership:
+    """Choose artifact ownership from fan-out and engine capabilities."""
+    if fan_out or engine == "pandas":
         return ArtifactOwnership.COPIED
+    if capabilities is not None:
+        return (
+            ArtifactOwnership.SHARED
+            if capabilities.thread_safe
+            else ArtifactOwnership.COPIED
+        )
     return ArtifactOwnership.SHARED
 
 
@@ -152,6 +179,7 @@ async def execute_dataframe_step(
     )
 
     materialized: dict[str, Any] = {}
+    interchange_mechanisms: list[str] = []
     for port_name, value in inputs.items():
         contract = None
         for port in node.inputs:
@@ -159,16 +187,20 @@ async def execute_dataframe_step(
                 contract = port.contract_type
                 break
         try:
+            interchange = boundary_for_input(plan, node.name, port_name)
+            input_context = replace(context, interchange=interchange)
+            if interchange is not None:
+                interchange_mechanisms.append(interchange.mechanism.value)
             frame = plugin.materialize_input(
                 value,
                 contract_type=contract,
-                context=context,
+                context=input_context,
                 port_name=port_name,
             )
             result = plugin.validate_frame(
                 frame,
                 contract_type=contract,
-                context=context,
+                context=input_context,
                 boundary="input_validation",
                 port_name=port_name,
             )
@@ -339,6 +371,13 @@ async def execute_dataframe_step(
         "cleanup",
     ]
     bundle.metrics.collected = any_collected
+    if interchange_mechanisms:
+        bundle.metrics.converted = True
+        bundle.metrics.conversion_kind = interchange_mechanisms[0]
+        if len(interchange_mechanisms) > 1:
+            bundle.metrics.extras["interchange_mechanisms"] = list(
+                interchange_mechanisms
+            )
     bundle.metrics.ownership = context.ownership.value
     bundle.metrics.invalid_count = invalid_count or None
     bundle.metrics.rejected_count = rejected_count or None

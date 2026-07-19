@@ -1,12 +1,12 @@
 # 0.18 Versioned Tabular Interchange Plan (Gate A)
 
-> **Status: Planned maintainer design.** This page is not a shipped 0.17 API
-> guide. Today’s Arrow helper is **best-effort conversion** only. Formal
-> versioned interchange is the **0.18.0 Gate A** exit.
+> **Status: Gate A shipped in 0.18.0.** Versioned tabular interchange is
+> available for the Polars↔Pandas conformance pair. Gate B (DataFusion) remains
+> planned for 0.19+ and did not ship in 0.18.0. The older Arrow helper remains
+> a legacy **best-effort conversion** path.
 
-This plan is the authority for refining the 0.18 phase after 0.17. It locks
-scope, contracts, milestones, and Gate B policy so implementation cannot
-re-expand the release.
+This plan records the shipped 0.18 Gate A scope, contracts, milestones, and
+the still-planned Gate B policy.
 
 ## Decision locks
 
@@ -30,7 +30,7 @@ re-expand the release.
 - Making PyArrow a core dependency
 - Silent exception swallowing on conversion failure (today’s best-effort helper must be replaced, not papered over)
 
-## Relationship to current 0.17
+## Relationship to the legacy 0.17 path
 
 In 0.17, optional PyArrow enables **best-effort Arrow-assisted dataframe
 conversion**. That path:

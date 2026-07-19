@@ -66,6 +66,7 @@ class PluginCapabilities:
     orch_parallel: bool = False
     orch_sensors: bool = False
     orch_artifacts_only_xcom: bool = False
+    interchange_mechanisms: frozenset[str] = field(default_factory=frozenset)
     extras: frozenset[str] = field(default_factory=frozenset)
 
     def supports(self, requirement: str) -> bool:
@@ -127,7 +128,7 @@ class PluginCapabilities:
         }
         if requirement in known:
             return known[requirement]
-        return requirement in self.extras
+        return requirement in self.interchange_mechanisms or requirement in self.extras
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize capabilities."""
@@ -171,6 +172,7 @@ class PluginCapabilities:
             "orch_parallel": self.orch_parallel,
             "orch_sensors": self.orch_sensors,
             "orch_artifacts_only_xcom": self.orch_artifacts_only_xcom,
+            "interchange_mechanisms": sorted(self.interchange_mechanisms),
             "extras": sorted(self.extras),
         }
 
@@ -178,6 +180,7 @@ class PluginCapabilities:
     def from_dict(cls, data: dict[str, Any]) -> PluginCapabilities:
         """Deserialize capabilities."""
         extras = data.get("extras") or ()
+        interchange_mechanisms = data.get("interchange_mechanisms") or ()
         return cls(
             engine=str(data["engine"]),
             async_execution=bool(data.get("async_execution", False)),
@@ -218,6 +221,7 @@ class PluginCapabilities:
             orch_parallel=bool(data.get("orch_parallel", False)),
             orch_sensors=bool(data.get("orch_sensors", False)),
             orch_artifacts_only_xcom=bool(data.get("orch_artifacts_only_xcom", False)),
+            interchange_mechanisms=frozenset(str(x) for x in interchange_mechanisms),
             extras=frozenset(str(x) for x in extras),
         )
 

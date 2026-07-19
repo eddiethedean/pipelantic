@@ -6,7 +6,7 @@ ETLantic catches incompatible data-pipeline wiring **before** you process
 data. Define typed datasets, transformations, and pipelines in Python;
 validate and plan them once; run locally or through optional engine plugins.
 
-> **Project status:** ETLantic **0.17.0** is production/stable within the
+> **Project status:** ETLantic **0.18.0** is production/stable within the
 > documented single-tenant reference deployment boundary. Experimental
 > features and broader deployment models remain outside that claim. See
 > [Capabilities](CAPABILITIES.md) for the shipped boundary and
@@ -15,8 +15,8 @@ validate and plan them once; run locally or through optional engine plugins.
 
 ## Five-minute path
 
-1. [Current 0.17 guide](CURRENT_VERSION.md) — task-based map
-2. [Installation](INSTALLATION.md) — `pip install etlantic==0.17.0`
+1. [Current 0.18 guide](CURRENT_VERSION.md) — task-based map
+2. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
 3. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
 4. Break a type on purpose and re-run `validate()` — that failure is the product
 5. [Capabilities](CAPABILITIES.md) — only after first success
@@ -67,7 +67,7 @@ PipelinePlan (secret-free, deterministic)
 Run locally  |  Compile (Airflow)  |  Generate contracts
 ```
 
-ETLantic 0.17.0 can execute registered Python implementations with its local
+ETLantic 0.18.0 can execute registered Python implementations with its local
 runtime and optional Polars/Pandas/SQL/PySpark plugins, compile plans to
 Airflow DAGs via `etlantic-airflow`, execute plans through the Prefect local
 MVP, and compile supported portable transformation families without native

@@ -5,9 +5,12 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from etlantic.capabilities import PluginCapabilities
+
+if TYPE_CHECKING:
+    from etlantic.interchange.tabular import InterchangeDescriptor
 
 DATAFRAME_PROTOCOL_VERSION = "etlantic.dataframe/1"
 
@@ -121,6 +124,7 @@ class DataframeExecutionContext:
         default_factory=DataframeValidationPolicy
     )
     metadata: Mapping[str, Any] = field(default_factory=dict)
+    interchange: InterchangeDescriptor | None = None
 
 
 @dataclass

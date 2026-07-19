@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is stable in bounded 0.17.0
+## What is stable in bounded 0.18.0
 
 | Area | Ready? |
 |---|---|
@@ -46,7 +46,7 @@ manager.
   `Profile.plugin_allowlist` (production profiles fail closed when empty)
 - Threat model documents residual Gaps (provenance, artifact/cache isolation,
   DoS budgets, outbound constraints, unsafe-serialization prohibition)
-- Report vulnerabilities privately; security fixes are supported on 0.17.x
+- Report vulnerabilities privately; security fixes are supported on 0.18.x
 
 Read [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
 [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md).
@@ -55,7 +55,7 @@ For the bounded reference topology and required controls, read
 
 ## Bounded production support (do not skip)
 
-**ETLantic 0.17.0 is production/stable for documented single-tenant reference
+**ETLantic 0.18.0 is production/stable for documented single-tenant reference
 deployments.** Plugin allowlists being “Available” do not make an arbitrary
 topology safe.
 
@@ -99,7 +99,7 @@ How to read status labels in deeper chapters:
 | Concern | Status in 0.17 |
 |---|---|
 | License | MIT (core and official plugins) |
-| Supported versions / EOL | Current stable line is 0.17.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
+| Supported versions / EOL | Current stable line is 0.18.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
 | Compliance attestations (SOC2, GDPR cert) | Adopter-owned — not provided |
 | Identity / RBAC / SSO | Out of scope — use process and network isolation |
 | HA / DR / RPO / RTO | Adopter-owned topology |
@@ -110,7 +110,7 @@ How to read status labels in deeper chapters:
 
 ## Recommended evaluation path
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic==0.17.0`
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
 3. [Capabilities](CAPABILITIES.md)
 4. Optional: `examples/portable_polars_kernel.py` with `etlantic-polars`

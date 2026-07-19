@@ -1,6 +1,6 @@
 # Python API Reference
 
-> **Status: Available in ETLantic 0.17.0.** Signatures and docstrings below
+> **Status: Available in ETLantic 0.18.0.** Signatures and docstrings below
 > are generated from the package source.
 
 ## Start here by persona
@@ -377,7 +377,7 @@ Optional package factories (install `etlantic-polars`):
 
 ## Stability
 
-ETLantic 0.17.0 is published as Production/Stable. Public compatibility follows
+ETLantic 0.18.0 is published as Production/Stable. Public compatibility follows
 the documented 0.x deprecation policy; minor releases may still include
 announced migrations. Review the changelog and
 [compatibility matrix](COMPATIBILITY.md) before upgrading. Narrative CLI docs:

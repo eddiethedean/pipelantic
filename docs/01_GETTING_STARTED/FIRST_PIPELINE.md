@@ -1,6 +1,6 @@
 # Your First Pipeline
 
-> **Status: Available in ETLantic 0.17.0.** This tutorial uses the local
+> **Status: Available in ETLantic 0.18.0.** This tutorial uses the local
 > Python runtime and in-memory storage. It does not require a dataframe or SQL
 > plugin.
 
@@ -10,7 +10,7 @@ inspect the artifacts ETLantic creates.
 Install the published release with Python 3.11+:
 
 ```bash
-python -m pip install 'etlantic==0.17.0'
+python -m pip install 'etlantic==0.18.0'
 ```
 
 ## Define data contracts
@@ -198,7 +198,7 @@ CSV, and no-write storage. Optional plugins are available today:
 Prefect direct execution shipped in 0.17; Prefect deployment/serve, Dagster
 compilers, and managed cloud Spark providers remain outside the shipped
 boundary. Keep core and optional plugin minors matched—for this guide, pin
-both to `0.17.0`. See [Capabilities](CAPABILITIES.md).
+both to `0.18.0`. See [Capabilities](CAPABILITIES.md).
 
 Continue with [Project Structure](PROJECT_STRUCTURE.md) or run the complete
 repository example in `examples/quickstart.py`.

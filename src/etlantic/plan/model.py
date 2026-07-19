@@ -156,7 +156,7 @@ class PipelinePlan:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PipelinePlan:
         """Deserialize a plan mapping."""
-        return cls(
+        plan = cls(
             schema=str(data.get("schema") or PLAN_SCHEMA),
             plan_id=str(data["plan_id"]),
             pipeline_id=str(data["pipeline_id"]),
@@ -202,6 +202,18 @@ class PipelinePlan:
             execution_settings=dict(data.get("execution_settings") or {}),
             metadata=dict(data.get("metadata") or {}),
         )
+        validate_plan_interchange(plan)
+        return plan
+
+
+def validate_plan_interchange(plan: PipelinePlan) -> None:
+    """Fail closed on invalid tabular interchange boundary metadata."""
+    from etlantic.interchange.tabular import validate_descriptor
+
+    for boundary in plan.materialization_boundaries:
+        if "interchange" not in boundary.metadata:
+            continue
+        validate_descriptor(boundary.metadata["interchange"])
 
 
 def _graph_to_dict(graph: LogicalGraph) -> dict[str, Any]:

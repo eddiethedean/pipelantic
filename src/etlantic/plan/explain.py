@@ -26,7 +26,10 @@ def explain_plan(plan: PipelinePlan) -> dict[str, Any]:
         }
     ]
     conversion_boundaries = [
-        b.to_dict()
+        {
+            **b.to_dict(),
+            "interchange": b.metadata.get("interchange"),
+        }
         for b in plan.materialization_boundaries
         if b.reason == "cross_engine"
     ]

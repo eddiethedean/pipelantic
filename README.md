@@ -52,12 +52,13 @@ Typed contracts ──▶ Validation ──▶ Deterministic plan ──▶ Run 
 - **Adopt incrementally.** The core has no dataframe, SQL, Spark, or Airflow
   dependency. Install only the integrations you need.
 
-> **Project status:** **0.17.0 is production/stable for documented
+> **Project status:** **0.18.0 is production/stable for documented
 > single-tenant reference deployments.** The local runtime and reference
 > plugins are available today. Structured Streaming remains experimental. Portable
 > transformation authoring and Polars/PySpark/Pandas/SQL relational compilers
 > plus the public conformance SDK are available; advanced portable profiles
-> shipped under **0.17** where documented. Multi-tenant isolation, deployment
+> shipped under **0.17** where documented. Gate A versioned tabular interchange
+> is available in **0.18** for Polars↔Pandas boundaries. Multi-tenant isolation, deployment
 > topology, compliance/SBOM/signing, and advanced supply-chain controls remain
 > adopter-owned. See the
 > [capabilities guide](docs/01_GETTING_STARTED/CAPABILITIES.md) before choosing
@@ -238,7 +239,7 @@ before mutation.
 
 ## Capability boundary
 
-| Capability | 0.17 |
+| Capability | 0.18 |
 |---|---|
 | Typed modeling, validation, contracts, and deterministic planning | Available |
 | Local Python execution and structured run reports | Available |
@@ -252,6 +253,7 @@ before mutation.
 | Portable transformation authoring | Available |
 | Polars + PySpark + Pandas + SQL portable compilers (kernel + relational `/1`) | Available |
 | Public portable transform conformance SDK | Available |
+| Versioned tabular interchange (Polars↔Pandas Gate A) | Available |
 | Structured Streaming | Experimental |
 | Advanced portable profile graduation | **Available** on Polars + PySpark (0.17); Pandas/SQL baseline only |
 
@@ -263,7 +265,7 @@ boundary.
 
 - [Hosted documentation](https://etlantic.readthedocs.io/)
 - [Getting Started](docs/01_GETTING_STARTED/README.md)
-- [Current 0.17 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
+- [Current 0.18 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
 - [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)

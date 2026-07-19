@@ -115,8 +115,9 @@ nav:
       - Troubleshooting: 01_GETTING_STARTED/TROUBLESHOOTING.md
       - FAQ: 01_GETTING_STARTED/FAQ.md
       - Evaluator Brief: 01_GETTING_STARTED/EVALUATOR.md
-      - Current 0.17 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
+      - Current 0.18 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
   - Release notes:
+      - What's new in 0.18: 01_GETTING_STARTED/WHATS_NEW_0_18.md
       - What's new in 0.17: 01_GETTING_STARTED/WHATS_NEW_0_17.md
       - What's new in 0.16: 01_GETTING_STARTED/WHATS_NEW_0_16.md
       - What's new in 0.15: 01_GETTING_STARTED/WHATS_NEW_0_15.md
@@ -258,7 +259,7 @@ nav:
       - Overview: 10_REFERENCE/README.md
       - CLI: 10_REFERENCE/CLI.md
       - Compatibility: 10_REFERENCE/COMPATIBILITY.md
-      - Configuration in 0.17.0: 10_REFERENCE/CONFIGURATION_TODAY.md
+      - Configuration in 0.18.0: 10_REFERENCE/CONFIGURATION_TODAY.md
       - Portable Compiler Matrix: 10_REFERENCE/PORTABLE_COMPILER_MATRIX.md
       - Optional Packages: 10_REFERENCE/OPTIONAL_PACKAGES.md
       - Known Limitations: 10_REFERENCE/KNOWN_ISSUES.md
@@ -268,6 +269,7 @@ nav:
       - API Reference: 10_REFERENCE/API_REFERENCE.md
   - Project:
       - Overview: 11_DEVELOPMENT/README.md
+      - Migration 0.17 → 0.18: 11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md
       - Migration 0.16 → 0.17: 11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md
       - Migration 0.15 → 0.16: 11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md
       - Documentation audit: 11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_17.md
@@ -324,7 +326,7 @@ nav:
           - Configuration: 10_REFERENCE/CONFIGURATION.md
           - Environment Variables: 10_REFERENCE/ENVIRONMENT_VARIABLES.md
       - Maintainer plans:
-          - 0.18 Gate A interchange: 11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md
+          - 0.18 Gate A interchange record: 11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md
           - FastAPI Integration Plan: 11_DEVELOPMENT/FASTAPI_INTEGRATION_PLAN.md
           - Schema Drift Plan: 11_DEVELOPMENT/SCHEMA_DRIFT_PLAN.md
           - ETL Reliability Plan: 11_DEVELOPMENT/ETL_RELIABILITY_PLAN.md

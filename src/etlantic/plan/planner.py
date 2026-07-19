@@ -2,13 +2,28 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 from etlantic._version import __version__
-from etlantic.capabilities import CapabilityDecision, negotiate_capabilities
+from etlantic.capabilities import (
+    CapabilityDecision,
+    PluginCapabilities,
+    negotiate_capabilities,
+)
 from etlantic.diagnostics import Diagnostic, Severity, ValidationReport
 from etlantic.exceptions import PipelineValidationError
 from etlantic.identity import implementation_id, published_contract_version
+from etlantic.interchange.tabular import (
+    SCHEMA as INTERCHANGE_SCHEMA,
+)
+from etlantic.interchange.tabular import (
+    CopyEligibility,
+    InterchangeDescriptor,
+    InterchangeMechanism,
+    select_mechanism,
+)
 from etlantic.model import LogicalGraph, Node, NodeKind
 from etlantic.plan.artifacts import (
     ArtifactRef,
@@ -211,6 +226,7 @@ def _build_plan(
         default_engine,
         security_domain,
         bindings=bindings,
+        engines=context.registry.engines,
     )
     boundaries.extend(
         _collection_boundaries(
@@ -349,6 +365,7 @@ def _build_plan(
                     "producer_node": b.producer_node,
                     "producer_port": b.producer_port,
                     "reason": b.reason,
+                    "interchange": b.metadata.get("interchange"),
                 }
                 for b in boundaries
                 if b.reason
@@ -755,13 +772,12 @@ def _assert_dataframe_engines_available(
     implementations: dict[str, ImplementationDescriptor],
     default_engine: str,
 ) -> None:
-    from etlantic.dataframe.protocol import DATAFRAME_ENGINES
-
     engines = {default_engine} | {impl.engine for impl in implementations.values()}
     missing = sorted(
         engine
         for engine in engines
-        if engine in DATAFRAME_ENGINES and engine not in context.registry.engines
+        if _is_dataframe_engine(engine, context.registry.engines)
+        and engine not in context.registry.engines
     )
     if not missing:
         return
@@ -990,6 +1006,19 @@ def _assert_capabilities_supported(
     )
 
 
+def _is_dataframe_engine(
+    engine: str,
+    engines: dict[str, PluginCapabilities] | None = None,
+) -> bool:
+    """Classify registered dataframe engines, falling back to legacy aliases."""
+    from etlantic.dataframe.protocol import DATAFRAME_ENGINES
+
+    capabilities = (engines or {}).get(engine)
+    if capabilities is not None:
+        return capabilities.dataframe
+    return engine in DATAFRAME_ENGINES
+
+
 def _collection_boundaries(
     graph: LogicalGraph,
     implementations: dict[str, ImplementationDescriptor],
@@ -999,8 +1028,6 @@ def _collection_boundaries(
     engines: dict[str, Any] | None = None,
 ) -> list[MaterializationBoundary]:
     """Declare explicit collection points for lazy dataframe engines."""
-    from etlantic.dataframe.protocol import DATAFRAME_ENGINES
-
     engines = engines or {}
     region_engine = {r.identity: r.engine for r in regions}
     node_region = {
@@ -1011,7 +1038,7 @@ def _collection_boundaries(
         if node.kind is not NodeKind.STEP:
             continue
         engine = _node_engine(node.name, implementations, default_engine)
-        if engine not in DATAFRAME_ENGINES:
+        if not _is_dataframe_engine(engine, engines):
             continue
         caps = engines.get(engine)
         # Collection required before sink / cross-engine / durable boundaries.
@@ -1142,6 +1169,118 @@ def _form_regions(
     return regions
 
 
+def _implementation_capabilities(
+    node_name: str,
+    engine: str,
+    implementations: dict[str, ImplementationDescriptor],
+    engines: dict[str, PluginCapabilities],
+) -> PluginCapabilities | None:
+    implementation = implementations.get(node_name)
+    if implementation is not None:
+        capabilities = getattr(implementation, "capabilities", None)
+        if isinstance(capabilities, PluginCapabilities):
+            return capabilities
+        raw = implementation.metadata.get("capabilities")
+        if isinstance(raw, PluginCapabilities):
+            return raw
+        if isinstance(raw, dict):
+            return PluginCapabilities.from_dict({"engine": engine, **raw})
+    return engines.get(engine)
+
+
+def _interchange_capability_names(
+    capabilities: PluginCapabilities | None,
+) -> frozenset[str]:
+    if capabilities is None:
+        return frozenset()
+    names = set(capabilities.interchange_mechanisms)
+    mechanisms = {item.value for item in InterchangeMechanism}
+    names.update(
+        normalized
+        for item in capabilities.extras
+        if (normalized := item.removeprefix("interchange:")) in mechanisms
+    )
+    if capabilities.arrow_import:
+        names.add("arrow_import")
+    if capabilities.arrow_export:
+        names.add("arrow_export")
+    return frozenset(names)
+
+
+def _interchange_schema_fingerprint(
+    producer_engine: str,
+    consumer_engine: str,
+    mechanism: InterchangeMechanism,
+    contract_id: str | None,
+) -> str:
+    payload = {
+        "contract_id": contract_id,
+        "engines": sorted((producer_engine, consumer_engine)),
+        "mechanism": mechanism.value,
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _interchange_descriptor(
+    *,
+    producer_engine: str,
+    consumer_engine: str,
+    producer_capabilities: PluginCapabilities | None,
+    consumer_capabilities: PluginCapabilities | None,
+    contract_id: str | None,
+) -> InterchangeDescriptor:
+    from etlantic.dataframe.arrow import arrow_available
+
+    producer_caps = _interchange_capability_names(producer_capabilities)
+    consumer_caps = _interchange_capability_names(consumer_capabilities)
+    mechanism, fallback_reason = select_mechanism(
+        producer_caps,
+        consumer_caps,
+        durable=False,
+        already_collecting=True,
+        pyarrow_available=arrow_available(),
+    )
+    copied = (
+        producer_engine == "pandas"
+        or producer_capabilities is None
+        or not producer_capabilities.thread_safe
+    )
+    if copied or mechanism in {
+        InterchangeMechanism.RECORDS_FALLBACK,
+        InterchangeMechanism.NATIVE_FALLBACK,
+    }:
+        copy_eligibility = CopyEligibility.COPY_REQUIRED
+    elif (
+        producer_capabilities.zero_copy
+        and consumer_capabilities is not None
+        and consumer_capabilities.zero_copy
+    ):
+        copy_eligibility = CopyEligibility.ELIGIBLE
+    else:
+        copy_eligibility = CopyEligibility.UNKNOWN
+    return InterchangeDescriptor(
+        schema=INTERCHANGE_SCHEMA,
+        mechanism=mechanism,
+        producer_engine=producer_engine,
+        consumer_engine=consumer_engine,
+        producer_caps=tuple(sorted(producer_caps)),
+        consumer_caps=tuple(sorted(consumer_caps)),
+        schema_fingerprint=_interchange_schema_fingerprint(
+            producer_engine,
+            consumer_engine,
+            mechanism,
+            contract_id,
+        ),
+        ownership="copied" if copied else "shared",
+        batching="collected",
+        collection=True,
+        copy_eligibility=copy_eligibility,
+        fallback_reason=fallback_reason,
+        evidence_refs=(),
+    )
+
+
 def _materialization_boundaries(
     graph: LogicalGraph,
     implementations: dict[str, ImplementationDescriptor],
@@ -1149,8 +1288,10 @@ def _materialization_boundaries(
     security_domain: str,
     *,
     bindings: dict[str, BindingDescriptor] | None = None,
+    engines: dict[str, PluginCapabilities] | None = None,
 ) -> list[MaterializationBoundary]:
     binding_map = bindings or {}
+    engine_capabilities = engines or {}
     boundaries: list[MaterializationBoundary] = []
     fanout: dict[tuple[str, str], int] = {}
 
@@ -1172,15 +1313,44 @@ def _materialization_boundaries(
         prod_engine = eng(edge.producer_node)
         cons_engine = eng(edge.consumer_node)
         if prod_engine != cons_engine:
+            metadata: dict[str, Any] = {
+                "consumer_node": edge.consumer_node,
+                "consumer_port": edge.consumer_port,
+            }
+            if _is_dataframe_engine(
+                prod_engine, engine_capabilities
+            ) and _is_dataframe_engine(cons_engine, engine_capabilities):
+                descriptor = _interchange_descriptor(
+                    producer_engine=prod_engine,
+                    consumer_engine=cons_engine,
+                    producer_capabilities=_implementation_capabilities(
+                        edge.producer_node,
+                        prod_engine,
+                        implementations,
+                        engine_capabilities,
+                    ),
+                    consumer_capabilities=_implementation_capabilities(
+                        edge.consumer_node,
+                        cons_engine,
+                        implementations,
+                        engine_capabilities,
+                    ),
+                    contract_id=(
+                        edge.producer_contract_id or edge.consumer_contract_id
+                    ),
+                )
+                metadata["interchange"] = descriptor.to_dict()
             boundaries.append(
                 MaterializationBoundary(
                     identity=(
                         f"boundary:engine:{edge.producer_node}.{edge.producer_port}"
+                        f":{edge.consumer_node}.{edge.consumer_port}"
                     ),
                     producer_node=edge.producer_node,
                     producer_port=edge.producer_port,
                     reason="cross_engine",
                     security_domain=security_domain,
+                    metadata=metadata,
                 )
             )
     for (node_name, port_name), count in fanout.items():

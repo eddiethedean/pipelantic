@@ -8,7 +8,11 @@ from typing import Any
 import pandas as pd
 
 from etlantic.capabilities import PluginCapabilities
-from etlantic.dataframe.arrow import arrow_available, to_arrow_table
+from etlantic.dataframe.arrow import (
+    arrow_available,
+    to_arrow_table,
+    to_arrow_table_strict,
+)
 from etlantic.dataframe.helpers import (
     schema_dict,
     schema_from_contract,
@@ -24,9 +28,10 @@ from etlantic.dataframe.protocol import (
     DataframeValidationOutcome,
     ValidationDecision,
 )
+from etlantic.interchange.tabular import InterchangeMechanism
 from etlantic.storage.protocol import as_records, records_to_dicts
 
-__version__ = "0.17.0"
+__version__ = "0.18.0"
 
 __all__ = [
     "PandasDataframePlugin",
@@ -62,19 +67,33 @@ class PandasDataframePlugin:
     """Compatibility Pandas dataframe execution plugin (eager only)."""
 
     def __init__(self) -> None:
+        has_arrow = arrow_available()
+        mechanisms = {
+            InterchangeMechanism.NATIVE_FALLBACK.value,
+            InterchangeMechanism.RECORDS_FALLBACK.value,
+        }
+        if has_arrow:
+            mechanisms.update(
+                {
+                    InterchangeMechanism.ARROW_C_DATA.value,
+                    InterchangeMechanism.ARROW_C_STREAM.value,
+                    InterchangeMechanism.ARROW_IPC_STREAM.value,
+                }
+            )
         caps = PluginCapabilities(
             engine="pandas",
             async_execution=True,
             dataframe=True,
             eager=True,
             lazy=False,
-            arrow_import=arrow_available(),
-            arrow_export=arrow_available(),
+            arrow_import=has_arrow,
+            arrow_export=has_arrow,
             zero_copy=False,
             schema_inspection=True,
             invalid_row_separation=True,
             cancellation=False,
             thread_safe=False,
+            interchange_mechanisms=frozenset(mechanisms),
             extras=frozenset({"pandas"}),
         )
         self._info = DataframePluginInfo(
@@ -99,6 +118,25 @@ class PandasDataframePlugin:
     ) -> Any:
         if isinstance(value, pd.DataFrame):
             return value.copy(deep=False)
+        interchange = context.interchange
+        if interchange is not None:
+            mechanism = interchange.mechanism
+            if mechanism is InterchangeMechanism.RECORDS_FALLBACK:
+                return self._from_records(value, contract_type)
+            if mechanism is InterchangeMechanism.NATIVE_FALLBACK:
+                if type(value).__module__.startswith("polars"):
+                    if hasattr(value, "collect"):
+                        value = value.collect()
+                    if hasattr(value, "to_pandas"):
+                        return value.to_pandas()
+                return self._from_records(value, contract_type)
+            if mechanism in {
+                InterchangeMechanism.ARROW_C_DATA,
+                InterchangeMechanism.ARROW_C_STREAM,
+                InterchangeMechanism.ARROW_IPC_STREAM,
+                InterchangeMechanism.ARROW_IPC_FILE,
+            }:
+                return to_arrow_table_strict(value).to_pandas()
         table = to_arrow_table(value)
         if table is not None:
             return table.to_pandas()
@@ -108,8 +146,18 @@ class PandasDataframePlugin:
                 value = value.collect()
             if hasattr(value, "to_pandas"):
                 return value.to_pandas()
-        records = as_records(value, None)
-        rows = records_to_dicts(records)
+        return self._from_records(value, contract_type)
+
+    def _from_records(
+        self, value: Any, contract_type: type[Any] | None
+    ) -> pd.DataFrame:
+        if hasattr(value, "collect") and type(value).__module__.startswith("polars"):
+            value = value.collect()
+        if hasattr(value, "to_dicts"):
+            value = value.to_dicts()
+        elif isinstance(value, pd.DataFrame):
+            value = value.to_dict(orient="records")
+        rows = records_to_dicts(as_records(value, None))
         if not rows:
             columns = list(getattr(contract_type, "model_fields", {}) or {})
             return pd.DataFrame(columns=columns)

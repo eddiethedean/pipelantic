@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-07-19
+
+### Added
+- Gate A versioned tabular interchange with immutable
+  `etlantic.interchange/1` plan descriptors
+- Capability-driven mechanism selection for Arrow C Data/C Stream, Arrow IPC,
+  Parquet artifacts, and explicit records/native fallbacks
+- Bounded fidelity, ownership, copy, cleanup, and run-report evidence models
+- Polars↔Pandas cross-engine conformance coverage and public testing helpers
+- What's New 0.18 and Migration 0.17 → 0.18
+
+### Changed
+- Cross-engine dataframe boundaries can be planned and validated independently
+  of hard-coded engine-name pairs
+- Stored 0.17 plans must be regenerated to obtain interchange descriptors
+- Official package versions align at 0.18.0; plugins require
+  `etlantic>=0.18.0,<0.19`
+- Arrow-assisted conversion remains available only as a legacy best-effort
+  helper; Gate A descriptors are the versioned contract
+
+### Fixed
+- Interchange execution now fails closed when a selected mechanism, fidelity
+  bound, or ownership requirement cannot be honored
+- Plan explain and runtime evidence consistently report Gate A selection and
+  fallback decisions without embedding rows or secrets
+
 ## [0.17.0] - 2026-07-19
 
 ETLantic 0.17.0 is production/stable within the documented single-tenant
@@ -679,6 +705,7 @@ compliance, and supply-chain controls remain outside that support claim. See
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
+[0.18.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.18.0
 [0.17.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.17.0
 [0.16.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.16.0
 [0.15.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.15.0

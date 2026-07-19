@@ -7,6 +7,7 @@ from etlantic.testing.dataframe import (
     assert_roundtrip_records,
     run_conformance_suite,
 )
+from etlantic.testing.interchange import run_tabular_interchange_conformance_smoke
 from etlantic.testing.orchestrator import (
     assert_orchestrator_plugin_info,
     run_orchestrator_conformance_suite,
@@ -50,5 +51,6 @@ __all__ = [
     "run_scheduler_conformance_suite",
     "run_secret_conformance_suite",
     "run_sql_conformance_suite",
+    "run_tabular_interchange_conformance_smoke",
     "run_write_semantics_parity_suite",
 ]

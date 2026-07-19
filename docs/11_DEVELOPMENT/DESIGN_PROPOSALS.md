@@ -1,7 +1,7 @@
 # Design Proposals
 
 This section contains **unshipped** APIs, historical plans, and normative
-proposals. It is deliberately separate from the ETLantic 0.17 user guide.
+proposals. It is deliberately separate from the ETLantic 0.18 user guide.
 
 !!! warning "Not current API documentation"
     Do not copy unshipped interfaces from these pages into a production
@@ -15,6 +15,8 @@ proposals. It is deliberately separate from the ETLantic 0.17 user guide.
     - portable **compiler protocol** and first-party compilers — see
       [Portable Transform Compiler](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
       under Plugin SDK / Integrations
+    - Gate A versioned tabular interchange — see the
+      [0.18 user guide](../01_GETTING_STARTED/WHATS_NEW_0_18.md)
 
 ## Portable transformation program (history and remaining work)
 
@@ -28,7 +30,7 @@ proposals. It is deliberately separate from the ETLantic 0.17 user guide.
 
 ## Maintainer plans
 
-- [0.18 Versioned Tabular Interchange (Gate A)](INTEROPERABILITY_FOUNDATION_PLAN.md)
+- [0.18 Versioned Tabular Interchange record (Gate A shipped)](INTEROPERABILITY_FOUNDATION_PLAN.md)
 - [FastAPI integration](FASTAPI_INTEGRATION_PLAN.md)
 - [Schema drift](SCHEMA_DRIFT_PLAN.md)
 - [Reliability](ETL_RELIABILITY_PLAN.md)

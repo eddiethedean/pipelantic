@@ -2,7 +2,7 @@
 
 from etlantic.plan.artifacts import ArtifactRef, ArtifactStrategy
 from etlantic.plan.explain import explain_plan
-from etlantic.plan.model import PLAN_SCHEMA, PipelinePlan
+from etlantic.plan.model import PLAN_SCHEMA, PipelinePlan, validate_plan_interchange
 from etlantic.plan.planner import plan_pipeline, plan_pipeline_with_report
 from etlantic.plan.serialize import (
     canonical_plan_json,
@@ -31,4 +31,5 @@ __all__ = [
     "plan_to_json",
     "run_one_selection",
     "run_until_selection",
+    "validate_plan_interchange",
 ]

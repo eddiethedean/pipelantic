@@ -1,12 +1,12 @@
 # Support
 
-ETLantic **0.17.x** is production/stable for documented single-tenant
+ETLantic **0.18.x** is production/stable for documented single-tenant
 reference deployments. Community support has **no formal SLA** or guaranteed
 response time.
 
 ## What we support
 
-- Bug reports against the **current published minor** (`0.17.x`)
+- Bug reports against the **current published minor** (`0.18.x`)
 - Questions about documented Available APIs
 - Security reports via [SECURITY.md](SECURITY.md) (private disclosure)
 

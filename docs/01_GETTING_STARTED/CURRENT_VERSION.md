@@ -1,15 +1,15 @@
-# ETLantic 0.17 User Guide
+# ETLantic 0.18 User Guide
 
-This is the current manual for published ETLantic **0.17.0**. Core onboarding
-paths below are available in 0.17; linked reference and design pages may also
+This is the current manual for published ETLantic **0.18.0**. Core onboarding
+paths below are available in 0.18; linked reference and design pages may also
 describe Experimental, partial, or future work and retain their own status
-labels. ETLantic 0.17.0 is production/stable only within the documented
+labels. ETLantic 0.18.0 is production/stable only within the documented
 single-tenant reference deployment boundary.
 
 ## Start here
 
-1. [What's new in 0.17](WHATS_NEW_0_17.md)
-2. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.17.0`
+1. [What's new in 0.18](WHATS_NEW_0_18.md)
+2. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.18.0`
 3. [Run the five-minute quickstart](QUICKSTART.md)
 4. [Build your first pipeline](FIRST_PIPELINE.md)
 5. [Check current capabilities](CAPABILITIES.md)
@@ -29,6 +29,7 @@ single-tenant reference deployment boundary.
 | Run Pandas portable (no native impl) | `examples/portable_pandas_kernel.py` |
 | Run SQL portable (kernel + relational `/1`) | `etlantic-sql` + public conformance suite |
 | Controlled pilot | [Pilot walkthrough](../06_EXECUTION/PILOT_WALKTHROUGH.md) |
+| Upgrade from 0.17 | [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
 | Upgrade from 0.16 | [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) |
 | Upgrade from 0.15 | [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |
 | Upgrade from 0.14 | [Migration 0.14 → 0.15](../11_DEVELOPMENT/MIGRATION_0_14_TO_0_15.md) |

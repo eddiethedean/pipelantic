@@ -40,6 +40,8 @@ def to_arrow_table(value: Any) -> Any | None:
     """Best-effort conversion of a native frame to ``pyarrow.Table``.
 
     Returns ``None`` when the value cannot be converted without engine plugins.
+    Gate A interchange boundaries must use :func:`to_arrow_table_strict`
+    instead so a planned Arrow conversion cannot silently fall back.
     """
     if value is None:
         return None
@@ -69,6 +71,50 @@ def to_arrow_table(value: Any) -> Any | None:
         except Exception:
             return None
     return None
+
+
+def to_arrow_table_strict(value: Any) -> Any:
+    """Convert a native frame to ``pyarrow.Table`` or raise.
+
+    PyArrow is imported lazily. Missing PyArrow raises ``ImportError`` and
+    unsupported values or invalid engine exports raise ``TypeError``.
+    """
+    import pyarrow as pa
+
+    if isinstance(value, pa.Table):
+        return value
+    if value is None:
+        raise TypeError("Cannot convert None to pyarrow.Table")
+    if hasattr(value, "to_arrow") and callable(value.to_arrow):
+        try:
+            table = value.to_arrow()
+        except ImportError:
+            raise
+        except Exception as exc:
+            raise TypeError(
+                f"{type(value)!r}.to_arrow() failed: {exc}"
+            ) from exc
+        if isinstance(table, pa.Table):
+            return table
+        raise TypeError(
+            f"{type(value)!r}.to_arrow() returned {type(table)!r}, "
+            "not pyarrow.Table"
+        )
+    if hasattr(value, "to_numpy") and hasattr(value, "columns"):
+        try:
+            return pa.Table.from_pandas(value, preserve_index=False)
+        except ImportError:
+            raise
+        except Exception as exc:
+            raise TypeError(f"Cannot convert {type(value)!r} via pandas: {exc}") from exc
+    if isinstance(value, list):
+        try:
+            return records_to_arrow_table(value)
+        except ImportError:
+            raise
+        except Exception as exc:
+            raise TypeError(f"Cannot convert records to pyarrow.Table: {exc}") from exc
+    raise TypeError(f"Cannot convert {type(value)!r} to pyarrow.Table")
 
 
 def from_arrow_table(table: Any, *, engine: str) -> Any:

@@ -1,6 +1,6 @@
 # Documentation Status and Conventions
 
-ETLantic **0.17.0** implements the typed modeling kernel, contract
+ETLantic **0.18.0** implements the typed modeling kernel, contract
 interoperability, Validation / Pipeline Plan IR, the local runtime /
 operational model, dataframe execution (Polars reference + Pandas
 compatibility), SQL-native execution (`etlantic-sql`), distributed Spark batch
@@ -11,15 +11,16 @@ adapter (`etlantic-sparkforge`), `@Transformation.portable` /
 `etlantic.transform` authoring to `dtcs.transform-plan/2`, Polars + PySpark +
 Pandas + SQL portable compilers for kernel + `portable-relational/1`, Gate A
 `Extract` / `Load` / `asset=` authoring, and optional `etlantic-prefect`
-direct-execution scheduling. Structured Streaming APIs are experimental.
+direct-execution scheduling, and Gate A versioned tabular interchange for
+Polars↔Pandas boundaries. Structured Streaming APIs are experimental.
 Advanced Wave 1 / Wave 2 profiles shipped on Polars and PySpark in 0.17;
 continuation families remain unclaimed. Keep `@implementation(...)` for
 dialects or profiles outside the advertised claim set.
 
-Prefer pages marked **Available in 0.17** and the Green path on the docs home.
+Prefer pages marked **Available in 0.18** and the Green path on the docs home.
 Design Proposals and **Future design** chapters describe intended 1.0 surfaces
 and are not current APIs. **0.18 status:** Gate A (versioned tabular
-interchange) is the planned **0.18.0** exit; DataFusion is a non-blocking
+interchange) shipped in **0.18.0**; DataFusion is a non-blocking
 Gate B / 0.19+ experiment—see
 [INTEROPERABILITY_FOUNDATION_PLAN.md](../11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md).
 Documentation serves three related purposes:
@@ -45,7 +46,7 @@ Public pages use these visible statuses:
 
 | Page status | Meaning |
 |---|---|
-| Available in 0.17 | Tested against the current package |
+| Available in 0.18 | Tested against the current package |
 | Shipped in 0.x | Available since that milestone (still current) |
 | Experimental | Public APIs that may change without a major version bump |
 | Partially available | Shipped and future behavior are explicitly separated |

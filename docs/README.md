@@ -25,7 +25,7 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-The published **0.17.0 release is production/stable for documented
+The published **0.18.0 release is production/stable for documented
 single-tenant reference deployments**. It ships validation, profiles, an
 immutable secret-free `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
@@ -42,11 +42,11 @@ Multi-tenant isolation, deployment topology, compliance/SBOM/signing, and
 advanced supply-chain controls remain adopter-owned.
 
 !!! tip "Green path (start here only)"
-    1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.17.0`
+    1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.18.0`
     2. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
     3. [First Pipeline](01_GETTING_STARTED/FIRST_PIPELINE.md) — contracts, validation, CLI
     4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — stable vs experimental boundary
-    5. [What's new in 0.17](01_GETTING_STARTED/WHATS_NEW_0_17.md) — adopter delta after first success
+    5. [What's new in 0.18](01_GETTING_STARTED/WHATS_NEW_0_18.md) — adopter delta after first success
     6. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
 
     Pages marked **Future design** are not APIs. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)

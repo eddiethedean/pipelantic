@@ -1,10 +1,10 @@
 # etlantic-airflow
 
 Airflow reference orchestrator compiler for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.17.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.18.
 
 ```bash
-pip install 'etlantic==0.17.0' 'etlantic-airflow==0.17.0'
+pip install 'etlantic==0.18.0' 'etlantic-airflow==0.18.0'
 # or: pip install 'etlantic[airflow]'
 # To import generated DAGs into an Airflow process, install apache-airflow
 # separately in the Airflow environment (not required for compile).

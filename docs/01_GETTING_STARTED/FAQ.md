@@ -24,7 +24,7 @@ Prefect direct execution via the shipped `etlantic-prefect`
 
 ## Is ETLantic 0.17 production-supported?
 
-Yes, within a bounded scope. ETLantic 0.17.0 is production/stable for the
+Yes, within a bounded scope. ETLantic 0.18.0 is production/stable for the
 documented single-tenant reference deployments in
 [Capabilities](CAPABILITIES.md) and
 [Production readiness](../06_EXECUTION/PRODUCTION_READINESS.md). Multi-tenant
@@ -203,10 +203,10 @@ you need Spark semantics and have a working Java environment.
 ## Must core and plugin versions match?
 
 Yes. Keep core and optional plugins on the same minor release. For a
-reproducible 0.17.0 environment, pin both exactly, for example:
+reproducible 0.18.0 environment, pin both exactly, for example:
 
 ```bash
-python -m pip install 'etlantic==0.17.0' 'etlantic-polars==0.17.0'
+python -m pip install 'etlantic==0.18.0' 'etlantic-polars==0.18.0'
 ```
 
 A mismatched plugin may fail discovery, protocol checks, validation, or

@@ -1,11 +1,11 @@
 # etlantic-pandas
 
 Pandas dataframe plugin **and** portable transform compiler for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.17.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.18.
 
 ```bash
-pip install 'etlantic==0.17.0' 'etlantic-pandas==0.17.0'
-pip install 'etlantic-pandas[arrow]==0.17.0'  # optional Arrow interchange
+pip install 'etlantic==0.18.0' 'etlantic-pandas==0.18.0'
+pip install 'etlantic-pandas[arrow]==0.18.0'  # optional Arrow interchange
 ```
 
 ## Dataframe plugin

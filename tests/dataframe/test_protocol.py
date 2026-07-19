@@ -29,6 +29,10 @@ from etlantic.registry import (
     RegistryBundle,
     builtin_stub_registry,
 )
+from etlantic.runtime.dataframe_exec import (
+    is_dataframe_engine,
+    ownership_for_engine,
+)
 
 
 class _Row(Data):
@@ -113,6 +117,74 @@ def test_expanded_capabilities_flags() -> None:
     assert not caps.supports("sql")
     restored = PluginCapabilities.from_dict(caps.to_dict())
     assert restored.lazy is True
+
+
+def test_interchange_capabilities_round_trip_and_support() -> None:
+    caps = PluginCapabilities(
+        engine="custom",
+        interchange_mechanisms=frozenset({"arrow_c_data"}),
+    )
+    restored = PluginCapabilities.from_dict(caps.to_dict())
+    assert restored.interchange_mechanisms == frozenset({"arrow_c_data"})
+    assert restored.supports("arrow_c_data")
+
+
+def test_dataframe_engine_and_ownership_use_registered_capabilities() -> None:
+    registry = RegistryBundle()
+    caps = PluginCapabilities(
+        engine="custom-frame",
+        dataframe=True,
+        thread_safe=True,
+    )
+    registry.register_plugin(
+        PluginDescriptor(
+            name="custom-frame",
+            kind="dataframe",
+            engine="custom-frame",
+            capabilities=caps,
+        )
+    )
+    registry.register_plugin(
+        PluginDescriptor(
+            name="kind-only-frame",
+            kind="dataframe",
+            engine="kind-only-frame",
+        )
+    )
+
+    assert is_dataframe_engine("pandas")
+    assert is_dataframe_engine("custom-frame", registry=registry)
+    assert is_dataframe_engine("kind-only-frame", registry=registry)
+    assert (
+        ownership_for_engine("custom-frame", capabilities=caps)
+        is ArtifactOwnership.SHARED
+    )
+    assert (
+        ownership_for_engine(
+            "custom-frame",
+            capabilities=PluginCapabilities(
+                engine="custom-frame",
+                dataframe=True,
+                thread_safe=False,
+            ),
+        )
+        is ArtifactOwnership.COPIED
+    )
+    assert (
+        ownership_for_engine("custom-frame", fan_out=True, capabilities=caps)
+        is ArtifactOwnership.COPIED
+    )
+    assert (
+        ownership_for_engine(
+            "pandas",
+            capabilities=PluginCapabilities(
+                engine="pandas",
+                dataframe=True,
+                thread_safe=True,
+            ),
+        )
+        is ArtifactOwnership.COPIED
+    )
 
 
 def test_local_registry_is_not_dataframe_engine() -> None:

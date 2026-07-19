@@ -283,9 +283,22 @@ def main() -> None:
         raise SystemExit(f"Missing {whats_new_minor.relative_to(ROOT)}")
     if not (ROOT / "docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md").exists():
         raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md")
-    current_migration = ROOT / "docs/11_DEVELOPMENT" / "MIGRATION_0_16_TO_0_17.md"
-    if major_minor_for_notes == "0.17" and not current_migration.exists():
-        raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md")
+    try:
+        major, minor = major_minor_for_notes.split(".")
+        previous_minor = f"{major}.{int(minor) - 1}"
+    except (ValueError, TypeError):
+        previous_minor = None
+    if previous_minor is not None:
+        current_migration = (
+            ROOT
+            / "docs/11_DEVELOPMENT"
+            / (
+                f"MIGRATION_{previous_minor.replace('.', '_')}"
+                f"_TO_{major_minor_for_notes.replace('.', '_')}.md"
+            )
+        )
+        if not current_migration.exists():
+            raise SystemExit(f"Missing {current_migration.relative_to(ROOT)}")
     if not (ROOT / "examples/portable_polars_kernel.py").exists():
         raise SystemExit("Missing examples/portable_polars_kernel.py")
     if not (ROOT / "examples/portable_pandas_kernel.py").exists():
@@ -302,6 +315,7 @@ def main() -> None:
         "MIGRATION_0_14_TO_0_15.md",
         "MIGRATION_0_15_TO_0_16.md",
         "MIGRATION_0_16_TO_0_17.md",
+        "MIGRATION_0_17_TO_0_18.md",
     ):
         if migration not in mkdocs_text:
             raise SystemExit(f"mkdocs.yml missing {migration} nav entry")
@@ -388,9 +402,13 @@ def main() -> None:
         raise SystemExit(
             "CAPABILITIES.md must not advertise formal Optional Arrow interchange as shipped"
         )
-    if "0.18.0 Gate A" not in capabilities:
+    if (
+        "Versioned tabular interchange (`etlantic.interchange/1`)"
+        not in capabilities
+        or "**0.18.0 Gate A — Available**" not in capabilities
+    ):
         raise SystemExit(
-            "CAPABILITIES.md must point versioned interchange at 0.18.0 Gate A"
+            "CAPABILITIES.md must mark 0.18.0 Gate A interchange Available"
         )
     roadmap_summary = (ROOT / "docs/11_DEVELOPMENT/ROADMAP_SUMMARY.md").read_text(
         encoding="utf-8"
@@ -508,19 +526,12 @@ def main() -> None:
         text = path.read_text(encoding="utf-8")
         if "!!! warning" not in text:
             raise SystemExit(f"{path} missing design/future admonition")
-        prior_guide = None
-        try:
-            maj, minor = major_minor.split(".")
-            if int(minor) > 0:
-                prior_guide = f"{maj}.{int(minor) - 1}"
-        except ValueError:
-            prior_guide = None
         if (
-            f"Future design—not a ETLantic {major_minor} API guide" not in text
-            and (
-                prior_guide is None
-                or f"Future design—not a ETLantic {prior_guide} API guide" not in text
+            re.search(
+                r"Future design—not a[n]? ETLantic \d+\.\d+ API guide",
+                text,
             )
+            is None
             and "Design study—" not in text
             and "Experimental design study—" not in text
             and "Available in ETLantic" not in text

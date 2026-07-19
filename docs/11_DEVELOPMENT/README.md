@@ -15,6 +15,7 @@ released.
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [API stability and deprecation](DEPRECATION_POLICY.md)
 - [Maintained 0.17 Documentation Audit](DOCUMENTATION_AUDIT_0_17.md)
+- [Migration 0.17 → 0.18](MIGRATION_0_17_TO_0_18.md)
 - [Migration 0.16 → 0.17](MIGRATION_0_16_TO_0_17.md)
 - [Migration 0.15 → 0.16](MIGRATION_0_15_TO_0_16.md)
 - [Migration 0.4 → 0.5](MIGRATION_0_4_TO_0_5.md)
@@ -40,11 +41,11 @@ released.
 - [Performance guidance](PERFORMANCE.md)
 - [Performance baselines](PERFORMANCE_RESULTS.md)
 
-## Maintainer plans (internal)
+## Maintainer plans and records (internal)
 
 These pages sequence future work. They are not product user guides:
 
-- [0.18 Gate A — Versioned Tabular Interchange](INTEROPERABILITY_FOUNDATION_PLAN.md)
+- [0.18 Gate A — Versioned Tabular Interchange (shipped record)](INTEROPERABILITY_FOUNDATION_PLAN.md)
 - [FastAPI Integration Plan](FASTAPI_INTEGRATION_PLAN.md)
 - [Schema Drift and Evolution Plan](SCHEMA_DRIFT_PLAN.md)
 - [ETL Reliability and Recovery Plan](ETL_RELIABILITY_PLAN.md)

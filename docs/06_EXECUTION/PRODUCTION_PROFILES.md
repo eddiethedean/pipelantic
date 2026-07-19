@@ -1,6 +1,6 @@
 # Production Profiles
 
-ETLantic 0.17.0 treats production configuration as an explicit trust boundary.
+ETLantic 0.18.0 treats production configuration as an explicit trust boundary.
 The built-in `production` profile is a template, not a deployable setup.
 
 ## Built-in production fails closed
@@ -31,7 +31,7 @@ profile = Profile(
     security_domain="production",
     validation_policy="strict",
     plugin_allowlist={
-        "etlantic-polars": "==0.17.0",
+        "etlantic-polars": "==0.18.0",
     },
     assets={
         "customer_source": "json",
@@ -92,6 +92,6 @@ When a deployment needs custom `BindingDescriptor` entries, register them on
 validation, planning, and execution so those scoped registrations remain
 consistent.
 
-See [Configuration in 0.17.0](../10_REFERENCE/CONFIGURATION_TODAY.md),
+See [Configuration in 0.18.0](../10_REFERENCE/CONFIGURATION_TODAY.md),
 [CI Integration](CI_INTEGRATION.md), and
 [Security](../02_FOUNDATIONS/SECURITY.md).
