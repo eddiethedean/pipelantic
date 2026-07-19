@@ -57,6 +57,10 @@ def main() -> None:
         "Pandas and SQL portable compilers remain",
         "Safe SQL portable lowering planned for the **0.15** exit gate",
         "Safe SQL portable lowering remains planned for 0.15",
+        "Optional Arrow interchange | Available when PyArrow is installed",
+        "ETLantic 0.14 user guide",
+        "into a 0.12 application",
+        "0.18+ — Standards-Based Interchange and Local Analytics",
         "claim set is the **0.15** exit gate",
         "complete CLI-runnable example",
         "CLI-runnable continuation",
@@ -373,6 +377,51 @@ def main() -> None:
     ):
         if required not in capabilities:
             raise SystemExit(f"CAPABILITIES.md missing shipped surface {required!r}")
+    if "Best-effort Arrow-assisted conversion" not in capabilities:
+        raise SystemExit(
+            "CAPABILITIES.md must label today's Arrow helper as best-effort conversion"
+        )
+    if (
+        "Optional Arrow interchange | Available when PyArrow is installed"
+        in capabilities
+    ):
+        raise SystemExit(
+            "CAPABILITIES.md must not advertise formal Optional Arrow interchange as shipped"
+        )
+    if "0.18.0 Gate A" not in capabilities:
+        raise SystemExit(
+            "CAPABILITIES.md must point versioned interchange at 0.18.0 Gate A"
+        )
+    roadmap_summary = (ROOT / "docs/11_DEVELOPMENT/ROADMAP_SUMMARY.md").read_text(
+        encoding="utf-8"
+    )
+    if "Gate A = **0.18.0**" not in roadmap_summary and "0.18.0" not in roadmap_summary:
+        raise SystemExit("ROADMAP_SUMMARY.md must state 0.18.0 Gate A scope")
+    if "non-blocking" not in roadmap_summary.lower():
+        raise SystemExit(
+            "ROADMAP_SUMMARY.md must label DataFusion as non-blocking for 0.18.0"
+        )
+    interop = (
+        ROOT / "docs/11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md"
+    ).read_text(encoding="utf-8")
+    for required in (
+        "etlantic.interchange/1",
+        "A0",
+        "A4",
+        "parquet_artifact",
+        "records_fallback",
+        "Decision locks",
+    ):
+        if required not in interop:
+            raise SystemExit(
+                f"INTEROPERABILITY_FOUNDATION_PLAN.md missing required Gate A content {required!r}"
+            )
+    if "0.18+ — Standards-Based Interchange" in (ROOT / "ROADMAP.md").read_text(
+        encoding="utf-8"
+    ):
+        raise SystemExit(
+            "ROADMAP.md must use Gate A-first 0.18 title, not the old 0.18+ program title"
+        )
     security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
     # e.g. 0.14.0 → 0.14.x
     major_minor = ".".join(package_version.split(".")[:2])

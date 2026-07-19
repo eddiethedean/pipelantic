@@ -1607,14 +1607,14 @@ guide alignment; continuation families remain authorable but unclaimed where
 not graduated; native fallback is explicit and policy-governed; and plans,
 fixtures, reports, and examples contain no secrets or source rows.
 
-## 0.18+ — Standards-Based Interchange and Local Analytics
+## 0.18 — Versioned Tabular Interchange (Gate A)
 
-**Status: planned.** This is a sequenced 0.18-and-later program. Arrow
-interchange is the hard foundation gate. DataFusion graduates only when its
-independent value and semantic-preservation gates pass.
+**Status: planned.** **0.18.0 ships Gate A only**: a public, versioned,
+capability-driven tabular interchange contract. DataFusion is a **non-blocking
+Gate B / 0.19+ experiment** and does not gate 0.18.0.
 
-The detailed design and stop/go criteria live in the
-[Arrow and DataFusion Integration Plan](docs/11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md).
+Authority for contracts, milestones, fidelity, and graduation policy:
+[0.18 Versioned Tabular Interchange Plan](docs/11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md).
 
 ### Architectural boundary
 
@@ -1623,40 +1623,48 @@ semantic foundation. ETLantic continues to own typed pipeline meaning,
 validation, deterministic planning, trust, reliability, lineage, and
 normalized evidence.
 
-- Arrow is the preferred **physical tabular interchange** at compatible
-  cross-plugin boundaries.
-- `etlantic-datafusion` is a candidate first-party **local analytical engine
-  and portable compiler**, never the scheduler or pipeline planner.
+- Arrow mechanisms are preferred **physical tabular interchange** at compatible
+  cross-plugin boundaries (recorded as `etlantic.interchange/1`).
+- Parquet is a **durable artifact** strategy, not an in-process transport.
+- `etlantic-datafusion` (Gate B) is a candidate first-party **local analytical
+  engine and portable compiler**, never the scheduler or pipeline planner.
 
 Heavy dependencies remain outside the core wheel. Installing `etlantic` alone
 must not install or import PyArrow or DataFusion.
 
-### Gate A — Versioned Arrow interchange (hard)
+**0.17 continuation** portable families may proceed in parallel; they are
+**not** required to close 0.18.0.
+
+### Non-goals for 0.18.0
+
+- DataFusion scaffolding, recommendation, or graduation
+- PySpark or SQL Arrow physical boundaries (follow-ups after Polars↔Pandas)
+- Multi-tenant streaming fabric / Arrow Flight services
+- Replacing logical contracts with Arrow schemas
+- Advertising today’s best-effort Arrow helper as the formal interchange API
+
+### Gate A — Versioned tabular interchange (hard; = 0.18.0)
 
 #### Deliver
 
-- replace best-effort, invisible dataframe conversion with a versioned,
-  deterministic interchange decision recorded in plans and run evidence
-- distinguish Arrow C Data / Stream in-process exchange, Arrow IPC stream,
-  Arrow IPC file, durable Parquet artifacts, and explicit records/file
-  fallbacks
-- select interchange from producer and consumer capability claims rather than
-  hard-coded engine-name pairs
-- record schema fingerprint, ownership, batching, collection, copy / zero-copy
-  eligibility, fallback reason, and observed conversion evidence
-- preserve ETLantic logical contracts separately from Arrow physical schemas;
-  normalize and diagnose nullability, decimal, temporal/timezone, nested,
-  dictionary, extension-type, and field-order mappings
-- add bounded batch, backpressure, lifetime, branch-isolation, retry, and
-  cleanup rules for Arrow streams and artifacts
-- publish cross-plugin Arrow conformance fixtures and a documented non-Arrow
-  fallback that never silently loses logical semantics
+- **A0:** generalize dataframe engine dispatch/ownership off hard-coded
+  engine-name sets for new interchange boundaries (capability/registry driven)
+- **A1:** replace best-effort, invisible conversion with `etlantic.interchange/1`
+  decisions in plans and run evidence; 0.17 plans regenerate rather than
+  silently upgrade
+- **A2:** select mechanism from producer/consumer capabilities via the
+  published truth table (C Data/Stream, IPC stream/file, Parquet artifact,
+  records/native fallback)
+- **A3:** fidelity matrix + quantitative stream/artifact bounds; observed
+  conversion/copy evidence; no silent exception swallowing
+- **A4:** Polars ↔ Pandas conformance; documented non-Arrow fallback; core
+  tests pass without PyArrow
 
 #### Acceptance scenarios
 
-- compatible Polars ↔ Pandas and future plugin boundaries use the planned
-  Arrow mechanism without hidden eager collection
-- unavailable, unsupported, or lossy Arrow conversion produces an explicit
+- compatible Polars ↔ Pandas boundaries use the planned mechanism without
+  hidden eager collection beyond what the descriptor records
+- unavailable, unsupported, or lossy conversion produces an explicit
   plan/report decision and fails before mutation when the contract cannot be
   preserved
 - “zero copy” is reported only as planned eligibility plus observed evidence,
@@ -1665,26 +1673,27 @@ must not install or import PyArrow or DataFusion.
   contain no source rows, live Arrow objects, or resolved secret values
 - core tests and imports pass without PyArrow installed
 
-#### Exit gate
+#### Exit gate (0.18.0)
 
-Arrow interchange is a public, versioned, capability-driven contract with
-fidelity, ownership, streaming, fallback, and evidence conformance. Existing
-plugins pass it before a new analytical engine is added.
+Milestones A0–A4 are complete. Arrow interchange is a public, versioned,
+capability-driven contract with fidelity, ownership, streaming, fallback, and
+evidence conformance for the Polars↔Pandas pair. CAPABILITIES / COMPATIBILITY /
+What’s New / Migration describe the formal boundary (not best-effort
+conversion). Existing plugins pass Gate A before a new analytical engine is
+added.
 
-### Gate B — Experimental `etlantic-datafusion` vertical slice
+### Gate B — Experimental `etlantic-datafusion` (non-blocking; 0.19+)
 
-Begins only after Gate A. DataFusion is initially an experimental first-party
-plugin and does not replace Polars as the reference dataframe backend or
-`LocalScheduler` as the execution coordinator.
+Begins only after Gate A / 0.18.0. DataFusion is initially an experimental
+first-party plugin and does not replace Polars as the reference dataframe
+backend or `LocalScheduler` as the execution coordinator. **Gate B does not
+block 0.18.0.**
 
 #### Deliver
 
-- remove fixed dataframe-engine-name assumptions from planning/runtime in
-  favor of registered protocol and capability descriptors
 - add independently installable `etlantic-datafusion` with dataframe runtime
   and `etlantic.transform_compilers` entry points
-- expose the recommended installation as `pip install "etlantic[datafusion]"`
-  so users do not need to select or assemble adapter/backend dependencies
+- expose installation as `pip install "etlantic[datafusion]"`
 - consume and produce Arrow through Gate A boundaries
 - compile the smallest truthful DTCS kernel claim set first: projection,
   filtering, with-fields, rename/drop, scalar expressions, and supported casts
@@ -1706,6 +1715,7 @@ plugin and does not replace Polars as the reference dataframe backend or
 - claiming writes, UDFs, streaming state, or the full DTCS surface in the
   initial slice
 - making DataFusion the default merely because the integration works
+- treating an installed-but-ungraduated plugin as production-recommended
 
 #### Graduation gate
 
@@ -1714,12 +1724,13 @@ and portable conformance, cross-engine differentials, Arrow boundary tests,
 failure/redaction tests, and demonstrates a distinct measured advantage in at
 least one of local analytical performance, streaming/laziness, conversion
 cost, or external interoperability. Otherwise it remains experimental or is
-stopped without changing the core default.
+stopped without changing the core default and without creating a 1.0
+compatibility obligation.
 
 ### Program success measures
 
 - fewer copied or silently materialized cross-engine boundaries
-- deterministic Arrow interchange decisions with stable fingerprints
+- deterministic interchange decisions with stable fingerprints
 - no increase in mandatory core dependencies
 - equal or stronger fail-before-mutation, plugin-trust, and redaction behavior
 - DataFusion earns graduation through measured value rather than duplication
@@ -1728,7 +1739,7 @@ stopped without changing the core default.
 
 ### Exit rule
 
-Gate A is required for the 0.18 interchange baseline. Gate B may continue
+Gate A is required for the **0.18.0** interchange baseline. Gate B may continue
 across later minors and cannot weaken Gate A or the semantic foundation.
 DataFusion ships as recommended only after its graduation gate; a failed
 experiment is removed or remains explicitly experimental without becoming a
@@ -1780,7 +1791,7 @@ The release candidate must demonstrate:
     realizations for their advertised capability intersection.
 14. A planned cross-plugin Arrow boundary with contract-equivalent results,
     explicit ownership/collection/copy evidence, and a diagnosed fallback.
-15. Any graduated DataFusion integration passing its 0.18+ conformance,
+15. Any graduated DataFusion integration passing its Gate B conformance,
     differential, dependency-isolation, and semantic-preservation gates;
     experiments that did not graduate create no 1.0 compatibility obligation.
 

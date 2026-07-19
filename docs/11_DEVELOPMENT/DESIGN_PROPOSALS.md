@@ -1,19 +1,20 @@
 # Design Proposals
 
 This section contains **unshipped** APIs, historical plans, and normative
-proposals. It is deliberately separate from the ETLantic 0.14 user guide.
+proposals. It is deliberately separate from the ETLantic 0.17 user guide.
 
 !!! warning "Not current API documentation"
-    Do not copy unshipped interfaces from these pages into a 0.12 application.
-    Start with the [current-version guide](../01_GETTING_STARTED/CURRENT_VERSION.md)
+    Do not copy unshipped interfaces from these pages into a production
+    application. Start with the
+    [current-version guide](../01_GETTING_STARTED/CURRENT_VERSION.md)
     and [capabilities](../01_GETTING_STARTED/CAPABILITIES.md).
 
     **Exceptions (shipped):**
     - portable **authoring** (`@Transformation.portable`, `etlantic.transform`)
       — see [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
-    - portable **compiler protocol** and Polars kernel compiler — see
+    - portable **compiler protocol** and first-party compilers — see
       [Portable Transform Compiler](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md)
-      under Integrations and Execution
+      under Plugin SDK / Integrations
 
 ## Portable transformation program (history and remaining work)
 
@@ -27,7 +28,7 @@ proposals. It is deliberately separate from the ETLantic 0.14 user guide.
 
 ## Maintainer plans
 
-- [0.18+ Arrow and DataFusion integration](INTEROPERABILITY_FOUNDATION_PLAN.md)
+- [0.18 Versioned Tabular Interchange (Gate A)](INTEROPERABILITY_FOUNDATION_PLAN.md)
 - [FastAPI integration](FASTAPI_INTEGRATION_PLAN.md)
 - [Schema drift](SCHEMA_DRIFT_PLAN.md)
 - [Reliability](ETL_RELIABILITY_PLAN.md)

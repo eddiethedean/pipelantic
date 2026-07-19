@@ -18,7 +18,11 @@ dialects or profiles outside the advertised claim set.
 
 Prefer pages marked **Available in 0.17** and the Green path on the docs home.
 Design Proposals and **Future design** chapters describe intended 1.0 surfaces
-and are not current APIs. Documentation serves three related purposes:
+and are not current APIs. **0.18 status:** Gate A (versioned tabular
+interchange) is the planned **0.18.0** exit; DataFusion is a non-blocking
+Gate B / 0.19+ experiment—see
+[INTEROPERABILITY_FOUNDATION_PLAN.md](../11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md).
+Documentation serves three related purposes:
 
 1. Explain the product vision and user experience.
 2. Specify the intended 1.0 architecture and public interfaces.

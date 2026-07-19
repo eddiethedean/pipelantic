@@ -334,7 +334,7 @@ plugin distributions.
 |---|---|
 | `etlantic-polars` | `polars`, optional `pyarrow` |
 | `etlantic-pandas` | `pandas`, optional `pyarrow` |
-| `etlantic-datafusion` (0.18+ candidate) | `datafusion`, Arrow support supplied by the plugin dependency stack |
+| `etlantic-datafusion` (Gate B / 0.19+ experimental candidate) | `datafusion`, Arrow support supplied by the plugin dependency stack |
 | Shared Arrow interchange extra | `pyarrow` |
 
 Polars should remain the reference dataframe backend. Pandas should remain a
@@ -344,14 +344,21 @@ core.
 PyArrow is valuable for cross-backend tabular interchange and Parquet, but its
 binary size makes it unsuitable as a core dependency.
 
-From 0.18+, Arrow is the preferred physical interchange only at compatible,
-planned cross-plugin boundaries. Core retains a non-Arrow path and must not
-import PyArrow. Plans record the selected Arrow C stream, IPC, Parquet, or
-fallback mechanism; Arrow schemas do not replace ETLantic logical contracts.
+**0.17 today:** optional PyArrow enables **best-effort** Arrow-assisted
+dataframe conversion only—not a versioned interchange contract.
 
-`etlantic-datafusion` is an experimental first-party plugin candidate, not a
-core dependency or automatic replacement for Polars. It graduates only after
-dataframe and portable conformance plus measured performance, streaming, or
+**0.18.0 Gate A:** preferred physical interchange is recorded as
+`etlantic.interchange/1` at compatible, planned cross-plugin boundaries
+(Polars↔Pandas first). Mechanisms are Arrow C Data/Stream, Arrow IPC
+stream/file, durable **Parquet artifacts**, or records/native fallback. Core
+retains a non-Arrow path and must not import PyArrow. Arrow schemas do not
+replace ETLantic logical contracts. Engine dispatch for new interchange
+boundaries is capability/registry driven (milestone A0).
+
+`etlantic-datafusion` is an experimental first-party plugin candidate for
+**Gate B after 0.18.0**, not a core dependency, not part of the 0.18.0 exit,
+and not an automatic replacement for Polars. It graduates only after dataframe
+and portable conformance plus measured performance, streaming, or
 interoperability value. DataFusion classes and plans must not appear in core
 protocols or serialized ETLantic plans.
 
@@ -631,8 +638,8 @@ them in the core project's optional-dependency table.
 | Graphviz Python package | Visualization extra | Adopt |
 | Polars | Separate plugin | Adopt as reference backend |
 | Pandas | Separate plugin | Adopt as compatibility backend |
-| PyArrow | Plugin/interchange extra | Adopt where interchange requires it |
-| DataFusion | Separate experimental plugin | Evaluate in `etlantic-datafusion`; graduate only with measured value |
+| PyArrow | Plugin/interchange extra | Adopt where interchange requires it; formal Gate A in 0.18.0 |
+| DataFusion | Separate experimental plugin | Evaluate in `etlantic-datafusion` after Gate A (0.19+); graduate only with measured value |
 | SQLAlchemy Core | SQL plugin | Adopt |
 | SQLModel | Separate integration | Adopt for typed persistence and model generation, not SQL execution |
 | Alembic | SQLModel/SQL provider extra | Adopt for explicit reviewed migrations |

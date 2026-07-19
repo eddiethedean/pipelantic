@@ -54,7 +54,7 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 | Portable Pandas compiler (kernel + relational `/1`, eager) | Available |
 | Portable SQL compiler (kernel + relational `/1`) | Available (`etlantic-sql`) |
 | Public portable transform conformance suite | Available |
-| Optional Arrow interchange | Available when PyArrow is installed |
+| Best-effort Arrow-assisted conversion | Available when PyArrow is installed (not the 0.18 interchange contract) |
 | SQL protocol + PostgreSQL reference plugin | Available (`etlantic-sql`) |
 | Spark protocol + local provider + native impl path | Available (`etlantic-pyspark`) |
 | Lazy Spark region fusion (native path) | Available |
@@ -85,6 +85,9 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 
 | Capability | Status |
 |---|---|
+| Versioned tabular interchange (`etlantic.interchange/1`) | **0.18.0 Gate A** — see [interoperability plan](../11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md) |
+| PySpark / SQL Arrow physical boundaries | Follow-up after Polars↔Pandas Gate A |
+| `etlantic-datafusion` experimental engine | **Gate B / 0.19+** (non-blocking for 0.18.0) |
 | `MERGE` / upsert in the reference SQL plugin | Not implemented (`sql_merge=False`; fail closed) |
 | Managed Spark providers (Databricks/EMR/Connect) | Future / optional adapters |
 | Event sensors / Dagster compilers | Future |

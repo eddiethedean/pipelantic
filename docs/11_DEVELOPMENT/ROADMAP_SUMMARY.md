@@ -29,19 +29,25 @@ Pandas and SQL remain kernel + `portable-relational/1` in 0.17. See
 `portable-relational-extended/1`, `portable-temporal-iana/1`,
 `portable-nondeterministic/1`, `portable-window/2`.
 
-## Planned: 0.18+ standards-based interoperability
+## Planned: 0.18 Gate A (versioned tabular interchange)
 
-0.18+ formalizes Arrow as the preferred, versioned physical interchange at
-compatible cross-plugin boundaries while retaining ETLantic contracts and
-plans as the semantic authority.
+**0.18 status:** Gate A = **0.18.0** exit. Gate B (DataFusion) is a
+**non-blocking 0.19+ experiment** and does not ship as part of 0.18.0.
 
-- Gate A: capability-driven Arrow stream/artifact decisions, fidelity,
-  ownership, fallback, and evidence conformance
-- Gate B: experimental `etlantic-datafusion` runtime + portable kernel
+0.18.0 formalizes `etlantic.interchange/1` as the preferred, versioned physical
+interchange at compatible cross-plugin boundaries while retaining ETLantic
+contracts and plans as the semantic authority.
+
+- **A0–A4:** engine-registry prerequisite; interchange descriptor; mechanism
+  selection truth table; fidelity/evidence bounds; Polars↔Pandas conformance
+- Parquet is a durable **artifact** mechanism, not in-process transport
+- PySpark/SQL Arrow boundaries are explicit follow-ups after Polars↔Pandas
+- **Gate B:** experimental `etlantic-datafusion` runtime + portable kernel
   compiler, graduating only with conformance and a measured advantage
 
-PyArrow and DataFusion stay out of the core dependency set. See the
-[Arrow and DataFusion Integration Plan](INTEROPERABILITY_FOUNDATION_PLAN.md).
+PyArrow and DataFusion stay out of the core dependency set. 0.17 portable
+continuation families may proceed in parallel but do not block 0.18.0. See the
+[0.18 Versioned Tabular Interchange Plan](INTEROPERABILITY_FOUNDATION_PLAN.md).
 
 ## Prior: 0.14
 
