@@ -65,10 +65,19 @@ class Profile:
     def from_dict(cls, data: dict[str, Any]) -> Profile:
         """Deserialize a profile mapping."""
         secrets_raw = data.get("secrets") or {}
-        secrets = {
-            str(k): SecretRef.from_dict(v) if isinstance(v, dict) else v
-            for k, v in secrets_raw.items()
-        }
+        if not isinstance(secrets_raw, dict):
+            raise ValueError("Profile secrets must be a mapping of name → SecretRef")
+        secrets: dict[str, SecretRef] = {}
+        for key, value in secrets_raw.items():
+            if isinstance(value, SecretRef):
+                secrets[str(key)] = value
+            elif isinstance(value, dict):
+                secrets[str(key)] = SecretRef.from_dict(value)
+            else:
+                raise ValueError(
+                    f"Profile secret {key!r} must be a SecretRef mapping, "
+                    "not a plaintext value"
+                )
         return cls(
             name=str(data["name"]),
             orchestrator=str(data.get("orchestrator") or "local"),
@@ -90,14 +99,14 @@ class Profile:
             retry_max_attempts=data.get("retry_max_attempts"),
             schedule=dict(data.get("schedule") or {}),
             execution=dict(data.get("execution") or {}),
-            required_sql_capabilities=tuple(
-                str(x) for x in (data.get("required_sql_capabilities") or ())
+            required_sql_capabilities=_as_str_tuple(
+                data.get("required_sql_capabilities")
             ),
-            required_spark_capabilities=tuple(
-                str(x) for x in (data.get("required_spark_capabilities") or ())
+            required_spark_capabilities=_as_str_tuple(
+                data.get("required_spark_capabilities")
             ),
-            required_orchestrator_capabilities=tuple(
-                str(x) for x in (data.get("required_orchestrator_capabilities") or ())
+            required_orchestrator_capabilities=_as_str_tuple(
+                data.get("required_orchestrator_capabilities")
             ),
             plugin_allowlist={
                 str(k): (None if v in (None, "") else str(v))
@@ -110,10 +119,29 @@ class Profile:
         )
 
     def with_updates(self, **kwargs: Any) -> Profile:
-        """Return a copy with selected fields replaced."""
+        """Return a copy with selected fields replaced.
+
+        Unknown keys raise ``TypeError`` so typos like ``plugin_allow_list``
+        cannot silently leave production allowlists empty.
+        """
+        known = set(self.__dataclass_fields__)
+        unknown = sorted(set(kwargs) - known)
+        if unknown:
+            raise TypeError(
+                f"Profile.with_updates() got unexpected field(s): {', '.join(unknown)}"
+            )
         current = self.to_dict()
         current.update(kwargs)
         return Profile.from_dict(current)
+
+
+def _as_str_tuple(value: Any) -> tuple[str, ...]:
+    """Normalize capability lists without iterating bare strings by character."""
+    if value is None:
+        return ()
+    if isinstance(value, str):
+        return (value,)
+    return tuple(str(x) for x in value)
 
 
 def _parse_portable_policy(value: Any) -> PortableTransformPolicy:
@@ -185,7 +213,9 @@ def resolve_profile(profile: str | Profile | None) -> Profile:
         return profile
     key = str(profile)
     path = Path(key)
-    if path.suffix == ".json" and path.is_file():
+    if path.suffix.casefold() == ".json":
+        if not path.is_file():
+            raise FileNotFoundError(f"Profile JSON path not found: {path}")
         return load_profile(path)
     if key in PROFILE_TEMPLATES:
         template = PROFILE_TEMPLATES[key]

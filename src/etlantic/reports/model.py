@@ -249,12 +249,29 @@ class PipelineRunReport:
             records_in=summary_raw.get("records_in"),
             records_out=summary_raw.get("records_out"),
         )
+
+        def _parse_dt(value: Any) -> datetime | None:
+            if value is None:
+                return None
+            if isinstance(value, datetime):
+                return value
+            if isinstance(value, str):
+                return datetime.fromisoformat(value)
+            raise TypeError(f"Unsupported datetime value: {type(value)!r}")
+
         steps = tuple(
             StepRunReport(
                 step_id=str(item.get("step_id") or ""),
                 step_name=str(item.get("step_name") or ""),
                 status=StepStatus(str(item.get("status") or "succeeded")),
                 attempts=int(item.get("attempts") or 1),
+                started_at=_parse_dt(item.get("started_at")),
+                ended_at=_parse_dt(item.get("ended_at")),
+                duration_seconds=(
+                    float(item["duration_seconds"])
+                    if item.get("duration_seconds") is not None
+                    else None
+                ),
                 failure_stage=item.get("failure_stage"),
                 error_message=item.get("error_message"),
                 records_in=item.get("records_in"),
@@ -277,6 +294,76 @@ class PipelineRunReport:
             for item in (data.get("artifacts") or ())
             if isinstance(item, dict)
         )
+        validations = tuple(
+            ValidationResult(
+                node_name=str(item.get("node_name") or ""),
+                boundary=str(item.get("boundary") or ""),
+                status=str(item.get("status") or ""),
+                message=item.get("message"),
+                records_checked=item.get("records_checked"),
+                records_invalid=item.get("records_invalid"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("validations") or ())
+            if isinstance(item, dict)
+        )
+        state_transitions = tuple(
+            StateTransitionResult(
+                subject=str(item.get("subject") or ""),
+                from_status=str(item.get("from_status") or ""),
+                to_status=str(item.get("to_status") or ""),
+                at=_parse_dt(item.get("at")) or datetime.now(),
+                reason=item.get("reason"),
+            )
+            for item in (data.get("state_transitions") or ())
+            if isinstance(item, dict)
+        )
+        diagnostics = tuple(
+            RunDiagnostic(
+                code=str(item.get("code") or ""),
+                severity=str(item.get("severity") or "info"),
+                message=str(item.get("message") or ""),
+                node_name=item.get("node_name"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("diagnostics") or ())
+            if isinstance(item, dict)
+        )
+        recommendations = tuple(
+            RunRecommendation(
+                kind=str(item.get("kind") or ""),
+                title=str(item.get("title") or ""),
+                detail=item.get("detail"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("recommendations") or ())
+            if isinstance(item, dict)
+        )
+        backend_runs = tuple(
+            BackendRunReference(
+                backend=str(item.get("backend") or ""),
+                backend_run_id=str(item.get("backend_run_id") or ""),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("backend_runs") or ())
+            if isinstance(item, dict)
+        )
+        schema_observations = tuple(
+            SchemaObservationResult(
+                subject_id=str(item.get("subject_id") or ""),
+                layer=str(item.get("layer") or ""),
+                fingerprint=item.get("fingerprint"),
+                drift_decision=item.get("drift_decision"),
+                metadata=dict(item.get("metadata") or {}),
+            )
+            for item in (data.get("schema_observations") or ())
+            if isinstance(item, dict)
+        )
+        lineage = tuple(
+            {str(k): str(v) for k, v in item.items()}
+            for item in (data.get("lineage") or ())
+            if isinstance(item, dict)
+        )
         started = data.get("started_at")
         if isinstance(started, str):
             started_at = datetime.fromisoformat(started)
@@ -285,7 +372,12 @@ class PipelineRunReport:
         else:
             started_at = datetime.now()
         ended = data.get("ended_at")
-        ended_at = datetime.fromisoformat(ended) if isinstance(ended, str) else None
+        ended_at = _parse_dt(ended)
+        duration = None
+        if data.get("duration_seconds") is not None:
+            duration = timedelta(seconds=float(data["duration_seconds"]))
+        elif started_at is not None and ended_at is not None:
+            duration = ended_at - started_at
         return cls(
             pipeline_id=str(data.get("pipeline_id") or ""),
             plan_id=str(data.get("plan_id") or ""),
@@ -296,9 +388,17 @@ class PipelineRunReport:
             started_at=started_at,
             pipeline_version=data.get("pipeline_version"),
             ended_at=ended_at,
+            duration=duration,
             summary=summary,
             steps=steps,
             artifacts=artifacts,
+            validations=validations,
+            state_transitions=state_transitions,
+            diagnostics=diagnostics,
+            recommendations=recommendations,
+            backend_runs=backend_runs,
+            schema_observations=schema_observations,
+            lineage=lineage,
             plan_fingerprint=data.get("plan_fingerprint"),
             metadata=dict(data.get("metadata") or {}),
             schema=str(data.get("schema") or REPORT_SCHEMA),

@@ -590,7 +590,7 @@ arrow = [
 [package.metadata]
 requires-dist = [
     { name = "etlantic", editable = "." },
-    { name = "pandas", specifier = ">=2.0,<3" },
+    { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pyarrow", marker = "extra == 'arrow'", specifier = ">=14" },
 ]
 provides-extras = ["arrow"]

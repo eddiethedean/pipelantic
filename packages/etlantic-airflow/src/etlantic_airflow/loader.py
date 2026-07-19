@@ -12,7 +12,7 @@ from typing import Any
 def load_compiled_pipeline(path: str | Path) -> Any:
     """Import a generated DAG module and return its ``dag`` object.
 
-    Requires ``apache-airflow`` (install ``etlantic-airflow[runtime]``).
+    Requires ``apache-airflow`` installed in the Airflow environment.
     """
     try:
         import airflow  # noqa: F401

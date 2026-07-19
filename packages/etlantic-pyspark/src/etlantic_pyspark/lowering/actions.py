@@ -180,33 +180,74 @@ def _apply_join(
         )
 
     spark_how = "fullouter" if how == "full" else how
+    # Rename right keys that collide with left non-key columns so coalesce can
+    # drop the right contribution without wiping left data.
+    right_work = right
+    effective_right_on: list[str] = []
+    temp_right_keys: list[str] = []
+    for i, (lk, rk) in enumerate(zip(left_on, right_on, strict=True)):
+        if lk != rk and rk in left_cols:
+            alias = f"__etlantic_rk_{i}"
+            right_work = right_work.withColumnRenamed(rk, alias)
+            effective_right_on.append(alias)
+            temp_right_keys.append(alias)
+        else:
+            effective_right_on.append(rk)
+
     if null_safe:
         cond = None
-        for lk, rk in zip(left_on, right_on, strict=True):
-            piece = left[lk].eqNullSafe(right[rk])
+        for lk, rk in zip(left_on, effective_right_on, strict=True):
+            piece = left[lk].eqNullSafe(right_work[rk])
             cond = piece if cond is None else (cond & piece)
-        joined = left.join(right, on=cond, how=spark_how)
-        # Match Polars coalesce=True: keep left key names, drop right key cols.
-        return _coalesce_join_keys(joined, left_on=left_on, right_on=right_on)
+        joined = left.join(right_work, on=cond, how=spark_how)
+        if temp_right_keys:
+            joined = joined.drop(*[c for c in temp_right_keys if c in joined.columns])
+            return joined
+        return _coalesce_join_keys(
+            joined,
+            left_on=left_on,
+            right_on=right_on,
+            left_columns=list(left.columns),
+        )
     if left_on == right_on:
         return left.join(right, on=left_on, how=spark_how)
     cond = None
-    for lk, rk in zip(left_on, right_on, strict=True):
-        piece = left[lk] == right[rk]
+    for lk, rk in zip(left_on, effective_right_on, strict=True):
+        piece = left[lk] == right_work[rk]
         cond = piece if cond is None else (cond & piece)
-    joined = left.join(right, on=cond, how=spark_how)
-    return _coalesce_join_keys(joined, left_on=left_on, right_on=right_on)
+    joined = left.join(right_work, on=cond, how=spark_how)
+    if temp_right_keys:
+        return joined.drop(*[c for c in temp_right_keys if c in joined.columns])
+    return _coalesce_join_keys(
+        joined,
+        left_on=left_on,
+        right_on=right_on,
+        left_columns=list(left.columns),
+    )
 
 
-def _coalesce_join_keys(joined: Any, *, left_on: list[str], right_on: list[str]) -> Any:
-    """Drop right-side join key columns after a condition join."""
+def _coalesce_join_keys(
+    joined: Any,
+    *,
+    left_on: list[str],
+    right_on: list[str],
+    left_columns: list[str],
+) -> Any:
+    """Drop right-side join key columns after a condition join.
+
+    When the left frame already contains a column named like ``rightKey``, do
+    not drop that left data column. Prefer a ``_right`` suffix when present.
+    """
     drop_cols: list[str] = []
     columns = set(joined.columns)
+    left_cols = set(left_columns)
     for lk, rk in zip(left_on, right_on, strict=True):
-        if lk == rk:
+        if lk == rk or rk in left_cols:
             suffixed = f"{rk}_right"
             if suffixed in columns:
                 drop_cols.append(suffixed)
+            # If Spark kept a duplicate bare name, dropping ``rk`` would also
+            # remove the left data column — leave bare names alone.
         elif rk in columns:
             drop_cols.append(rk)
     if not drop_cols:

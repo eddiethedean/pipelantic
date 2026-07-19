@@ -46,7 +46,7 @@ Package metadata declares these backend dependency ranges:
 | Package or extra | Declared backend range |
 |---|---|
 | `etlantic-polars` | `polars>=1.0,<2`; optional `pyarrow>=14` |
-| `etlantic-pandas` | `pandas>=2.0,<3`; optional `pyarrow>=14` |
+| `etlantic-pandas` | `pandas>=2.2,<3`; optional `pyarrow>=14` |
 | `etlantic-pyspark` | `pyspark>=3.5,<4`; optional `delta-spark>=3.0,<4` |
 | `etlantic-sql` | `sqlalchemy>=2.0,<3`, `psycopg[binary]>=3.1,<4` |
 | `etlantic-sqlmodel` | `sqlmodel>=0.0.22,<1` |

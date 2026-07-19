@@ -437,12 +437,38 @@ def _phase_capability(
 
 
 def _phase_plugin_trust(context: PlanningContext) -> list[Diagnostic]:
-    """Enforce production plugin_allowlist fail-closed (empty list is an error)."""
-    from etlantic.plugin_trust import filter_plugins_by_allowlist
+    """Enforce production plugin_allowlist fail-closed (empty list is an error).
 
-    # Empty-dict filter surfaces PMPLUG401 for production profiles without
-    # rejecting built-in local/null registry stubs used for planning.
-    _kept, diagnostics = filter_plugins_by_allowlist({}, context.profile)
+    Checks plugins selected by the profile engines (and their transform
+    compilers). Built-in ``local``/``null`` stubs are included only when those
+    engines are selected so unrelated installed plugins do not spuriously fail
+    local production templates.
+    """
+    from etlantic.plugin_trust import filter_plugins_by_allowlist
+    from etlantic.transform.discovery import discover_transform_compilers
+
+    profile = context.profile
+    selected: dict[str, object] = {}
+    selected_engines = {
+        eng
+        for eng in (
+            profile.dataframe_engine,
+            profile.sql_engine,
+            profile.spark_engine,
+            profile.orchestrator,
+        )
+        if eng
+    }
+    for name, descriptor in context.registry.plugins.items():
+        engine = getattr(descriptor, "engine", None)
+        if name in selected_engines or engine in selected_engines:
+            selected[name] = descriptor
+
+    for engine, compiler in discover_transform_compilers().items():
+        if engine in selected_engines:
+            selected[f"transform_compiler:{engine}"] = compiler
+
+    _kept, diagnostics = filter_plugins_by_allowlist(selected, profile)
     return list(diagnostics)
 
 

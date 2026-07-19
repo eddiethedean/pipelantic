@@ -48,7 +48,7 @@ def main() -> None:
         "etlantic==0.13.0",
         "etlantic-polars==0.13.0",
         "etlantic-pyspark==0.13.0",
-        "Pandas / SQL compilers remain 0.14–0.15",
+        "Pandas / SQL compilers remain 0.14\u20130.15",
         "Pandas and SQL portable compilers remain",
         "complete CLI-runnable example",
         "CLI-runnable continuation",
@@ -256,11 +256,12 @@ def main() -> None:
     ):
         if migration not in mkdocs_text:
             raise SystemExit(f"mkdocs.yml missing {migration} nav entry")
-    if "Design Proposals:" in mkdocs_text:
-        if mkdocs_text.find("Design Proposals:") < mkdocs_text.find("  - Reference:"):
-            raise SystemExit(
-                "mkdocs.yml must place Design Proposals after current Reference/Project sections"
-            )
+    if "Design Proposals:" in mkdocs_text and mkdocs_text.find(
+        "Design Proposals:"
+    ) < mkdocs_text.find("  - Reference:"):
+        raise SystemExit(
+            "mkdocs.yml must place Design Proposals after current Reference/Project sections"
+        )
     if (
         "Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md"
         not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8")

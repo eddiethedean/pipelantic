@@ -82,3 +82,16 @@ def load_transform_compiler(engine: str) -> PortableTransformCompiler | None:
 def compiler_registry_snapshot() -> list[dict[str, Any]]:
     """Return serializable descriptors for discovered compilers."""
     return [c.info.to_dict() for c in discover_transform_compilers().values()]
+
+
+def discover_transform_compilers_for_profile(
+    profile: Any | None,
+) -> dict[str, PortableTransformCompiler]:
+    """Discover compilers and apply ``profile.plugin_allowlist`` trust rules."""
+    found = discover_transform_compilers()
+    if profile is None:
+        return found
+    from etlantic.plugin_trust import filter_plugins_by_allowlist
+
+    kept, _diagnostics = filter_plugins_by_allowlist(found, profile)
+    return kept

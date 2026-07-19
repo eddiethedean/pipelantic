@@ -210,7 +210,7 @@ def test_resource_injection_and_cleanup() -> None:
     assert cleaned == ["done"]
 
 
-def test_continue_failure_action_skips() -> None:
+def test_continue_failure_action_soft_skips_step() -> None:
     class Boom(Transformation):
         rows: Input[Row]
         result: Output[Row]
@@ -309,3 +309,73 @@ def test_redact_message_in_report() -> None:
         "pwd": "***",
         "aws_secret_access_key": "***",
     }
+
+
+def test_continue_allows_independent_sibling() -> None:
+    class Boom(Transformation):
+        rows: Input[Row]
+        result: Output[Row]
+
+    class Ok(Transformation):
+        rows: Input[Row]
+        result: Output[Row]
+
+    @Boom.implementation("local")
+    def boom_local(rows: list[Row]) -> list[Row]:
+        raise RuntimeError("boom")
+
+    @Ok.implementation("local")
+    def ok_local(rows: list[Row]) -> list[Row]:
+        return list(rows)
+
+    class BranchPipeline(Pipeline):
+        raw: Source[Row] = Source(binding="rows")
+        boom = Boom.step(rows=raw)
+        ok = Ok.step(rows=raw)
+        out_boom: Sink[Row] = Sink(input=boom.result, binding="out_boom")
+        out_ok: Sink[Row] = Sink(input=ok.result, binding="out_ok")
+
+    runtime = PipelineRuntime()
+    runtime.callbacks.on_step_failed(lambda _ctx: FailureAction.CONTINUE)
+    runtime.memory.seed("rows", [Row(id=1, name="a")])
+    report = BranchPipeline.run(profile="development", runtime=runtime)
+    by_name = {s.step_name: s for s in report.steps}
+    assert by_name["boom"].status.value == "skipped"
+    assert by_name["ok"].status.value == "succeeded"
+    assert by_name["out_ok"].status.value == "succeeded"
+    assert report.status is RunStatus.SUCCEEDED
+
+
+def test_skip_abandons_dependents_not_siblings() -> None:
+    class Boom(Transformation):
+        rows: Input[Row]
+        result: Output[Row]
+
+    class Ok(Transformation):
+        rows: Input[Row]
+        result: Output[Row]
+
+    @Boom.implementation("local")
+    def boom_local(rows: list[Row]) -> list[Row]:
+        raise RuntimeError("boom")
+
+    @Ok.implementation("local")
+    def ok_local(rows: list[Row]) -> list[Row]:
+        return list(rows)
+
+    class BranchPipeline(Pipeline):
+        raw: Source[Row] = Source(binding="rows")
+        boom = Boom.step(rows=raw)
+        ok = Ok.step(rows=raw)
+        out_boom: Sink[Row] = Sink(input=boom.result, binding="out_boom")
+        out_ok: Sink[Row] = Sink(input=ok.result, binding="out_ok")
+
+    runtime = PipelineRuntime()
+    runtime.callbacks.on_step_failed(lambda _ctx: FailureAction.SKIP)
+    runtime.memory.seed("rows", [Row(id=1, name="a")])
+    report = BranchPipeline.run(profile="development", runtime=runtime)
+    by_name = {s.step_name: s for s in report.steps}
+    assert by_name["boom"].status.value == "skipped"
+    assert by_name["out_boom"].status.value == "abandoned"
+    assert by_name["ok"].status.value == "succeeded"
+    assert by_name["out_ok"].status.value == "succeeded"

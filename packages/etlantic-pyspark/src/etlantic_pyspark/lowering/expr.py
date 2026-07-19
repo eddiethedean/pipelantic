@@ -128,10 +128,13 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         return _F().length(args[0])
     if callee == "dtcs:substr":
         # Portable IR is 0-based; Spark substring is 1-based.
-        start = args[1] + 1
+        # PySpark < 4 accepts Python integers, not Column expressions, for
+        # ``pos`` and ``len``. DTCS substring bounds are constant expressions.
+        start = int(constant_python(raw_args[1], parameters=parameters)) + 1
         if len(args) == 2:
-            return _F().substring(args[0], start, _F().lit(2147483647))
-        return _F().substring(args[0], start, args[2])
+            return _F().substring(args[0], start, 2147483647)
+        length = int(constant_python(raw_args[2], parameters=parameters))
+        return _F().substring(args[0], start, length)
     if callee == "dtcs:replace":
         import re
 

@@ -425,14 +425,14 @@ def _select_implementations(
         TransformPlanningContext,
     )
     from etlantic.transform.discovery import (
-        discover_transform_compilers,
+        discover_transform_compilers_for_profile,
         load_transform_compiler,
     )
 
     selected: dict[str, ImplementationDescriptor] = {}
     members = pipeline_cls.__pipeline_members__
     policy = getattr(context.profile, "portable_transform_policy", "prefer") or "prefer"
-    compilers = discover_transform_compilers()
+    compilers = discover_transform_compilers_for_profile(context.profile)
 
     for node in graph.nodes:
         if node.kind is not NodeKind.STEP:

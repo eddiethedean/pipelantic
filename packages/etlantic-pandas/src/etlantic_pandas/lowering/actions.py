@@ -167,12 +167,7 @@ def _apply_join(
                 raise ValueError(
                     f"Join column collision under fail policy: {sorted(overlap)}"
                 )
-        left2 = left.copy()
-        right2 = right.copy()
-        left2["_etlantic_cross"] = 1
-        right2["_etlantic_cross"] = 1
-        out = left2.merge(right2, on="_etlantic_cross", how="inner")
-        return _index_neutral(out.drop(columns=["_etlantic_cross"]))
+        return _index_neutral(left.merge(right, how="cross"))
 
     if params.get("predicate") is not None and params.get("leftKey") is None:
         raise ValueError("Predicate joins are not supported by the Pandas compiler")
@@ -195,9 +190,10 @@ def _apply_join(
             left_on=left_on,
             right_on=right_on,
             how="inner",
+            suffixes=("", "_right"),
         )
-        # Keep left columns only; coalesce equal-named keys.
-        return _index_neutral(merged[list(left.columns)].drop_duplicates())
+        # Keep left columns only; left names are preserved with suffixes.
+        return _index_neutral(merged.loc[:, list(left.columns)].drop_duplicates())
 
     if how == "anti":
         indicator = left.merge(
@@ -206,9 +202,10 @@ def _apply_join(
             right_on=right_on,
             how="left",
             indicator=True,
+            suffixes=("", "_right"),
         )
         anti = indicator[indicator["_merge"] == "left_only"]
-        return _index_neutral(anti[list(left.columns)])
+        return _index_neutral(anti.loc[:, list(left.columns)])
 
     pandas_how = {"full": "outer"}.get(how, how)
     if null_safe:
@@ -239,15 +236,12 @@ def _apply_join(
             suffixes=("", "_right"),
         )
         merged = merged.drop(columns=join_left + join_right)
-        # Drop coalesced right keys when names match.
+        # Drop coalesced right keys when names match; never drop left data cols.
         for lk, rk in zip(left_on, right_on, strict=True):
-            if lk == rk:
+            if lk == rk or rk in left.columns:
                 right_key = f"{rk}_right"
                 if right_key in merged.columns:
                     merged = merged.drop(columns=[right_key])
-            elif rk in merged.columns and rk not in left.columns:
-                # Keep left key name only.
-                pass
             elif rk in merged.columns and rk != lk:
                 merged = merged.drop(columns=[rk])
         return _index_neutral(merged)
@@ -263,9 +257,14 @@ def _apply_join(
         how=pandas_how,
         suffixes=("", "_right"),
     )
-    # Match Polars coalesce=True: keep left key names, drop right key cols.
+    # Match Polars coalesce=True: keep left key names, drop only right key cols.
     for lk, rk in zip(left_on, right_on, strict=True):
         if lk == rk:
+            right_key = f"{rk}_right"
+            if right_key in merged.columns:
+                merged = merged.drop(columns=[right_key])
+        elif rk in left.columns:
+            # Left already had ``rk`` as data; right key was suffixed.
             right_key = f"{rk}_right"
             if right_key in merged.columns:
                 merged = merged.drop(columns=[right_key])
@@ -346,7 +345,11 @@ def _apply_aggregate(
     for item in aggregates:
         name = str(item["name"])
         agg_fn = lower_agg_expr(item["expression"], parameters=parameters)
-        series_map[name] = grouped.apply(agg_fn, include_groups=False)
+        try:
+            series_map[name] = grouped.apply(agg_fn, include_groups=False)
+        except TypeError:
+            # pandas < 2.2 lacks include_groups=
+            series_map[name] = grouped.apply(agg_fn)
     out = pd.DataFrame(series_map)
     out = out.reset_index()
     return _index_neutral(out)

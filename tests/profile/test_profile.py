@@ -52,3 +52,37 @@ def test_resolve_profile_loads_json_path(tmp_path: Path) -> None:
     loaded = resolve_profile(str(path))
     assert loaded.name == "ci-production"
     assert loaded.plugin_allowlist == {"local": None}
+
+
+def test_resolve_profile_missing_json_raises(tmp_path: Path) -> None:
+    missing = tmp_path / "missing-prod.json"
+    try:
+        resolve_profile(str(missing))
+        raise AssertionError("expected FileNotFoundError")
+    except FileNotFoundError:
+        pass
+
+
+def test_profile_rejects_plaintext_secrets() -> None:
+    try:
+        from etlantic.profile import Profile
+
+        Profile.from_dict({"name": "x", "secrets": {"db": "password"}})
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass
+
+
+def test_profile_capabilities_string_not_char_split() -> None:
+    from etlantic.profile import Profile
+
+    profile = Profile.from_dict({"name": "x", "required_sql_capabilities": "sql_merge"})
+    assert profile.required_sql_capabilities == ("sql_merge",)
+
+
+def test_with_updates_rejects_unknown_keys() -> None:
+    try:
+        production_profile(plugin_allow_list={"local": None})  # typo
+        raise AssertionError("expected TypeError")
+    except TypeError:
+        pass

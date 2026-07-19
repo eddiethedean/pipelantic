@@ -310,10 +310,17 @@ class LocalOrchestrator:
                         )
                         if nodes[n].status is StepStatus.SUCCEEDED:
                             completed.add(n)
+                        elif nodes[n].status is StepStatus.SKIPPED and nodes[
+                            n
+                        ].metadata.get("continue_after_failure"):
+                            # CONTINUE: record soft failure but allow dependents.
+                            completed.add(n)
                         else:
                             hard_fail = nodes[n].status is not StepStatus.SKIPPED
                             if hard_fail:
                                 failed.add(n)
+                            # SKIP abandons transitive consumers only — never
+                            # unrelated sibling branches still in ``pending``.
                             stack = list(consumers.get(n, ()))
                             seen: set[str] = set()
                             while stack:
@@ -327,9 +334,6 @@ class LocalOrchestrator:
                                     if hard_fail:
                                         failed.add(child)
                                 stack.extend(consumers.get(child, ()))
-                            if not hard_fail:
-                                # Soft-skip: stop the wave without marking the run failed.
-                                pending.clear()
 
                 async with anyio.create_task_group() as wave:
                     for name in ready:
@@ -687,17 +691,13 @@ class LocalOrchestrator:
                     )
                 )
                 return
-            except TimeoutError as exc:
-                state.status = StepStatus.TIMED_OUT
-                state.stage = FailureStage.ORCHESTRATOR.value
-                state.error = redact_message(str(exc))
-                state.ended_at = datetime.now(UTC)
+            except (TimeoutError, Exception) as exc:
                 last_error = exc
-                break
-            except Exception as exc:
-                last_error = exc
+                timed_out = isinstance(exc, TimeoutError)
                 state.stage = (
-                    getattr(exc, "stage", None) or FailureStage.TRANSFORM.value
+                    FailureStage.ORCHESTRATOR.value
+                    if timed_out
+                    else (getattr(exc, "stage", None) or FailureStage.TRANSFORM.value)
                 )
                 state.error = redact_message(str(exc))
                 results = await self.runtime.callbacks.emit(
@@ -731,7 +731,9 @@ class LocalOrchestrator:
                             run_id=run_id,
                         )
                     except PipelineExecutionError as retry_exc:
-                        state.status = StepStatus.FAILED
+                        state.status = (
+                            StepStatus.TIMED_OUT if timed_out else StepStatus.FAILED
+                        )
                         state.ended_at = datetime.now(UTC)
                         state.error = redact_message(str(retry_exc))
                         diagnostics.append(
@@ -747,7 +749,22 @@ class LocalOrchestrator:
                     if backoff > 0:
                         await anyio.sleep(backoff)
                     continue
-                if action is FailureAction.SKIP or action is FailureAction.CONTINUE:
+                if action is FailureAction.CONTINUE:
+                    state.status = StepStatus.SKIPPED
+                    state.metadata["continue_after_failure"] = True
+                    state.ended_at = datetime.now(UTC)
+                    diagnostics.append(
+                        RunDiagnostic(
+                            code="PMEXEC301",
+                            severity="warning",
+                            message=redact_message(
+                                f"Step {name} continued after failure: {exc}"
+                            ),
+                            node_name=name,
+                        )
+                    )
+                    return
+                if action is FailureAction.SKIP:
                     state.status = StepStatus.SKIPPED
                     state.ended_at = datetime.now(UTC)
                     diagnostics.append(
@@ -755,13 +772,13 @@ class LocalOrchestrator:
                             code="PMEXEC301",
                             severity="warning",
                             message=redact_message(
-                                f"Step {name} continued/skipped after failure: {exc}"
+                                f"Step {name} skipped after failure: {exc}"
                             ),
                             node_name=name,
                         )
                     )
                     return
-                state.status = StepStatus.FAILED
+                state.status = StepStatus.TIMED_OUT if timed_out else StepStatus.FAILED
                 state.ended_at = datetime.now(UTC)
                 diagnostics.append(
                     RunDiagnostic(

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Durable `PipelineRunReport.from_dict` round-trips lineage, diagnostics,
+  validations, schema observations, step timings, and duration
+- Soft-skip no longer clears unrelated pending sibling branches; `CONTINUE`
+  allows dependents while `SKIP` abandons only transitive consumers
+- Step timeouts invoke failure callbacks / retry policy instead of bypassing them
+- Profile JSON loading rejects plaintext secrets, missing `.json` paths, and
+  unknown `with_updates` keys; string capability lists are not character-split
+- Validate/plan/exec honor `plugin_allowlist` for selected engines and
+  transform compilers (`PMPLUG402` when listed plugins are rejected)
+- Pandas unequal-key joins preserve left columns named like `rightKey`;
+  semi/anti use stable suffixes; cross joins use native `how="cross"`
+- PySpark unequal-key joins rename colliding right keys before coalesce
+- PySpark substring lowering passes integer bounds on real Spark as required by
+  PySpark 3.x while preserving DTCS zero-based indexing
+- `etlantic-pandas` declares `pandas>=2.2,<3` (matches `include_groups=`)
+
 ## [0.14.0] - 2026-07-18
 
 ### Added

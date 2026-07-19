@@ -286,12 +286,13 @@ async def execute_portable_spark_step(
     session_handle: SparkSessionHandle | None = None,
 ) -> Any:
     """Execute a portable_compiled step on Spark without region UDF fusion."""
+    from etlantic.profile import Profile, resolve_profile
     from etlantic.transform.compiler import (
         TransformCompileContext,
         TransformExecutionContext,
     )
     from etlantic.transform.discovery import (
-        discover_transform_compilers,
+        discover_transform_compilers_for_profile,
         load_transform_compiler,
     )
 
@@ -305,9 +306,16 @@ async def execute_portable_spark_step(
             code="PMXFORM302",
         )
 
+    profile = getattr(plan, "profile_snapshot", None)
+    if isinstance(profile, dict):
+        profile = Profile.from_dict(profile)
+    elif not isinstance(profile, Profile):
+        profile = resolve_profile(getattr(plan, "profile_name", None))
+
+    compilers = discover_transform_compilers_for_profile(profile)
     compiler = None
     if descriptor.compiler_name:
-        for candidate in discover_transform_compilers().values():
+        for candidate in compilers.values():
             info = candidate.info
             if info.name != descriptor.compiler_name:
                 continue
@@ -319,7 +327,9 @@ async def execute_portable_spark_step(
             compiler = candidate
             break
     else:
-        compiler = load_transform_compiler(descriptor.engine)
+        compiler = compilers.get(descriptor.engine) or load_transform_compiler(
+            descriptor.engine
+        )
     if compiler is None:
         raise NodeExecutionError(
             redact_message(

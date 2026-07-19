@@ -43,10 +43,10 @@ runtime.callbacks = callbacks
 
 | Action | Meaning |
 |---|---|
-| `CONTINUE` | Proceed despite the failure (use carefully) |
+| `CONTINUE` | Soft-fail the step and allow dependents to run |
 | `RETRY` | Retry the step according to run/profile retry settings |
 | `FAIL` | Fail the run |
-| `SKIP` | Skip the failed step when the runtime allows it |
+| `SKIP` | Soft-fail the step and abandon its transitive dependents |
 
 Register handlers on a `CallbackRegistry`, then attach it to
 `PipelineRuntime` before `Pipeline.run(...)`.

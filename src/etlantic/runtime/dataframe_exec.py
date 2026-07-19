@@ -362,18 +362,25 @@ async def _execute_portable(
     node: Node,
     context: DataframeExecutionContext,
 ) -> Any:
+    from etlantic.profile import Profile, resolve_profile
     from etlantic.transform.compiler import (
         TransformCompileContext,
         TransformExecutionContext,
     )
     from etlantic.transform.discovery import (
-        discover_transform_compilers,
+        discover_transform_compilers_for_profile,
         load_transform_compiler,
     )
 
+    profile = getattr(plan, "profile_snapshot", None)
+    if isinstance(profile, dict):
+        profile = Profile.from_dict(profile)
+    elif not isinstance(profile, Profile):
+        profile = resolve_profile(getattr(plan, "profile_name", None))
+
     compiler = None
     if descriptor.compiler_name:
-        for candidate in discover_transform_compilers().values():
+        for candidate in discover_transform_compilers_for_profile(profile).values():
             info = candidate.info
             if info.name != descriptor.compiler_name:
                 continue
@@ -400,7 +407,10 @@ async def _execute_portable(
                 code="PMXFORM302",
             )
     else:
-        compiler = load_transform_compiler(descriptor.engine)
+        compilers = discover_transform_compilers_for_profile(profile)
+        compiler = compilers.get(descriptor.engine) or load_transform_compiler(
+            descriptor.engine
+        )
     if compiler is None:
         raise NodeExecutionError(
             redact_message(
