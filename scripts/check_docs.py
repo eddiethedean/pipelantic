@@ -414,20 +414,22 @@ def main() -> None:
         )
     if (
         "Versioned tabular interchange (`etlantic.interchange/1`)" not in capabilities
-        or "**0.18.0 Gate A — Available**" not in capabilities
+        or "0.18.0 Gate A — Available" not in capabilities
     ):
         raise SystemExit(
             "CAPABILITIES.md must mark 0.18.0 Gate A interchange Available"
         )
+    if "Contract and configuration freeze" not in capabilities:
+        raise SystemExit("CAPABILITIES.md must list 0.19 contract/configuration freeze")
     roadmap_summary = (ROOT / "docs/11_DEVELOPMENT/ROADMAP_SUMMARY.md").read_text(
         encoding="utf-8"
     )
     if "Gate A = **0.18.0**" not in roadmap_summary and "0.18.0" not in roadmap_summary:
         raise SystemExit("ROADMAP_SUMMARY.md must state 0.18.0 Gate A scope")
+    if "0.19.0" not in roadmap_summary:
+        raise SystemExit("ROADMAP_SUMMARY.md must mention 0.19.0 freeze")
     if "non-blocking" not in roadmap_summary.lower():
-        raise SystemExit(
-            "ROADMAP_SUMMARY.md must label DataFusion as non-blocking for 0.18.0"
-        )
+        raise SystemExit("ROADMAP_SUMMARY.md must label DataFusion as non-blocking")
     interop = (
         ROOT / "docs/11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md"
     ).read_text(encoding="utf-8")
@@ -907,11 +909,23 @@ def main() -> None:
         next_minor = f"{maj_s}.{int(min_s) + 1}"
     except ValueError:
         next_minor = None
+    experimental_packages = {"etlantic-datafusion"}
     for path in (
         ROOT / "pyproject.toml",
         *(ROOT / "packages").glob("etlantic-*/pyproject.toml"),
     ):
         text = path.read_text(encoding="utf-8")
+        pkg_name = path.parent.name
+        if pkg_name in experimental_packages:
+            if alpha_classifier not in text:
+                raise SystemExit(f"{path} experimental package should use Alpha")
+            if next_minor is not None:
+                expected_alt = f"etlantic>={major_minor}.0,<{next_minor}"
+                if expected_alt not in text:
+                    raise SystemExit(
+                        f"{path} must depend on {expected_alt} (found mismatched core range)"
+                    )
+            continue
         if alpha_classifier in text:
             raise SystemExit(f"{path} still uses Alpha classifier")
         if stable_classifier not in text:

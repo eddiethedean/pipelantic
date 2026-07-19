@@ -72,6 +72,9 @@ def compile_plan(
     Fails closed when the target plugin is missing or cannot preserve required
     semantics.
     """
+    from etlantic.plan.serialize import verify_plan_fingerprint
+
+    verify_plan_fingerprint(plan)
     resolved_profile = resolve_profile(profile) if profile is not None else None
     if context is None:
         if resolved_profile is not None:

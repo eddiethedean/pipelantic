@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is stable in bounded 0.18.0
+## What is stable in bounded 0.19.0
 
 | Area | Ready? |
 |---|---|
@@ -46,7 +46,7 @@ manager.
   `Profile.plugin_allowlist` (production profiles fail closed when empty)
 - Threat model documents residual Gaps (provenance, artifact/cache isolation,
   DoS budgets, outbound constraints, unsafe-serialization prohibition)
-- Report vulnerabilities privately; security fixes are supported on 0.18.x
+- Report vulnerabilities privately; security fixes are supported on 0.19.x
 
 Read [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
 [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md).
@@ -55,7 +55,7 @@ For the bounded reference topology and required controls, read
 
 ## Bounded production support (do not skip)
 
-**ETLantic 0.18.0 is production/stable for documented single-tenant reference
+**ETLantic 0.19.0 is production/stable for documented single-tenant reference
 deployments.** Plugin allowlists being “Available” do not make an arbitrary
 topology safe.
 
@@ -99,7 +99,7 @@ How to read status labels in deeper chapters:
 | Concern | Status in 0.18 |
 |---|---|
 | License | MIT (core and official plugins) |
-| Supported versions / EOL | Current stable line is 0.18.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
+| Supported versions / EOL | Current stable line is 0.19.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
 | Compliance attestations (SOC2, GDPR cert) | Adopter-owned — not provided |
 | Identity / RBAC / SSO | Out of scope — use process and network isolation |
 | HA / DR / RPO / RTO | Adopter-owned topology |
@@ -113,14 +113,14 @@ How to read status labels in deeper chapters:
 Follow this path **after** the green path (Install → Quickstart → First Pipeline
 → Engine selection), or as an enterprise diligence track:
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.19.0`
 2. [Quickstart](QUICKSTART.md) (paste-ready; `examples/` requires a checkout)
 3. [First Pipeline](FIRST_PIPELINE.md)
 4. [Engine selection](ENGINE_SELECTION.md)
 5. [Capabilities](CAPABILITIES.md)
 6. Optional Gate A: checkout
    [`examples/interchange_polars_pandas.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/interchange_polars_pandas.py)
-   with `etlantic-polars` + `etlantic-pandas` at `==0.18.0`
+   with `etlantic-polars` + `etlantic-pandas` at `==0.19.0`
 7. Optional engine examples from a checkout (portable kernels, SQL, PySpark,
    Airflow compile, Prefect)
 8. [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md)

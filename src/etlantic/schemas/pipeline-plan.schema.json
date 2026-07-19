@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://etlantic.dev/schemas/pipeline-plan.json",
   "title": "ETLantic PipelinePlan",
+  "description": "Wire document for PipelinePlan (schema const etlantic.plan/1). Nested defs close unconstrained nests for 0.19 compatibility testing.",
   "type": "object",
   "required": [
     "schema",
@@ -12,6 +13,97 @@
     "fingerprint",
     "logical_graph"
   ],
+  "$defs": {
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "jsonValue": {
+      "type": ["object", "array", "string", "number", "boolean", "null"]
+    },
+    "extensionMetadata": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/jsonValue" },
+      "description": "Prefer etlantic.* or plugin:<name>.* keys; size/depth budgets enforced in code."
+    },
+    "logicalNode": {
+      "type": "object",
+      "required": ["name", "kind"],
+      "properties": {
+        "name": { "type": "string" },
+        "kind": { "type": "string" },
+        "binding": { "type": ["string", "null"] },
+        "asset": { "type": ["string", "null"] },
+        "transformation": { "type": ["string", "null"] },
+        "transformation_name": { "type": ["string", "null"] },
+        "contract": { "type": ["string", "null"] },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "logicalEdge": {
+      "type": "object",
+      "required": ["producer_node", "consumer_node"],
+      "properties": {
+        "producer_node": { "type": "string" },
+        "producer_port": { "type": "string" },
+        "consumer_node": { "type": "string" },
+        "consumer_port": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "logicalGraph": {
+      "type": "object",
+      "required": ["pipeline_id", "pipeline_name", "nodes"],
+      "properties": {
+        "pipeline_id": { "type": "string" },
+        "pipeline_name": { "type": "string" },
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/logicalNode" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/logicalEdge" }
+        },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "capabilityDecision": {
+      "type": "object",
+      "properties": {
+        "capability": { "type": "string" },
+        "status": { "type": "string" },
+        "plugin": { "type": ["string", "null"] },
+        "message": { "type": "string" },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "artifactDescriptor": {
+      "type": "object",
+      "properties": {
+        "kind": { "type": "string" },
+        "uri": { "type": ["string", "null"] },
+        "cache_key": { "type": ["string", "null"] },
+        "requirements": { "type": "object" },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "interchangeEvidence": {
+      "type": "object",
+      "properties": {
+        "schema": { "type": "string" },
+        "mechanism": { "type": "string" },
+        "producer": { "type": "string" },
+        "consumer": { "type": "string" },
+        "fingerprint_inputs": { "type": "object" }
+      },
+      "additionalProperties": true
+    }
+  },
   "properties": {
     "schema": { "const": "etlantic.plan/1" },
     "plan_id": { "type": "string" },
@@ -19,22 +111,44 @@
     "pipeline_name": { "type": "string" },
     "profile_name": { "type": "string" },
     "fingerprint": { "type": "string", "minLength": 16 },
-    "logical_graph": { "type": "object" },
-    "regions": { "type": "array" },
-    "physical_units": { "type": "array" },
+    "logical_graph": { "$ref": "#/$defs/logicalGraph" },
+    "regions": { "type": "array", "items": { "type": "object" } },
+    "physical_units": { "type": "array", "items": { "type": "object" } },
     "logical_to_physical": { "type": "object" },
-    "implementations": { "type": "object" },
-    "bindings": { "type": "object" },
+    "implementations": {
+      "type": "object",
+      "additionalProperties": { "type": "object" }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": { "type": "object" }
+    },
     "resource_refs": { "type": "object" },
-    "materialization_boundaries": { "type": "array" },
-    "output_resolutions": { "type": "array" },
-    "capability_decisions": { "type": "array" },
-    "selected_nodes": { "type": ["array", "null"] },
+    "materialization_boundaries": { "type": "array", "items": { "type": "object" } },
+    "output_resolutions": { "type": "array", "items": { "type": "object" } },
+    "capability_decisions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/capabilityDecision" }
+    },
+    "selected_nodes": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
     "security_domain": { "type": "string" },
-    "contract_versions": { "type": "object" },
-    "plugin_versions": { "type": "object" },
+    "contract_versions": { "$ref": "#/$defs/stringMap" },
+    "plugin_versions": { "$ref": "#/$defs/stringMap" },
     "intents": { "type": "object" },
-    "metadata": { "type": "object" }
+    "profile_snapshot": { "type": "object" },
+    "execution_settings": { "type": "object" },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactDescriptor" }
+    },
+    "interchange": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/interchangeEvidence" }
+    },
+    "metadata": { "$ref": "#/$defs/extensionMetadata" }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

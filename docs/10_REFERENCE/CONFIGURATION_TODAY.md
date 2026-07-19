@@ -1,6 +1,6 @@
-# Configuration in 0.18.0
+# Configuration in 0.19.0
 
-ETLantic 0.18.0 configures execution with a `Profile` object or a JSON profile
+ETLantic 0.19.0 configures execution with a `Profile` object or a JSON profile
 document. It does **not** load `etlantic.toml`.
 
 ## Profile fields
@@ -86,14 +86,14 @@ from `DATABASE_PASSWORD_TOKEN`. Applications may instantiate
 `EnvSecretProvider(prefix="ETLANTIC_SECRET_")` themselves and register it on a
 runtime, but `ETLANTIC_SECRET_*` is not an ambient core convention.
 
-ETLantic 0.18.0 does not auto-read `ETLANTIC_PROFILE`, `ETLANTIC_CONFIG`,
+ETLantic 0.19.0 does not auto-read `ETLANTIC_PROFILE`, `ETLANTIC_CONFIG`,
 `ETLANTIC_PROJECT`, logging overrides, or output-format overrides. Names on
 [Environment Variables](ENVIRONMENT_VARIABLES.md) are proposed unless this
 page lists them as shipped.
 
 ## No `etlantic.toml`
 
-Do not create `etlantic.toml` expecting 0.18.0 to load it. The
+Do not create `etlantic.toml` expecting 0.19.0 to load it. The
 [Configuration Reference](CONFIGURATION.md) describes a future design, not the
 published runtime. Use explicit Python profiles or JSON profile files today.
 

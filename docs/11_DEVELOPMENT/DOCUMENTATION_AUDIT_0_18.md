@@ -1,7 +1,7 @@
-> Status: Maintained audit for ETLantic 0.18.0 documentation adoption cut
+> Status: Maintained audit for ETLantic 0.19.0 documentation adoption cut
 > (updated after published-0.18 public-adoption remediation).
 
-# Critical Documentation Audit — ETLantic 0.18
+# Critical Documentation Audit — ETLantic 0.19
 
 This audit records the documentation condition after the 0.18 adoption
 remediation **and** the published-0.18 hygiene pass. It succeeds
@@ -20,7 +20,7 @@ changes.
   is encoded in Learn nav; PyPI users get paste-ready Quickstart and embedded
   profile JSON instead of dead-end `examples/` paths; Plugin SDK is labeled
   shipped; Gate A `etlantic.interchange.tabular` is in the API reference;
-  status/pins on adopter pages target 0.18.0.
+  status/pins on adopter pages target 0.19.0.
 
 Earlier self-rating of “Good” before the first remediation was **too
 generous** against FastAPI/Pydantic/dbt onboarding craft. Honesty was already
@@ -28,7 +28,7 @@ strong; this pass closed remaining adoption hygiene.
 
 ## Remediated in prior cut
 
-1. `OPTIONAL_PACKAGES.md` pin corrected to `etlantic>=0.18.0,<0.19`
+1. `OPTIONAL_PACKAGES.md` pin corrected to `etlantic>=0.19.0,<0.19`
 2. `PIPELINE.md` / `STEPS.md` / Glossary use Extract/Load authoring vocabulary
 3. `STORAGE_PLUGINS.md` Future stub + new `STORAGE_TODAY.md`
 4. Green path: Install → Quickstart → First Pipeline → **Engine selection**
@@ -52,7 +52,7 @@ strong; this pass closed remaining adoption hygiene.
 2. Embedded production profile JSON in Capabilities CI starter; fixed
    `profiles/prod.example.json` link misdirection
 3. Docs home: Plugin SDK labeled shipped; hero CTA Quickstart | Installation;
-   minimal example includes `plan()` and pins `==0.18.0`
+   minimal example includes `plan()` and pins `==0.19.0`
 4. Learn nav reordered to green path; Guides nested; Design Proposals “do not start here”
 5. Canonical stability sentence in SUPPORT / SECURITY / FAQ / README
 6. One install story (packages primary, extras equivalent); `python -m pip`
@@ -65,7 +65,7 @@ strong; this pass closed remaining adoption hygiene.
 
 ## Remaining debt (not blocking 0.18 docs gate)
 
-- Refresh quantitative performance baselines on current 0.18.x
+- Refresh quantitative performance baselines on current 0.19.x
 - Further demote Design Proposals (search-only / collapsed theme)
 - Versioned docs site per release
 - Thin companion pages for SQL extras / dataframe_parity (README links only today)

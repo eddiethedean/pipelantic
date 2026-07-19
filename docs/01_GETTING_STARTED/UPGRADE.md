@@ -5,9 +5,9 @@ and first-party plugins to the **same minor** after upgrading.
 
 ## Current target
 
-**ETLantic 0.18.0** — start with
-[Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) if you are
-on 0.17.x.
+**ETLantic 0.19.0** — start with
+[Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) if you are
+on 0.18.x.
 
 Regenerate reviewed plans after upgrades that change plan fingerprints or
 interchange descriptors. Review
@@ -17,6 +17,7 @@ interchange descriptors. Review
 
 | From → To | Guide |
 |---|---|
+| 0.18 → 0.19 | [MIGRATION_0_18_TO_0_19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) |
 | 0.17 → 0.18 | [MIGRATION_0_17_TO_0_18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
 | 0.16 → 0.17 | [MIGRATION_0_16_TO_0_17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) |
 | 0.15 → 0.16 | [MIGRATION_0_15_TO_0_16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |
@@ -33,13 +34,22 @@ interchange descriptors. Review
 | `binding=` on extract/load | `asset=` |
 | `DataContractModel` as primary authoring | `Data` |
 
+## 0.19 configuration cheat sheet
+
+| Change | Use instead |
+|---|---|
+| Production detection by name/`security_domain` | `security_mode="production"` |
+| Unknown bare profile names | Fail closed; `--allow-adhoc-profile` |
+| Legacy profile JSON `bindings` only | Prefer `assets`; diagnosed `PMCFG110` |
+| Missing plan/report `schema` | Required; no silent default |
+
 ## Checklist
 
 1. Pin `etlantic==X.Y.Z` and matching `etlantic-*==X.Y.Z` plugins
 2. Read the migration guide for your from→to pair
 3. Run `etlantic validate … --format sarif` in CI
 4. Regenerate and re-review `etlantic plan … --format json`
-5. Confirm production profiles still set a non-empty `plugin_allowlist`
+5. Confirm production profiles set `security_mode="production"` and a non-empty `plugin_allowlist`
 
 ## Related
 

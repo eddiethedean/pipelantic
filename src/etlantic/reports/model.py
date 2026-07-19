@@ -237,7 +237,26 @@ class PipelineRunReport:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PipelineRunReport:
-        """Deserialize a run report from its JSON-friendly dict form."""
+        """Deserialize a run report from its JSON-friendly dict form.
+
+        Requires ``schema`` equal to :data:`REPORT_SCHEMA`. Missing or unknown
+        schemas are rejected (no silent default). Documents are upgraded via
+        :func:`etlantic.reports.upgrade.upgrade_report_dict` first.
+        """
+        from etlantic.reports.upgrade import upgrade_report_dict
+
+        data = upgrade_report_dict(data)
+        schema = data.get("schema")
+        if schema is None or schema == "":
+            raise ValueError(
+                f"PipelineRunReport is missing required 'schema' "
+                f"(expected {REPORT_SCHEMA!r})."
+            )
+        if schema != REPORT_SCHEMA:
+            raise ValueError(
+                f"Unknown PipelineRunReport schema {schema!r}; "
+                f"expected {REPORT_SCHEMA!r}."
+            )
         summary_raw = data.get("summary") or {}
         summary = RunSummary(
             total_steps=int(summary_raw.get("total_steps") or 0),
@@ -401,7 +420,7 @@ class PipelineRunReport:
             lineage=lineage,
             plan_fingerprint=data.get("plan_fingerprint"),
             metadata=dict(data.get("metadata") or {}),
-            schema=str(data.get("schema") or REPORT_SCHEMA),
+            schema=str(schema),
         )
 
     def to_text(self) -> str:

@@ -43,6 +43,7 @@ class SchemaDriftPolicy:
         change_set: SchemaChangeSet | None,
         profile_name: str = "development",
         security_domain: str | None = None,
+        security_mode: str | None = None,
     ) -> DriftAction:
         if change_set is None or not change_set.changes:
             return DriftAction.RECORD
@@ -51,7 +52,9 @@ class SchemaDriftPolicy:
         if (
             self.production_fail_closed
             and is_production_profile(
-                name=profile_name, security_domain=security_domain
+                name=profile_name,
+                security_domain=security_domain,
+                security_mode=security_mode,
             )
             and any(c.impact.value == "breaking" for c in change_set.changes)
         ):
@@ -136,6 +139,7 @@ def evaluate_drift(
     policy: SchemaDriftPolicy,
     profile_name: str,
     security_domain: str | None = None,
+    security_mode: str | None = None,
 ) -> DriftDecision:
     change_set = None
     if previous is not None and current is not None:
@@ -147,6 +151,7 @@ def evaluate_drift(
         change_set=change_set,
         profile_name=profile_name,
         security_domain=security_domain,
+        security_mode=security_mode,
     )
     return DriftDecision(
         subject_id=subject_id,

@@ -45,6 +45,16 @@ def plan_to_json(plan: PipelinePlan, *, indent: int | None = 2) -> str:
     return json.dumps(data, indent=indent, sort_keys=True) + "\n"
 
 
+def verify_plan_fingerprint(plan: PipelinePlan) -> None:
+    """Recompute the plan fingerprint and raise ``ValueError`` on mismatch."""
+    expected = plan_fingerprint(plan)
+    if plan.fingerprint != expected:
+        raise ValueError(
+            f"PipelinePlan fingerprint mismatch: "
+            f"embedded={plan.fingerprint!r} computed={expected!r}"
+        )
+
+
 def plan_from_json(text: str, *, verify: bool = True) -> PipelinePlan:
     """Deserialize a plan from JSON text.
 
@@ -54,14 +64,9 @@ def plan_from_json(text: str, *, verify: bool = True) -> PipelinePlan:
     data = json.loads(text)
     if not isinstance(data, dict):
         raise ValueError("PipelinePlan JSON must be an object")
-    plan = PipelinePlan.from_dict(data)
+    plan = PipelinePlan.from_dict(data, verify=verify)
     if verify:
-        expected = plan_fingerprint(plan)
-        if plan.fingerprint != expected:
-            raise ValueError(
-                f"PipelinePlan fingerprint mismatch: "
-                f"embedded={plan.fingerprint!r} computed={expected!r}"
-            )
+        verify_plan_fingerprint(plan)
     return plan
 
 

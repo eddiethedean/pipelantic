@@ -1,20 +1,20 @@
-# ETLantic 0.18 User Guide
+# ETLantic 0.19 User Guide
 
-This is the current manual for published ETLantic **0.18.0**. Core onboarding
-paths below are available in 0.18; linked reference and design pages may also
+This is the current manual for published ETLantic **0.19.0**. Core onboarding
+paths below are available in 0.19; linked reference and design pages may also
 describe Experimental, partial, or future work and retain their own status
-labels. ETLantic 0.18.0 is **stable** only within the documented
+labels. ETLantic 0.19.0 is **stable** only within the documented
 single-tenant reference deployment boundary.
 
 ## Start here
 
-1. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.18.0`
+1. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.19.0`
 2. [Run the five-minute quickstart](QUICKSTART.md)
 3. [Build your first pipeline](FIRST_PIPELINE.md)
 4. [Choose an engine](ENGINE_SELECTION.md)
 
 After first success: [Capabilities](CAPABILITIES.md),
-[What's new in 0.18](WHATS_NEW_0_18.md), [Compare](COMPARE.md), or
+[What's new in 0.19](WHATS_NEW_0_19.md), [Compare](COMPARE.md), or
 [Upgrade](UPGRADE.md).
 
 ## Choose your next task
@@ -33,6 +33,7 @@ After first success: [Capabilities](CAPABILITIES.md),
 | Run Pandas portable (no native impl) | `examples/portable_pandas_kernel.py` |
 | Run SQL portable (kernel + relational `/1`) | `etlantic-sql` + public conformance suite |
 | Controlled pilot | [Pilot walkthrough](../06_EXECUTION/PILOT_WALKTHROUGH.md) |
+| Upgrade from 0.18 | [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) |
 | Upgrade from 0.17 | [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
 | Upgrade from 0.16 | [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) |
 | Upgrade from 0.15 | [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |

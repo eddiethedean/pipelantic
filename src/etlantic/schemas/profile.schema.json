@@ -3,7 +3,7 @@
   "$id": "https://etlantic.dev/schemas/profile.json",
   "title": "ETLantic Profile",
   "type": "object",
-  "required": ["name"],
+  "required": ["name", "security_mode"],
   "properties": {
     "name": { "type": "string", "minLength": 1 },
     "orchestrator": { "type": "string" },
@@ -21,8 +21,16 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "required_orchestrator_capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "assets": { "type": "object", "additionalProperties": { "type": "string" } },
-    "bindings": { "type": "object", "additionalProperties": { "type": "string" } },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Deprecated. Prefer assets=. Diagnosed on load (PMCFG110)."
+    },
     "implementation_overrides": {
       "type": "object",
       "additionalProperties": { "type": "string" }
@@ -36,12 +44,24 @@
       "additionalProperties": { "type": "string" }
     },
     "secrets": { "type": "object" },
+    "plugin_allowlist": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "null"] }
+    },
     "security_domain": { "type": "string" },
+    "security_mode": {
+      "type": "string",
+      "enum": ["development", "test", "production"],
+      "description": "Explicit security posture for trust and drift fail-closed behavior."
+    },
     "validation_policy": { "type": "string" },
+    "portable_transform_policy": { "type": "string" },
     "concurrency": { "type": ["integer", "null"] },
     "timeout_seconds": { "type": ["number", "null"] },
     "retry_max_attempts": { "type": ["integer", "null"] },
+    "schedule": { "type": "object" },
+    "execution": { "type": "object" },
     "metadata": { "type": "object" }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -9,10 +9,10 @@
   "name": "prod-example",
   "orchestrator": "local",
   "plugin_allowlist": {
-    "etlantic-pandas": "==0.18.0",
-    "etlantic-polars": "==0.18.0",
-    "etlantic-pyspark": "==0.18.0",
-    "etlantic-sql": "==0.18.0",
+    "etlantic-pandas": "==0.19.0",
+    "etlantic-polars": "==0.19.0",
+    "etlantic-pyspark": "==0.19.0",
+    "etlantic-sql": "==0.19.0",
     "local": null
   },
   "portable_transform_policy": "require",
@@ -30,5 +30,6 @@
   "spark_udf_policy": "warn",
   "sql_engine": null,
   "timeout_seconds": null,
-  "validation_policy": "strict"
+  "validation_policy": "strict",
+  "security_mode": "production"
 }

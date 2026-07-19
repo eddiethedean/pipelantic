@@ -137,7 +137,10 @@ def test_unsafe_retries_fail_compilation(planned):
         "retry_safety": {"curated": {"subject_id": "curated", "safe": False}},
     }
     from etlantic.plan.model import PipelinePlan
+    from etlantic.plan.serialize import plan_fingerprint
 
+    tmp = PipelinePlan.from_dict(data, verify=False)
+    data["fingerprint"] = plan_fingerprint(tmp)
     unsafe = PipelinePlan.from_dict(data)
     profile = Profile(
         name="unsafe",

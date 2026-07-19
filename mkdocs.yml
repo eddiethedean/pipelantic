@@ -110,7 +110,7 @@ nav:
       - Quickstart: 01_GETTING_STARTED/QUICKSTART.md
       - First Pipeline: 01_GETTING_STARTED/FIRST_PIPELINE.md
       - Engine selection: 01_GETTING_STARTED/ENGINE_SELECTION.md
-      - Current 0.18 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
+      - Current 0.19 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
       - FAQ: 01_GETTING_STARTED/FAQ.md
       - Troubleshooting: 01_GETTING_STARTED/TROUBLESHOOTING.md
       - Guides:
@@ -128,6 +128,7 @@ nav:
       - Production readiness: 06_EXECUTION/PRODUCTION_READINESS.md
       - Security: 02_FOUNDATIONS/SECURITY.md
   - Release notes:
+      - What's new in 0.19: 01_GETTING_STARTED/WHATS_NEW_0_19.md
       - What's new in 0.18: 01_GETTING_STARTED/WHATS_NEW_0_18.md
       - What's new in 0.17: 01_GETTING_STARTED/WHATS_NEW_0_17.md
       - What's new in 0.16: 01_GETTING_STARTED/WHATS_NEW_0_16.md
@@ -256,9 +257,10 @@ nav:
       - Overview: 10_REFERENCE/README.md
       - CLI: 10_REFERENCE/CLI.md
       - Compatibility: 10_REFERENCE/COMPATIBILITY.md
-      - Configuration in 0.18.0: 10_REFERENCE/CONFIGURATION_TODAY.md
+      - Configuration in 0.19.0: 10_REFERENCE/CONFIGURATION_TODAY.md
       - Portable Compiler Matrix: 10_REFERENCE/PORTABLE_COMPILER_MATRIX.md
       - Optional Packages: 10_REFERENCE/OPTIONAL_PACKAGES.md
+      - Surface inventory: 10_REFERENCE/SURFACE_INVENTORY.md
       - Known Limitations: 10_REFERENCE/KNOWN_ISSUES.md
       - Runtime configuration: 10_REFERENCE/RUNTIME_CONFIGURATION.md
       - Diagnostics: 10_REFERENCE/DIAGNOSTICS.md
@@ -269,7 +271,9 @@ nav:
       - API — Protocols: 10_REFERENCE/API_PROTOCOLS.md
   - Project:
       - Overview: 11_DEVELOPMENT/README.md
+      - ContractModel upgrade plan: 11_DEVELOPMENT/CONTRACTMODEL_UPGRADE_PLAN.md
       - Upgrade hub: 01_GETTING_STARTED/UPGRADE.md
+      - Migration 0.18 → 0.19: 11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md
       - Migration 0.17 → 0.18: 11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md
       - Migration 0.16 → 0.17: 11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md
       - Documentation audit 0.18: 11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_18.md

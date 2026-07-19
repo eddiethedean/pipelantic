@@ -100,7 +100,7 @@ ODCS / DTCS / DPCS loading, diffs, and bundle helpers:
 
 ## Gate A tabular interchange (`etlantic.interchange/1`)
 
-> **Available in ETLantic 0.18.0.** Versioned, capability-driven tabular
+> **Available in ETLantic 0.19.0.** Versioned, capability-driven tabular
 > interchange for **Polars ↔ Pandas** boundaries. PySpark/SQL Gate A pairs are
 > not in scope yet. Legacy Arrow-assisted helpers (when PyArrow is installed)
 > are **not** the Gate A contract.

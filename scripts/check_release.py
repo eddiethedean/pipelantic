@@ -21,6 +21,8 @@ PACKAGES = (
     "etlantic-sqlmodel",
     "etlantic-sparkforge",
 )
+# Experimental packages may use Alpha classifiers and are optional in release CI.
+EXPERIMENTAL_PACKAGES = ("etlantic-datafusion",)
 
 
 def version_from(path: Path, pattern: str) -> str:
@@ -92,6 +94,23 @@ def main() -> int:
         expected_dep = f"etlantic>={major_minor}.0,<{next_minor}"
         if expected_dep not in text:
             errors.append(f"{pkg} missing core dependency {expected_dep}")
+
+    for pkg in EXPERIMENTAL_PACKAGES:
+        path = ROOT / "packages" / pkg / "pyproject.toml"
+        if not path.exists():
+            errors.append(f"experimental package missing: {pkg}")
+            continue
+        pkg_version = version_from(path, r'(?m)^version = "([^"]+)"')
+        if pkg_version != version:
+            errors.append(f"{pkg} version {pkg_version} != {version}")
+        text = path.read_text(encoding="utf-8")
+        major_minor = ".".join(version.split(".")[:2])
+        next_minor = f"{major_minor.split('.')[0]}.{int(major_minor.split('.')[1]) + 1}"
+        expected_dep = f"etlantic>={major_minor}.0,<{next_minor}"
+        if expected_dep not in text:
+            errors.append(f"{pkg} missing core dependency {expected_dep}")
+        if "Development Status :: 3 - Alpha" not in text:
+            errors.append(f"{pkg} experimental package should use Alpha classifier")
 
     root_pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     if "Development Status :: 3 - Alpha" in root_pyproject:

@@ -88,11 +88,16 @@ def register_commands(
         orch_target: str = typer.Option("airflow", "--target", "-t"),
         output: str = typer.Option("dags", "--output", "-o"),
         profile: str = typer.Option("local", "--profile", "-p"),
+        allow_adhoc_profile: bool = typer.Option(
+            False,
+            "--allow-adhoc-profile",
+            help="Allow unknown bare profile names (fail-closed by default).",
+        ),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
         """Compile a planned pipeline to an external orchestrator artifact."""
         pipeline_cls = load_target(target)
-        resolved = resolve_profile(profile)
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         context = PlanningContext.create(profile=resolved, registry=runtime.registry)
         plan, report = plan_pipeline_with_report(pipeline_cls, context=context)
         if plan is None:
@@ -255,6 +260,11 @@ def register_commands(
     @plugin_app.command("list")
     def plugin_list_cmd(
         profile: str = typer.Option("local", "--profile", "-p"),
+        allow_adhoc_profile: bool = typer.Option(
+            False,
+            "--allow-adhoc-profile",
+            help="Allow unknown bare profile names (fail-closed by default).",
+        ),
         fmt: str = typer.Option("json", "--format"),
         kind: str = typer.Option(
             "all",
@@ -273,7 +283,7 @@ def register_commands(
         from etlantic.sql.discovery import discover_sql_plugins
         from etlantic.transform.discovery import discover_transform_compilers
 
-        resolved = resolve_profile(profile)
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         groups: dict[str, dict[str, Any]] = {}
         if kind in {"all", "dataframe"}:
             groups["dataframe"] = discover_dataframe_plugins()
@@ -331,6 +341,11 @@ def register_commands(
         engine: str = typer.Argument(..., help="Plugin engine name"),
         kind: str = typer.Option("dataframe", "--kind"),
         profile: str = typer.Option("local", "--profile", "-p"),
+        allow_adhoc_profile: bool = typer.Option(
+            False,
+            "--allow-adhoc-profile",
+            help="Allow unknown bare profile names (fail-closed by default).",
+        ),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
         """Show details for one discovered plugin."""
@@ -376,7 +391,7 @@ def register_commands(
             )
             raise typer.Exit(1)
 
-        resolved = resolve_profile(profile)
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         kept, diags = filter_plugins_by_allowlist(plugins, resolved)
         if any(d.severity.value == "error" for d in diags) and engine not in kept:
             emit_payload(
@@ -669,9 +684,14 @@ def register_commands(
         left_target: str = typer.Argument(...),
         right_target: str = typer.Argument(...),
         profile: str = typer.Option("local", "--profile", "-p"),
+        allow_adhoc_profile: bool = typer.Option(
+            False,
+            "--allow-adhoc-profile",
+            help="Allow unknown bare profile names (fail-closed by default).",
+        ),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
-        resolved = resolve_profile(profile)
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         context = PlanningContext.create(profile=resolved, registry=runtime.registry)
         left_plan, left_report = plan_pipeline_with_report(
             load_target(left_target), context=context

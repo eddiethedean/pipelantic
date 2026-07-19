@@ -1,19 +1,33 @@
 # API Stability and Deprecation Policy
 
-ETLantic 0.18.0 is production/stable for documented single-tenant reference
-deployments, while remaining pre-1.0. Breaking changes remain possible, but
-they must not be silent.
+ETLantic 0.19.0 is stable for documented single-tenant reference deployments,
+while remaining pre-1.0. Breaking changes remain possible, but they must not
+be silent. See [Surface Inventory](../10_REFERENCE/SURFACE_INVENTORY.md).
 
 ## Stability levels
 
 | Surface | Current promise |
 |---|---|
-| Documented 0.17 public imports | Supported for the 0.17.x line |
+| Documented 0.19 public imports | Supported for the 0.19.x line |
 | Versioned plugin protocols | Compatible within their documented protocol version |
-| Pipeline Plan schema | Governed by its schema version |
+| Pipeline Plan schema | Governed by its schema version (`etlantic.plan/1`) |
 | Experimental APIs | May change in any 0.x release |
 | Design proposals | No compatibility promise |
 | Private underscore modules | No compatibility promise |
+
+## Pre-1.0 deprecation schedule (0.19 freeze)
+
+| Surface | Status | Target |
+|---|---|---|
+| `DataContractModel` alias | provisional | remove or hard-error by 1.0 |
+| Silent legacy profile `bindings` load | diagnosed (`PMCFG110`) | require `accept_legacy_bindings` or remove by 0.21 |
+| Name/`security_domain` production heuristics | removed in 0.19 (`security_mode` only) | n/a |
+| Missing wire `schema` defaults | removed in 0.19 | n/a |
+| Ad hoc bare profile names | fail-closed; opt-in flag | keep flag through 1.0 |
+| Structured Streaming | experimental | graduate or remain experimental at 1.0 |
+| `etlantic-datafusion` | experimental | graduate only with measured advantage |
+| Open plan metadata bare keys | warned (extension namespaces) | strict namespaces by 0.21 |
+| Prefect scheduler MVP | provisional | expand or freeze protocol by 1.0 |
 
 ## Breaking-change requirements
 
@@ -38,7 +52,11 @@ documented security exception applies.
 | `Profile(bindings=...)` / mirrored public JSON `bindings` | `Profile(assets=...)` |
 | `RunRequest.binding_overrides` | `asset_overrides` |
 
-Wire names intentionally **kept**: plan/graph `binding`,
-`NodeKind` `"source"`/`"sink"`, DPCS `etlantic:binding`, plugin
-`*_from_binding`, and port-wiring `Step.bindings`. See
-[Migration 0.15 → 0.16](MIGRATION_0_15_TO_0_16.md).
+## Changed in 0.19 (configuration freeze)
+
+| Change | Replacement / behavior |
+|---|---|
+| Production detection by name/domain | `Profile.security_mode == "production"` |
+| Unknown bare profile names | Fail closed; `--allow-adhoc-profile` |
+| Missing plan/report `schema` | Reject; no silent default |
+| Nested plan mutation | Deep-frozen; fingerprint verify at trust boundaries |

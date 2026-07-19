@@ -16,23 +16,19 @@ def is_production_profile(
     *,
     name: str | None = None,
     security_domain: str | None = None,
+    security_mode: str | None = None,
 ) -> bool:
-    """Return True for production-like profiles (fail-closed trust/drift).
+    """Return True when fail-closed production trust/drift applies.
 
-    Matches when the profile name is ``production``, ``prod``, or ``staging``
-    (case-insensitive), or when ``security_domain`` is ``production`` / ``prod``.
+    ETLantic 0.19 uses explicit ``Profile.security_mode == "production"`` only.
+    ``name`` / ``security_domain`` remain labels for compatibility and are not
+    used for this decision.
     """
-    resolved_name = (
-        name if name is not None else (profile.name if profile else "")
-    ).lower()
-    if resolved_name in {"production", "prod", "staging"}:
-        return True
-    domain = (
-        security_domain
-        if security_domain is not None
-        else (profile.security_domain if profile is not None else "")
-    )
-    return (domain or "").lower() in {"production", "prod"}
+    del name, security_domain
+    mode = security_mode
+    if mode is None and profile is not None:
+        mode = getattr(profile, "security_mode", None)
+    return str(mode or "").strip().lower() == "production"
 
 
 def _is_production_profile(profile: Profile) -> bool:

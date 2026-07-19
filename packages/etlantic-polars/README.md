@@ -4,9 +4,9 @@ Polars dataframe plugin **and** Polars portable transform compiler for
 [ETLantic](https://github.com/eddiethedean/etlantic) 0.18.
 
 ```bash
-pip install 'etlantic==0.18.0' 'etlantic-polars==0.18.0'
+pip install 'etlantic==0.19.0' 'etlantic-polars==0.19.0'
 # optional Arrow interchange
-pip install 'etlantic-polars[arrow]==0.18.0'
+pip install 'etlantic-polars[arrow]==0.19.0'
 ```
 
 ## Dataframe plugin

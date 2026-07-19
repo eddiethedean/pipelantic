@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "etlantic",
     "etlantic-airflow",
+    "etlantic-datafusion",
     "etlantic-keyring",
     "etlantic-pandas",
     "etlantic-polars",
@@ -667,7 +668,7 @@ wheels = [
 
 [[package]]
 name = "etlantic"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -690,6 +691,9 @@ arrow = [
 dataframes = [
     { name = "etlantic-pandas" },
     { name = "etlantic-polars" },
+]
+datafusion = [
+    { name = "etlantic-datafusion" },
 ]
 keyring = [
     { name = "etlantic-keyring" },
@@ -785,6 +789,7 @@ requires-dist = [
     { name = "dpcs", specifier = ">=0.13,<1" },
     { name = "dtcs", specifier = ">=0.13,<1" },
     { name = "etlantic-airflow", marker = "extra == 'airflow'", editable = "packages/etlantic-airflow" },
+    { name = "etlantic-datafusion", marker = "extra == 'datafusion'", editable = "packages/etlantic-datafusion" },
     { name = "etlantic-keyring", marker = "extra == 'keyring'", editable = "packages/etlantic-keyring" },
     { name = "etlantic-pandas", marker = "extra == 'dataframes'", editable = "packages/etlantic-pandas" },
     { name = "etlantic-pandas", marker = "extra == 'pandas'", editable = "packages/etlantic-pandas" },
@@ -804,7 +809,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12,<3" },
     { name = "typer", specifier = ">=0.15,<1" },
 ]
-provides-extras = ["polars", "pandas", "sql", "postgresql", "pyspark", "spark", "airflow", "prefect", "keyring", "sqlmodel", "sparkforge", "otel", "observability", "arrow", "dataframes"]
+provides-extras = ["polars", "pandas", "sql", "postgresql", "pyspark", "spark", "airflow", "prefect", "keyring", "sqlmodel", "sparkforge", "datafusion", "otel", "observability", "arrow", "dataframes"]
 
 [package.metadata.requires-dev]
 airflow = [{ name = "etlantic-airflow", editable = "packages/etlantic-airflow" }]
@@ -843,7 +848,7 @@ sqlmodel = [{ name = "etlantic-sqlmodel", editable = "packages/etlantic-sqlmodel
 
 [[package]]
 name = "etlantic-airflow"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-airflow" }
 dependencies = [
     { name = "etlantic" },
@@ -853,8 +858,19 @@ dependencies = [
 requires-dist = [{ name = "etlantic", editable = "." }]
 
 [[package]]
+name = "etlantic-datafusion"
+version = "0.19.0"
+source = { editable = "packages/etlantic-datafusion" }
+dependencies = [
+    { name = "etlantic" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "etlantic", editable = "." }]
+
+[[package]]
 name = "etlantic-keyring"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-keyring" }
 dependencies = [
     { name = "etlantic" },
@@ -869,7 +885,7 @@ requires-dist = [
 
 [[package]]
 name = "etlantic-pandas"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-pandas" }
 dependencies = [
     { name = "etlantic" },
@@ -891,7 +907,7 @@ provides-extras = ["arrow"]
 
 [[package]]
 name = "etlantic-polars"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-polars" }
 dependencies = [
     { name = "etlantic" },
@@ -913,7 +929,7 @@ provides-extras = ["arrow"]
 
 [[package]]
 name = "etlantic-prefect"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-prefect" }
 dependencies = [
     { name = "etlantic" },
@@ -928,7 +944,7 @@ requires-dist = [
 
 [[package]]
 name = "etlantic-pyspark"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-pyspark" }
 dependencies = [
     { name = "etlantic" },
@@ -950,7 +966,7 @@ provides-extras = ["delta"]
 
 [[package]]
 name = "etlantic-sparkforge"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-sparkforge" }
 dependencies = [
     { name = "etlantic" },
@@ -961,7 +977,7 @@ requires-dist = [{ name = "etlantic", editable = "." }]
 
 [[package]]
 name = "etlantic-sql"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-sql" }
 dependencies = [
     { name = "etlantic" },
@@ -979,7 +995,7 @@ provides-extras = ["sqlite"]
 
 [[package]]
 name = "etlantic-sqlmodel"
-version = "0.18.0"
+version = "0.19.0"
 source = { editable = "packages/etlantic-sqlmodel" }
 dependencies = [
     { name = "etlantic" },

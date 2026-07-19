@@ -1,8 +1,8 @@
 # 0.18 Versioned Tabular Interchange Plan (Gate A)
 
-> **Status: Gate A shipped in 0.18.0.** Versioned tabular interchange is
+> **Status: Gate A shipped in 0.19.0.** Versioned tabular interchange is
 > available for the Polars↔Pandas conformance pair. Gate B (DataFusion) remains
-> planned for 0.19+ and did not ship in 0.18.0. The older Arrow helper remains
+> planned for 0.19+ and did not ship in 0.19.0. The older Arrow helper remains
 > a legacy **best-effort conversion** path.
 
 This plan records the shipped 0.18 Gate A scope, contracts, milestones, and
@@ -12,16 +12,16 @@ the still-planned Gate B policy.
 
 | Decision | Lock |
 |---|---|
-| **0.18.0 ships Gate A only** | Versioned tabular interchange. DataFusion does **not** block 0.18.0 |
+| **0.19.0 ships Gate A only** | Versioned tabular interchange. DataFusion does **not** block 0.19.0 |
 | **DataFusion** | Non-blocking **Gate B / 0.19+** experiment with graduation criteria written before scaffolding |
 | **0.18 conformance pair** | Polars + Pandas only. PySpark/SQL Arrow boundaries are explicit follow-ups |
 | **Engine registry** | Capability/registry generalization is a **Gate A prerequisite (A0)**, not deferred into DataFusion |
 | **Parquet** | Durable **artifact** strategy, not conflated with in-process Arrow C / IPC transport |
 | **Semantic authority** | Pydantic / ContractModel and ODCS / DTCS / DPCS remain the contract layer; Arrow is physical interchange only |
 | **Core deps** | Installing `etlantic` alone must not install or import PyArrow or DataFusion |
-| **0.17 continuation** | Gate A may proceed in parallel with unfinished portable continuation families; **0.18.0 exit does not depend on them** |
+| **0.17 continuation** | Gate A may proceed in parallel with unfinished portable continuation families; **0.19.0 exit does not depend on them** |
 
-## Non-goals for 0.18.0
+## Non-goals for 0.19.0
 
 - DataFusion package scaffolding, recommendation, or graduation
 - PySpark or SQL Arrow physical boundaries
@@ -43,7 +43,7 @@ See [Capabilities](../01_GETTING_STARTED/CAPABILITIES.md).
 
 ---
 
-## Gate A — Versioned tabular interchange (0.18.0)
+## Gate A — Versioned tabular interchange (0.19.0)
 
 ### Architectural boundary
 
@@ -169,11 +169,11 @@ Core unit/import tests **must pass without PyArrow installed**.
 - Plans and reports contain mechanism decisions and fingerprints only—never
   live Arrow handles, Arrow IPC payloads, or source rows.
 
-### Conformance scope (0.18.0)
+### Conformance scope (0.19.0)
 
 **In scope:** Polars ↔ Pandas cross-plugin boundaries using Gate A.
 
-**Out of scope for 0.18.0 (tracked follow-ups):** PySpark Arrow boundaries,
+**Out of scope for 0.19.0 (tracked follow-ups):** PySpark Arrow boundaries,
 SQL driver/Arrow paths, DataFusion.
 
 ---
@@ -187,7 +187,7 @@ SQL driver/Arrow paths, DataFusion.
 | **A2** Selection | Truth table implemented in planner/runtime | Unsupported/lossy cases emit diagnostics **before mutation**; fallback reasons recorded |
 | **A3** Fidelity / evidence | Fidelity corpus + bounds | Zero-copy only when planned eligibility and observed evidence agree; no silent swallow |
 | **A4** Conformance | Polars↔Pandas Arrow suite | Non-Arrow fallback remains; core tests pass without PyArrow |
-| **0.18.0** | A0–A4 complete | CAPABILITIES, COMPATIBILITY, What’s New, and Migration describe the formal boundary (not best-effort conversion) |
+| **0.19.0** | A0–A4 complete | CAPABILITIES, COMPATIBILITY, What’s New, and Migration describe the formal boundary (not best-effort conversion) |
 
 ```mermaid
 flowchart TD
@@ -195,7 +195,7 @@ flowchart TD
   A1 --> A2[A2 MechanismSelection]
   A2 --> A3[A3 FidelityAndEvidence]
   A3 --> A4[A4 PolarsPandasConformance]
-  A4 --> R180[v0.18.0 Exit]
+  A4 --> R180[v0.19.0 Exit]
   R180 --> B[GateB DataFusionExperiment]
 ```
 
@@ -203,7 +203,7 @@ flowchart TD
 
 ## Gate B — Experimental DataFusion (non-blocking; 0.19+)
 
-Gate B **begins only after Gate A / 0.18.0**. It does not block 0.18.0 and does
+Gate B **begins only after Gate A / 0.19.0**. It does not block 0.19.0 and does
 not replace Polars as the reference dataframe backend or `LocalScheduler` as
 the coordinator.
 

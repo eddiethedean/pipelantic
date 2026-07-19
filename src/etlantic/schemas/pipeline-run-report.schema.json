@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://etlantic.dev/schemas/pipeline-run-report.json",
   "title": "ETLantic PipelineRunReport",
+  "description": "Wire document for PipelineRunReport (schema const etlantic.run_report/1).",
   "type": "object",
   "required": [
     "schema",
@@ -13,6 +14,50 @@
     "status",
     "started_at"
   ],
+  "$defs": {
+    "jsonValue": {
+      "type": ["object", "array", "string", "number", "boolean", "null"]
+    },
+    "extensionMetadata": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/jsonValue" }
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "severity": { "type": "string" },
+        "message": { "type": "string" },
+        "path": { "type": "array", "items": { "type": "string" } },
+        "phase": { "type": ["string", "null"] },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "stepReport": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "status": { "type": "string" },
+        "started_at": { "type": ["string", "null"] },
+        "ended_at": { "type": ["string", "null"] },
+        "duration_seconds": { "type": ["number", "null"] },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    },
+    "artifactReport": {
+      "type": "object",
+      "properties": {
+        "kind": { "type": "string" },
+        "uri": { "type": ["string", "null"] },
+        "cache_key": { "type": ["string", "null"] },
+        "metadata": { "$ref": "#/$defs/extensionMetadata" }
+      },
+      "additionalProperties": true
+    }
+  },
   "properties": {
     "schema": { "const": "etlantic.run_report/1" },
     "pipeline_id": { "type": "string" },
@@ -26,15 +71,21 @@
     "ended_at": { "type": ["string", "null"] },
     "duration_seconds": { "type": ["number", "null"] },
     "summary": { "type": "object" },
-    "steps": { "type": "array" },
-    "artifacts": { "type": "array" },
-    "validations": { "type": "array" },
-    "state_transitions": { "type": "array" },
-    "diagnostics": { "type": "array" },
-    "recommendations": { "type": "array" },
-    "backend_runs": { "type": "array" },
-    "schema_observations": { "type": "array" },
-    "metadata": { "type": "object" }
+    "steps": { "type": "array", "items": { "$ref": "#/$defs/stepReport" } },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactReport" }
+    },
+    "validations": { "type": "array", "items": { "type": "object" } },
+    "state_transitions": { "type": "array", "items": { "type": "object" } },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagnostic" }
+    },
+    "recommendations": { "type": "array", "items": { "type": "object" } },
+    "backend_runs": { "type": "array", "items": { "type": "object" } },
+    "schema_observations": { "type": "array", "items": { "type": "object" } },
+    "metadata": { "$ref": "#/$defs/extensionMetadata" }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -1747,6 +1747,8 @@ core compatibility obligation.
 
 ## 0.19 — Contract and Configuration Freeze
 
+**Status: Shipped in ETLantic 0.19.0.**
+
 **Objective:** turn the shipped logical model and plan boundary into a precise,
 deeply immutable, versioned contract before adding further stable surface area.
 The experimental DataFusion Gate B may proceed in parallel, but it cannot

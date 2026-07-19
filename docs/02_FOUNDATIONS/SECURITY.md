@@ -5,7 +5,7 @@ artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
 This chapter covers **implemented 0.18 controls** and the broader
-**proposed threat model**. ETLantic 0.18.0 is production/stable for documented
+**proposed threat model**. ETLantic 0.19.0 is production/stable for documented
 single-tenant reference deployments. It does not provide unrestricted
 multi-tenant, compliance, deployment-topology, SBOM/signing, or advanced
 supply-chain guarantees; those controls remain adopter-owned.
@@ -261,8 +261,8 @@ production = Profile(
     dataframe_engine="polars",
     portable_transform_policy="require",
     plugin_allowlist={
-        "etlantic-polars": "==0.18.0",
-        "etlantic-airflow": "==0.18.0",
+        "etlantic-polars": "==0.19.0",
+        "etlantic-airflow": "==0.19.0",
     },
 )
 ```
@@ -671,8 +671,8 @@ production = Profile(
     name="production",
     security_domain="production",
     plugin_allowlist={
-        "etlantic-polars": "==0.18.0",
-        "etlantic-sql": "==0.18.0",
+        "etlantic-polars": "==0.19.0",
+        "etlantic-sql": "==0.19.0",
     },
 )
 ```

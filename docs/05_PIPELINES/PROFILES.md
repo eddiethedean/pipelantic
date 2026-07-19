@@ -44,7 +44,8 @@ A profile may define:
 - Execution engine
 - Orchestrator
 - Dataframe backend
-- Resource / logical asset maps (`assets`, preferred over legacy `bindings`)
+- Resource / logical asset maps (`assets`; legacy `bindings` is diagnosed on load)
+- Explicit `security_mode` (`development` | `test` | `production`) for trust policy
 - Extract asset resolution
 - Load asset resolution
 - Secret providers
@@ -75,6 +76,7 @@ from etlantic import Profile
 
 production = Profile(
     name="production",
+    security_mode="production",
     security_domain="production",
     dataframe_engine="polars",
     plugin_allowlist={
@@ -104,9 +106,10 @@ Planning uses the selected profile when generating a Pipeline Plan.
 ## Logical assets
 
 Profiles resolve logical asset names into physical resources. Prefer
-`Profile(assets=...)` is required in 0.16; `bindings=` authoring was removed.
-Public profile JSON may emit both `assets` and mirrored `bindings`; plan
-`profile_snapshot` keeps the fingerprint-stable bindings-only shape.
+`Profile(assets=...)` is required for new authoring; `bindings=` authoring was
+removed. Public profile JSON emits `assets` only. Loading legacy JSON that
+only has `bindings` emits `PMCFG110`. Plan `profile_snapshot` may still keep
+a fingerprint-stable bindings-shaped map for `etlantic.plan/1` continuity.
 
 Pipeline:
 

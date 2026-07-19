@@ -154,7 +154,10 @@ def test_retry_safety_rejects_unsafe_sink() -> None:
     data = plan.to_dict()
     data["intents"] = plan_intents
     from etlantic.plan.model import PipelinePlan
+    from etlantic.plan.serialize import plan_fingerprint
 
+    tmp = PipelinePlan.from_dict(data, verify=False)
+    data["fingerprint"] = plan_fingerprint(tmp)
     unsafe_plan = PipelinePlan.from_dict(data)
     retries, policy, diags = resolve_task_retry(
         node_name="curated",

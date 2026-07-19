@@ -58,7 +58,11 @@ def test_production_allowlist_fail_closed() -> None:
 
 
 def test_empty_production_allowlist_rejects_all() -> None:
-    profile = Profile(name="production", security_domain="production")
+    profile = Profile(
+        name="production",
+        security_domain="production",
+        security_mode="production",
+    )
     kept, diags = filter_plugins_by_allowlist({"x": object()}, profile)
     assert kept == {}
     assert any(d.code == "PMPLUG401" for d in diags)
@@ -77,19 +81,24 @@ def test_bare_version_pin_accepted() -> None:
     )
 
 
-def test_is_production_profile_matches_aliases() -> None:
+def test_is_production_profile_uses_security_mode() -> None:
     from etlantic.plugin_trust import is_production_profile
 
-    assert is_production_profile(Profile(name="production"))
-    assert is_production_profile(Profile(name="Prod"))
-    assert is_production_profile(Profile(name="staging"))
-    assert is_production_profile(Profile(name="app", security_domain="production"))
-    assert is_production_profile(name="prod", security_domain="default")
+    assert is_production_profile(Profile(name="custom", security_mode="production"))
+    assert is_production_profile(security_mode="production")
+    # Names / domains alone no longer drive fail-closed policy.
+    assert not is_production_profile(Profile(name="production"))
+    assert not is_production_profile(Profile(name="Prod"))
+    assert not is_production_profile(Profile(name="staging"))
+    assert not is_production_profile(Profile(name="app", security_domain="production"))
+    assert not is_production_profile(name="prod", security_domain="default")
     assert not is_production_profile(Profile(name="development"))
-    assert not is_production_profile(name="local", security_domain="default")
+    assert is_production_profile(
+        Profile(name="development", security_mode="production")
+    )
 
 
-def test_schema_drift_blocks_production_aliases() -> None:
+def test_schema_drift_blocks_production_security_mode() -> None:
     from etlantic.schema_policy import DriftAction, SchemaDriftPolicy
 
     left = NormalizedSchema(
@@ -106,7 +115,8 @@ def test_schema_drift_blocks_production_aliases() -> None:
         policy.decide(
             subject_id="orders",
             change_set=change_set,
-            profile_name="prod",
+            profile_name="custom",
+            security_mode="production",
         )
         is DriftAction.BLOCK
     )
@@ -114,16 +124,16 @@ def test_schema_drift_blocks_production_aliases() -> None:
         policy.decide(
             subject_id="orders",
             change_set=change_set,
-            profile_name="app",
-            security_domain="production",
+            profile_name="prod",
         )
-        is DriftAction.BLOCK
+        is DriftAction.RECORD
     )
     assert (
         policy.decide(
             subject_id="orders",
             change_set=change_set,
             profile_name="development",
+            security_mode="development",
         )
         is DriftAction.RECORD
     )

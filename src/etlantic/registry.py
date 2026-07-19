@@ -254,6 +254,7 @@ class PlanningContext:
         registry: RegistryBundle | None = None,
         required_capabilities: list[str] | None = None,
         allow_capability_fallback: bool = False,
+        allow_adhoc_profile: bool = False,
     ) -> PlanningContext:
         """Build a planning context from a profile name/object.
 
@@ -264,7 +265,11 @@ class PlanningContext:
         the same way. When ``spark_engine`` is ``pyspark``/``spark``,
         discovered Spark plugins are registered the same way.
         """
-        resolved = resolve_profile(profile)
+        resolved = (
+            profile
+            if isinstance(profile, Profile)
+            else resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        )
         caps = list(required_capabilities) if required_capabilities is not None else []
         engine = resolved.dataframe_engine or "local"
         sql_engine = resolved.sql_engine

@@ -1,6 +1,6 @@
 # Optional Packages
 
-> **Status: Available in ETLantic 0.18.0.** Core `etlantic` does not install
+> **Status: Available in ETLantic 0.19.0.** Core `etlantic` does not install
 > engines. Install only the plugins you need, pinned to the same minor line.
 
 ## Install pins
@@ -8,22 +8,25 @@
 Prefer exact pins for a controlled pilot:
 
 ```bash
-pip install 'etlantic==0.18.0'
-pip install 'etlantic-polars==0.18.0'
-pip install 'etlantic-pandas==0.18.0'
-pip install 'etlantic-sql==0.18.0'
-pip install 'etlantic-pyspark==0.18.0'
-pip install 'etlantic-airflow==0.18.0'
-pip install 'etlantic-prefect==0.18.0'
-pip install 'etlantic-keyring==0.18.0'
-pip install 'etlantic-sqlmodel==0.18.0'
-pip install 'etlantic-sparkforge==0.18.0'
+pip install 'etlantic==0.19.0'
+pip install 'etlantic-polars==0.19.0'
+pip install 'etlantic-pandas==0.19.0'
+pip install 'etlantic-sql==0.19.0'
+pip install 'etlantic-pyspark==0.19.0'
+pip install 'etlantic-airflow==0.19.0'
+pip install 'etlantic-prefect==0.19.0'
+pip install 'etlantic-keyring==0.19.0'
+pip install 'etlantic-sqlmodel==0.19.0'
+pip install 'etlantic-sparkforge==0.19.0'
 ```
 
-Official first-party plugins declare `etlantic>=0.18.0,<0.19`.
-Keep core and plugins on the same minor (for 0.18.x pilots, pin all to
-`0.18.0`). Cross-minor mixes are unsupported and commonly fail plugin
+Official first-party plugins declare `etlantic>=0.19.0,<0.20`.
+Keep core and plugins on the same minor (for 0.19.x pilots, pin all to
+`0.19.0`). Cross-minor mixes are unsupported and commonly fail plugin
 discovery.
+
+Experimental (not recommended): `pip install 'etlantic[datafusion]==0.19.0'`
+or `etlantic-datafusion==0.19.0` — Gate B stub; no graduated claims.
 
 ## Package API index
 
@@ -38,6 +41,7 @@ discovery.
 | [`etlantic-keyring`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-keyring/README.md) | `etlantic_keyring` | OS keyring secret provider |
 | [`etlantic-sqlmodel`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-sqlmodel/README.md) | `etlantic_sqlmodel` | SQLModel ↔ contract bridge |
 | [`etlantic-sparkforge`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-sparkforge/README.md) | `etlantic_sparkforge` | SparkForge adapter (medallion stays here, not in core) |
+| [`etlantic-datafusion`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-datafusion/README.md) | `etlantic_datafusion` | **Experimental** DataFusion stub (Gate B; not graduated) |
 
 MkDocs API generation scans core `src/` only. For optional-package constructors,
 registration, protocol versions, and failure modes, use the linked package

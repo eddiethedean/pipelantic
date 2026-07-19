@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-07-19
+
+### Added
+- Contract and configuration freeze: deep plan immutability helpers, fingerprint
+  verification at deserialize/compile/run trust boundaries
+- Explicit `Profile.security_mode` (`development` | `test` | `production`)
+- Strict named profile resolution with `--allow-adhoc-profile` / `allow_adhoc_profile`
+- Diagnosed legacy profile JSON `bindings` loads; nested wire schema tightening
+- Extension metadata namespace/budget helpers; public surface inventory
+- Pre-1.0 deprecation schedule for remaining provisional surfaces
+- Optional experimental `etlantic-datafusion` package (non-blocking Gate B)
+
+### Changed
+- Official package versions align at 0.19.0; plugins require
+  `etlantic>=0.19.0,<0.20`
+- Production fail-closed trust/drift uses `security_mode == "production"` only
+- Unknown bare profile names fail closed unless ad hoc is explicitly allowed
+- Plan and run-report loaders reject missing or unknown wire `schema` values
+
+### Fixed
+- Nested plan-owned mappings can no longer be mutated after construction
+- Tampered plan fingerprints fail before compilation or execution
+
+### Migration
+- See `docs/11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md`
+
 ## [0.18.0] - 2026-07-19
 
 ### Added
@@ -718,6 +744,7 @@ compliance, and supply-chain controls remain outside that support claim. See
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
+[0.19.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.19.0
 [0.18.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.18.0
 [0.17.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.17.0
 [0.16.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.16.0

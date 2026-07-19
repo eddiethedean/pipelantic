@@ -2,6 +2,7 @@
 
 from etlantic.plan.artifacts import ArtifactRef, ArtifactStrategy
 from etlantic.plan.explain import explain_plan
+from etlantic.plan.freeze import deep_freeze
 from etlantic.plan.model import PLAN_SCHEMA, PipelinePlan, validate_plan_interchange
 from etlantic.plan.planner import plan_pipeline, plan_pipeline_with_report
 from etlantic.plan.serialize import (
@@ -9,6 +10,7 @@ from etlantic.plan.serialize import (
     plan_fingerprint,
     plan_from_json,
     plan_to_json,
+    verify_plan_fingerprint,
 )
 from etlantic.plan.slicing import (
     dependency_closure,
@@ -22,6 +24,7 @@ __all__ = [
     "ArtifactStrategy",
     "PipelinePlan",
     "canonical_plan_json",
+    "deep_freeze",
     "dependency_closure",
     "explain_plan",
     "plan_fingerprint",
@@ -32,4 +35,5 @@ __all__ = [
     "run_one_selection",
     "run_until_selection",
     "validate_plan_interchange",
+    "verify_plan_fingerprint",
 ]

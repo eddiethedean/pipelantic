@@ -65,7 +65,7 @@ ETLantic does not replace dataframe engines, databases, Spark, schedulers,
 storage systems, catalogs, or secret managers. It gives them one typed pipeline
 model and one inspectable validation lifecycle.
 
-> **Status:** ETLantic **0.18.0** is stable for documented single-tenant
+> **Status:** ETLantic **0.19.0** is stable for documented single-tenant
 > reference deployments, not unrestricted enterprise production. Structured
 > Streaming remains experimental. See [Capabilities](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/CAPABILITIES/)
 > and [Production readiness](https://etlantic.readthedocs.io/en/latest/06_EXECUTION/PRODUCTION_READINESS/).
@@ -75,7 +75,7 @@ model and one inspectable validation lifecycle.
 ETLantic requires Python 3.11 or newer.
 
 ```bash
-pip install etlantic==0.18.0
+pip install etlantic==0.19.0
 etlantic --version
 ```
 
@@ -199,7 +199,7 @@ boundaries, security domains, and logical attribution.
 
 ## Capability boundary
 
-| Capability | 0.18 |
+| Capability | 0.19 |
 |---|---|
 | Typed contracts, graph validation, deterministic planning | Available |
 | Local, Polars, Pandas, SQL, and PySpark execution paths | Available |
@@ -207,7 +207,9 @@ boundaries, security domains, and logical attribution.
 | ODCS, DTCS, DPCS, schema drift, lineage, reports, and SARIF | Available |
 | Airflow compilation and Prefect scheduling | Available |
 | Versioned Polars↔Pandas tabular interchange | Available |
+| Contract and configuration freeze (deep plans, security_mode) | Available |
 | Structured Streaming | Experimental |
+| `etlantic-datafusion` | Experimental |
 | Multi-tenant isolation and advanced supply-chain controls | Not included |
 
 See the full [Capabilities](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/CAPABILITIES/)

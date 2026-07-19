@@ -1,12 +1,12 @@
 # Support
 
-ETLantic **0.18.0** is **stable** for documented single-tenant reference
+ETLantic **0.19.0** is **stable** for documented single-tenant reference
 deployments (not unrestricted enterprise production). Community support has
 **no formal SLA** or guaranteed response time.
 
 ## What we support
 
-- Bug reports against the **current published minor** (`0.18.x`)
+- Bug reports against the **current published minor** (`0.19.x`)
 - Questions about documented Available APIs
 - Security reports via [SECURITY.md](SECURITY.md) (private disclosure)
 

@@ -119,11 +119,12 @@ def _plan_and_emit(
     run_until: str | None,
     nodes: str | None,
     explain: bool,
+    allow_adhoc_profile: bool = False,
 ) -> None:
     pipeline_cls = _load_target(target)
     selection = _build_selection(run_one=run_one, run_until=run_until, nodes=nodes)
     context = PlanningContext.create(
-        profile=resolve_profile(profile),
+        profile=resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile),
         registry=_CLI_RUNTIME.registry,
     )
     plan, report = plan_pipeline_with_report(
@@ -170,10 +171,19 @@ def validate_cmd(
     target: str = typer.Argument(..., help="module:Class or path.py:Class"),
     profile: str = typer.Option("local", "--profile", "-p"),
     fmt: str = typer.Option("human", "--format", help="human, json, or sarif"),
+    allow_adhoc_profile: bool = typer.Option(
+        False,
+        "--allow-adhoc-profile",
+        help="Allow unknown bare profile names (fail-open; default fails closed).",
+    ),
 ) -> None:
     """Validate a pipeline without executing it."""
     pipeline_cls = _load_target(target)
-    context = PlanningContext.create(profile=profile, registry=_CLI_RUNTIME.registry)
+    context = PlanningContext.create(
+        profile=profile,
+        registry=_CLI_RUNTIME.registry,
+        allow_adhoc_profile=allow_adhoc_profile,
+    )
     report = pipeline_cls.validate(context=context)
     if fmt == "sarif":
         from etlantic.diagnostics.sarif import validation_report_to_sarif
@@ -253,6 +263,11 @@ def run_cmd(
     run_until: str | None = typer.Option(None, "--run-until"),
     intent: str = typer.Option("standard", "--intent"),
     no_write: bool = typer.Option(False, "--no-write"),
+    allow_adhoc_profile: bool = typer.Option(
+        False,
+        "--allow-adhoc-profile",
+        help="Allow unknown bare profile names (fail-open; default fails closed).",
+    ),
 ) -> None:
     """Execute a pipeline locally and emit a run report."""
     from etlantic.exceptions import PipelineExecutionError
@@ -271,8 +286,9 @@ def run_cmd(
         no_write=no_write,
     )
     try:
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         report = pipeline_cls.run(
-            profile=profile, request=request, runtime=_CLI_RUNTIME
+            profile=resolved, request=request, runtime=_CLI_RUNTIME
         )
     except PipelineExecutionError as exc:
         report = getattr(exc, "report", None)
@@ -347,6 +363,11 @@ def plan_default_cmd(
     explain: bool = typer.Option(
         False, "--explain", help="Emit plan explain output (alias for plan explain)"
     ),
+    allow_adhoc_profile: bool = typer.Option(
+        False,
+        "--allow-adhoc-profile",
+        help="Allow unknown bare profile names (fail-open; default fails closed).",
+    ),
 ) -> None:
     """Resolve a deterministic PipelinePlan."""
     _plan_and_emit(
@@ -357,6 +378,7 @@ def plan_default_cmd(
         run_until=run_until,
         nodes=nodes,
         explain=explain,
+        allow_adhoc_profile=allow_adhoc_profile,
     )
 
 
@@ -368,6 +390,11 @@ def plan_explain_cmd(
     run_one: str | None = typer.Option(None, "--run-one"),
     run_until: str | None = typer.Option(None, "--run-until"),
     nodes: str | None = typer.Option(None, "--nodes"),
+    allow_adhoc_profile: bool = typer.Option(
+        False,
+        "--allow-adhoc-profile",
+        help="Allow unknown bare profile names (fail-open; default fails closed).",
+    ),
 ) -> None:
     """Emit a structured explanation of a resolved PipelinePlan."""
     _plan_and_emit(
@@ -378,6 +405,7 @@ def plan_explain_cmd(
         run_until=run_until,
         nodes=nodes,
         explain=True,
+        allow_adhoc_profile=allow_adhoc_profile,
     )
 
 

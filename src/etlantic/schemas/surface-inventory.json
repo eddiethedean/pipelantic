@@ -1,0 +1,53 @@
+{
+  "schema": "etlantic.surface-inventory/1",
+  "version": "0.19.0",
+  "classes": ["stable", "provisional", "experimental", "private"],
+  "sdk_root_stable": [
+    "Data",
+    "Transformation",
+    "Pipeline",
+    "Extract",
+    "Load",
+    "Input",
+    "Output",
+    "Parameter",
+    "Profile",
+    "PipelineRuntime",
+    "PipelinePlan",
+    "plan_pipeline",
+    "explain_plan",
+    "ValidationReport",
+    "PipelineRunReport",
+    "SecretRef",
+    "compile_plan"
+  ],
+  "sdk_root_provisional": ["DataContractModel"],
+  "sdk_root_experimental": [],
+  "cli_stable": [
+    "validate",
+    "inspect",
+    "plan",
+    "run",
+    "compile",
+    "generate",
+    "diff",
+    "plugin",
+    "schema",
+    "reliability",
+    "viz",
+    "report"
+  ],
+  "wire_schemas": {
+    "etlantic.plan/1": "stable",
+    "etlantic.run_report/1": "stable",
+    "etlantic.interchange/1": "stable"
+  },
+  "protocols": {
+    "etlantic.dataframe/1": "stable",
+    "etlantic.sql/1": "stable",
+    "etlantic.spark/1": "stable",
+    "etlantic.orchestration/1": "stable",
+    "etlantic.scheduler/1": "provisional",
+    "etlantic.transform-compiler/1": "stable"
+  }
+}

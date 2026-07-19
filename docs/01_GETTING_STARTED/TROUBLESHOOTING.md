@@ -12,7 +12,7 @@ py -3.11 --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.18.0**. Confirm what you installed:
+These docs describe ETLantic **0.19.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -25,9 +25,9 @@ Upgrade from PyPI (pin the published release unless you intend compatible
 0.18.x patches):
 
 ```bash
-python -m pip install --upgrade 'etlantic==0.18.0'
+python -m pip install --upgrade 'etlantic==0.19.0'
 # or accept compatible 0.18.x patches:
-python -m pip install --upgrade 'etlantic>=0.18.0,<0.19'
+python -m pip install --upgrade 'etlantic>=0.19.0,<0.20'
 ```
 
 From a checkout, prefer `uv sync` / `git pull`.
@@ -56,20 +56,20 @@ pipeline classes at module scope, but put seed/run side effects under
 
 ## Plugin install fails (`etlantic-polars`, `etlantic-pyspark`, …)
 
-Those packages ship with ETLantic 0.18.0 as separate distributions. Keep every
+Those packages ship with ETLantic 0.19.0 as separate distributions. Keep every
 plugin on the same minor as core.
 
 From PyPI:
 
 ```bash
 python -m pip install --upgrade \
-  'etlantic-polars==0.18.0' 'etlantic-pandas==0.18.0'
+  'etlantic-polars==0.19.0' 'etlantic-pandas==0.19.0'
 python -m pip install --upgrade \
-  'etlantic-sql==0.18.0' 'etlantic-pyspark==0.18.0'
+  'etlantic-sql==0.19.0' 'etlantic-pyspark==0.19.0'
 python -m pip install --upgrade \
-  'etlantic-airflow==0.18.0' 'etlantic-prefect==0.18.0'
+  'etlantic-airflow==0.19.0' 'etlantic-prefect==0.19.0'
 python -m pip install --upgrade \
-  'etlantic-sparkforge==0.18.0'
+  'etlantic-sparkforge==0.19.0'
 ```
 
 From a checkout:
@@ -101,7 +101,7 @@ and install matching pins, for example:
 
 ```bash
 python -m pip install --upgrade --force-reinstall \
-  'etlantic==0.18.0' 'etlantic-polars==0.18.0'
+  'etlantic==0.19.0' 'etlantic-polars==0.19.0'
 ```
 
 Use the plugin distribution relevant to your engine in place of
@@ -130,7 +130,7 @@ that engine with `portable_transform_policy="require"`. See
 python -c "from etlantic.transform.discovery import discover_transform_compilers; print(discover_transform_compilers())"
 ```
 
-If the map is empty, install a matching `etlantic-polars==0.18.0` into the same
+If the map is empty, install a matching `etlantic-polars==0.19.0` into the same
 environment as core. Entry-point discovery uses installed distribution
 metadata, so reinstall the plugin after editable-install or interpreter
 changes. Confirm with:
@@ -156,7 +156,7 @@ native `@implementation(...)`, or use
 The built-in `production` profile intentionally has an empty plugin allowlist
 and fails closed. Create an explicit production Profile JSON with a non-empty
 `plugin_allowlist` containing exact trusted plugin versions such as
-`"etlantic-polars": "==0.18.0"`. The allowlist permits discovery; it does not
+`"etlantic-polars": "==0.19.0"`. The allowlist permits discovery; it does not
 install plugins or resolve assets. See
 [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md).
 
@@ -190,13 +190,13 @@ Install the matching plugin and set the corresponding profile engine
 
 | Need | Install | Example |
 |---|---|---|
-| Polars portable kernel | `pip install 'etlantic-polars==0.18.0'` or `uv sync --group dataframes` | checkout `examples/portable_polars_kernel.py` |
-| Polars / Pandas native | `pip install 'etlantic-polars==0.18.0' 'etlantic-pandas==0.18.0'` or `uv sync --group dataframes` | checkout `examples/dataframe_parity.py` |
+| Polars portable kernel | `pip install 'etlantic-polars==0.19.0'` or `uv sync --group dataframes` | checkout `examples/portable_polars_kernel.py` |
+| Polars / Pandas native | `pip install 'etlantic-polars==0.19.0' 'etlantic-pandas==0.19.0'` or `uv sync --group dataframes` | checkout `examples/dataframe_parity.py` |
 | Polars ↔ Pandas Gate A | same as above | checkout `examples/interchange_polars_pandas.py` |
-| SQL | `pip install 'etlantic-sql==0.18.0'` or `uv sync --group sql` | checkout `examples/sql_to_sql.py` |
-| PySpark | `pip install 'etlantic-pyspark==0.18.0'` or `uv sync --group pyspark` | checkout `examples/pyspark_local.py` |
-| Airflow compile | `pip install 'etlantic-airflow==0.18.0'` or `uv sync --group airflow` | checkout `examples/airflow_compile.py` |
-| SparkForge adapter | `pip install 'etlantic-sparkforge==0.18.0'` or `uv sync --group sparkforge` | `tests/sparkforge/` |
+| SQL | `pip install 'etlantic-sql==0.19.0'` or `uv sync --group sql` | checkout `examples/sql_to_sql.py` |
+| PySpark | `pip install 'etlantic-pyspark==0.19.0'` or `uv sync --group pyspark` | checkout `examples/pyspark_local.py` |
+| Airflow compile | `pip install 'etlantic-airflow==0.19.0'` or `uv sync --group airflow` | checkout `examples/airflow_compile.py` |
+| SparkForge adapter | `pip install 'etlantic-sparkforge==0.19.0'` or `uv sync --group sparkforge` | `tests/sparkforge/` |
 
 Airflow compilation is available via `etlantic-airflow`. The shipped
 `etlantic-prefect` local MVP is a direct-execution scheduler
@@ -205,12 +205,12 @@ Dagster compilers are not shipped.
 
 ## Gate A / Polars ↔ Pandas interchange fails
 
-Gate A (`etlantic.interchange/1`) is **Available in 0.18.0** for Polars ↔
+Gate A (`etlantic.interchange/1`) is **Available in 0.19.0** for Polars ↔
 Pandas boundaries only.
 
 | Symptom | Fix |
 |---|---|
-| Plugin not discovered | Install `etlantic-polars==0.18.0` **and** `etlantic-pandas==0.18.0`; match core minor |
+| Plugin not discovered | Install `etlantic-polars==0.19.0` **and** `etlantic-pandas==0.19.0`; match core minor |
 | Plan fails closed on descriptor / mechanism | Both plugins must advertise compatible `interchange_mechanisms`; see Plugin SDK |
 | Expecting PySpark or SQL Gate A | Out of scope in 0.18 — stay on Polars↔Pandas or keep a single engine |
 | Treating Arrow helpers as Gate A | Best-effort Arrow conversion is **not** the Gate A contract; use planned descriptors / evidence |
@@ -222,7 +222,7 @@ See [Interchange Gate A FAQ](INTERCHANGE_GATE_A_FAQ.md) and
 ## PySpark fails before ETLantic executes a step
 
 PySpark requires a compatible Java runtime as well as
-`etlantic-pyspark==0.18.0`. Check both from the same environment:
+`etlantic-pyspark==0.19.0`. Check both from the same environment:
 
 ```bash
 java -version
@@ -235,7 +235,7 @@ must be fixed before ETLantic can create a local Spark session.
 
 ## SQL reports a missing or invalid connection URL
 
-Install `etlantic-sql==0.18.0`, select `Profile(sql_engine="sql")`, and provide
+Install `etlantic-sql==0.19.0`, select `Profile(sql_engine="sql")`, and provide
 the URL expected by your binding or example. For the reference PostgreSQL
 path:
 
@@ -282,7 +282,7 @@ Only run the removal command from the repository root after confirming
 
 Python puts the current directory early on `sys.path`. Running from an
 ETLantic source checkout can therefore import checkout code instead of the
-0.18.0 wheel in your environment. Check the imported path:
+0.19.0 wheel in your environment. Check the imported path:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__); print(etlantic.__file__)"

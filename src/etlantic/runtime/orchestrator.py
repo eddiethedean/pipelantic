@@ -250,7 +250,9 @@ class LocalOrchestrator:
 
     async def execute(self) -> PipelineRunReport:
         from etlantic.lifecycle.lifespan import run_lifespan
+        from etlantic.plan.serialize import verify_plan_fingerprint
 
+        verify_plan_fingerprint(self.plan)
         run_id = self.run_id or f"run-{uuid.uuid4().hex[:12]}"
         started = datetime.now(UTC)
         logger = RunLogger(run_id=run_id, pipeline_id=self.plan.pipeline_id)
@@ -2146,6 +2148,7 @@ class LocalOrchestrator:
             policy=self.drift_policy,
             profile_name=self.plan.profile_name,
             security_domain=self.plan.security_domain,
+            security_mode=(self.plan.profile_snapshot or {}).get("security_mode"),
         )
         if declared is not None:
             schema_obs.append(

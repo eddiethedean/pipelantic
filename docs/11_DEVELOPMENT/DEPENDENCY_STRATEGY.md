@@ -347,7 +347,7 @@ binary size makes it unsuitable as a core dependency.
 **0.17 today:** optional PyArrow enables **best-effort** Arrow-assisted
 dataframe conversion only—not a versioned interchange contract.
 
-**0.18.0 Gate A:** preferred physical interchange is recorded as
+**0.19.0 Gate A:** preferred physical interchange is recorded as
 `etlantic.interchange/1` at compatible, planned cross-plugin boundaries
 (Polars↔Pandas first). Mechanisms are Arrow C Data/Stream, Arrow IPC
 stream/file, durable **Parquet artifacts**, or records/native fallback. Core
@@ -356,7 +356,7 @@ replace ETLantic logical contracts. Engine dispatch for new interchange
 boundaries is capability/registry driven (milestone A0).
 
 `etlantic-datafusion` is an experimental first-party plugin candidate for
-**Gate B after 0.18.0**, not a core dependency, not part of the 0.18.0 exit,
+**Gate B after 0.19.0**, not a core dependency, not part of the 0.19.0 exit,
 and not an automatic replacement for Polars. It graduates only after dataframe
 and portable conformance plus measured performance, streaming, or
 interoperability value. DataFusion classes and plans must not appear in core
@@ -638,7 +638,7 @@ them in the core project's optional-dependency table.
 | Graphviz Python package | Visualization extra | Adopt |
 | Polars | Separate plugin | Adopt as reference backend |
 | Pandas | Separate plugin | Adopt as compatibility backend |
-| PyArrow | Plugin/interchange extra | Adopt where interchange requires it; formal Gate A in 0.18.0 |
+| PyArrow | Plugin/interchange extra | Adopt where interchange requires it; formal Gate A in 0.19.0 |
 | DataFusion | Separate experimental plugin | Evaluate in `etlantic-datafusion` after Gate A (0.19+); graduate only with measured value |
 | SQLAlchemy Core | SQL plugin | Adopt |
 | SQLModel | Separate integration | Adopt for typed persistence and model generation, not SQL execution |

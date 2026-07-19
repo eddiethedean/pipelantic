@@ -12,7 +12,7 @@ ETLantic follows Semantic Versioning after 1.0:
 - Major: incompatible public API or persistent-format changes
 
 During 0.x, breaking changes remain possible but must be documented. Official
-plugin packages currently share the core minor version (for example `0.18.0`).
+plugin packages currently share the core minor version (for example `0.19.0`).
 
 ## Packages published on each tag
 
@@ -68,7 +68,7 @@ Tag `vX.Y.Z` publishes ten distributions:
 8. **New distribution bootstrap only:** if introducing a brand-new PyPI name,
    review `scripts/check_release.py` output and PyPI new-project rate limits
    (`429 Too many new projects created`). Release CI waits between brand-new
-   creates; existing projects upload immediately. Before tagging 0.18.0,
+   creates; existing projects upload immediately. Before tagging 0.19.0,
    confirm whether `etlantic-prefect` and `etlantic-sparkforge` already exist
    on PyPI (they did not after the incomplete `v0.17.0` publish). If the
    account is still rate-limited for new projects, either wait for the rolling
@@ -167,7 +167,7 @@ Recommended order:
 ## Plugin Releases
 
 Plugins are separately installable and declare a tested minor bound (for
-0.18 plugins, `etlantic>=0.18,<0.19`). A core
+0.18 plugins, `etlantic>=0.19,<0.20`). A core
 release should not require third-party plugins to release simultaneously unless
 the SDK compatibility range changes.
 

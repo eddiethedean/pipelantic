@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from etlantic.plan.freeze import mutable_copy
+
 
 class ArtifactStrategy(StrEnum):
     """How a logical OutputRef is realized for consumers."""
@@ -35,7 +37,7 @@ class ArtifactRef:
             "strategy": self.strategy.value,
             "security_domain": self.security_domain,
             "cache_key": self.cache_key,
-            "metadata": dict(self.metadata),
+            "metadata": mutable_copy(self.metadata),
         }
 
     @classmethod

@@ -1,6 +1,6 @@
 # Engine selection
 
-> **Status: Available in ETLantic 0.18.0.**
+> **Status: Available in ETLantic 0.19.0.**
 
 Start with core local Python. Add one engine at a time.
 
@@ -8,15 +8,15 @@ Start with core local Python. Add one engine at a time.
 
 | Goal | Install | Profile hint | Guide |
 |---|---|---|---|
-| Learn the model in memory | `etlantic==0.18.0` | `development` | [Quickstart](QUICKSTART.md) |
+| Learn the model in memory | `etlantic==0.19.0` | `development` | [Quickstart](QUICKSTART.md) |
 | JSON / CSV files | core only | file storage bindings | [File storage](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md) |
-| Fast local dataframes | `etlantic[polars]==0.18.0` | `dataframe_engine="polars"` | [Polars tutorial](../06_EXECUTION/POLARS_TUTORIAL.md) |
-| Pandas compatibility | `etlantic[pandas]==0.18.0` | `dataframe_engine="pandas"` | [Pandas tutorial](../06_EXECUTION/PANDAS_TUTORIAL.md) |
-| Cross-engine Polars↔Pandas | `etlantic[dataframes]==0.18.0` | both plugins allowlisted | [Interchange example](../09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md) |
-| Keep work in SQL | `etlantic[sql]==0.18.0` | `sql_engine="sql"` | [SQL tutorial](../06_EXECUTION/SQL_TUTORIAL.md) |
-| Local Spark batch | `etlantic[pyspark]==0.18.0` | `spark_engine="pyspark"` | [PySpark tutorial](../06_EXECUTION/PYSPARK_TUTORIAL.md) |
-| Emit Airflow DAGs | `etlantic[airflow]==0.18.0` | `orchestrator="airflow"` | [Airflow tutorial](../06_EXECUTION/AIRFLOW_TUTORIAL.md) |
-| Prefect local scheduler | `etlantic[prefect]==0.18.0` | `orchestrator="prefect"` | [Prefect example](../09_EXAMPLES/PREFECT_RUN.md) |
+| Fast local dataframes | `etlantic[polars]==0.19.0` | `dataframe_engine="polars"` | [Polars tutorial](../06_EXECUTION/POLARS_TUTORIAL.md) |
+| Pandas compatibility | `etlantic[pandas]==0.19.0` | `dataframe_engine="pandas"` | [Pandas tutorial](../06_EXECUTION/PANDAS_TUTORIAL.md) |
+| Cross-engine Polars↔Pandas | `etlantic[dataframes]==0.19.0` | both plugins allowlisted | [Interchange example](../09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md) |
+| Keep work in SQL | `etlantic[sql]==0.19.0` | `sql_engine="sql"` | [SQL tutorial](../06_EXECUTION/SQL_TUTORIAL.md) |
+| Local Spark batch | `etlantic[pyspark]==0.19.0` | `spark_engine="pyspark"` | [PySpark tutorial](../06_EXECUTION/PYSPARK_TUTORIAL.md) |
+| Emit Airflow DAGs | `etlantic[airflow]==0.19.0` | `orchestrator="airflow"` | [Airflow tutorial](../06_EXECUTION/AIRFLOW_TUTORIAL.md) |
+| Prefect local scheduler | `etlantic[prefect]==0.19.0` | `orchestrator="prefect"` | [Prefect example](../09_EXAMPLES/PREFECT_RUN.md) |
 | Portable transforms (no native impl) | matching engine plugin | `portable_transform_policy="require"` | [Portable transforms](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md) |
 
 ## Rules of thumb

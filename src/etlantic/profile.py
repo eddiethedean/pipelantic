@@ -10,10 +10,20 @@ from typing import Any, Literal
 from etlantic.secrets import SecretRef
 
 PortableTransformPolicy = Literal["require", "prefer", "native"]
+SecurityMode = Literal["development", "test", "production"]
 
 _BINDINGS_REMOVED = (
     "Profile(bindings=...) was removed in ETLantic 0.16. Use assets= instead. "
     "See docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md."
+)
+_LEGACY_BINDINGS_DIAGNOSTIC = (
+    "PMCFG110: Profile JSON used legacy 'bindings'; prefer 'assets'. "
+    "See docs/11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md."
+)
+_UNKNOWN_PROFILE = (
+    "PMCFG100: Unknown profile name {name!r}. Use a built-in template "
+    "(development, local, test, production), a .json path, or pass "
+    "allow_adhoc_profile=True / --allow-adhoc-profile."
 )
 
 
@@ -55,6 +65,7 @@ class Profile:
     resources: dict[str, str] = field(default_factory=dict)
     secrets: dict[str, SecretRef] = field(default_factory=dict)
     security_domain: str = "default"
+    security_mode: SecurityMode = "development"
     validation_policy: str = "default"
     concurrency: int | None = None
     timeout_seconds: float | None = None
@@ -90,6 +101,7 @@ class Profile:
         resources: dict[str, str] | None = None,
         secrets: dict[str, SecretRef] | None = None,
         security_domain: str = "default",
+        security_mode: SecurityMode = "development",
         validation_policy: str = "default",
         concurrency: int | None = None,
         timeout_seconds: float | None = None,
@@ -107,6 +119,7 @@ class Profile:
         if "bindings" in kwargs:
             raise TypeError(_BINDINGS_REMOVED)
         store = _normalize_assets(assets=assets)
+        mode = _parse_security_mode(security_mode)
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "orchestrator", orchestrator)
         object.__setattr__(self, "dataframe_engine", dataframe_engine)
@@ -123,6 +136,7 @@ class Profile:
         object.__setattr__(self, "resources", dict(resources or {}))
         object.__setattr__(self, "secrets", dict(secrets or {}))
         object.__setattr__(self, "security_domain", security_domain)
+        object.__setattr__(self, "security_mode", mode)
         object.__setattr__(self, "validation_policy", validation_policy)
         object.__setattr__(self, "concurrency", concurrency)
         object.__setattr__(self, "timeout_seconds", timeout_seconds)
@@ -162,6 +176,13 @@ class Profile:
         }
         data["assets"] = dict(self.bindings)
         data.pop("bindings", None)
+        for key in (
+            "required_sql_capabilities",
+            "required_spark_capabilities",
+            "required_orchestrator_capabilities",
+        ):
+            if key in data and isinstance(data[key], tuple):
+                data[key] = list(data[key])
         return data
 
     def to_plan_snapshot(self) -> dict[str, Any]:
@@ -176,12 +197,21 @@ class Profile:
         return data
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> Profile:
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+        *,
+        accept_legacy_bindings: bool = True,
+    ) -> Profile:
         """Deserialize a profile mapping.
 
         Accepts legacy JSON ``bindings`` keys for one-time loading of saved
-        profiles; new writes via :meth:`to_dict` emit ``assets`` only.
+        profiles; new writes via :meth:`to_dict` emit ``assets`` only. Legacy
+        ``bindings`` loads emit diagnostic ``PMCFG110`` (and raise when
+        ``accept_legacy_bindings`` is False).
         """
+        import warnings
+
         secrets_raw = data.get("secrets") or {}
         if not isinstance(secrets_raw, dict):
             raise ValueError("Profile secrets must be a mapping of name → SecretRef")
@@ -198,11 +228,21 @@ class Profile:
                 )
         has_assets = "assets" in data and data.get("assets") is not None
         has_bindings = "bindings" in data and data.get("bindings") is not None
+        if has_bindings and not has_assets:
+            if not accept_legacy_bindings:
+                raise ValueError(_LEGACY_BINDINGS_DIAGNOSTIC)
+            warnings.warn(_LEGACY_BINDINGS_DIAGNOSTIC, UserWarning, stacklevel=2)
         store = _normalize_assets(
             assets=dict(data.get("assets") or {}) if has_assets else None,
             bindings=dict(data.get("bindings") or {}) if has_bindings else None,
             allow_legacy_bindings=True,
         )
+        security_mode = data.get("security_mode")
+        if security_mode is None:
+            security_mode = _infer_security_mode(
+                name=str(data.get("name") or ""),
+                security_domain=str(data.get("security_domain") or "default"),
+            )
         return cls(
             name=str(data["name"]),
             orchestrator=str(data.get("orchestrator") or "local"),
@@ -218,6 +258,7 @@ class Profile:
             resources=dict(data.get("resources") or {}),
             secrets=secrets,
             security_domain=str(data.get("security_domain") or "default"),
+            security_mode=_parse_security_mode(security_mode),
             validation_policy=str(data.get("validation_policy") or "default"),
             concurrency=data.get("concurrency"),
             timeout_seconds=data.get("timeout_seconds"),
@@ -240,7 +281,7 @@ class Profile:
             portable_transform_policy=_parse_portable_policy(
                 data.get("portable_transform_policy")
             ),
-            metadata=dict(data.get("metadata") or {}),
+            metadata=_validated_profile_metadata(data.get("metadata") or {}),
         )
 
     def with_updates(self, **kwargs: Any) -> Profile:
@@ -262,8 +303,21 @@ class Profile:
         current = self.to_plan_snapshot()
         if "assets" in kwargs:
             current["bindings"] = dict(kwargs.pop("assets") or {})
+        # Internal snapshot uses plan-wire ``bindings``; map to assets so
+        # from_dict does not emit legacy PMCFG110 for authoring round-trips.
+        if "bindings" in current and "assets" not in current:
+            current["assets"] = dict(current.pop("bindings") or {})
         current.update(kwargs)
         return Profile.from_dict(current)
+
+
+def _validated_profile_metadata(raw: Any) -> dict[str, Any]:
+    """Copy profile metadata and enforce extension size/depth budgets."""
+    from etlantic.extensions import validate_extension_metadata
+
+    metadata = dict(raw or {})
+    validate_extension_metadata(metadata, path="metadata", strict=False)
+    return metadata
 
 
 def _as_str_tuple(value: Any) -> tuple[str, ...]:
@@ -284,6 +338,26 @@ def _parse_portable_policy(value: Any) -> PortableTransformPolicy:
     return policy  # type: ignore[return-value]
 
 
+def _parse_security_mode(value: Any) -> SecurityMode:
+    mode = str(value or "development").strip().lower()
+    if mode not in {"development", "test", "production"}:
+        raise ValueError(
+            f"security_mode must be development|test|production, got {value!r}"
+        )
+    return mode  # type: ignore[return-value]
+
+
+def _infer_security_mode(*, name: str, security_domain: str) -> SecurityMode:
+    """Best-effort inference for pre-0.19 profile JSON missing security_mode."""
+    key = name.strip().lower()
+    domain = security_domain.strip().lower()
+    if key in {"production", "prod", "staging"} or domain in {"production", "prod"}:
+        return "production"
+    if key == "test" or domain == "test":
+        return "test"
+    return "development"
+
+
 def development_profile(**overrides: Any) -> Profile:
     """Built-in development profile template."""
     base = Profile(
@@ -291,6 +365,7 @@ def development_profile(**overrides: Any) -> Profile:
         orchestrator="local",
         dataframe_engine="local",
         security_domain="dev",
+        security_mode="development",
         validation_policy="default",
     )
     return base.with_updates(**overrides) if overrides else base
@@ -303,6 +378,7 @@ def test_profile(**overrides: Any) -> Profile:
         orchestrator="local",
         dataframe_engine="local",
         security_domain="test",
+        security_mode="test",
         validation_policy="strict",
     )
     return base.with_updates(**overrides) if overrides else base
@@ -315,6 +391,7 @@ def production_profile(**overrides: Any) -> Profile:
         orchestrator="local",
         dataframe_engine="local",
         security_domain="production",
+        security_mode="production",
         validation_policy="strict",
     )
     return base.with_updates(**overrides) if overrides else base
@@ -330,13 +407,17 @@ PROFILE_TEMPLATES: dict[str, Profile] = {
 }
 
 
-def resolve_profile(profile: str | Profile | None) -> Profile:
+def resolve_profile(
+    profile: str | Profile | None,
+    *,
+    allow_adhoc_profile: bool = False,
+) -> Profile:
     """Resolve a profile name, JSON path, or object to a concrete Profile.
 
     When ``profile`` is a string ending in ``.json`` that exists as a file,
     the profile is loaded with :func:`load_profile`. Built-in template names
     (``development``, ``production``, …) resolve to templates. Other bare
-    names create an empty :class:`Profile` with that name.
+    names fail closed unless ``allow_adhoc_profile`` is True.
     """
     if profile is None:
         return development_profile(name="local")
@@ -349,11 +430,10 @@ def resolve_profile(profile: str | Profile | None) -> Profile:
             raise FileNotFoundError(f"Profile JSON path not found: {path}")
         return load_profile(path)
     if key in PROFILE_TEMPLATES:
-        template = PROFILE_TEMPLATES[key]
-        if key in {"local", "dev", "prod"}:
-            return template
-        return template
-    return Profile(name=key)
+        return PROFILE_TEMPLATES[key]
+    if allow_adhoc_profile:
+        return Profile(name=key, security_mode="development")
+    raise ValueError(_UNKNOWN_PROFILE.format(name=key))
 
 
 def write_profile(profile: Profile, path: str | Path) -> Path:

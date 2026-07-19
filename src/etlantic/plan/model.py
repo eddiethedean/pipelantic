@@ -7,6 +7,7 @@ from typing import Any
 
 from etlantic.model import Edge, LogicalGraph, Node, NodeKind, ParameterSpec, PortSpec
 from etlantic.plan.artifacts import ArtifactRef
+from etlantic.plan.freeze import deep_freeze, mutable_copy
 from etlantic.plan.regions import ExecutionRegion, MaterializationBoundary
 from etlantic.registry import BindingDescriptor, ImplementationDescriptor
 
@@ -30,19 +31,21 @@ class PhysicalUnit:
             "region_id": self.region_id,
             "logical_nodes": list(self.logical_nodes),
             "engine": self.engine,
-            "metadata": dict(self.metadata),
+            "metadata": mutable_copy(self.metadata),
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PhysicalUnit:
         """Deserialize physical unit."""
-        return cls(
+        unit = cls(
             identity=str(data["identity"]),
             region_id=str(data["region_id"]),
             logical_nodes=tuple(data.get("logical_nodes") or ()),
             engine=str(data["engine"]),
             metadata=dict(data.get("metadata") or {}),
         )
+        object.__setattr__(unit, "metadata", deep_freeze(unit.metadata))
+        return unit
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,11 +67,17 @@ class OutputResolution:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> OutputResolution:
         """Deserialize output resolution."""
-        return cls(
+        resolution = cls(
             node_name=str(data["node_name"]),
             port_name=str(data["port_name"]),
             artifact=ArtifactRef.from_dict(data["artifact"]),
         )
+        object.__setattr__(
+            resolution.artifact,
+            "metadata",
+            deep_freeze(resolution.artifact.metadata),
+        )
+        return resolution
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,27 +121,27 @@ class PipelinePlan:
             "logical_graph": _graph_to_dict(self.logical_graph),
             "regions": [r.to_dict() for r in self.regions],
             "physical_units": [u.to_dict() for u in self.physical_units],
-            "logical_to_physical": dict(self.logical_to_physical),
+            "logical_to_physical": mutable_copy(self.logical_to_physical),
             "implementations": {
                 k: v.to_dict() for k, v in self.implementations.items()
             },
             "bindings": {k: v.to_dict() for k, v in self.bindings.items()},
-            "resource_refs": dict(self.resource_refs),
+            "resource_refs": mutable_copy(self.resource_refs),
             "materialization_boundaries": [
                 b.to_dict() for b in self.materialization_boundaries
             ],
             "output_resolutions": [o.to_dict() for o in self.output_resolutions],
-            "capability_decisions": list(self.capability_decisions),
+            "capability_decisions": mutable_copy(list(self.capability_decisions)),
             "selected_nodes": (
                 list(self.selected_nodes) if self.selected_nodes is not None else None
             ),
             "security_domain": self.security_domain,
-            "contract_versions": dict(self.contract_versions),
-            "plugin_versions": dict(self.plugin_versions),
-            "intents": dict(self.intents),
-            "profile_snapshot": dict(self.profile_snapshot),
-            "execution_settings": dict(self.execution_settings),
-            "metadata": dict(self.metadata),
+            "contract_versions": mutable_copy(self.contract_versions),
+            "plugin_versions": mutable_copy(self.plugin_versions),
+            "intents": mutable_copy(self.intents),
+            "profile_snapshot": mutable_copy(self.profile_snapshot),
+            "execution_settings": mutable_copy(self.execution_settings),
+            "metadata": mutable_copy(self.metadata),
         }
 
     def compile(
@@ -154,10 +163,34 @@ class PipelinePlan:
         )
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> PipelinePlan:
-        """Deserialize a plan mapping."""
+    def from_dict(cls, data: dict[str, Any], *, verify: bool = True) -> PipelinePlan:
+        """Deserialize a plan mapping.
+
+        Requires ``schema`` equal to :data:`PLAN_SCHEMA`. Missing or unknown
+        schemas are rejected (no silent default). Documents are upgraded via
+        :func:`etlantic.plan.upgrade.upgrade_plan_dict` first.
+
+        When ``verify`` is True and a non-empty fingerprint is present, the
+        embedded fingerprint is checked after construction. Empty fingerprints
+        (e.g. intermediate planner builds) skip verification.
+        """
+        from etlantic.extensions import validate_extension_metadata
+        from etlantic.plan.upgrade import upgrade_plan_dict
+
+        data = upgrade_plan_dict(data)
+        schema = data.get("schema")
+        if schema is None or schema == "":
+            raise ValueError(
+                f"PipelinePlan is missing required 'schema' (expected {PLAN_SCHEMA!r})."
+            )
+        if schema != PLAN_SCHEMA:
+            raise ValueError(
+                f"Unknown PipelinePlan schema {schema!r}; expected {PLAN_SCHEMA!r}."
+            )
+        metadata = dict(data.get("metadata") or {})
+        validate_extension_metadata(metadata, path="metadata", strict=False)
         plan = cls(
-            schema=str(data.get("schema") or PLAN_SCHEMA),
+            schema=str(schema),
             plan_id=str(data["plan_id"]),
             pipeline_id=str(data["pipeline_id"]),
             pipeline_name=str(data["pipeline_name"]),
@@ -200,9 +233,34 @@ class PipelinePlan:
             intents=dict(data.get("intents") or {}),
             profile_snapshot=dict(data.get("profile_snapshot") or {}),
             execution_settings=dict(data.get("execution_settings") or {}),
-            metadata=dict(data.get("metadata") or {}),
+            metadata=metadata,
         )
+        object.__setattr__(
+            plan, "logical_to_physical", deep_freeze(plan.logical_to_physical)
+        )
+        object.__setattr__(plan, "implementations", deep_freeze(plan.implementations))
+        object.__setattr__(plan, "bindings", deep_freeze(plan.bindings))
+        object.__setattr__(plan, "resource_refs", deep_freeze(plan.resource_refs))
+        object.__setattr__(
+            plan,
+            "capability_decisions",
+            tuple(deep_freeze(item) for item in plan.capability_decisions),
+        )
+        object.__setattr__(
+            plan, "contract_versions", deep_freeze(plan.contract_versions)
+        )
+        object.__setattr__(plan, "plugin_versions", deep_freeze(plan.plugin_versions))
+        object.__setattr__(plan, "intents", deep_freeze(plan.intents))
+        object.__setattr__(plan, "profile_snapshot", deep_freeze(plan.profile_snapshot))
+        object.__setattr__(
+            plan, "execution_settings", deep_freeze(plan.execution_settings)
+        )
+        object.__setattr__(plan, "metadata", deep_freeze(plan.metadata))
         validate_plan_interchange(plan)
+        if verify and plan.fingerprint:
+            from etlantic.plan.serialize import verify_plan_fingerprint
+
+            verify_plan_fingerprint(plan)
         return plan
 
 
@@ -232,7 +290,7 @@ def _graph_to_dict(graph: LogicalGraph) -> dict[str, Any]:
             }
             for e in graph.edges
         ],
-        "metadata": dict(graph.metadata),
+        "metadata": mutable_copy(graph.metadata),
     }
 
 
@@ -274,7 +332,7 @@ def _node_to_dict(node: Node) -> dict[str, Any]:
             for p in node.parameters
         ],
         "nested_pipeline_id": node.nested_pipeline_id,
-        "metadata": dict(node.metadata),
+        "metadata": mutable_copy(node.metadata),
     }
 
 
@@ -296,7 +354,7 @@ def _graph_from_dict(data: dict[str, Any]) -> LogicalGraph:
         pipeline_name=str(data["pipeline_name"]),
         nodes=nodes,
         edges=edges,
-        metadata=dict(data.get("metadata") or {}),
+        metadata=deep_freeze(dict(data.get("metadata") or {})),
     )
 
 
@@ -341,5 +399,5 @@ def _node_from_dict(data: dict[str, Any]) -> Node:
             for p in data.get("parameters") or ()
         ),
         nested_pipeline_id=data.get("nested_pipeline_id"),
-        metadata=dict(data.get("metadata") or {}),
+        metadata=deep_freeze(dict(data.get("metadata") or {})),
     )
