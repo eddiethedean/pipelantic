@@ -12,7 +12,7 @@ worker, and use durable backend storage for data or reports that must cross
 process boundaries.
 
 This reference model is suitable for one trusted application or worker per
-runtime. ETLantic 0.17 does not coordinate a multi-worker runtime.
+runtime. ETLantic 0.18 does not coordinate a multi-worker runtime.
 
 ## Select and lock a profile
 
@@ -60,7 +60,7 @@ The adopter owns:
   generation;
 - observability retention and operational runbooks.
 
-ETLantic 0.17 does not claim a multi-worker or multi-tenant control plane.
+ETLantic 0.18 does not claim a multi-worker or multi-tenant control plane.
 
 ## Operational next steps
 

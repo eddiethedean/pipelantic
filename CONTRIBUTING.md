@@ -21,7 +21,7 @@ Baseline:
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not real_pyspark and not airflow and not prefect and not keyring and not sqlmodel"
+./scripts/test_core.sh
 uv run python scripts/check_docs.py
 uv run python scripts/check_agent_guidance.py
 uv run python scripts/check_release.py
@@ -30,6 +30,8 @@ uv run etlantic validate examples/quickstart.py:CustomerPipeline --format sarif 
 uv run python examples/quickstart.py
 uv run python scripts/build_docs.py
 ```
+
+`./scripts/test_core.sh` runs the same non-plugin pytest marker expression CI uses for the core job.
 
 Portable dataframe examples (requires the dataframes group):
 

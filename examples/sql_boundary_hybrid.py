@@ -63,7 +63,7 @@ def main() -> None:
     from etlantic_sql import create_plugin
 
     plugin = create_plugin()
-    engine = plugin._get_engine()
+    engine = plugin.get_engine()
     with engine.begin() as conn:
         conn.execute(text("DROP TABLE IF EXISTS out_rows"))
         conn.execute(text("DROP TABLE IF EXISTS src_rows"))

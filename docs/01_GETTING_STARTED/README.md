@@ -15,12 +15,16 @@ validate and plan them once; run locally or through optional engine plugins.
 
 ## Five-minute path
 
-1. [Current 0.18 guide](CURRENT_VERSION.md) — task-based map
-2. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
-3. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
-4. Break a type on purpose and re-run `validate()` — that failure is the product
-5. [Capabilities](CAPABILITIES.md) — only after first success
-6. [Evaluator brief](EVALUATOR.md) — if you are deciding whether to adopt
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
+2. [Quickstart](QUICKSTART.md) — copy, run, see Ada Lovelace
+3. [First Pipeline](FIRST_PIPELINE.md) — CLI `inspect` / `validate` / `plan`
+4. [Capabilities](CAPABILITIES.md) — then [Evaluator](EVALUATOR.md) or an engine tutorial
+
+!!! note "CLI validate/plan vs Python run"
+    Use the CLI for `inspect`, `validate`, and `plan`. In-memory quickstarts
+    must seed data in Python (`PipelineRuntime.memory.seed`) before
+    `Pipeline.run`—a fresh `etlantic run` process has an empty memory store.
+    Use CLI `run` when assets are bound to durable storage (JSON/CSV/SQL).
 
 ## What You'll Learn
 
@@ -28,7 +32,7 @@ validate and plan them once; run locally or through optional engine plugins.
 - Define typed data contracts and transformations
 - Wire a pipeline and validate it before execution
 - Run locally with in-memory storage
-- Use the CLI (`validate` / `plan` / `run`)
+- Use the CLI for `validate` / `plan` (and `run` when assets are durable)
 - Tell shipped APIs from future design
 
 ## Prerequisites
@@ -42,15 +46,16 @@ validate and plan them once; run locally or through optional engine plugins.
 1. [Installation](INSTALLATION.md)
 2. [Quickstart](QUICKSTART.md)
 3. [Your First Pipeline](FIRST_PIPELINE.md)
-4. Choose an engine: [Polars](../06_EXECUTION/POLARS_TUTORIAL.md),
+4. [Capabilities and Limitations](CAPABILITIES.md)
+5. Choose an engine: [Engine selection](ENGINE_SELECTION.md), then
+   [Polars](../06_EXECUTION/POLARS_TUTORIAL.md),
    [Pandas](../06_EXECUTION/PANDAS_TUTORIAL.md),
    [SQL](../06_EXECUTION/SQL_TUTORIAL.md), or
    [PySpark](../06_EXECUTION/PYSPARK_TUTORIAL.md)
-5. [Capabilities and Limitations](CAPABILITIES.md)
 6. [Evaluator Brief](EVALUATOR.md)
-7. [Troubleshooting](TROUBLESHOOTING.md)
-8. [FAQ](FAQ.md)
-9. [Project Structure](PROJECT_STRUCTURE.md) (after a second pipeline)
+7. [Compare](COMPARE.md) / [FAQ](FAQ.md) / [Troubleshooting](TROUBLESHOOTING.md)
+8. [Project Structure](PROJECT_STRUCTURE.md) (after a second pipeline)
+9. [Cookbook](COOKBOOK.md) for common recipes
 
 ## The ETLantic Mental Model
 

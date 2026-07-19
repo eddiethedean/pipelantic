@@ -1,5 +1,10 @@
 **Status: shipped in 0.8.0** via `etlantic-airflow`.
 
+!!! warning "`etlantic-airflow` is compile-only"
+    `etlantic-airflow` translates a validated `PipelinePlan` into DAG
+    artifacts. It does **not** install Apache Airflow. Runtime import and
+    scheduling require a separate Airflow installation.
+
 !!! tip "Evaluate with the runnable example"
     Prefer `examples/airflow_compile.py` and
     [Airflow Compile](../09_EXAMPLES/AIRFLOW_COMPILE.md) over long design-study

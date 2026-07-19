@@ -1,5 +1,11 @@
 # Resource Provider
 
+!!! warning "Future design—not a shipped 0.18 entry-point protocol"
+    Resource providers are not a discoverable entry-point protocol in
+    ETLantic 0.18. This page describes a proposed extension surface. Prefer
+    the shipped dataframe / SQL / Spark / orchestration / secrets plugin
+    categories for current work.
+
 A **Resource Provider** implements the ETLantic Resource Provider API,
 supplying runtime infrastructure services to execution plugins and
 transformations.

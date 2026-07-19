@@ -23,49 +23,31 @@ ETLantic is inspired by FastAPI's type-driven developer experience, but it
 does not turn ETL into a web API metaphor. It applies the same principle—types
 as executable interface declarations—to data engineering.
 
-## Project Status
+## Project status
 
-The published **0.18.0 release is production/stable for documented
-single-tenant reference deployments**. It ships validation, profiles, an
-immutable secret-free `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
-memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
-and Pandas plugins, a versioned SQL protocol with the `etlantic-sql`
-PostgreSQL reference plugin, a versioned Spark protocol with the
-`etlantic-pyspark` reference plugin (local provider + portable compiler), and a
-versioned orchestration protocol with the `etlantic-airflow` reference
-compiler. Polars and PySpark portable compilers claim kernel + relational `/1`
-plus graduated Wave 1/2 families (string-advanced, conversion, statistics,
-window/1, complex types/values, reshape); Pandas and SQL remain baseline
-kernel + relational `/1`. Optional `etlantic-prefect` provides a local
-direct-execution scheduler. Structured Streaming APIs remain experimental.
-Multi-tenant isolation, deployment topology, compliance/SBOM/signing, and
-advanced supply-chain controls remain adopter-owned.
+**ETLantic 0.18.0** models, validates, and plans typed Python data pipelines,
+then runs them locally or through optional engine plugins.
+
+- **Use today:** single-tenant reference deployments (see [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)).
+- **Not included:** multi-tenant control plane, managed Spark, unrestricted
+  enterprise compliance attestations.
+- **Experimental:** Structured Streaming.
+
+[Install](01_GETTING_STARTED/INSTALLATION.md) ·
+[Quickstart](01_GETTING_STARTED/QUICKSTART.md) ·
+[Capabilities](01_GETTING_STARTED/CAPABILITIES.md) ·
+[Compare](01_GETTING_STARTED/COMPARE.md)
 
 !!! tip "Green path (start here only)"
     1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.18.0`
     2. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
     3. [First Pipeline](01_GETTING_STARTED/FIRST_PIPELINE.md) — contracts, validation, CLI
-    4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — stable vs experimental boundary
-    5. [What's new in 0.18](01_GETTING_STARTED/WHATS_NEW_0_18.md) — adopter delta after first success
-    6. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
+    4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — then Evaluator or an engine tutorial
 
     Pages marked **Future design** are not APIs. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)
-    is the single source of truth. Prefer the Green path above; persona paths
-    below are optional after first success.
-
-Read **Available** pages and the Green path first. Chapters under
-[Design Proposals](11_DEVELOPMENT/DESIGN_PROPOSALS.md) and Examples marked
-**Future design** are not current APIs. Design studies are not a promise that
-every illustrated surface is installable.
-
-Portable PySpark-inspired authoring ships in 0.11 via `@Transformation.portable`
-and `etlantic.transform`, emitting `dtcs.transform-plan/2`. **0.12** added
-planning integration and Polars **kernel** portable execution. **0.13** shipped
-Polars and PySpark `portable-relational/1` compilers; **0.14** shipped the
-Pandas eager compiler and public conformance SDK. Safe SQL portable lowering
-for that claim set shipped in **0.15**. **0.17** graduated advanced portable
-profiles on Polars and PySpark (see the compiler matrix). Start with
-[Portable Transformations](04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
+    is the single source of truth. Persona paths below are optional after first
+    success. Design studies under Examples are aspirational—not installable
+    APIs.
 
 ## Minimal working example
 

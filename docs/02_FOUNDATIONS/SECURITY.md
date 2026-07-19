@@ -4,13 +4,13 @@ ETLantic coordinates contracts, Python code, plugins, credentials, data
 artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
-This chapter covers **implemented 0.17 controls** and the broader
+This chapter covers **implemented 0.18 controls** and the broader
 **proposed threat model**. ETLantic 0.18.0 is production/stable for documented
 single-tenant reference deployments. It does not provide unrestricted
 multi-tenant, compliance, deployment-topology, SBOM/signing, or advanced
 supply-chain guarantees; those controls remain adopter-owned.
 
-## Implemented in 0.17
+## Implemented in 0.18
 
 - Secret-free plans and reports (`SecretRef` metadata only; resolve at runtime)
 - Production `Profile.plugin_allowlist` fail-closed selection of discovered plugins
@@ -272,7 +272,7 @@ See [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 !!! note "Future design (1.0)"
     A proposed `etlantic.toml` `[plugins.security]` block may eventually mirror
     the same allowlist semantics. Do not configure TOML as if it is loaded in
-    0.17—use `Profile.plugin_allowlist`.
+    0.18—use `Profile.plugin_allowlist`.
 
 Controls should include:
 
@@ -704,7 +704,7 @@ configuration.
 
 ## Verification
 
-Before expanding beyond the bounded 0.17 support envelope, automated tests
+Before expanding beyond the bounded 0.18 support envelope, automated tests
 should cover:
 
 - malicious YAML tags and deeply nested inputs
@@ -738,7 +738,7 @@ The repository should publish:
 
 ## Unrestricted Production Security Gate
 
-The documented single-tenant/reference 0.17 deployment is bounded stable.
+The documented single-tenant/reference 0.18 deployment is bounded stable.
 Broader production claims require:
 
 - the threat model is reviewed

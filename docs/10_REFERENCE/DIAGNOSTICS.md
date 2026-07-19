@@ -61,8 +61,16 @@ Standards and plugins retain their own namespaces, such as `ODCS`, `DTCS`,
 
 ## Practical code index
 
-These codes are emitted by the 0.17 source tree. The message, path, metadata,
-and severity provide the case-specific detail.
+These codes are emitted by the 0.18 source tree. The message, path, metadata,
+and severity provide the case-specific detail. Maintainers can regenerate a
+machine-readable inventory with:
+
+```bash
+uv run python scripts/generate_diagnostics_catalog.py
+```
+
+The script prints every `PMxxxx` / related code literal found under
+`src/etlantic`. The curated tables below remain the human-oriented index.
 
 ### Pipeline and planning
 

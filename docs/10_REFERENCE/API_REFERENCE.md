@@ -30,16 +30,39 @@ from etlantic import (
 
 `DataContractModel` is a deprecated alias for `Data`.
 
+## Author essentials
+
+Start with these callables. Full module dumps follow.
+
+| Symbol | Module | One-liner |
+|---|---|---|
+| `Data` | `etlantic.contracts` | ContractModel-compatible dataset type |
+| `Input` / `Output` / `Parameter` | `etlantic.ports` | Transformation port markers |
+| `Transformation` | `etlantic.transformation` | Typed transform interface + implementations |
+| `Extract` / `Load` | `etlantic.pipeline` | Pipeline entry / publication boundaries |
+| `Pipeline` | `etlantic.pipeline` | Declarative graph; `validate` / `plan` / `run` |
+| `Profile` | `etlantic.profile` | Environment + allowlist + engine selection |
+| `PipelineRuntime` | `etlantic.lifecycle` | Process-local plugins, memory, reports |
+| `PipelinePlan` | `etlantic.plan` | Immutable secret-free resolved plan |
+| `plan_pipeline` / `explain_plan` | `etlantic.plan` | Functional planning helpers |
+| `compile_plan` | `etlantic.orchestration` | External orchestrator artifact emission |
+| `ValidationReport` | `etlantic.diagnostics` | Structured validate findings |
+| `PipelineRunReport` | `etlantic.reports` | Structured run outcomes |
+| `SecretRef` | `etlantic.secrets` | Runtime-only secret reference |
+| `BackfillRequest` | `etlantic.reliability_runtime` | Reliability backfill request helper |
+
+Optional official plugins (`etlantic-polars`, `etlantic-pandas`, `etlantic-sql`,
+`etlantic-pyspark`, `etlantic-airflow`, `etlantic-prefect`, …) document their
+factories in package READMEs under `packages/`. See
+[Optional Packages](OPTIONAL_PACKAGES.md).
+
 ## Authoring
 
-!!! note "Portable authoring and compilers (0.11–0.14)"
+!!! note "Portable authoring and compilers"
     `etlantic.transform`, `@Transformation.portable`, symbolic DataFrame and
     Column objects, and `functions as F` normalize to published DTCS 3.0
-    `dtcs.transform-plan/2` models. `etlantic.transform.compiler` defines the
-    `etlantic.transform-compiler/1` protocol. Official compilers ship in
-    `etlantic-polars`, `etlantic-pyspark`, and `etlantic-pandas` (eager). See
-    package READMEs under `packages/` for optional-package APIs (MkDocs scans
-    `src/` only). Also see
+    `dtcs.transform-plan/2` models. Official compilers ship in optional
+    packages. See
     [Portable Transformations](../04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
     and [Portable Transform Compiler](../07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md).
 
@@ -342,6 +365,12 @@ Optional package factories (install `etlantic-polars`):
 ## Reliability and schema drift
 
 ::: etlantic.reliability
+    options:
+      show_root_heading: true
+      members_order: source
+      filters: ["!^_"]
+
+::: etlantic.reliability_runtime
     options:
       show_root_heading: true
       members_order: source

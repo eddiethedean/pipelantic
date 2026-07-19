@@ -35,8 +35,8 @@ ETLantic recognizes three primary contract types:
 ## ContractModel
 
 The companion library responsible for operationalizing data contracts.
-It provides the `DataContractModel` base class used to define typed
-datasets.
+Prefer ETLantic's `Data` base class for typed datasets; ContractModel
+remains the interchange/runtime companion for ODCS documents.
 
 ## DPCS
 
@@ -52,16 +52,24 @@ sources, transformations, sinks, and their relationships.
 A portable specification describing the interface of a transformation,
 including its inputs, outputs, parameters, and metadata.
 
+## Data
+
+The primary authoring type for a typed dataset in ETLantic. Subclass
+`Data` (from `etlantic`) to declare schema and constraints; pipelines
+and transformations reference these classes at ports.
+
+`DataContractModel` remains a deprecated compatibility alias for `Data`.
+
 ## Data Contract
 
 A typed description of a dataset. In ETLantic, data contracts are
-authored as ContractModel-compatible Pydantic models and can be
-represented as ODCS documents.
+authored as `Data` subclasses (ContractModel-compatible Pydantic models)
+and can be represented as ODCS documents.
 
 ## Data Contract Model
 
-A Python class derived from `DataContractModel` that serves as the
-source of truth for a dataset's schema and constraints.
+Deprecated name for a `Data` subclass. Prefer `Data`; `DataContractModel`
+is kept only as a compatibility alias.
 
 ## Execution Engine
 

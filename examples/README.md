@@ -4,7 +4,11 @@ These examples use APIs and dependencies shipped in ETLantic **0.18.0**. Install
 with `pip install etlantic==0.18.0` (plus matching `==0.18.0` optional engine
 packages), or from a checkout with `uv sync` and `uv run python …`.
 
-## Quickstart
+**CI vs local:** `.github/workflows/checks.yml` runs the scripts marked
+**(CI)** below. Scripts marked **(docs / local)** are copy-paste runnable and
+documented, but are not executed on every PR matrix job.
+
+## Quickstart (CI)
 
 ```bash
 uv run python examples/quickstart.py
@@ -16,7 +20,7 @@ The example defines contracts, registers a local Python implementation, runs
 the pipeline with in-memory storage, prints the run report, and prints the
 curated records.
 
-## Portable Polars / Pandas (no native implementation)
+## Portable Polars / Pandas (docs / local)
 
 ```bash
 # requires etlantic-polars / etlantic-pandas
@@ -31,7 +35,19 @@ Authors with `@Transformation.portable`, plans with
 or Pandas compilers (Pandas is eager-only / index-neutral). The Wave 17 example
 demonstrates advanced families shipped on Polars and PySpark.
 
-## JSON and CSV storage
+## Polars ↔ Pandas interchange (CI)
+
+```bash
+# requires etlantic-polars and etlantic-pandas
+uv sync --group dataframes
+uv run python examples/interchange_polars_pandas.py
+```
+
+Gate A demo: a Polars step feeds a Pandas step across a planned
+`etlantic.interchange/1` boundary. See
+[docs/09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md](../docs/09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md).
+
+## JSON and CSV storage (docs / local)
 
 ```bash
 python examples/file_storage.py
@@ -40,7 +56,7 @@ python examples/file_storage.py
 Runs tested `json_to_json()` and `csv_to_csv()` workflows using built-in
 storage bindings.
 
-## Dataframe parity (Polars / Pandas)
+## Dataframe parity (CI)
 
 ```bash
 # requires etlantic-polars / etlantic-pandas
@@ -51,7 +67,7 @@ python examples/dataframe_parity.py pandas
 Runs the same logical pipeline against either dataframe plugin via
 `Profile.dataframe_engine`.
 
-## SQL to SQL
+## SQL to SQL (CI)
 
 ```bash
 # requires etlantic-sql
@@ -64,7 +80,7 @@ python examples/sql_failure_recovery.py
 Runs SQL-native pipelines. Defaults to in-memory SQLite for demos; set
 `ETLANTIC_SQL_URL` for PostgreSQL.
 
-## Local PySpark
+## Local PySpark (CI)
 
 ```bash
 # requires etlantic-pyspark
@@ -74,7 +90,7 @@ python examples/pyspark_local.py
 Runs a batch Spark pipeline with the local provider via
 `Profile.spark_engine="pyspark"`.
 
-## Airflow compile
+## Airflow compile (CI)
 
 ```bash
 # requires etlantic-airflow
@@ -84,7 +100,7 @@ python examples/airflow_compile.py
 Runs a pipeline locally, then compiles the same plan to an Airflow DAG module
 via `compile_plan(..., target="airflow")`.
 
-## Prefect local execution
+## Prefect local execution (CI)
 
 ```bash
 # requires etlantic-prefect

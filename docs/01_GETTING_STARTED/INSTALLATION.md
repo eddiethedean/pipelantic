@@ -79,8 +79,8 @@ pip install 'etlantic[arrow]'
 Verify discovery after installing Polars:
 
 ```bash
-python -c "from etlantic.transform.discovery import discover_transform_compilers; print(sorted(discover_transform_compilers()))"
-# expect: ['polars']
+etlantic plugin list --kind transform_compiler --format json
+# expect an entry for the polars transform compiler
 ```
 
 For SQL, set a connection URL (PostgreSQL is the reference; SQLite is

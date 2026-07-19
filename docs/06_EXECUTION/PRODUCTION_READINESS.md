@@ -65,7 +65,7 @@ engine wheels to workers.
 
 ## Shipped / adopter-owned / gap
 
-| Concern | 0.17 status |
+| Concern | 0.18 status |
 |---|---|
 | Typed validate/plan/run | Shipped |
 | Polars kernel portable compile | Shipped |

@@ -15,7 +15,7 @@ This section explains how to:
 
 - Define pipelines with Python classes
 - Connect transformations using typed inputs and outputs
-- Declare sources and sinks
+- Declare extracts and loads (`asset=`)
 - Configure execution profiles
 - Validate pipeline graphs
 - Generate DPCS artifacts
@@ -81,12 +81,13 @@ Planning determines:
 
 Execution plugins perform the actual work.
 
-## Sources and Sinks
+## Extracts and Loads
 
-Pipelines begin with typed sources and end with typed sinks.
+Pipelines begin with typed extracts and end with typed loads. Prefer
+`Extract[T](asset=...)` and `Load[T](..., asset=...)`.
 
 ```text
-Source
+Extract
    │
    ▼
 Transformation
@@ -95,10 +96,14 @@ Transformation
 Transformation
    │
    ▼
-Sink
+Load
 ```
 
 Every connection is validated through data contracts.
+
+> **Migration note:** Public `Source` / `Sink` aliases were removed in 0.16.
+> See [SOURCES.md](SOURCES.md) and [SINKS.md](SINKS.md) only for the rename
+> pointers; author against [Extracts](EXTRACTS.md) and [Loads](LOADS.md).
 
 ## Validation
 
@@ -131,9 +136,9 @@ Generated artifacts are deterministic and suitable for version control.
 Read this section in the following order:
 
 1. [Pipeline](PIPELINE.md)
-2. [Sources](EXTRACTS.md)
+2. [Extracts](EXTRACTS.md)
 3. [Steps](STEPS.md)
-4. [Sinks](LOADS.md)
+4. [Loads](LOADS.md)
 5. [Subpipelines](SUBPIPELINES.md)
 6. [DPCS](DPCS.md)
 7. [Pipeline Validation](PIPELINE_VALIDATION.md)

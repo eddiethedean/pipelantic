@@ -77,7 +77,7 @@ ETLantic supports complementary authoring paths.
 - Portable definitions optionally describe relational behavior once through a
   PySpark-inspired symbolic API (shipped in 0.11+) that normalizes to
   the published DTCS 3.0 `dtcs.transform-plan/2` representation (v1 readable).
-- `Pipeline` classes connect sources, steps, sinks, and subpipelines.
+- `Pipeline` classes connect extracts, steps, loads, and subpipelines.
 
 ### Contract-first
 
@@ -97,7 +97,7 @@ The logical model captures portable meaning:
 - Data-contract references
 - Typed transformation ports
 - Parameters and defaults
-- Sources and sinks
+- Extracts and Loads (entry and publication boundaries)
 - Step instances
 - Edges and dependencies
 - Subpipeline interfaces
@@ -203,7 +203,7 @@ ETLantic distinguishes:
 
 ```text
 Logical graph
-User-visible sources, steps, sinks, ports, and contracts
+User-visible extracts, steps, loads, ports, and contracts
 
 Physical graph
 Backend tasks, fused queries, Spark stages, materializations, and submissions

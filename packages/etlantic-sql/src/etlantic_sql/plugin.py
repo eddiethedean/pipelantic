@@ -95,6 +95,10 @@ class PostgresSqlPlugin:
     def rows_fetched_total(self) -> int:
         return self._rows_fetched[0]
 
+    def get_engine(self) -> Engine:
+        """Return the shared SQLAlchemy engine for this plugin instance."""
+        return self._get_engine()
+
     def _get_engine(self) -> Engine:
         if self._engine is None:
             self._engine = create_engine(self._url, future=True)

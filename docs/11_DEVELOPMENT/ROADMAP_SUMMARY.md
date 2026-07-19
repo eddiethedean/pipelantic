@@ -11,7 +11,7 @@ ETLantic **0.15.0** closed Safe SQL Lowering and the LocalScheduler companion.
 ETLantic **0.16.0** shipped Gate A (authoring vocabulary cleanup) and Gate B
 (optional `etlantic-prefect` `ExecutionScheduler`).
 
-ETLantic **0.18.0** shipped portable coverage expansion:
+ETLantic **0.17.0** shipped portable coverage expansion:
 
 - Gate A — transform-compiler CLI inventory, exact capability matrix, drift
   checks, allowlist-safe discovery
@@ -21,13 +21,17 @@ ETLantic **0.18.0** shipped portable coverage expansion:
 - Gate C — Wave 2 on Polars + PySpark (`portable-complex-types/1`,
   `portable-complex-values/1`, `portable-reshape/1`)
 
-Pandas and SQL remain kernel + `portable-relational/1` in 0.17. See
+Pandas and SQL remain kernel + `portable-relational/1`. See
 [What's New in 0.17](../01_GETTING_STARTED/WHATS_NEW_0_17.md) and
 [Migration 0.16 → 0.17](MIGRATION_0_16_TO_0_17.md).
 
-**0.17 continuation** (not required to close 0.17):
+**0.17 continuation** (not required to close 0.17 or 0.18):
 `portable-relational-extended/1`, `portable-temporal-iana/1`,
 `portable-nondeterministic/1`, `portable-window/2`.
+
+ETLantic **0.18.0** shipped Gate A versioned tabular interchange
+(`etlantic.interchange/1`) for Polars↔Pandas boundaries. See below and
+[What's New in 0.18](../01_GETTING_STARTED/WHATS_NEW_0_18.md).
 
 ## Shipped: 0.18 Gate A (versioned tabular interchange)
 

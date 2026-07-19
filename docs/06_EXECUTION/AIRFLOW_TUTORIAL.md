@@ -3,6 +3,12 @@
 > **Status: Available in ETLantic 0.18.0.** ETLantic compiles a plan; it does
 > not install or operate an Airflow scheduler.
 
+!!! warning "`etlantic-airflow` is compile-only"
+    Installing `etlantic-airflow` (or `etlantic[airflow]`) provides the
+    compile target for `etlantic compile --target airflow`. It does **not**
+    install Apache Airflow. To import or run generated DAGs you need a
+    separate Airflow installation in your deployment environment.
+
 
 !!! note "Repository examples"
     Companion scripts under `examples/` are not installed with the PyPI

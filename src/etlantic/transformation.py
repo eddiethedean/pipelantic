@@ -303,18 +303,22 @@ class Transformation:
 
     @classmethod
     def step(cls, **kwargs: Any) -> Step:
-        """Create a symbolic use of this transformation inside a pipeline.
+        """Bind this transformation into a pipeline graph without running it.
 
         Args:
-            **kwargs: Input bindings and parameter values named exactly as the
-                subclass declarations.
+            **kwargs: Port bindings (``Input`` names to extracts, steps, or
+                ``OutputRef`` values) and optional parameter values named
+                exactly as the subclass declarations.
 
         Returns:
-            A :class:`Step` whose output attributes can be wired downstream.
+            A symbolic ``Step`` whose output attributes can be wired downstream.
 
         Raises:
-            ModelDefinitionError: If a keyword does not name a declared input
-                or parameter, or required declarations cannot be satisfied.
+            ModelDefinitionError: If a binding name is unknown or required
+                ports are missing.
+
+        Examples:
+            >>> normalized = NormalizeCustomers.step(customers=raw)
 
         This method does not execute a registered implementation.
         """

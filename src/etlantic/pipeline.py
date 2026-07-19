@@ -366,6 +366,10 @@ class Pipeline(metaclass=_PipelineMeta):
 
         Returns:
             A ``ValidationReport`` containing phase results and diagnostics.
+
+        Examples:
+            >>> report = CustomerPipeline.validate(profile="development")
+            >>> report.raise_for_errors()
         """
         from etlantic.validation import validate_pipeline
 
@@ -402,7 +406,22 @@ class Pipeline(metaclass=_PipelineMeta):
         context: Any = None,
         selection: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Return a structured explanation of the planned pipeline."""
+        """Return a structured explanation of the planned pipeline.
+
+        Args:
+            profile: Built-in profile name or explicit ``Profile``.
+            context: Optional planning context with bindings and plugins.
+            selection: Optional partial-run selection mapping.
+
+        Returns:
+            A JSON-serializable explanation dict (regions, bindings,
+            interchange boundaries, fingerprints). Does not execute user code.
+
+        Examples:
+            >>> explanation = CustomerPipeline.explain_plan(profile="development")
+            >>> "fingerprint" in explanation or "plan" in explanation
+            True
+        """
         from etlantic.plan.explain import explain_plan
         from etlantic.plan.planner import plan_pipeline
 
@@ -460,7 +479,26 @@ class Pipeline(metaclass=_PipelineMeta):
         context: Any = None,
         workspace: str | Any = None,
     ) -> Any:
-        """Validate, plan, and execute this pipeline locally (async)."""
+        """Validate, plan, and execute this pipeline locally (async).
+
+        Args:
+            profile: Built-in profile name or explicit ``Profile``.
+            request: Optional run selection, intent, and policy request.
+            runtime: Application-owned ``PipelineRuntime``.
+            context: Optional planning context.
+            workspace: Optional durable workspace root.
+
+        Returns:
+            A structured ``PipelineRunReport``.
+
+        Raises:
+            PipelineValidationError: If validation fails before execution.
+            PipelineExecutionError: If execution cannot produce a run report.
+
+        Examples:
+            >>> import anyio
+            >>> report = anyio.run(CustomerPipeline.arun, "development")
+        """
         from etlantic.runtime.execute import arun_pipeline
 
         return await arun_pipeline(

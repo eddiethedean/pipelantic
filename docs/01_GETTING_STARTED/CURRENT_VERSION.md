@@ -8,11 +8,13 @@ single-tenant reference deployment boundary.
 
 ## Start here
 
-1. [What's new in 0.18](WHATS_NEW_0_18.md)
-2. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.18.0`
-3. [Run the five-minute quickstart](QUICKSTART.md)
-4. [Build your first pipeline](FIRST_PIPELINE.md)
-5. [Check current capabilities](CAPABILITIES.md)
+1. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.18.0`
+2. [Run the five-minute quickstart](QUICKSTART.md)
+3. [Build your first pipeline](FIRST_PIPELINE.md)
+4. [Check current capabilities](CAPABILITIES.md)
+
+After first success: [What's new in 0.18](WHATS_NEW_0_18.md),
+[Compare](COMPARE.md), or an [engine tutorial](ENGINE_SELECTION.md).
 
 ## Choose your next task
 
@@ -21,6 +23,7 @@ single-tenant reference deployment boundary.
 | Read and write JSON or CSV | [File storage](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md) |
 | Execute with Polars | [Polars tutorial](../06_EXECUTION/POLARS_TUTORIAL.md) |
 | Execute with Pandas | [Pandas tutorial](../06_EXECUTION/PANDAS_TUTORIAL.md) |
+| Polars↔Pandas Gate A interchange | [Interchange example](../09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md) |
 | Keep work inside SQL | [SQL tutorial](../06_EXECUTION/SQL_TUTORIAL.md) |
 | Run a local Spark batch | [PySpark tutorial](../06_EXECUTION/PYSPARK_TUTORIAL.md) |
 | Compile a DAG | [Airflow tutorial](../06_EXECUTION/AIRFLOW_TUTORIAL.md) |

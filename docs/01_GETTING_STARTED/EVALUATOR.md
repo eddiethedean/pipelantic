@@ -96,7 +96,7 @@ How to read status labels in deeper chapters:
 
 ## Enterprise readiness matrix
 
-| Concern | Status in 0.17 |
+| Concern | Status in 0.18 |
 |---|---|
 | License | MIT (core and official plugins) |
 | Supported versions / EOL | Current stable line is 0.18.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
@@ -106,25 +106,22 @@ How to read status labels in deeper chapters:
 | SBOM / signed provenance | Gap — not yet emitted by release automation |
 | Audit system of record | Gap — process-local reports are operational evidence only |
 | Tested scale | Local/pilot workloads; no published capacity guarantees |
-| Upgrade / rollback | Pin exact versions; see [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
 
 ## Recommended evaluation path
 
 1. [Installation](INSTALLATION.md) — `pip install etlantic==0.18.0`
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
-3. [Capabilities](CAPABILITIES.md)
-4. Optional: `examples/portable_polars_kernel.py` with `etlantic-polars`
-5. Optional: `examples/dataframe_parity.py` with Polars or Pandas
-6. Optional: `examples/sql_to_sql.py` (and other `examples/sql_*.py`) with
-   `etlantic-sql`
-7. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
-8. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
-9. Optional: Prefect scheduler via `etlantic-prefect` /
-   `Profile(orchestrator="prefect")`
-10. Optional: SparkForge adapter via `uv sync --group sparkforge`
-11. [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) (and
-    earlier migration guides when needed)
-12. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
+3. [First Pipeline](FIRST_PIPELINE.md)
+4. [Capabilities](CAPABILITIES.md)
+5. Optional: `examples/interchange_polars_pandas.py` (0.18 Gate A) with
+   `etlantic[dataframes]==0.18.0`
+6. Optional engine examples: portable kernels, SQL, PySpark, Airflow compile,
+   Prefect
+7. [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md)
+8. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
+9. Production path: copy [profiles/prod.example.json](prod.example.json)
+   and see [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md)
 
 ## Support channel
 

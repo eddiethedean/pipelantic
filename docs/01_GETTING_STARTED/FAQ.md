@@ -22,7 +22,7 @@ Prefect direct execution via the shipped `etlantic-prefect`
 
 ------------------------------------------------------------------------
 
-## Is ETLantic 0.17 production-supported?
+## Is ETLantic 0.18 production-supported?
 
 Yes, within a bounded scope. ETLantic 0.18.0 is production/stable for the
 documented single-tenant reference deployments in
@@ -35,7 +35,7 @@ remain adopter-owned; this is not an unrestricted production claim.
 
 ## What is the difference between Stable and Experimental?
 
-Stable APIs and behaviors are supported within the documented 0.17 reference
+Stable APIs and behaviors are supported within the documented 0.18 reference
 envelope. Features explicitly labeled **Experimental**, currently including
 Structured Streaming foundations, may change and are outside that stable
 claim. A page describing a shipped feature does not make every feature on that
@@ -134,17 +134,10 @@ They intentionally do not specify implementation details.
 
 ## Can one transformation run on Polars, PySpark, Pandas, and SQL?
 
-ETLantic ships `@Transformation.portable` / `etlantic.transform` authoring
-(0.11+) that emits `dtcs.transform-plan/2`. **0.12** executes Polars
-**kernel** plans without a native `@implementation("polars")` when
-`portable_transform_policy` is `prefer` or `require` and `etlantic-polars` is
-installed. **0.13** shipped Polars and PySpark `portable-relational/1`
-compilers; **0.14** shipped the eager Pandas compiler. Safe SQL portable
-lowering for that claim set shipped in **0.15**—register native
-`@implementation("sql")` for behavior outside its advertised claim set.
-In 0.17, advanced window and reshape families graduated on Polars and PySpark;
-continuation families remain. Native implementations remain the escape hatch
-outside each plugin's portable claim.
+Yes, when you author with `@Transformation.portable` and install the matching
+engine plugin. Support differs by engine—see the
+[Portable Compiler Matrix](../10_REFERENCE/PORTABLE_COMPILER_MATRIX.md).
+Use a native `@implementation(...)` for anything outside that matrix.
 
 ------------------------------------------------------------------------
 

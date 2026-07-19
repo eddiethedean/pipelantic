@@ -111,7 +111,7 @@ class PrefectScheduler:
         return SchedulerSupportReport(supported=not findings, findings=tuple(findings))
 
     def _make_wave_runner(self, *, run_id: str) -> Any:
-        from prefect import task
+        from prefect.tasks import task
 
         correlation = self._task_correlation
 
@@ -163,8 +163,9 @@ class PrefectScheduler:
             detail = "; ".join(f"{f.code}: {f.reason}" for f in report.findings)
             raise ETLanticError(f"PrefectScheduler rejected plan: {detail}")
 
+        from prefect.flows import flow
+
         from etlantic.runtime.orchestrator import LocalOrchestrator
-        from prefect import flow
 
         self._task_correlation = {}
         run_key = ctx.run_id or plan.plan_id or "run"

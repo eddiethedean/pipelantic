@@ -22,19 +22,23 @@ shipped.
 - [Portable transforms](PORTABLE_TRANSFORMS.md) —
   `examples/portable_polars_kernel.py`, `portable_pandas_kernel.py`, and
   `portable_wave17.py`
+- [Polars ↔ Pandas interchange](INTERCHANGE_POLARS_PANDAS.md) —
+  `examples/interchange_polars_pandas.py`
 - [SparkForge Adapter](SPARKFORGE_ADAPTER.md) — `tests/sparkforge/`
 
 ## Runnable scripts (repository `examples/`)
 
-These scripts are exercised by CI. From a checkout:
+Scripts marked **(CI)** run in `.github/workflows/checks.yml`. Others are
+documented and copy-paste runnable locally. Repository index:
+[examples/README.md on GitHub](https://github.com/eddiethedean/etlantic/blob/main/examples/README.md).
 
-### In-memory quickstart
+### In-memory quickstart (CI)
 
 ```bash
 uv run python examples/quickstart.py
 ```
 
-### Portable kernels and 0.17 families
+### Portable kernels and 0.17 families (docs / local)
 
 ```bash
 uv sync --group dataframes
@@ -43,13 +47,22 @@ uv run python examples/portable_pandas_kernel.py
 uv run python examples/portable_wave17.py
 ```
 
-### JSON and CSV storage
+### Polars ↔ Pandas interchange (CI)
+
+```bash
+uv sync --group dataframes
+uv run python examples/interchange_polars_pandas.py
+```
+
+See [Polars ↔ Pandas Interchange](INTERCHANGE_POLARS_PANDAS.md).
+
+### JSON and CSV storage (docs / local)
 
 ```bash
 uv run python examples/file_storage.py
 ```
 
-### Dataframe parity (Polars / Pandas)
+### Dataframe parity (Polars / Pandas) (CI)
 
 ```bash
 uv sync --group dataframes
@@ -57,7 +70,7 @@ uv run python examples/dataframe_parity.py polars
 uv run python examples/dataframe_parity.py pandas
 ```
 
-### SQL to SQL
+### SQL to SQL (CI)
 
 ```bash
 uv sync --group sql
@@ -70,21 +83,21 @@ uv run python examples/sql_failure_recovery.py
 Defaults to in-memory SQLite for demos; set `ETLANTIC_SQL_URL` for
 PostgreSQL.
 
-### Local PySpark
+### Local PySpark (CI)
 
 ```bash
 uv sync --group pyspark
 uv run python examples/pyspark_local.py
 ```
 
-### Airflow compile
+### Airflow compile (CI)
 
 ```bash
 uv sync --group airflow
 uv run python examples/airflow_compile.py
 ```
 
-### Prefect local execution
+### Prefect local execution (CI)
 
 ```bash
 uv sync --group prefect

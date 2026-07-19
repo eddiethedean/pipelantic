@@ -53,6 +53,7 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 | Portable PySpark compiler (kernel + relational `/1`) | Available |
 | Portable Pandas compiler (kernel + relational `/1`, eager) | Available |
 | Portable SQL compiler (kernel + relational `/1`) | Available (`etlantic-sql`) |
+| Advanced portable profiles (window, reshape, string-advanced, …) | Available on Polars + PySpark; Pandas/SQL remain baseline |
 | Public portable transform conformance suite | Available |
 | Versioned tabular interchange (`etlantic.interchange/1`) | **0.18.0 Gate A — Available** for Polars↔Pandas boundaries |
 | Best-effort Arrow-assisted conversion | Legacy helper; available when PyArrow is installed, but not the Gate A contract |
@@ -96,12 +97,16 @@ Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 | FastAPI control plane | Continues in 1.1 |
 | Full SparkForge engine retirement inside SparkForge | Progressive path (see migration guide) |
 | Stable 1.0 compatibility guarantees | Not yet |
-| Advanced portable profile graduation (window, reshape, …) | **0.17** shipped on Polars + PySpark (continuation families remain) |
+| Portable continuation families (`relational-extended`, `temporal-iana`, …) | Not yet — see [Portable Compiler Matrix](../10_REFERENCE/PORTABLE_COMPILER_MATRIX.md) |
 | Dedicated deployment / multi-worker ops guide | Partial — see [Ops Pilot](../06_EXECUTION/OPS_PILOT.md) |
 
 ## CI starter
 
+Copy the starter allowlist profile, then validate and plan:
+
 ```bash
+cp docs/01_GETTING_STARTED/prod.example.json profiles/prod.json
+# edit assets and allowlist for your pipeline
 etlantic validate path/to/pipeline.py:MyPipeline --profile ./profiles/prod.json --format sarif
 etlantic plan path/to/pipeline.py:MyPipeline --profile ./profiles/prod.json --format json
 ```
@@ -109,6 +114,7 @@ etlantic plan path/to/pipeline.py:MyPipeline --profile ./profiles/prod.json --fo
 Production profiles require a non-empty `Profile.plugin_allowlist` in an
 explicit Profile JSON file (the built-in `production` name is empty and
 fail-closed). Never put secrets in plans, reports, or CI logs. See
+[profiles/prod.example.json](prod.example.json),
 [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md),
 [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md),
 [Ops Pilot](../06_EXECUTION/OPS_PILOT.md), and the

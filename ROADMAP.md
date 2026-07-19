@@ -1745,6 +1745,321 @@ DataFusion ships as recommended only after its graduation gate; a failed
 experiment is removed or remains explicitly experimental without becoming a
 core compatibility obligation.
 
+## 0.19 — Contract and Configuration Freeze
+
+**Objective:** turn the shipped logical model and plan boundary into a precise,
+deeply immutable, versioned contract before adding further stable surface area.
+The experimental DataFusion Gate B may proceed in parallel, but it cannot
+change or weaken these gates and does not become a 1.0 obligation unless it
+graduates independently.
+
+### Deliver
+
+- make `PipelinePlan` and all plan-owned nested values deeply immutable rather
+  than only freezing the top-level dataclass
+- define canonical serialization and the exact fingerprint participation rules
+  for logical graphs, profiles, implementations, bindings, artifacts,
+  capabilities, interchange decisions, and extension metadata
+- verify plan fingerprints after deserialization and immediately before
+  execution or compilation across a trust boundary
+- fully specify nested JSON Schemas for plans, run reports, profiles,
+  diagnostics, events, artifacts, capability decisions, and interchange
+  evidence; replace unconstrained objects and arrays with versioned shapes
+- reject missing and unknown wire-schema versions; add explicit, tested schema
+  upgrade functions instead of silently applying current defaults
+- define extension namespaces and size budgets so plugin metadata remains
+  evolvable without making every core schema open-ended
+- make profile resolution strict: unknown named profiles fail unless an
+  explicit ad hoc-profile option is selected
+- add an explicit profile security mode rather than relying only on profile
+  names or security-domain spelling to identify production-like behavior
+- finish the public `assets` vocabulary migration; preserve legacy `bindings`
+  reads only through a diagnosed compatibility or migration path
+- inventory the top-level SDK, submodule SDKs, CLI, schemas, diagnostic codes,
+  and plugin protocols as stable, provisional, experimental, or private
+- decide every pre-1.0 deprecation and publish the final removal/migration
+  schedule
+
+### Acceptance scenarios
+
+- attempts to mutate any plan-owned mapping, sequence, descriptor, or nested
+  metadata fail without changing the plan or its fingerprint
+- equivalent inputs serialize byte-for-byte identically across supported
+  Python versions and operating systems
+- altered, corrupt, or incorrectly fingerprinted plans fail before plugin
+  loading, resource acquisition, compilation, or execution
+- every supported historical wire fixture either loads exactly as documented
+  or produces a stable unsupported-version/migration diagnostic
+- a misspelled production profile cannot resolve to a permissive default
+- public profile output contains `assets`; legacy `bindings` input is explicit,
+  diagnosed, and never re-emitted as current authoring guidance
+
+### Exit gate
+
+The authoring model, profile vocabulary, canonical plan representation, and
+public wire schemas are precise enough to enter compatibility testing. No new
+stable backend or control-plane surface may bypass these contracts.
+
+## 0.20 — Trust, Isolation, and Safe I/O
+
+**Objective:** authorize plugins and external effects before executable code or
+mutable resources cross the analysis boundary.
+
+### Deliver
+
+- split plugin handling into deterministic `discover → evaluate → authorize →
+  load` phases
+- define a static plugin manifest that can be inspected from distribution
+  metadata without importing the plugin entry point
+- evaluate package name, distribution version, protocol range, capabilities,
+  allowlist, provenance, and conflicts before executable plugin loading
+- record selected distribution identity, digest, provenance, protocol, and
+  authorization decision in plans, reports, and security events
+- diagnose duplicate names, conflicting entry points, invalid manifests, and
+  package/manifest identity mismatches deterministically
+- provide an optional isolated capability probe with strict time, output, and
+  resource budgets; document that process isolation is containment, not a
+  complete sandbox
+- route contract, profile, report, schema-history, reliability, generated
+  artifact, cache, checkpoint, and visualization filesystem access through one
+  safe I/O policy
+- enforce approved roots, normalized paths, explicit symlink behavior, special
+  file rejection, bounded reads, atomic writes, overwrite policy, locking,
+  integrity digests, retention, and cleanup
+- isolate artifact and cache identities by run, environment, tenant, security
+  domain, logical authorization, compiler fingerprint, and contract version
+- implement outbound network, redirect, webhook, and remote-reference policy
+  with scheme/host/address controls, timeouts, response bounds, and no ambient
+  credential forwarding
+- enforce unsafe-serialization prohibitions across all loaders and plugin
+  boundaries
+- emit versioned security and audit events without secret values or source rows
+- generate release SBOMs and provenance attestations; sign release artifacts
+  and use short-lived trusted publishing where supported
+
+### Acceptance scenarios
+
+- a disallowed installed plugin is rejected without importing its executable
+  entry point
+- plugin manifest tampering, version mismatch, duplicate identity, and
+  provenance failure stop planning or execution with stable diagnostics
+- traversal, symlink escape, special files, partial writes, oversized inputs,
+  and concurrent history/report writers fail safely
+- artifacts and caches from another tenant, run, environment, or security
+  domain cannot be selected through identity collision or fallback
+- loopback, link-local, metadata-service, private, redirected, oversized, and
+  unapproved outbound targets are rejected by default
+- plans, reports, diagnostics, audit events, build artifacts, and failure logs
+  contain no resolved secrets or source rows
+
+### Exit gate
+
+Every mandatory trust and I/O control has an implementation owner, automated
+verification, a stable diagnostic or event, and documented residual risk.
+
+## 0.21 — Cohesive CLI and Authoring Experience
+
+**Objective:** make the supported workflow usable end to end without hidden
+process-local setup or Python-only registration steps.
+
+### Deliver
+
+- define one documented journey: `init → doctor → inspect → validate → plan →
+  run → report`
+- add `etlantic init` for a minimal import-safe pipeline, explicit profile, and
+  executable test without introducing a framework-specific project layout
+- add `etlantic doctor` for read-only environment, dependency, plugin, profile,
+  approved-root, and optional backend connectivity checks
+- add first-class `profile validate`, `profile show`, `profile diff`, and
+  `profile migrate` commands
+- support declarative asset/provider configuration so durable CLI runs do not
+  require application-side runtime registration
+- make a durable workspace and file report store the normal CLI path; retain
+  process-local operation only as an explicit ephemeral mode
+- make reports written by one CLI invocation discoverable by later `report`
+  commands
+- standardize global output, color, verbosity, quiet, and non-interactive
+  options across command groups
+- assign documented exit codes for usage, invalid model, trust failure,
+  planning failure, execution failure, partial run, and breaking change
+- show mutation scope, resolved profile source, security mode, selected
+  plugins, and write intent before mutating commands
+- provide consistent dry-run/no-write behavior and explicit confirmation
+  policy for destructive or externally mutating operations
+- improve human diagnostics with source span, phase, explanation, remediation,
+  and safe machine-readable action
+- add compact `plan diff` and “why this engine, boundary, materialization, or
+  fallback?” views
+- make command help expose default target forms and all applicable options;
+  test shell completion and help output as public UX
+- publish a small recommended top-level authoring API and route advanced APIs
+  through clearly owned public submodules
+
+### Acceptance scenarios
+
+- a new user can initialize, validate, plan, run, and inspect a durable report
+  in separate shell invocations using only generated guidance
+- the quickstart's primary CLI path succeeds without process-local memory
+  seeding or undocumented Python registration
+- every mutating command declares its target and supports a truthful preview
+  where the underlying operation permits one
+- human, JSON, and SARIF output agree on diagnostic identity, severity, phase,
+  and result status
+- help snapshots, completion tests, Windows path tests, and non-interactive CI
+  examples remain stable across patch releases
+
+### Exit gate
+
+The CLI and Python quickstarts describe one coherent product, and durable
+local workflows no longer depend on state retained inside a single process.
+
+## 0.22 — Plugin SDK Release Candidate
+
+**Objective:** prove that the extension model is capability-driven and usable
+outside the monorepo before freezing protocol `/1` surfaces.
+
+### Deliver
+
+- remove first-party engine-name classification and hard-coded engine sets from
+  planning, execution, interchange, reporting, and visualization decisions
+- derive execution family and behavior entirely from authorized protocol
+  descriptors, semantic capabilities, and registered providers
+- version capability vocabulary independently and publish compatibility,
+  implication, conflict, and deprecation rules
+- replace unconstrained public `Any` and metadata contracts with typed value
+  models where interoperability or stability depends on their contents
+- require each first-party plugin to pass the same public conformance package
+  available to third-party authors
+- expand conformance with adversarial, malformed-response, cancellation,
+  cleanup, redaction, ownership, and capability-truthfulness cases
+- publish a plugin compatibility report command covering core, SDK, plan
+  schema, protocol, DTCS, capability, and Python-version ranges
+- maintain at least one reference third-party plugin outside the monorepo to
+  expose packaging, documentation, and compatibility assumptions
+- document protocol evolution, optional-method negotiation, support windows,
+  and the difference between protocol compatibility and production trust
+- freeze protocol `/1` only after external implementation feedback and a
+  release-candidate compatibility period
+
+### Acceptance scenarios
+
+- an unknown third-party engine name validates, plans, executes or compiles,
+  reports, and visualizes solely through its descriptors and capabilities
+- a plugin cannot gain behavior through a reserved name or hidden core alias
+- overstated or internally inconsistent capabilities fail conformance with an
+  actionable finding
+- independently installed plugins can test compatibility without importing
+  private underscore modules
+- older compatible plugins work across the documented core range, while
+  incompatible protocol or schema ranges fail before execution
+
+### Exit gate
+
+The Plugin SDK has external proof, a compatibility policy, a conformance
+contract, and no architectural dependency on the identities of first-party
+plugins.
+
+## 0.23 — Runtime Resilience and Performance Budgets
+
+**Objective:** quantify supported scale and prove correct behavior under
+partial failure, concurrency, cancellation, and resource pressure.
+
+### Deliver
+
+- establish reproducible time and memory benchmarks for graph construction,
+  validation, planning, fingerprinting, serialization, plugin discovery,
+  portable compilation, reporting, and representative backend paths
+- publish supported workload envelopes and enforce regression budgets in CI
+- measure cross-engine interchange copies, collections, peak memory,
+  conversion cost, and artifact size against declared plan evidence
+- add deterministic failure injection at extract, conversion, transform,
+  validation, materialization, load, report persistence, cleanup, callback,
+  and outbound-event boundaries
+- test cancellation and timeout behavior during reads, compilation, execution,
+  writes, retries, cleanup, and report persistence
+- make report, schema-history, state, and artifact persistence atomic,
+  concurrency-safe, idempotent, and recoverable after process termination
+- verify retry safety, duplicate-publication prevention, reconciliation, and
+  partial-success semantics for every supported write mode
+- test disk-full, permission, corrupt artifact, lost connection, plugin hang,
+  malformed plugin output, and cleanup failure scenarios
+- run real PySpark integration tests in addition to Sparkless and parse/import
+  generated Airflow artifacts against every supported Airflow line
+- publish measured limits rather than implying unrestricted production scale
+
+### Acceptance scenarios
+
+- cancellation produces bounded cleanup and one terminal report without
+  duplicate committed writes
+- interruption between data publication and report persistence is detected and
+  recoverable without reporting a false success
+- concurrent writers cannot corrupt report or schema-history stores
+- benchmark regressions above the published budget fail CI or require an
+  explicit reviewed budget change
+- planned and observed interchange evidence agree within the documented
+  measurement limits
+
+### Exit gate
+
+All stable reference paths have measured budgets, failure-injection coverage,
+documented scale limits, and deterministic terminal-state semantics.
+
+## 0.24–0.98 — Compatibility Burn-In
+
+**Objective:** allow only bounded, evidence-backed additions while the frozen
+contracts accumulate real adoption and upgrade history.
+
+### Deliver
+
+- exercise at least two consecutive minor upgrade paths without requiring a
+  wire-schema reset
+- maintain old-reader/new-writer and new-reader/old-writer fixtures for every
+  supported schema and protocol range
+- require migrations for all intentional breaking changes and collect removal
+  candidates for 1.0 rather than carrying ambiguous aliases indefinitely
+- graduate experimental engines or portable families only through their
+  existing conformance, differential, security, performance, and documentation
+  gates
+- keep server, registry, LSP, remote federation, expanded streaming,
+  additional orchestrators, and AI-assisted authoring out of the stable core
+  unless needed to prove an already-promised 1.0 abstraction
+
+### Exit gate
+
+No unresolved naming migration, silent compatibility fallback, schema reset,
+or provisional core protocol remains on the 1.0 path.
+
+## 0.99 — 1.0 Release Candidate
+
+**Objective:** rehearse the final release, upgrade, rollback, security, and
+support process against the exact artifacts intended for 1.0.
+
+### Deliver
+
+- freeze public API and schema snapshots and require explicit review for any
+  change
+- run the complete 1.0 acceptance suite from both source and built wheels on
+  every supported Python version and operating system
+- test every documented extra individually and in supported combinations from
+  isolated wheel installations
+- rehearse upgrades from every supported pre-1.0 line, rejected downgrades,
+  data/schema migrations, and documented rollback paths
+- map every mandatory security control to implementation, automated evidence,
+  owner, and residual risk
+- verify SBOMs, signatures, provenance, trusted publishing, vulnerability
+  response, private reporting, and release reproducibility
+- complete tutorials, reference material, compatibility tables, migration
+  guides, support policy, and deprecation policy against runnable fixtures
+- resolve every release-blocking diagnostic, documentation contradiction, and
+  provisional compatibility alias
+
+### Exit gate
+
+The release candidate runs unchanged through the full acceptance, security,
+compatibility, packaging, and rollback rehearsals. Any required semantic,
+schema, or protocol change returns the affected area to the appropriate
+earlier gate.
+
 ## 1.0 — Stable Foundation
 
 ### Public stability
@@ -1752,6 +2067,9 @@ core compatibility obligation.
 - Stable authoring API
 - Stable Plugin SDK protocols
 - Stable `PipelinePlan`, result, event, and `PipelineRunReport` schemas
+- Deeply immutable plans with canonical serialization and verified fingerprints
+- Strict schema-version handling and explicit compatibility migrations
+- Published public API and diagnostic-code stability tiers
 - Supported ODCS, DTCS, DPCS, ContractModel, and Python version policy
 - Deprecation, compatibility, and schema-migration policies
 
@@ -1759,15 +2077,18 @@ core compatibility obligation.
 
 - Implemented threat model and security verification matrix
 - Safe and bounded contract, profile, and configuration loading
-- Plugin trust policy, allowlists, pins, and provenance reporting
+- Pre-import plugin authorization, allowlists, pins, and provenance reporting
 - Central secret wrapper and redaction boundary
 - Artifact and cache isolation by run, environment, tenant, and security domain
 - Network destination, webhook, and remote-reference policies
 - Security-event and audit model
+- Unified safe I/O with atomic persistence and explicit root/overwrite policy
 - Repository security policy and private reporting process
+- SBOMs, signed provenance, and reproducible release artifacts
 - Performance budgets for modeling, validation, planning, reporting, and
   representative backends
 - Failure injection and cancellation testing
+- Durable, cross-process CLI reports and declarative provider configuration
 - Complete tutorials, references, migration guides, and executable examples
 
 ### 1.0 acceptance suite
@@ -1794,6 +2115,16 @@ The release candidate must demonstrate:
 15. Any graduated DataFusion integration passing its Gate B conformance,
     differential, dependency-isolation, and semantic-preservation gates;
     experiments that did not graduate create no 1.0 compatibility obligation.
+16. Rejection of mutated, corrupt, incorrectly fingerprinted, unknown-version,
+    or cross-security-domain plans before plugin loading or external mutation.
+17. Authorization of an allowed plugin and rejection of a disallowed installed
+    plugin without importing the disallowed executable entry point.
+18. A durable CLI workflow whose run report is inspected in a later process,
+    with consistent human, JSON, and SARIF diagnostic identity.
+19. Failure injection across read, transform, interchange, write, persistence,
+    cancellation, and cleanup boundaries without duplicate committed effects.
+20. An independently maintained third-party plugin passing public conformance
+    and compatibility checks without private core imports or reserved names.
 
 ### Exit gate
 
@@ -1804,6 +2135,12 @@ ETLantic 1.0 ships only when:
 - Every mandatory control in the
   [Security Model](docs/02_FOUNDATIONS/SECURITY.md) has an implementation owner,
   automated verification, and documented residual risk.
+- Public APIs, protocols, diagnostics, plans, reports, profiles, events, and
+  artifacts have frozen schemas or explicit documented stability status.
+- Compatibility, upgrade, rollback, isolated-wheel, and release-provenance
+  rehearsals pass against the exact release artifacts.
+- Stable reference paths meet published performance, memory, cancellation,
+  cleanup, persistence, and scale budgets.
 - The public examples describe tested behavior rather than aspirations.
 - SparkForge migration has proved the core abstractions without moving
   medallion semantics into ETLantic.

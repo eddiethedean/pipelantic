@@ -1,5 +1,11 @@
 # Storage Plugin
 
+!!! warning "Future design—not a shipped 0.18 entry-point protocol"
+    Storage plugins are not a discoverable entry-point protocol in ETLantic
+    0.18. This page describes a proposed extension surface. Prefer the
+    shipped dataframe / SQL / Spark / orchestration plugin categories for
+    current work.
+
 A **Storage Plugin** implements the ETLantic Storage Plugin API for a
 persistent storage technology.
 

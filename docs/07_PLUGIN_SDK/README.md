@@ -6,7 +6,7 @@
     third-party plugins should follow that guide; the category pages below
     define the detailed protocols.
 
-!!! note "Portable transformation compilers (0.17)"
+!!! note "Portable transformation compilers"
     The
     [Portable Transformation Compiler Protocol](PORTABLE_TRANSFORM_COMPILER.md)
     defines how plugins compile DTCS Transformation Plans. Polars, PySpark,
@@ -21,7 +21,7 @@ ETLantic is intentionally designed around a small, stable core and a rich
 plugin ecosystem. The SDK defines the public interfaces, lifecycle, and
 conformance requirements for building those plugins.
 
-## Public imports (0.17)
+## Public imports (0.18)
 
 Also available: `etlantic.transform` for portable authoring.
 

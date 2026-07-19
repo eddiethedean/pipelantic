@@ -45,6 +45,16 @@ def main() -> None:
         raise SystemExit("Examples index still claims all design examples are runnable")
 
     banned_phrases = [
+        # Adopter-facing 0.17→0.18 drift (docs adoption audit)
+        "Status in 0.17",
+        "Implemented in 0.17",
+        "0.17 reference envelope",
+        "0.17 status",
+        "0.17 support envelope",
+        "implemented 0.17 controls",
+        "Is ETLantic 0.17 production-supported?",
+        "ETLantic 0.18.0 shipped portable coverage expansion",
+        "not a ETLantic 0.11 API guide",
         "etlantic==0.13.0",
         "etlantic-polars==0.13.0",
         "etlantic-pyspark==0.13.0",
@@ -508,6 +518,7 @@ def main() -> None:
         "AIRFLOW_COMPILE.md",
         "SPARKFORGE_ADAPTER.md",
         "PORTABLE_TRANSFORMS.md",
+        "INTERCHANGE_POLARS_PANDAS.md",
         "CONTRACT_FIRST_TUTORIAL.md",
         "PREFECT_RUN.md",
         "README.md",
@@ -536,6 +547,16 @@ def main() -> None:
             and "Available in ETLantic" not in text
         ):
             raise SystemExit(f"{path} missing Future design / design-study admonition")
+
+    future_plugin_pages = [
+        ROOT / "docs/07_PLUGIN_SDK/STORAGE_PLUGIN.md",
+        ROOT / "docs/07_PLUGIN_SDK/RESOURCE_PROVIDER.md",
+        ROOT / "docs/07_PLUGIN_SDK/OBSERVABILITY_PROVIDER.md",
+    ]
+    for path in future_plugin_pages:
+        text = path.read_text(encoding="utf-8")
+        if "Future design" not in text and "!!! warning" not in text:
+            raise SystemExit(f"{path} missing Future design admonition")
 
     # Honesty gate + nav SSOT
     readme = (ROOT / "README.md").read_text(encoding="utf-8")

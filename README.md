@@ -53,16 +53,19 @@ Typed contracts ──▶ Validation ──▶ Deterministic plan ──▶ Run 
   dependency. Install only the integrations you need.
 
 > **Project status:** **0.18.0 is production/stable for documented
-> single-tenant reference deployments.** The local runtime and reference
-> plugins are available today. Structured Streaming remains experimental. Portable
-> transformation authoring and Polars/PySpark/Pandas/SQL relational compilers
-> plus the public conformance SDK are available; advanced portable profiles
-> shipped under **0.17** where documented. Gate A versioned tabular interchange
-> is available in **0.18** for Polars↔Pandas boundaries. Multi-tenant isolation, deployment
-> topology, compliance/SBOM/signing, and advanced supply-chain controls remain
-> adopter-owned. See the
-> [capabilities guide](docs/01_GETTING_STARTED/CAPABILITIES.md) before choosing
-> a production architecture.
+> single-tenant reference deployments.** Structured Streaming remains
+> experimental. Multi-tenant isolation, deployment topology, compliance,
+> SBOM/signing, and advanced supply-chain controls remain adopter-owned.
+> See [Capabilities](docs/01_GETTING_STARTED/CAPABILITIES.md),
+> [Evaluator](docs/01_GETTING_STARTED/EVALUATOR.md), and
+> [Production readiness](docs/06_EXECUTION/PRODUCTION_READINESS.md).
+
+## Green path
+
+1. [Install](docs/01_GETTING_STARTED/INSTALLATION.md) — `pip install 'etlantic==0.18.0'`
+2. [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md) — five-minute success
+3. [First Pipeline](docs/01_GETTING_STARTED/FIRST_PIPELINE.md) — CLI validate/plan
+4. [Capabilities](docs/01_GETTING_STARTED/CAPABILITIES.md) — then an engine tutorial or [Compare](docs/01_GETTING_STARTED/COMPARE.md)
 
 ## Quickstart
 
@@ -70,7 +73,10 @@ ETLantic requires Python 3.11 or newer.
 
 ```bash
 pip install etlantic
-etlantic --version
+# Prefer an exact pin in 0.x:
+pip install 'etlantic==0.18.0'
+python -m etlantic --version
+# equivalent: etlantic --version
 ```
 
 Create `pipeline.py`:
@@ -179,10 +185,12 @@ python pipeline.py
 etlantic validate pipeline.py:CustomerPipeline --profile development --format sarif
 ```
 
-Airflow compilation requires the optional `etlantic-airflow` package:
+Airflow compilation requires the optional `etlantic-airflow` package. It is
+**compile-only** and does not install Apache Airflow—install Airflow separately
+in the environment that loads generated DAGs:
 
 ```bash
-pip install "etlantic[airflow]"
+pip install 'etlantic[airflow]==0.18.0'
 etlantic compile pipeline.py:CustomerPipeline --target airflow -o dags/
 ```
 
@@ -192,15 +200,15 @@ for the complete command surface.
 
 ## Choose an engine
 
-Start with the core package, then add engines as needed:
+Start with the core package, then add engines as needed (pin the minor in 0.x):
 
 ```bash
-pip install "etlantic[polars]"
-pip install "etlantic[pandas]"
-pip install "etlantic[sql]"
-pip install "etlantic[pyspark]"
-pip install "etlantic[airflow]"
-pip install "etlantic[prefect]"
+pip install 'etlantic[polars]==0.18.0'
+pip install 'etlantic[pandas]==0.18.0'
+pip install 'etlantic[sql]==0.18.0'
+pip install 'etlantic[pyspark]==0.18.0'
+pip install 'etlantic[airflow]==0.18.0'
+pip install 'etlantic[prefect]==0.18.0'
 ```
 
 | Integration | Package | Purpose |
@@ -209,11 +217,14 @@ pip install "etlantic[prefect]"
 | Pandas | `etlantic-pandas` | Eager dataframe execution |
 | SQL | `etlantic-sql` | Parameterized relational execution and SQL-to-SQL plans |
 | PySpark | `etlantic-pyspark` | Spark execution and local session provider |
-| Airflow | `etlantic-airflow` | Compile plans into Airflow DAG artifacts |
+| Airflow | `etlantic-airflow` | Compile plans into Airflow DAG artifacts (does **not** install Apache Airflow) |
 | Prefect | `etlantic-prefect` | Optional direct-execution scheduler (local MVP) |
 | Keyring | `etlantic-keyring` | Resolve runtime secrets from the OS keyring |
 | SQLModel | `etlantic-sqlmodel` | Bridge ContractModel schemas and SQLModel |
 | SparkForge | `etlantic-sparkforge` | Migrate SparkForge pipeline definitions |
+
+`etlantic-airflow` is compile-only: install Apache Airflow separately in the
+environment that loads generated DAGs.
 
 Plugins are discovered through Python entry points and scoped to a runtime
 registry. Production profiles require an explicit plugin allowlist and reject
@@ -265,11 +276,12 @@ boundary.
 
 - [Hosted documentation](https://etlantic.readthedocs.io/)
 - [Getting Started](docs/01_GETTING_STARTED/README.md)
-- [Current 0.18 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
-- [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
-- [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)
-- [Portable Transformations](docs/04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md)
+- [Compare](docs/01_GETTING_STARTED/COMPARE.md) — vs dbt, Airflow, Prefect, Pandera
+- [Evaluator brief](docs/01_GETTING_STARTED/EVALUATOR.md)
+- [Capabilities](docs/01_GETTING_STARTED/CAPABILITIES.md)
+- [Production readiness](docs/06_EXECUTION/PRODUCTION_READINESS.md)
+- [Security](docs/02_FOUNDATIONS/SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
 - [Roadmap](ROADMAP.md)
 
