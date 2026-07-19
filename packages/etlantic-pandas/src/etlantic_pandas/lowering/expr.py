@@ -171,11 +171,22 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> ExprFn:
     if callee == "dtcs:substr":
         # Portable IR is 0-based; pandas str.slice is also 0-based.
         if len(arg_fns) == 2:
-            return lambda df: (
-                arg_fns[0](df)
-                .astype("string")
-                .str.slice(start=int(arg_fns[1](df).iloc[0]) if len(df) else 0)
-            )
+
+            def _substr2(df: pd.DataFrame) -> pd.Series:
+                start = arg_fns[1](df)
+                text = arg_fns[0](df).astype("string")
+                if start.nunique(dropna=False) == 1:
+                    s = int(start.iloc[0]) if len(df) else 0
+                    return text.str.slice(start=s)
+                return pd.Series(
+                    [
+                        None if pd.isna(t) else str(t)[int(s) :]
+                        for t, s in zip(text, start, strict=True)
+                    ],
+                    index=df.index,
+                )
+
+            return _substr2
 
         def _substr(df: pd.DataFrame) -> pd.Series:
             start = arg_fns[1](df)

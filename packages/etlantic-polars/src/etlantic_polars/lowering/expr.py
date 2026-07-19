@@ -190,7 +190,7 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
     if callee == "dtcs:to_string":
         return args[0].cast(pl.Utf8)
     if callee == "dtcs:to_integer":
-        return args[0].cast(pl.Int64, strict=False)
+        return args[0].cast(pl.Int64, strict=True)
     if callee in {"dtcs:cast", "dtcs:try_cast"}:
         data_type = constant_python(raw_args[1], parameters=parameters)
         return args[0].cast(
@@ -199,8 +199,12 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
         )
     if callee == "dtcs:array":
         return pl.concat_list(args)
-    if callee in {"dtcs:map", "dtcs:object"}:
+    if callee == "dtcs:object":
         return _lower_struct(raw_args, parameters=parameters)
+    if callee == "dtcs:map":
+        raise ValueError(
+            "dtcs:map is not implemented by the Polars compiler; use dtcs:object"
+        )
     if callee == "dtcs:size":
         return args[0].list.len()
     if callee == "dtcs:field":
@@ -217,8 +221,9 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> pl.Expr:
     if callee == "dtcs:row_number":
         return pl.int_range(1, pl.len() + 1, dtype=pl.UInt64)
     if callee in {"dtcs:rank", "dtcs:dense_rank"}:
-        # The order expression and rank method are supplied by with_fields.
-        return pl.int_range(1, pl.len() + 1, dtype=pl.UInt64)
+        raise ValueError(
+            f"{callee} is only valid as a window expression inside with_fields"
+        )
     if callee in {"dtcs:lag", "dtcs:lead"}:
         offset = (
             int(constant_python(raw_args[1], parameters=parameters))

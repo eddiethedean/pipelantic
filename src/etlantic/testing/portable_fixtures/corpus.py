@@ -867,13 +867,11 @@ def _complex_types_field_access() -> FixtureCase:
 
 
 def _reshape_explode() -> FixtureCase:
-    from etlantic.transform.protocol import PROFILE_COMPLEX_VALUES, PROFILE_RESHAPE
+    from etlantic.transform.protocol import PROFILE_RESHAPE
 
     return FixtureCase(
         name="reshape_explode",
-        required_profiles=frozenset(
-            {KERNEL_PROFILE_V1, PROFILE_RESHAPE, PROFILE_COMPLEX_VALUES}
-        ),
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_RESHAPE}),
         required_actions=frozenset({"dtcs:explode", "dtcs:project"}),
         required_functions=frozenset(),
         plan={
@@ -906,6 +904,552 @@ def _reshape_explode() -> FixtureCase:
         },
         inputs={"t": [{"id": 1, "tags": ["a", "b"]}]},
         expected=[{"id": 1, "tags": "a"}, {"id": 1, "tags": "b"}],
+    )
+
+
+def _reshape_explode_empty() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_RESHAPE
+
+    return FixtureCase(
+        name="reshape_explode_empty",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_RESHAPE}),
+        required_actions=frozenset({"dtcs:explode", "dtcs:project"}),
+        required_functions=frozenset(),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "e1",
+                    "kind": {
+                        "action": "dtcs:explode",
+                        "id": "e1",
+                        "parameters": {"field": "tags"},
+                        "target": "t",
+                    },
+                },
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {"fields": ["id", "tags"]},
+                        "target": "e1",
+                    },
+                },
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"id": 1, "tags": ["a"]}, {"id": 2, "tags": []}]},
+        expected=[{"id": 1, "tags": "a"}, {"id": 2, "tags": None}],
+    )
+
+
+def _conversion_cast_integer() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_CONVERSION
+
+    return FixtureCase(
+        name="conversion_cast_integer",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_CONVERSION}),
+        required_actions=frozenset({"dtcs:project"}),
+        required_functions=frozenset({"dtcs:to_integer"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {
+                            "fields": [
+                                {
+                                    "name": "n",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:to_integer",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "s",
+                                            }
+                                        ],
+                                    },
+                                }
+                            ]
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"s": "7"}]},
+        expected=[{"n": 7}],
+    )
+
+
+def _conversion_try_cast() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_CONVERSION
+
+    return FixtureCase(
+        name="conversion_try_cast",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_CONVERSION}),
+        required_actions=frozenset({"dtcs:project"}),
+        required_functions=frozenset({"dtcs:try_cast", "dtcs:cast"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {
+                            "fields": [
+                                {
+                                    "name": "ok",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:cast",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "s",
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "string",
+                                                    "value": "integer",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    "name": "soft",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:try_cast",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "bad",
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "string",
+                                                    "value": "integer",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ]
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"s": "7", "bad": "nope"}]},
+        expected=[{"ok": 7, "soft": None}],
+    )
+
+
+def _string_advanced_ltrim_split() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_STRING_ADVANCED
+
+    return FixtureCase(
+        name="string_advanced_ltrim_split",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_STRING_ADVANCED}),
+        required_actions=frozenset({"dtcs:project"}),
+        required_functions=frozenset(
+            {"dtcs:ltrim", "dtcs:rtrim", "dtcs:split", "dtcs:regex_extract"}
+        ),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {
+                            "fields": [
+                                {
+                                    "name": "trimmed",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:ltrim",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "s",
+                                            }
+                                        ],
+                                    },
+                                },
+                                {
+                                    "name": "right",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:rtrim",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "t",
+                                            }
+                                        ],
+                                    },
+                                },
+                                {
+                                    "name": "parts",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:split",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "csv",
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "string",
+                                                    "value": ",",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    "name": "digit",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:regex_extract",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "code",
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "string",
+                                                    "value": r"(\d+)",
+                                                },
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "integer",
+                                                    "value": 1,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ]
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"s": "  hi", "t": "hi  ", "csv": "a,b", "code": "x12y"}]},
+        expected=[{"trimmed": "hi", "right": "hi", "parts": ["a", "b"], "digit": "12"}],
+    )
+
+
+def _statistics_stddev() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_STATISTICS
+
+    return FixtureCase(
+        name="statistics_stddev",
+        required_profiles=frozenset(
+            {KERNEL_PROFILE_V1, RELATIONAL_PROFILE_V1, PROFILE_STATISTICS}
+        ),
+        required_actions=frozenset({"dtcs:aggregate"}),
+        required_functions=frozenset({"dtcs:stddev"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "a1",
+                    "kind": {
+                        "action": "dtcs:aggregate",
+                        "id": "a1",
+                        "parameters": {
+                            "groupBy": [],
+                            "aggregations": [
+                                {
+                                    "name": "s",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:stddev",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "x",
+                                            }
+                                        ],
+                                    },
+                                }
+                            ],
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "a1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"x": 1.0}, {"x": 3.0}]},
+        expected=[{"s": 1.4142135623730951}],
+    )
+
+
+def _window_v1_lag() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_WINDOW_V1
+
+    return FixtureCase(
+        name="window_v1_lag",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_WINDOW_V1}),
+        required_actions=frozenset({"dtcs:with_fields", "dtcs:project"}),
+        required_functions=frozenset({"dtcs:lag"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "w1",
+                    "kind": {
+                        "action": "dtcs:with_fields",
+                        "id": "w1",
+                        "parameters": {
+                            "assignments": [
+                                {
+                                    "name": "prev",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:lag",
+                                        "args": [
+                                            {
+                                                "kind": "fieldRef",
+                                                "scope": "field",
+                                                "target": "v",
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "integer",
+                                                    "value": 1,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                    "window": {
+                                        "partitionBy": ["g"],
+                                        "orderBy": [
+                                            {
+                                                "expression": {
+                                                    "kind": "fieldRef",
+                                                    "scope": "field",
+                                                    "target": "v",
+                                                },
+                                                "direction": "asc",
+                                            }
+                                        ],
+                                    },
+                                }
+                            ]
+                        },
+                        "target": "t",
+                    },
+                },
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {"fields": ["g", "v", "prev"]},
+                        "target": "w1",
+                    },
+                },
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"g": "a", "v": 1}, {"g": "a", "v": 2}]},
+        expected=[{"g": "a", "v": 1, "prev": None}, {"g": "a", "v": 2, "prev": 1}],
+    )
+
+
+def _reject_window_frame() -> FixtureCase:
+    from etlantic.transform.protocol import PROFILE_WINDOW_V1
+
+    return FixtureCase(
+        name="reject_window_frame",
+        required_profiles=frozenset({KERNEL_PROFILE_V1, PROFILE_WINDOW_V1}),
+        required_actions=frozenset({"dtcs:with_fields"}),
+        required_functions=frozenset({"dtcs:row_number"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "w1",
+                    "kind": {
+                        "action": "dtcs:with_fields",
+                        "id": "w1",
+                        "parameters": {
+                            "assignments": [
+                                {
+                                    "name": "rn",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:row_number",
+                                        "args": [],
+                                    },
+                                    "window": {
+                                        "partitionBy": ["g"],
+                                        "orderBy": [
+                                            {
+                                                "expression": {
+                                                    "kind": "fieldRef",
+                                                    "scope": "field",
+                                                    "target": "v",
+                                                },
+                                                "direction": "asc",
+                                            }
+                                        ],
+                                        "frame": {
+                                            "type": "rows",
+                                            "start": "unboundedPreceding",
+                                            "end": "currentRow",
+                                        },
+                                    },
+                                }
+                            ]
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+        },
+        inputs={"t": [{"g": "a", "v": 1}]},
+        expected=None,
+        expect_unsupported=True,
+        unsupported_requirement_substr="window_frame",
+    )
+
+
+def _complex_types_index() -> FixtureCase:
+    from etlantic.transform.protocol import (
+        PROFILE_COMPLEX_TYPES,
+        PROFILE_COMPLEX_VALUES,
+    )
+
+    return FixtureCase(
+        name="complex_types_index",
+        required_profiles=frozenset(
+            {KERNEL_PROFILE_V1, PROFILE_COMPLEX_VALUES, PROFILE_COMPLEX_TYPES}
+        ),
+        required_actions=frozenset({"dtcs:project"}),
+        required_functions=frozenset({"dtcs:array", "dtcs:index", "dtcs:element_at"}),
+        plan={
+            "planIdentity": "dtcs.transform-plan/2",
+            "inputs": {"t": {"id": "t"}},
+            "actions": [
+                {
+                    "id": "p1",
+                    "kind": {
+                        "action": "dtcs:project",
+                        "id": "p1",
+                        "parameters": {
+                            "fields": [
+                                {
+                                    "name": "first",
+                                    "expression": {
+                                        "kind": "call",
+                                        "callee": "dtcs:index",
+                                        "args": [
+                                            {
+                                                "kind": "call",
+                                                "callee": "dtcs:array",
+                                                "args": [
+                                                    {
+                                                        "kind": "literal",
+                                                        "value": {
+                                                            "type": "string",
+                                                            "value": "x",
+                                                        },
+                                                    },
+                                                    {
+                                                        "kind": "literal",
+                                                        "value": {
+                                                            "type": "string",
+                                                            "value": "y",
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                            {
+                                                "kind": "literal",
+                                                "value": {
+                                                    "type": "integer",
+                                                    "value": 0,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                }
+                            ]
+                        },
+                        "target": "t",
+                    },
+                }
+            ],
+            "outputs": {"result": {"id": "result"}},
+            "requirements": {
+                "dependencies": [{"from": "p1", "to": "result", "reason": "lineage"}]
+            },
+        },
+        inputs={"t": [{"id": 1}]},
+        expected=[{"first": "x"}],
     )
 
 
@@ -956,12 +1500,20 @@ FIXTURES: tuple[FixtureCase, ...] = (
     _empty_ungrouped_count(),
     _reject_suffix_collision(),
     _string_advanced_trim_regex(),
+    _string_advanced_ltrim_split(),
     _conversion_to_string(),
+    _conversion_cast_integer(),
+    _conversion_try_cast(),
     _statistics_variance(),
+    _statistics_stddev(),
     _window_v1_row_number(),
+    _window_v1_lag(),
+    _reject_window_frame(),
     _complex_values_array_size(),
     _complex_types_field_access(),
+    _complex_types_index(),
     _reshape_explode(),
+    _reshape_explode_empty(),
     _reject_missing_literal_without_three_state(),
 )
 

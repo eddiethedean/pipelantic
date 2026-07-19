@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from etlantic.transform.capabilities import match_requirements, three_state_findings
+from etlantic.transform.capabilities import match_requirements
 from etlantic.transform.compiler import (
     COMPILER_PROTOCOL,
     CompiledTransform,
@@ -63,14 +63,6 @@ KERNEL_FUNCTIONS = frozenset(
         "dtcs:sqrt",
         "dtcs:least",
         "dtcs:greatest",
-        "dtcs:trim",
-        "dtcs:regex_replace",
-        "dtcs:to_string",
-        "dtcs:row_number",
-        "dtcs:array",
-        "dtcs:size",
-        "dtcs:object",
-        "dtcs:field",
     }
 )
 
@@ -83,11 +75,42 @@ RELATIONAL_FUNCTIONS = frozenset(
         "dtcs:count",
         "dtcs:count_all",
         "dtcs:count_distinct",
-        "dtcs:variance",
     }
 )
 
-CLAIMED_FUNCTIONS = KERNEL_FUNCTIONS | RELATIONAL_FUNCTIONS
+WAVE_FUNCTIONS = frozenset(
+    {
+        "dtcs:trim",
+        "dtcs:ltrim",
+        "dtcs:rtrim",
+        "dtcs:regex_extract",
+        "dtcs:regex_replace",
+        "dtcs:split",
+        "dtcs:to_string",
+        "dtcs:try_cast",
+        "dtcs:cast",
+        "dtcs:to_integer",
+        "dtcs:variance",
+        "dtcs:stddev",
+        "dtcs:corr",
+        "dtcs:row_number",
+        "dtcs:rank",
+        "dtcs:dense_rank",
+        "dtcs:lag",
+        "dtcs:lead",
+        "dtcs:first_value",
+        "dtcs:last_value",
+        "dtcs:array",
+        "dtcs:map",
+        "dtcs:object",
+        "dtcs:size",
+        "dtcs:field",
+        "dtcs:index",
+        "dtcs:element_at",
+    }
+)
+
+CLAIMED_FUNCTIONS = KERNEL_FUNCTIONS | RELATIONAL_FUNCTIONS | WAVE_FUNCTIONS
 
 _JOIN_TYPES = frozenset(
     {"inner", "left", "right", "full", "semi", "anti", "cross", "outer"}
@@ -146,6 +169,9 @@ class PySparkTransformCompiler:
         from etlantic.transform.capabilities import (
             merge_requirements,
             requirements_from_plan,
+            three_state_findings,
+            window_frame_findings,
+            windowed_aggregate_findings,
         )
 
         req = merge_requirements(requirements, requirements_from_plan(dict(definition)))
@@ -153,6 +179,8 @@ class PySparkTransformCompiler:
         findings = list(report.findings)
         findings.extend(_analyze_modes(definition))
         findings.extend(three_state_findings(definition, self._info.capabilities))
+        findings.extend(window_frame_findings(definition))
+        findings.extend(windowed_aggregate_findings(definition))
         return TransformSupportReport(
             supported=not findings,
             findings=tuple(findings),

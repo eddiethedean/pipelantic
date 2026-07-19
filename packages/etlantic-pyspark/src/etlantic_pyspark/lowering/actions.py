@@ -112,7 +112,7 @@ def apply_action(
         field = params.get("field")
         if not isinstance(field, str) or not field:
             raise ValueError("dtcs:explode requires a field name")
-        return frame.withColumn(field, F.explode(F.col(field)))
+        return frame.withColumn(field, F.explode_outer(F.col(field)))
     if name == "dtcs:join":
         return _apply_join(frame, params, frames=frames or {}, parameters=parameters)
     if name == "dtcs:union":

@@ -198,30 +198,30 @@ reuse the aggregate functions.
 
 ## Complex types
 
-DTCS 2.0's experimental complex-types profile covers list/array, map, and
-object/struct logical types plus `field`, `index`, and `element_at` access.
-`array`, `struct`, `create_map`, `explode`, `size`, `array_contains`,
-`map_keys`, `map_values`, and higher-order collection lambdas are not in the
-published standard catalog and remain excluded until standardized.
+DTCS complex-types covers list/array, map, and object/struct logical types plus
+`field`, `index`, and `element_at` access. In 0.17, Polars and PySpark claim
+`portable-complex-types/1` and `portable-complex-values/1` (constructors +
+`size`); `explode` is `portable-reshape/1` only. PySpark also claims `map`;
+Polars rejects `dtcs:map` (use `object`). Higher-order collection lambdas and
+map key/value helpers remain continuation work.
 
-## DTCS 3.0 advanced families (published; ETLantic not yet claiming)
+## DTCS 3.0 advanced families
 
-DTCS 3.0 publishes independently claimable profiles that cover many formerly
-excluded PySpark-like surfaces. Facade methods may exist for IR authoring;
-ETLantic must not advertise them as **executable** until the corresponding
-compiler claims the profile and conformance fixtures pass (0.17 Waves 1–2 or
-continuation, not the 0.15 SQL exit gate):
+DTCS 3.0 publishes independently claimable profiles. Wave 1/2 families below
+are graduated on Polars and PySpark in 0.17; continuation rows stay authorable
+but unclaimed:
 
-| Planned facade examples | DTCS 3.0 profile |
-|---|---|
-| `F.trim`, `F.split`, regex extract/replace | `portable-string-advanced/1` |
-| strict `F.cast` / parse helpers beyond `try_cast` | `portable-conversion/1` |
-| `F.stddev`, `F.variance`, correlation | `portable-statistics/1` |
-| array/map/struct constructors, lambdas, explode | `portable-complex-values/1` + `portable-reshape/1` |
-| `intersect` / `except`, sample, pivot | `portable-relational-extended/1` |
-| IANA timezone helpers | `portable-temporal-iana/1` |
-| `F.rand`, UUID | `portable-nondeterministic/1` |
-| `ntile`, `percent_rank`, … | `portable-window/2` |
+| Facade examples | DTCS 3.0 profile | 0.17 status |
+|---|---|---|
+| `F.trim`, `F.split`, regex extract/replace | `portable-string-advanced/1` | Graduated (Polars + PySpark) |
+| strict `F.cast` / parse helpers beyond `try_cast` | `portable-conversion/1` | Graduated (Polars + PySpark) |
+| `F.stddev`, `F.variance`, correlation | `portable-statistics/1` | Graduated (Polars + PySpark) |
+| array/object constructors, `size`, accessors | `portable-complex-values/1` + types | Graduated (Polars + PySpark) |
+| `explode` | `portable-reshape/1` | Graduated (Polars + PySpark) |
+| `intersect` / `except`, sample, pivot | `portable-relational-extended/1` | Continuation |
+| IANA timezone helpers | `portable-temporal-iana/1` | Continuation |
+| `F.rand`, UUID | `portable-nondeterministic/1` | Continuation |
+| `ntile`, `percent_rank`, … | `portable-window/2` | Continuation |
 
 `F.expr(...)` SQL text remains permanently excluded from portable definitions.
 Native `@Transformation.implementation(...)` remains the escape hatch.

@@ -48,11 +48,13 @@ when policy is `require`.
 
 - Window V1 authoring no longer emits `portable-window/2` for V1 functions
 - Complex-type accessors emit `portable-complex-types/1` without forcing
-  complex-values (constructors still require complex-values)
+  complex-values; `explode` emits reshape only (constructors still require
+  complex-values)
 - Plans with distinct `missing`/`invalid` literals fail analyze unless the
   compiler claims `three_state_distinct` (not shipped in 0.17)
-- Transform-compiler discovery uses entry-point names as stable engine keys and
-  no longer falls back to unfiltered discovery after allowlist filtering
+- Transform-compiler discovery uses entry-point names as stable engine keys;
+  validate, plan, and run all respect profile allowlists
+- Explicit window frames fail closed until frame lowering ships
 
 ## Unchanged
 

@@ -314,3 +314,90 @@ def three_state_findings(
             expression_path=None,
         )
     ]
+
+
+_WINDOWED_AGGREGATE_CALLEES = frozenset(
+    {
+        "dtcs:sum",
+        "dtcs:average",
+        "dtcs:min",
+        "dtcs:max",
+        "dtcs:count",
+        "dtcs:count_all",
+        "dtcs:count_distinct",
+        "dtcs:variance",
+        "dtcs:stddev",
+        "dtcs:corr",
+    }
+)
+
+
+def window_frame_findings(
+    definition: Mapping[str, Any],
+) -> list[TransformSupportFinding]:
+    """Reject explicit window frames until compilers lower them honestly."""
+    findings: list[TransformSupportFinding] = []
+
+    def _walk(node: Any, *, path: str) -> None:
+        if isinstance(node, dict):
+            window = node.get("window")
+            if isinstance(window, dict) and window.get("frame") is not None:
+                findings.append(
+                    TransformSupportFinding(
+                        code="PMXFORM301",
+                        requirement="mode:window_frame",
+                        reason=(
+                            "explicit window frames are not implemented; "
+                            "omit rowsBetween/rangeBetween or use native APIs"
+                        ),
+                        expression_path=path,
+                    )
+                )
+            for key, value in node.items():
+                child = f"{path}.{key}" if path else str(key)
+                _walk(value, path=child)
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                _walk(item, path=f"{path}[{index}]")
+
+    _walk(definition, path="")
+    return findings
+
+
+def windowed_aggregate_findings(
+    definition: Mapping[str, Any],
+) -> list[TransformSupportFinding]:
+    """Reject aggregate callees attached to windows outside dtcs:aggregate."""
+    findings: list[TransformSupportFinding] = []
+
+    def _callee(node: Any) -> str | None:
+        if isinstance(node, dict) and node.get("kind") == "call":
+            callee = node.get("callee")
+            return str(callee) if callee else None
+        return None
+
+    for action in definition.get("actions") or []:
+        kind = action.get("kind") or {}
+        if kind.get("action") != "dtcs:with_fields":
+            continue
+        action_id = str(kind.get("id") or action.get("id") or "with_fields")
+        params = kind.get("parameters") or {}
+        for index, assignment in enumerate(params.get("assignments") or []):
+            if not isinstance(assignment, dict):
+                continue
+            if assignment.get("window") is None:
+                continue
+            callee = _callee(assignment.get("expression"))
+            if callee in _WINDOWED_AGGREGATE_CALLEES:
+                findings.append(
+                    TransformSupportFinding(
+                        code="PMXFORM301",
+                        requirement=f"function:{callee}:window",
+                        reason=(
+                            f"aggregate function {callee!r} cannot be used as a "
+                            "window expression; use dtcs:aggregate"
+                        ),
+                        expression_path=f"{action_id}.assignments[{index}]",
+                    )
+                )
+    return findings

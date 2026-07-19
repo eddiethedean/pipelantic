@@ -20,8 +20,8 @@ pip install 'etlantic-sqlmodel==0.17.0'
 pip install 'etlantic-sparkforge==0.17.0'
 ```
 
-Official plugin packages declare `etlantic>=0.16.0,<0.17` so they stay on the
-0.16 line. Cross-minor mixing is unsupported unless a future release documents
+Official plugin packages declare `etlantic>=0.17.0,<0.18` so they stay on the
+0.17 line. Cross-minor mixing is unsupported unless a future release documents
 compatibility tests.
 
 ## Package surfaces

@@ -90,12 +90,54 @@ def main() -> int:
     try:
         from etlantic.transform.discovery import discover_transform_compilers
 
+        matrix_functions = {
+            "dtcs:profile/portable-string-advanced/1": frozenset(
+                {
+                    "dtcs:trim",
+                    "dtcs:ltrim",
+                    "dtcs:rtrim",
+                    "dtcs:regex_extract",
+                    "dtcs:regex_replace",
+                    "dtcs:split",
+                }
+            ),
+            "dtcs:profile/portable-conversion/1": frozenset(
+                {
+                    "dtcs:to_string",
+                    "dtcs:try_cast",
+                    "dtcs:cast",
+                    "dtcs:to_integer",
+                }
+            ),
+            "dtcs:profile/portable-statistics/1": frozenset(
+                {"dtcs:variance", "dtcs:stddev", "dtcs:corr"}
+            ),
+            "dtcs:profile/portable-window/1": frozenset(
+                {
+                    "dtcs:row_number",
+                    "dtcs:rank",
+                    "dtcs:dense_rank",
+                    "dtcs:lag",
+                    "dtcs:lead",
+                    "dtcs:first_value",
+                    "dtcs:last_value",
+                }
+            ),
+            "dtcs:profile/portable-complex-values/1": frozenset(
+                {"dtcs:array", "dtcs:object", "dtcs:size"}
+            ),
+            "dtcs:profile/portable-complex-types/1": frozenset(
+                {"dtcs:field", "dtcs:index", "dtcs:element_at"}
+            ),
+        }
+
         found = discover_transform_compilers()
         for engine in ("polars", "pyspark"):
             compiler = found.get(engine)
             if compiler is None:
                 continue
             profiles = set(compiler.info.capabilities.profiles)
+            functions = set(compiler.info.capabilities.functions)
             for token in (
                 "dtcs:profile/portable-string-advanced/1",
                 "dtcs:profile/portable-window/1",
@@ -103,6 +145,21 @@ def main() -> int:
             ):
                 if token not in profiles:
                     errors.append(f"{engine} compiler missing graduated claim {token}")
+            for profile, required in matrix_functions.items():
+                if profile not in profiles:
+                    continue
+                missing = sorted(required - functions)
+                if missing:
+                    errors.append(
+                        f"{engine} claims {profile} but missing functions: "
+                        + ", ".join(missing)
+                    )
+            if (
+                "dtcs:profile/portable-complex-values/1" in profiles
+                and engine == "pyspark"
+                and "dtcs:map" not in functions
+            ):
+                errors.append(f"{engine} complex-values claim missing dtcs:map")
     except Exception as exc:  # pragma: no cover
         errors.append(f"transform compiler discovery failed: {exc}")
 

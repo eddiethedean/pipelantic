@@ -124,3 +124,23 @@ def test_missing_literal_round_trips() -> None:
 
     plan = T.to_transform_plan()
     assert plan["planIdentity"] == PLAN_PROTOCOL
+
+
+def test_missing_literal_fails_analyze_without_three_state() -> None:
+    from etlantic.transform.capabilities import three_state_findings
+    from etlantic.transform.compiler import TransformCapabilities
+
+    class T(Transformation):
+        customers: Input[RawCustomer]
+        result: Output[Customer]
+
+    @T.portable
+    def define(customers):
+        return customers.withColumn("flag", F.lit(MISSING)).select(
+            "customer_id", "flag"
+        )
+
+    plan = T.to_transform_plan()
+    findings = three_state_findings(plan, TransformCapabilities())
+    assert findings
+    assert findings[0].requirement == "semantic_mode:three_state_distinct"

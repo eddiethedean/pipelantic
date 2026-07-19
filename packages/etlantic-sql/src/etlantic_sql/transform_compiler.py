@@ -96,7 +96,7 @@ class SqlTransformCompiler:
             profiles=frozenset({KERNEL_PROFILE_V1, RELATIONAL_PROFILE_V1}),
             actions=CLAIMED_ACTIONS,
             functions=CLAIMED_FUNCTIONS,
-            lazy=True,
+            lazy=False,
             eager=True,
         )
         self._info = TransformCompilerInfo(
@@ -239,9 +239,18 @@ class SqlTransformCompiler:
                 kind = action.get("kind") or {}
                 action_id = str(kind.get("id") or action.get("id") or f"a{index}")
                 logical_nodes.append(action_id)
+                target = kind.get("target")
+                if target is None:
+                    target_rel = current_rel
+                    target_cols = current_cols
+                else:
+                    if target not in relations:
+                        raise KeyError(f"Missing action target relation {target!r}")
+                    target_rel = relations[target]
+                    target_cols = list(relation_columns[target])
                 query, out_cols = apply_action_to_query(
-                    current_rel,
-                    current_cols,
+                    target_rel,
+                    target_cols,
                     action,
                     parameters=dict(parameters),
                     relations=relations,
@@ -270,13 +279,31 @@ class SqlTransformCompiler:
                 relation_columns[action_id] = out_cols
                 ctes.append(CteDef(name=step_table, query=query))
 
-            result_sql = f"SELECT * FROM {compiler.quote(require_safe_identifier(current_rel.name))}"
-            result = conn.execute(_text(result_sql))
-            rows = [dict(row._mapping) for row in result]
+            valid: dict[str, SqlRelationFrame] = {}
+            lineage = (plan.get("requirements") or {}).get("dependencies") or []
+            for out_name in compiled.output_ports:
+                source = None
+                for dep in lineage:
+                    if dep.get("to") == out_name:
+                        source = dep.get("from")
+                        break
+                if source is None:
+                    actions = plan.get("actions") or []
+                    if actions:
+                        last = actions[-1].get("kind") or {}
+                        source = last.get("id") or actions[-1].get("id")
+                if source is None or source not in relations:
+                    raise KeyError(f"Cannot resolve output {out_name!r}")
+                result_sql = (
+                    f"SELECT * FROM "
+                    f"{compiler.quote(require_safe_identifier(relations[source].name))}"
+                )
+                result = conn.execute(_text(result_sql))
+                rows = [dict(row._mapping) for row in result]
+                valid[out_name] = SqlRelationFrame(rows=rows, name=out_name)
 
-        out_port = (compiled.output_ports or ("result",))[0]
         return TransformOutputBundle(
-            valid={out_port: SqlRelationFrame(rows=rows, name=out_port)},
+            valid=valid,
             metrics={
                 "fused_steps": len(ctes),
                 "logical_nodes": logical_nodes,
@@ -422,6 +449,15 @@ def _analyze_modes(definition: Mapping[str, Any]) -> list[TransformSupportFindin
                         expression_path=path,
                     )
                 )
+            if params.get("predicate") is not None and params.get("leftKey") is None:
+                findings.append(
+                    TransformSupportFinding(
+                        code="PMXFORM301",
+                        requirement="action:dtcs:join:predicate",
+                        reason="predicate joins are not implemented",
+                        expression_path=path,
+                    )
+                )
         if name == "dtcs:union":
             mode = str(params.get("mode") or "byPosition")
             if mode not in _UNION_MODES:
@@ -430,6 +466,17 @@ def _analyze_modes(definition: Mapping[str, Any]) -> list[TransformSupportFindin
                         code="PMXFORM203",
                         requirement=f"union.mode:{mode}",
                         reason=f"Unsupported union mode {mode!r}",
+                        expression_path=path,
+                    )
+                )
+            if mode == "byPosition" and bool(params.get("allowMissingColumns")):
+                findings.append(
+                    TransformSupportFinding(
+                        code="PMXFORM301",
+                        requirement="action:dtcs:union:allowMissingColumns",
+                        reason=(
+                            "allowMissingColumns is not supported for byPosition unions"
+                        ),
                         expression_path=path,
                     )
                 )

@@ -100,7 +100,6 @@ WAVE_FUNCTIONS = frozenset(
         "dtcs:first_value",
         "dtcs:last_value",
         "dtcs:array",
-        "dtcs:map",
         "dtcs:object",
         "dtcs:size",
         "dtcs:field",
@@ -169,6 +168,8 @@ class PolarsTransformCompiler:
             merge_requirements,
             requirements_from_plan,
             three_state_findings,
+            window_frame_findings,
+            windowed_aggregate_findings,
         )
 
         req = merge_requirements(requirements, requirements_from_plan(dict(definition)))
@@ -176,6 +177,8 @@ class PolarsTransformCompiler:
         findings = list(report.findings)
         findings.extend(_analyze_modes(definition))
         findings.extend(three_state_findings(definition, self._info.capabilities))
+        findings.extend(window_frame_findings(definition))
+        findings.extend(windowed_aggregate_findings(definition))
         return TransformSupportReport(
             supported=not findings,
             findings=tuple(findings),

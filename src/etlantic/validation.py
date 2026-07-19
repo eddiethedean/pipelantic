@@ -297,9 +297,12 @@ def _phase_policy(
             and engine != "local"
         ):
             from etlantic.transform.compiler import TransformPlanningContext
-            from etlantic.transform.discovery import load_transform_compiler
+            from etlantic.transform.discovery import (
+                discover_transform_compilers_for_profile,
+            )
 
-            compiler = load_transform_compiler(engine)
+            compilers = discover_transform_compilers_for_profile(context.profile)
+            compiler = compilers.get(engine)
             if compiler is not None:
                 if portable_policy == "prefer":
                     # Prefer: compiler presence is enough at validate-time;

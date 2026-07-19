@@ -20,15 +20,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Window V1 authoring emits `portable-window/1` only (V2 functions stay V2)
-- Complex-type accessors no longer force complex-values requirements
-- Transform-compiler discovery uses entry-point names as stable keys and no
-  longer bypasses profile allowlists on the plan/run path
+- Complex-type accessors no longer force complex-values requirements; `explode`
+  emits reshape only
+- Transform-compiler discovery uses entry-point names as stable keys; validate,
+  plan, and run all respect profile allowlists
 - Distinct missing/invalid literals fail closed without `three_state_distinct`
+- Explicit window frames and windowed aggregates fail closed at analyze
+- SQL portable compiler advertises `lazy=False` and honors action `target`
 - Package versions aligned at 0.17.0; plugins require `etlantic>=0.17.0,<0.18`
 
 ### Fixed
-- Planner/runtime unfiltered transform-compiler discovery fallback after
-  allowlist filtering
+- Validate-path unfiltered transform-compiler discovery bypass of allowlists
+- PySpark Wave 1/2 function inventory and lowering parity with matrix claims
+- PySpark `explode` empty/null row parity (`explode_outer`)
+- Polars multi-key rank truncation, bare rank placeholder, soft `to_integer`,
+  and over-broad null-safe join `TypeError` fallback
+- Pandas 2-arg `substr` first-row-only start index
+- SQL analyze/execute gaps for predicate joins and byPosition
+  `allowMissingColumns`
 
 ## [0.16.0] - 2026-07-19
 

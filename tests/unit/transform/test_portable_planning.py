@@ -415,3 +415,38 @@ def test_require_ignores_registry_native_bypass(
     assert "PMXFORM301" in {
         d.code for d in (exc.value.report.diagnostics if exc.value.report else ())
     }
+
+
+def test_validate_require_respects_plugin_allowlist() -> None:
+    """Validate must not load compilers filtered out by the profile allowlist."""
+    from etlantic.policy import STRICT_POLICY
+
+    profile = Profile(
+        name="dev-deny-polars",
+        dataframe_engine="polars",
+        portable_transform_policy="require",
+        plugin_allowlist={"local": None},
+        assets={"customers": "customers", "out": "out"},
+        validation_policy="strict",
+    )
+    report = KernelPipeline.validate(profile=profile, policy=STRICT_POLICY)
+    assert not report.valid
+    assert "PMXFORM302" in report.codes()
+
+
+def test_explode_emits_reshape_only() -> None:
+    from etlantic.transform.protocol import PROFILE_COMPLEX_VALUES, PROFILE_RESHAPE
+
+    class T(Transformation):
+        customers: Input[RawCustomer]
+        result: Output[Customer]
+
+    @T.portable
+    def define(customers):
+        return customers.explode("email").select("customer_id", "email", "age")
+
+    defn = T.portable_definition()
+    assert defn is not None
+    assert PROFILE_RESHAPE in defn.requirements["profiles"]
+    assert PROFILE_COMPLEX_VALUES not in defn.requirements["profiles"]
+    assert "dtcs:explode" in defn.requirements["actions"]

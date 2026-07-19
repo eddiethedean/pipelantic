@@ -9,7 +9,8 @@ discoverability and multi-family graduation on Polars and PySpark.
   compilers with exact capability summaries
 - Plan explain surfaces compiler capabilities and selection metadata
 - Guide/packaging drift checks verify runtime↔compiler entry-point pairing
-- Profile allowlists can no longer be bypassed by unfiltered compiler discovery
+- Profile allowlists apply to transform-compiler discovery on validate, plan,
+  and run paths (no unfiltered bypass)
 - Distinct `missing`/`invalid` literals fail closed unless a compiler claims
   `three_state_distinct`
 

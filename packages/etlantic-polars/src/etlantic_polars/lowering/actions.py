@@ -163,6 +163,11 @@ def _lower_window_expr(
     if callee in {"dtcs:rank", "dtcs:dense_rank"}:
         if not order_by:
             raise ValueError(f"{callee} requires window orderBy")
+        if len(order_by) != 1:
+            raise ValueError(
+                f"{callee} with multiple orderBy keys is not supported by "
+                "the Polars compiler"
+            )
         method = "dense" if callee == "dtcs:dense_rank" else "min"
         rank_expr = order_by[0].rank(method=method, descending=descending[0])
         return rank_expr.over(partition_by) if partition_by else rank_expr
@@ -248,14 +253,18 @@ def _apply_join(
         "how": how,
         "coalesce": True,
     }
-    # Polars 1.x: nulls_equal; older builds ignore via try/except path.
+    # Polars 1.x: nulls_equal; older builds may reject the keyword only.
     if null_safe:
         join_kwargs["nulls_equal"] = True
-    try:
-        return left.join(right, **join_kwargs)
-    except TypeError:
-        join_kwargs.pop("nulls_equal", None)
-        return left.join(right, **join_kwargs)
+        try:
+            return left.join(right, **join_kwargs)
+        except TypeError as exc:
+            message = str(exc).lower()
+            if "nulls_equal" not in message and "unexpected keyword" not in message:
+                raise
+            join_kwargs.pop("nulls_equal", None)
+            return left.join(right, **join_kwargs)
+    return left.join(right, **join_kwargs)
 
 
 def _as_key_list(key: Any) -> list[str]:

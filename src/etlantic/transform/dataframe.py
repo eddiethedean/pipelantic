@@ -9,7 +9,6 @@ from typing import Any
 
 from etlantic.transform.column import ColumnExpr, ParameterRef, coerce_column
 from etlantic.transform.protocol import (
-    PROFILE_COMPLEX_VALUES,
     PROFILE_RELATIONAL_EXTENDED,
     PROFILE_RESHAPE,
     RELATIONAL_PROFILE_V1,
@@ -388,7 +387,7 @@ class FrameExpr:
         return self._extend(
             action="dtcs:explode",
             parameters={"field": column},
-            profiles=frozenset({PROFILE_RESHAPE, PROFILE_COMPLEX_VALUES}),
+            profiles=frozenset({PROFILE_RESHAPE}),
             path=f"explode:{column}",
         )
 

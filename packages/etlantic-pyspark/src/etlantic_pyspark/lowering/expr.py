@@ -121,10 +121,25 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         return _F().upper(args[0])
     if callee == "dtcs:trim":
         return _F().trim(args[0])
+    if callee == "dtcs:ltrim":
+        return _F().ltrim(args[0])
+    if callee == "dtcs:rtrim":
+        return _F().rtrim(args[0])
+    if callee == "dtcs:regex_extract":
+        pattern = constant_python(raw_args[1], parameters=parameters)
+        group = (
+            int(constant_python(raw_args[2], parameters=parameters))
+            if len(raw_args) > 2
+            else 0
+        )
+        return _F().regexp_extract(args[0], str(pattern), group)
     if callee == "dtcs:regex_replace":
         pattern = constant_python(raw_args[1], parameters=parameters)
         replacement = constant_python(raw_args[2], parameters=parameters)
         return _F().regexp_replace(args[0], str(pattern), str(replacement))
+    if callee == "dtcs:split":
+        pattern = constant_python(raw_args[1], parameters=parameters)
+        return _F().split(args[0], str(pattern))
     if callee == "dtcs:concat":
         return _F().concat(*args)
     if callee == "dtcs:concat_ws":
@@ -168,6 +183,14 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         return args[0].isNull()
     if callee == "dtcs:to_string":
         return args[0].cast("string")
+    if callee == "dtcs:to_integer":
+        return args[0].cast("long")
+    if callee in {"dtcs:cast", "dtcs:try_cast"}:
+        data_type = str(constant_python(raw_args[1], parameters=parameters))
+        spark_type = _spark_dtype(data_type)
+        # Spark 3.5 soft-casts invalid values to null under default ANSI-off;
+        # Column.try_cast arrives in later Spark lines.
+        return args[0].cast(spark_type)
     if callee == "dtcs:abs":
         return _F().abs(args[0])
     if callee == "dtcs:round":
@@ -189,8 +212,38 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         if args:
             raise ValueError("dtcs:row_number does not accept arguments")
         return _F().row_number()
+    if callee == "dtcs:rank":
+        return _F().rank()
+    if callee == "dtcs:dense_rank":
+        return _F().dense_rank()
+    if callee == "dtcs:lag":
+        offset = (
+            int(constant_python(raw_args[1], parameters=parameters))
+            if len(raw_args) > 1
+            else 1
+        )
+        if len(args) > 2:
+            return _F().lag(args[0], offset, args[2])
+        return _F().lag(args[0], offset)
+    if callee == "dtcs:lead":
+        offset = (
+            int(constant_python(raw_args[1], parameters=parameters))
+            if len(raw_args) > 1
+            else 1
+        )
+        if len(args) > 2:
+            return _F().lead(args[0], offset, args[2])
+        return _F().lead(args[0], offset)
+    if callee == "dtcs:first_value":
+        return _F().first(args[0], ignorenulls=False)
+    if callee == "dtcs:last_value":
+        return _F().last(args[0], ignorenulls=False)
     if callee == "dtcs:array":
         return _F().array(*args)
+    if callee == "dtcs:map":
+        if len(args) % 2:
+            raise ValueError("dtcs:map requires alternating key/value arguments")
+        return _F().create_map(*args)
     if callee == "dtcs:size":
         return _F().size(args[0])
     if callee == "dtcs:object":
@@ -208,6 +261,19 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         if not isinstance(field, str):
             raise ValueError("dtcs:field name must be a string constant")
         return args[0].getField(field)
+    if callee in {"dtcs:index", "dtcs:element_at"}:
+        try:
+            key = constant_python(raw_args[1], parameters=parameters)
+        except (KeyError, ValueError):
+            key = None
+        if isinstance(key, str):
+            return args[0].getField(key)
+        # Spark element_at is 1-based for arrays; portable IR is 0-based.
+        if isinstance(key, bool):
+            raise ValueError(f"{callee} boolean index is not supported")
+        if isinstance(key, int):
+            return _F().element_at(args[0], int(key) + 1)
+        raise ValueError(f"{callee} requires a constant string field or integer index")
     if callee == "dtcs:case_when":
         return _lower_case_when(node, parameters=parameters)
     if callee in {
@@ -219,11 +285,37 @@ def _lower_call(node: dict[str, Any], *, parameters: dict[str, Any]) -> Any:
         "dtcs:count_all",
         "dtcs:count_distinct",
         "dtcs:variance",
+        "dtcs:stddev",
+        "dtcs:corr",
     }:
         raise ValueError(
             f"Aggregate function {callee!r} is only valid inside dtcs:aggregate"
         )
     raise ValueError(f"Unsupported function {callee!r}")
+
+
+def _spark_dtype(data_type: str) -> str:
+    normalized = data_type.strip().lower()
+    aliases = {
+        "string": "string",
+        "str": "string",
+        "utf8": "string",
+        "integer": "long",
+        "int": "long",
+        "int64": "long",
+        "long": "long",
+        "float": "double",
+        "float64": "double",
+        "double": "double",
+        "boolean": "boolean",
+        "bool": "boolean",
+        "date": "date",
+        "datetime": "timestamp",
+        "timestamp": "timestamp",
+    }
+    if normalized not in aliases:
+        raise ValueError(f"Unsupported cast data type {data_type!r}")
+    return aliases[normalized]
 
 
 def lower_agg_expr(node: Any, *, parameters: dict[str, Any]) -> Any:
@@ -251,6 +343,10 @@ def lower_agg_expr(node: Any, *, parameters: dict[str, Any]) -> Any:
         return _F().countDistinct(args[0])
     if callee == "dtcs:variance":
         return _F().variance(args[0])
+    if callee == "dtcs:stddev":
+        return _F().stddev(args[0])
+    if callee == "dtcs:corr":
+        return _F().corr(args[0], args[1])
     raise ValueError(f"Unsupported aggregate function {callee!r}")
 
 

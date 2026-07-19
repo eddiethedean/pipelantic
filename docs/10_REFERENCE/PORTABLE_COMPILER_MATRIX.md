@@ -25,7 +25,7 @@ alias of the corresponding `/1` claim.
 | `portable-conversion/1` | `to_string`, `try_cast`, `cast`, `to_integer` |
 | `portable-statistics/1` | `variance`, `stddev`, `corr` (sample semantics) |
 | `portable-window/1` | `row_number`, `rank`, `dense_rank`, `lag`, `lead`, `first_value`, `last_value` |
-| `portable-complex-values/1` | `array`, `map`, `object`, `size` |
+| `portable-complex-values/1` | `array`, `object`, `size` (`map` on PySpark; Polars rejects `map`) |
 | `portable-complex-types/1` | `field`, `index`, `element_at` |
 | `portable-reshape/1` | `explode` |
 
@@ -58,6 +58,8 @@ Supported join types are `inner`, `left`, `right`, `full`, `outer`, `semi`,
 - Distinct `missing` / `invalid` three-state literals fail closed unless a
   compiler advertises `semantic_mode:three_state_distinct` (not claimed in
   0.17).
+- Explicit window frames fail closed until frame lowering ships; omit
+  `rowsBetween` / `rangeBetween` in portable Window V1 plans.
 - Continuation families remain unclaimed: `portable-relational-extended/1`,
   `portable-temporal-iana/1`, `portable-nondeterministic/1`, `portable-window/2`.
 - Unsupported actions, functions, modes, and profiles must fail closed during
