@@ -53,7 +53,8 @@ class CustomerPipeline(Pipeline):
     )
 
 
-def main() -> None:
+def run_example() -> tuple[PipelineRuntime, object]:
+    """Validate, plan, and run the in-memory quickstart (used by CI)."""
     validation = CustomerPipeline.validate(profile="development")
     validation.raise_for_errors()
     CustomerPipeline.plan(profile="development")
@@ -66,8 +67,12 @@ def main() -> None:
             RawCustomer(customer_id=2, first_name="Grace", last_name="Hopper"),
         ],
     )
-
     report = CustomerPipeline.run(profile="development", runtime=runtime)
+    return runtime, report
+
+
+def main() -> None:
+    runtime, report = run_example()
     print(report.status.value)
     for customer in runtime.memory.get("customer_sink"):
         print(customer.model_dump())

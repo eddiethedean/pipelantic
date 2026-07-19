@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `plugin info` honors profile allowlists and supports scheduler plugins
 - Documentation, contributor checks, and ROADMAP status aligned for 0.18.0
   (including `asset=` authoring and current install pins)
+- Restore `examples/quickstart.py` `run_example()` entry point required by CI
 
 ## [0.17.0] - 2026-07-19
 
