@@ -7,7 +7,7 @@ from typing import Any, Protocol, runtime_checkable
 
 @runtime_checkable
 class StorageBinding(Protocol):
-    """Read/write datasets for Source and Sink nodes."""
+    """Read/write datasets for Extract and Load nodes."""
 
     name: str
 

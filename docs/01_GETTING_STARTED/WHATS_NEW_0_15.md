@@ -48,7 +48,7 @@ direct-execution default. Airflow remains an external compile target
 Gate B as an `ExecutionScheduler` (logical-node MVP; not a DAG compiler);
 vocabulary cleanup is the independent Gate A. See the
 [scheduler plan](../11_DEVELOPMENT/SCHEDULER_AND_PREFECT_PLAN.md) and
-[ROADMAP §0.16](../../ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler).
+[ROADMAP §0.16](https://github.com/eddiethedean/etlantic/blob/main/ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler).
 
 ## Not in 0.15
 

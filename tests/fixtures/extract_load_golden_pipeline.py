@@ -19,7 +19,7 @@ class NormalizeCustomerRow(Transformation):
 
 class ExtractLoadGoldenPipeline(Pipeline):
     __published_id__ = "extract-load-golden"
-    __published_version__ = "0.15.0"
+    __published_version__ = "0.16.0"
 
     raw: Extract[CustomerRow] = Extract(asset="raw_customers")
     normalized = NormalizeCustomerRow.step(rows=raw)

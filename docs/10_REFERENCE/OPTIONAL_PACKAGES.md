@@ -1,6 +1,6 @@
 # Optional Packages
 
-> **Status: Available in ETLantic 0.15.0.** Core `etlantic` does not install
+> **Status: Available in ETLantic 0.16.0.** Core `etlantic` does not install
 > engines. Install only the plugins you need, pinned to the same minor line.
 
 ## Install pins
@@ -8,19 +8,20 @@
 Prefer exact pins for a controlled pilot:
 
 ```bash
-pip install 'etlantic==0.15.0'
-pip install 'etlantic-polars==0.15.0'
-pip install 'etlantic-pandas==0.15.0'
-pip install 'etlantic-sql==0.15.0'
-pip install 'etlantic-pyspark==0.15.0'
-pip install 'etlantic-airflow==0.15.0'
-pip install 'etlantic-keyring==0.15.0'
-pip install 'etlantic-sqlmodel==0.15.0'
-pip install 'etlantic-sparkforge==0.15.0'
+pip install 'etlantic==0.16.0'
+pip install 'etlantic-polars==0.16.0'
+pip install 'etlantic-pandas==0.16.0'
+pip install 'etlantic-sql==0.16.0'
+pip install 'etlantic-pyspark==0.16.0'
+pip install 'etlantic-airflow==0.16.0'
+pip install 'etlantic-prefect==0.16.0'
+pip install 'etlantic-keyring==0.16.0'
+pip install 'etlantic-sqlmodel==0.16.0'
+pip install 'etlantic-sparkforge==0.16.0'
 ```
 
-Official plugin packages declare `etlantic>=0.15.0,<0.16` so they stay on the
-0.14 line. Cross-minor mixing is unsupported unless a future release documents
+Official plugin packages declare `etlantic>=0.16.0,<0.17` so they stay on the
+0.16 line. Cross-minor mixing is unsupported unless a future release documents
 compatibility tests.
 
 ## Package surfaces
@@ -32,6 +33,7 @@ compatibility tests.
 | `etlantic-sql` | `etlantic_sql` | Native SQL (PostgreSQL) engine |
 | `etlantic-pyspark` | `etlantic_pyspark` | PySpark engine + portable compiler |
 | `etlantic-airflow` | `etlantic_airflow` | Airflow DAG compiler (`etlantic compile --target airflow`) |
+| `etlantic-prefect` | `etlantic_prefect` | Prefect direct-execution scheduler (`Profile(orchestrator="prefect")`) |
 | `etlantic-keyring` | `etlantic_keyring` | OS keyring secret provider |
 | `etlantic-sqlmodel` | `etlantic_sqlmodel` | SQLModel ↔ contract bridge |
 | `etlantic-sparkforge` | `etlantic_sparkforge` | SparkForge adapter (medallion stays here, not in core) |

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import uuid
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -171,6 +172,7 @@ async def arun_pipeline(
         orchestrator_name,
         plugins=None if scheduler_plugins is None else dict(scheduler_plugins),
     )
+    run_id = f"run-{uuid.uuid4().hex[:12]}"
     async with runtime.session():
         return await scheduler.execute(
             plan,
@@ -180,6 +182,7 @@ async def arun_pipeline(
             workspace=Path(workspace) if workspace else store.workspace,
             artifact_store=store,
             context=SchedulingContext(
+                run_id=run_id,
                 pipeline_id=plan.pipeline_id,
                 plan_id=plan.plan_id,
                 profile_name=plan.profile_name,

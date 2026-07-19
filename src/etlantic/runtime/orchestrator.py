@@ -211,6 +211,8 @@ class LocalOrchestrator:
     # Optional wave coordinator for ExecutionScheduler plugins (e.g. Prefect).
     # Signature: async (ready_names, run_one) -> None
     wave_runner: Any | None = field(default=None, repr=False)
+    # Optional caller-supplied run id (scheduler plugins should thread this).
+    run_id: str | None = field(default=None)
 
     def __post_init__(self) -> None:
         if self.pipeline_cls is not None:
@@ -249,7 +251,7 @@ class LocalOrchestrator:
     async def execute(self) -> PipelineRunReport:
         from etlantic.lifecycle.lifespan import run_lifespan
 
-        run_id = f"run-{uuid.uuid4().hex[:12]}"
+        run_id = self.run_id or f"run-{uuid.uuid4().hex[:12]}"
         started = datetime.now(UTC)
         logger = RunLogger(run_id=run_id, pipeline_id=self.plan.pipeline_id)
         artifacts = self.artifacts or ArtifactStore(workspace=self.workspace)
@@ -1180,7 +1182,7 @@ class LocalOrchestrator:
             # SQL IR into a non-sql storage sink must not silently ignore the IR.
             if isinstance(payload, (RelationRef, SqlQuery)):
                 raise NodeExecutionError(
-                    f"Sink {node.name!r} received a SQL handle but is not in a "
+                    f"Load {node.name!r} received a SQL handle but is not in a "
                     "SQL execution region; failing closed.",
                     node_name=node.name,
                     stage=FailureStage.WRITE.value,

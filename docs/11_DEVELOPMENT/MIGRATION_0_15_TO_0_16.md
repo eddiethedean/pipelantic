@@ -68,7 +68,7 @@ Plan fingerprints still serialize `profile_snapshot.bindings` only.
 ## Prefect (Gate B)
 
 Optional `etlantic-prefect` is independent of this vocabulary cleanup. See
-[ROADMAP §0.16](../../ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler)
+[ROADMAP §0.16](https://github.com/eddiethedean/etlantic/blob/main/ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler)
 and the
 [Local Scheduler and Prefect Integration Plan](SCHEDULER_AND_PREFECT_PLAN.md).
 

@@ -1281,7 +1281,7 @@ native-to-portable migration note. Until a family graduates, keep native
 
 ## 0.16 — Authoring Vocabulary Cleanup and Optional Prefect Scheduler
 
-**Status: shipped in 0.16.0.**
+**Status: shipped in 0.15.0.**
 
 0.16 has two **independent** gates. Vocabulary cleanup (Gate A) must ship and
 must not wait on Prefect. Optional `etlantic-prefect` (Gate B) may ship in the

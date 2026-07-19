@@ -1,6 +1,6 @@
 # Contract Loading
 
-> **Status split (0.15.0):** `load_bundle`, `Pipeline.from_dpcs`, and
+> **Status split (0.16.0):** `load_bundle`, `Pipeline.from_dpcs`, and
 > `Transformation.from_dtcs` are **Available** for contract-first reconstruction.
 > Unknown portable IR nodes fail closed. Broader registry sync and multi-vendor
 > interchange guarantees remain **Future design**.

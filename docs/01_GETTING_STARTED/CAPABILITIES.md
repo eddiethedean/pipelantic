@@ -1,6 +1,6 @@
 # Current Capabilities and Limitations
 
-ETLantic **0.15.0** is a **published alpha** release on PyPI. This page is the
+ETLantic **0.16.0** is a **published alpha** release on PyPI. This page is the
 shortest answer to "What can I use today?"
 
 ## Recommended first production-like pilot
@@ -15,14 +15,14 @@ Controlled pilot only (see [Evaluator](EVALUATOR.md) and
 5. No multi-tenant sharing of a process; no unresolved security Gaps from the
    [Security](../02_FOUNDATIONS/SECURITY.md) chapter
 
-## Available in 0.15
+## Available in 0.16
 
 ### Core authoring and validation
 
 | Capability | Status |
 |---|---|
 | Typed data, transformation, and pipeline models | Available |
-| `Extract` / `Load` / `asset=` authoring (Source/Sink warned) | Available |
+| `Extract` / `Load` / `asset=` authoring (`Source` / `Sink` removed) | Available |
 | Structural and semantic validation | Available |
 | ODCS, DTCS, and DPCS generation and loading | Available |
 | Profiles and deterministic, secret-free pipeline plans | Available |
@@ -57,6 +57,7 @@ Controlled pilot only (see [Evaluator](EVALUATOR.md) and
 | Lazy Spark region fusion (native path) | Available |
 | Delta-compatible write intents | Available (fail-closed without Delta) |
 | Airflow reference compiler | Available (`etlantic-airflow`) |
+| Prefect direct-execution scheduler | Available (`etlantic-prefect`; local MVP) |
 
 ### Operations and security tooling
 
@@ -77,14 +78,13 @@ Controlled pilot only (see [Evaluator](EVALUATOR.md) and
 |---|---|
 | Structured Streaming foundation | **Experimental** |
 
-## Not included in 0.15
+## Not included in 0.16
 
 | Capability | Status |
 |---|---|
 | `MERGE` / upsert in the reference SQL plugin | Not implemented (`sql_merge=False`; fail closed) |
 | Managed Spark providers (Databricks/EMR/Connect) | Future / optional adapters |
 | Event sensors / Dagster compilers | Future |
-| Prefect direct-execution scheduler (`etlantic-prefect`) | **Shipped in 0.16** as `ExecutionScheduler` (local MVP; not an Airflow-style compiler) |
 | Full LSP server productization | Continues in 1.5 |
 | Registry-backed schema history | Continues in 1.2 |
 | FastAPI control plane | Continues in 1.1 |
@@ -115,6 +115,7 @@ pip install etlantic-pandas          # Pandas compatibility plugin
 pip install etlantic-sql             # PostgreSQL SQL reference plugin
 pip install etlantic-pyspark         # PySpark reference plugin
 pip install etlantic-airflow         # Airflow DAG compiler
+pip install etlantic-prefect         # Prefect direct-execution scheduler
 pip install etlantic-keyring         # OS keyring secret provider
 pip install etlantic-sqlmodel        # SQLModel contract bridge
 pip install etlantic-sparkforge      # SparkForge → ETLantic adapter
@@ -124,6 +125,7 @@ pip install 'etlantic[dataframes]'   # polars + pandas
 pip install 'etlantic[sql]'          # alias: postgresql
 pip install 'etlantic[pyspark]'      # alias: spark
 pip install 'etlantic[airflow]'
+pip install 'etlantic[prefect]'
 pip install 'etlantic[keyring]'
 pip install 'etlantic[sqlmodel]'
 pip install 'etlantic[sparkforge]'

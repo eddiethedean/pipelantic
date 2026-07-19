@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is ready in alpha 0.15.0
+## What is ready in alpha 0.16.0
 
 | Area | Ready? |
 |---|---|
@@ -55,7 +55,7 @@ For a bounded pilot topology and required controls, read
 
 ## Production readiness gate (do not skip)
 
-**ETLantic 0.15.0 is alpha.** Plugin allowlists being “Available” does **not**
+**ETLantic 0.16.0 is alpha.** Plugin allowlists being “Available” does **not**
 mean the product is production-ready.
 
 Do **not** productionize until the security release gate closes (targeted for
@@ -104,11 +104,11 @@ How to read status labels in deeper chapters:
 | SBOM / signed provenance | Gap — not yet emitted by release automation |
 | Audit system of record | Gap — process-local reports are operational evidence only |
 | Tested scale | Local/pilot workloads; no published capacity guarantees |
-| Upgrade / rollback | Pin exact versions; see [Migration 0.13 → 0.14](../11_DEVELOPMENT/MIGRATION_0_13_TO_0_14.md) |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |
 
 ## Recommended evaluation path
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic==0.15.0`
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.16.0`
 2. [Quickstart](QUICKSTART.md) or `examples/quickstart.py`
 3. [Capabilities](CAPABILITIES.md)
 4. Optional: `examples/portable_polars_kernel.py` with `etlantic-polars`
@@ -117,10 +117,12 @@ How to read status labels in deeper chapters:
    `etlantic-sql`
 7. Optional: `examples/pyspark_local.py` with `etlantic-pyspark`
 8. Optional: `examples/airflow_compile.py` with `etlantic-airflow`
-9. Optional: SparkForge adapter via `uv sync --group sparkforge`
-10. [Migration 0.13 → 0.14](../11_DEVELOPMENT/MIGRATION_0_13_TO_0_14.md) (and
-    [0.12 → 0.13](../11_DEVELOPMENT/MIGRATION_0_12_TO_0_13.md) when needed)
-11. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
+9. Optional: Prefect scheduler via `etlantic-prefect` /
+   `Profile(orchestrator="prefect")`
+10. Optional: SparkForge adapter via `uv sync --group sparkforge`
+11. [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) (and
+    earlier migration guides when needed)
+12. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
 
 ## Support channel
 

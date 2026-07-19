@@ -243,12 +243,12 @@ __all__ = [
     "SecretRef",
     "SecretValue",
     "Severity",
-    "SubpipelineInstance",
     "SourceLocation",
     "SparkUdfPolicy",
     "SqlQuery",
     "Step",
     "StepFailureContext",
+    "SubpipelineInstance",
     "SubpipelineInstance",
     "Transformation",
     "ValidationPolicy",
@@ -290,6 +290,18 @@ __all__ = [
 ]
 
 
+_REMOVED_AUTHORING = {
+    "Source": (
+        "Source was removed in ETLantic 0.16. Use Extract instead. "
+        "See docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md."
+    ),
+    "Sink": (
+        "Sink was removed in ETLantic 0.16. Use Load instead. "
+        "See docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md."
+    ),
+}
+
+
 def __getattr__(name: str) -> Any:
     if name == "DataContractModel":
         warnings.warn(
@@ -298,4 +310,6 @@ def __getattr__(name: str) -> Any:
             stacklevel=2,
         )
         return Data
+    if name in _REMOVED_AUTHORING:
+        raise AttributeError(_REMOVED_AUTHORING[name])
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

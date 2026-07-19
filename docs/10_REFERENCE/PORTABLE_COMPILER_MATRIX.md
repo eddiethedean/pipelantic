@@ -7,10 +7,10 @@ This matrix records the portable transformation claims shipped in ETLantic
 
 | Package | Engine | Claimed profiles | Execution mode | Join collision policy |
 |---|---|---|---|---|
-| `etlantic-polars==0.15.0` | Polars | `portable-relational-kernel/1`, `portable-relational/1` | Eager and lazy | `fail` only |
-| `etlantic-pyspark==0.15.0` | PySpark | `portable-relational-kernel/1`, `portable-relational/1` | Eager and lazy | `fail` only |
-| `etlantic-pandas==0.15.0` | Pandas | `portable-relational-kernel/1`, `portable-relational/1` | Eager only (`lazy=False`) | `fail` only |
-| `etlantic-sql==0.15.0` | SQL | `portable-relational-kernel/1`, `portable-relational/1` | Eager (relation/SQL) | `fail` only |
+| `etlantic-polars==0.16.0` | Polars | `portable-relational-kernel/1`, `portable-relational/1` | Eager and lazy | `fail` only |
+| `etlantic-pyspark==0.16.0` | PySpark | `portable-relational-kernel/1`, `portable-relational/1` | Eager and lazy | `fail` only |
+| `etlantic-pandas==0.16.0` | Pandas | `portable-relational-kernel/1`, `portable-relational/1` | Eager only (`lazy=False`) | `fail` only |
+| `etlantic-sql==0.16.0` | SQL | `portable-relational-kernel/1`, `portable-relational/1` | Eager (relation/SQL) | `fail` only |
 
 The full profile identifiers are
 `dtcs:profile/portable-relational-kernel/1` and
@@ -21,7 +21,7 @@ candidate extensions.
 
 ## Claimed operations
 
-All four compilers advertise the same 0.15.0 action surface:
+All four compilers advertise the same 0.16.0 action surface:
 
 | Profile group | Actions |
 |---|---|

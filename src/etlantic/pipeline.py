@@ -27,6 +27,7 @@ _subpipeline_key_counter = itertools.count(1)
 _extract_key_counter = itertools.count(1)
 _building_graphs: set[type[Any]] = set()
 
+
 def _require_asset(asset: str | None, *, kwargs: dict[str, Any]) -> str:
     """Validate ``asset=`` and reject removed ``binding=`` authoring."""
     if "binding" in kwargs:

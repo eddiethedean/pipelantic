@@ -5,7 +5,7 @@ platform. Milestones describe capability order, not release-date commitments.
 
 ## 0.15 shipped
 
-ETLantic 0.15.0 closed the Safe SQL Lowering exit gate and the LocalScheduler
+ETLantic 0.16.0 closed the Safe SQL Lowering exit gate and the LocalScheduler
 companion:
 
 - `etlantic-sql` claims kernel + `portable-relational/1` through typed

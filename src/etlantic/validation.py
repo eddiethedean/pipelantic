@@ -691,7 +691,7 @@ def _validate_graph(
                                 f'"{name}".'
                             ),
                             path=("pipeline", name, port.name),
-                            help="Bind a Source, Step output, or OutputRef.",
+                            help="Bind an Extract, Step output, or OutputRef.",
                         )
                     )
         from etlantic.pipeline import Load, SubpipelineInstance

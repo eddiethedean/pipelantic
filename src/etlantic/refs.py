@@ -55,10 +55,10 @@ class OutputRef(Generic[T]):
 
 
 def as_output_ref(value: Any, *, default_port: str = "result") -> OutputRef[Any] | None:
-    """Normalize a Source, Step attribute, or OutputRef into an OutputRef."""
+    """Normalize an Extract, Step attribute, or OutputRef into an OutputRef."""
     if isinstance(value, OutputRef):
         return value
-    # Source and Step expose .as_output_ref()
+    # Extract and Step expose .as_output_ref()
     converter = getattr(value, "as_output_ref", None)
     if callable(converter):
         return converter(default_port=default_port)

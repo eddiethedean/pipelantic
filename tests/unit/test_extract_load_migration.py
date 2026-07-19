@@ -16,6 +16,14 @@ def test_source_and_sink_not_exported() -> None:
 
     assert not hasattr(etlantic, "Source")
     assert not hasattr(etlantic, "Sink")
+    with pytest.raises(AttributeError, match="Extract"):
+        _ = etlantic.Source
+    with pytest.raises(AttributeError, match="Load"):
+        _ = etlantic.Sink
+    with pytest.raises(ImportError):
+        from etlantic import Source  # noqa: F401
+    with pytest.raises(ImportError):
+        from etlantic import Sink  # noqa: F401
 
 
 def test_binding_kwarg_rejected() -> None:
@@ -36,9 +44,9 @@ def test_extract_asset_required() -> None:
 
 def test_binding_property_removed() -> None:
     extract = Extract(asset="raw")
-    assert not hasattr(type(extract), "binding") or "binding" not in type(
-        extract
-    ).__dict__
+    assert (
+        not hasattr(type(extract), "binding") or "binding" not in type(extract).__dict__
+    )
     with pytest.raises(AttributeError):
         _ = extract.binding  # type: ignore[attr-defined]
 

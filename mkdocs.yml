@@ -109,7 +109,7 @@ nav:
       - What's new in 0.15: 01_GETTING_STARTED/WHATS_NEW_0_15.md
       - What's new in 0.16: 01_GETTING_STARTED/WHATS_NEW_0_16.md
       - What's new in 0.14: 01_GETTING_STARTED/WHATS_NEW_0_14.md
-      - Current 0.15 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
+      - Current 0.16 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
       - Installation: 01_GETTING_STARTED/INSTALLATION.md
       - Quickstart: 01_GETTING_STARTED/QUICKSTART.md
       - First Pipeline: 01_GETTING_STARTED/FIRST_PIPELINE.md
@@ -250,7 +250,7 @@ nav:
       - Overview: 10_REFERENCE/README.md
       - CLI: 10_REFERENCE/CLI.md
       - Compatibility: 10_REFERENCE/COMPATIBILITY.md
-      - Configuration in 0.15.0: 10_REFERENCE/CONFIGURATION_TODAY.md
+      - Configuration in 0.16.0: 10_REFERENCE/CONFIGURATION_TODAY.md
       - Portable Compiler Matrix: 10_REFERENCE/PORTABLE_COMPILER_MATRIX.md
       - Optional Packages: 10_REFERENCE/OPTIONAL_PACKAGES.md
       - Known Limitations: 10_REFERENCE/KNOWN_ISSUES.md

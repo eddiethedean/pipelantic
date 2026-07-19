@@ -224,6 +224,7 @@ class LocalScheduler:
             pipeline_cls=pipeline_cls,
             workspace=workspace,
             artifacts=artifact_store,
+            run_id=context.run_id if context is not None else None,
         )
         result = await host.execute()
         # Annotate scheduler identity without breaking report schema consumers.

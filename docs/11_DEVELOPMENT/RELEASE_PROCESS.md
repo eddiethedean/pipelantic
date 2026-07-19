@@ -16,7 +16,7 @@ plugin packages currently share the core minor version (for example `0.14.0`).
 
 ## Packages published on each tag
 
-Tag `vX.Y.Z` publishes nine distributions:
+Tag `vX.Y.Z` publishes ten distributions:
 
 | PyPI name | Source |
 |---|---|
@@ -26,6 +26,7 @@ Tag `vX.Y.Z` publishes nine distributions:
 | `etlantic-sql` | `packages/etlantic-sql` |
 | `etlantic-pyspark` | `packages/etlantic-pyspark` |
 | `etlantic-airflow` | `packages/etlantic-airflow` |
+| `etlantic-prefect` | `packages/etlantic-prefect` |
 | `etlantic-keyring` | `packages/etlantic-keyring` |
 | `etlantic-sqlmodel` | `packages/etlantic-sqlmodel` |
 | `etlantic-sparkforge` | `packages/etlantic-sparkforge` |
@@ -59,7 +60,7 @@ Tag `vX.Y.Z` publishes nine distributions:
    uv run pytest -q tests/sparkforge -m sparkforge
    ```
 
-7. **Normal path (all nine projects already on PyPI):** publish uploads to
+7. **Normal path (all ten projects already on PyPI):** publish uploads to
    existing projects. Prefer Trusted Publishing / OIDC when configured;
    otherwise use the least-privilege token documented for this repository.
    Treat long-lived user tokens and first-project bootstrap as exceptional.
@@ -82,8 +83,8 @@ git status
 git pull --ff-only origin main
 
 # Tag must match src/etlantic/_version.py (and every plugin package).
-git tag -a v0.15.0 -m "ETLantic 0.15.0"
-git push origin v0.15.0
+git tag -a v0.16.0 -m "ETLantic 0.16.0"
+git push origin v0.16.0
 ```
 
 GitHub Actions workflow
@@ -91,7 +92,7 @@ GitHub Actions workflow
 
 1. Runs the full checks matrix.
 2. Verifies tag == core + all plugin versions.
-3. Builds all nine wheels/sdists.
+3. Builds all ten wheels/sdists.
 4. Smokes the core wheel (driver-free) **and** plugin discovery/import
    **before** any PyPI upload.
 5. Publishes to PyPI: existing projects upload immediately; **10-minute**
@@ -101,8 +102,8 @@ GitHub Actions workflow
 
 ## After PyPI succeeds
 
-1. Verify `pip install etlantic==0.15.0` and plugin extras from a clean venv.
-2. Create or confirm the GitHub Release for `v0.15.0`.
+1. Verify `pip install etlantic==0.16.0` and plugin extras from a clean venv.
+2. Create or confirm the GitHub Release for `v0.16.0`.
 3. Confirm install docs remain pip-first (`README.md`,
    `docs/01_GETTING_STARTED/INSTALLATION.md`) and hosted docs
    (`https://etlantic.readthedocs.io/`) build for the tag.

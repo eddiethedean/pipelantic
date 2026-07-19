@@ -1,6 +1,6 @@
 # Five-Minute Quickstart
 
-> **Status: Available in ETLantic 0.15.0.** Every API in this guide is shipped
+> **Status: Available in ETLantic 0.16.0.** Every API in this guide is shipped
 > and the complete example is tested in CI.
 
 This guide defines, validates, plans, and runs a typed pipeline using only the
@@ -19,7 +19,7 @@ core package and in-memory storage.
 ETLantic requires Python 3.11 or newer.
 
 ```bash
-python -m pip install 'etlantic==0.15.0'
+python -m pip install 'etlantic==0.16.0'
 etlantic --version
 # or: python -m etlantic --version
 ```
@@ -173,7 +173,7 @@ For a pipeline that survives process boundaries, use JSON/CSV storage through
 the Python API:
 
 ```bash
-# From a git checkout of v0.15.0 (examples are not installed with the wheel)
+# From a git checkout of v0.16.0 (examples are not installed with the wheel)
 uv sync
 uv run python examples/file_storage.py
 ```

@@ -1,13 +1,13 @@
-# ETLantic 0.15 User Guide
+# ETLantic 0.16 User Guide
 
 This is the current, installable ETLantic manual. Every page linked from this
-guide documents behavior available in ETLantic 0.15 unless it is explicitly
+guide documents behavior available in ETLantic 0.16 unless it is explicitly
 marked **Experimental**.
 
 ## Start here
 
-1. [What's new in 0.15](WHATS_NEW_0_15.md)
-2. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.15.0`
+1. [What's new in 0.16](WHATS_NEW_0_16.md)
+2. [Install core](INSTALLATION.md) — Python 3.11+ and `pip install etlantic==0.16.0`
 3. [Run the five-minute quickstart](QUICKSTART.md)
 4. [Build your first pipeline](FIRST_PIPELINE.md)
 5. [Check current capabilities](CAPABILITIES.md)
@@ -27,6 +27,7 @@ marked **Experimental**.
 | Run Pandas portable (no native impl) | `examples/portable_pandas_kernel.py` |
 | Run SQL portable (kernel + relational `/1`) | `etlantic-sql` + public conformance suite |
 | Controlled pilot | [Pilot walkthrough](../06_EXECUTION/PILOT_WALKTHROUGH.md) |
+| Upgrade from 0.15 | [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |
 | Upgrade from 0.14 | [Migration 0.14 → 0.15](../11_DEVELOPMENT/MIGRATION_0_14_TO_0_15.md) |
 | Upgrade from 0.13 | [Migration 0.13 → 0.14](../11_DEVELOPMENT/MIGRATION_0_13_TO_0_14.md) |
 | Integrate validation into CI | [CI integration](../06_EXECUTION/CI_INTEGRATION.md) / [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md) |

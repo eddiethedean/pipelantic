@@ -196,6 +196,7 @@ pip install "etlantic[pandas]"
 pip install "etlantic[sql]"
 pip install "etlantic[pyspark]"
 pip install "etlantic[airflow]"
+pip install "etlantic[prefect]"
 ```
 
 | Integration | Package | Purpose |
@@ -205,6 +206,7 @@ pip install "etlantic[airflow]"
 | SQL | `etlantic-sql` | Parameterized relational execution and SQL-to-SQL plans |
 | PySpark | `etlantic-pyspark` | Spark execution and local session provider |
 | Airflow | `etlantic-airflow` | Compile plans into Airflow DAG artifacts |
+| Prefect | `etlantic-prefect` | Optional direct-execution scheduler (local MVP) |
 | Keyring | `etlantic-keyring` | Resolve runtime secrets from the OS keyring |
 | SQLModel | `etlantic-sqlmodel` | Bridge ContractModel schemas and SQLModel |
 | SparkForge | `etlantic-sparkforge` | Migrate SparkForge pipeline definitions |
@@ -233,7 +235,7 @@ before mutation.
 
 ## Capability boundary
 
-| Capability | 0.15 |
+| Capability | 0.16 |
 |---|---|
 | Typed modeling, validation, contracts, and deterministic planning | Available |
 | Local Python execution and structured run reports | Available |
@@ -258,7 +260,7 @@ boundary.
 
 - [Hosted documentation](https://etlantic.readthedocs.io/)
 - [Getting Started](docs/01_GETTING_STARTED/README.md)
-- [Current 0.15 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
+- [Current 0.16 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
 - [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)

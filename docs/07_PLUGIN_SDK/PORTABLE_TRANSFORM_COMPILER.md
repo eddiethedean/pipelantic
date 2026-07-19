@@ -1,6 +1,6 @@
 # Portable Transformation Compiler Protocol
 
-!!! success "Available in ETLantic 0.15"
+!!! success "Available in ETLantic 0.16"
     `etlantic.transform-compiler/1` is importable. Polars, PySpark, Pandas, and
     SQL claim `portable-relational-kernel/1` and `portable-relational/1`. Third
     parties must pass `run_portable_transform_conformance_suite` for every

@@ -1,14 +1,14 @@
 # Production Profiles
 
-ETLantic 0.15.0 treats production configuration as an explicit trust boundary.
+ETLantic 0.16.0 treats production configuration as an explicit trust boundary.
 The built-in `production` profile is a template, not a deployable setup.
 
 ## Built-in production fails closed
 
 `production_profile()` supplies strict validation and the `production`
-security domain, but its `plugin_allowlist` and `bindings` are empty. Validation
+security domain, but its `plugin_allowlist` and `assets` are empty. Validation
 therefore emits `PMPLUG401` until the allowlist is non-empty. Real pipelines
-also need their logical source and sink bindings resolved.
+also need their logical extract and load assets resolved.
 
 This command is expected to fail for a pipeline that needs production
 configuration:
@@ -31,7 +31,7 @@ profile = Profile(
     security_domain="production",
     validation_policy="strict",
     plugin_allowlist={
-        "etlantic-polars": "==0.15.0",
+        "etlantic-polars": "==0.16.0",
     },
     assets={
         "customer_source": "json",
@@ -92,6 +92,6 @@ When a deployment needs custom `BindingDescriptor` entries, register them on
 validation, planning, and execution so those scoped registrations remain
 consistent.
 
-See [Configuration in 0.15.0](../10_REFERENCE/CONFIGURATION_TODAY.md),
+See [Configuration in 0.16.0](../10_REFERENCE/CONFIGURATION_TODAY.md),
 [CI Integration](CI_INTEGRATION.md), and
 [Security](../02_FOUNDATIONS/SECURITY.md).

@@ -1,7 +1,7 @@
 # Runnable Examples
 
-These examples use APIs and dependencies shipped in ETLantic **0.15.0**. Install
-with `pip install etlantic==0.15.0` (plus matching `==0.15.0` optional engine
+These examples use APIs and dependencies shipped in ETLantic **0.16.0**. Install
+with `pip install etlantic==0.16.0` (plus matching `==0.16.0` optional engine
 packages), or from a checkout with `uv sync` and `uv run python …`.
 
 ## Quickstart

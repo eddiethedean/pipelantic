@@ -1,6 +1,6 @@
 # Subpipelines
 
-> **Status split (0.15.0):** Nested pipeline composition as typed steps is
+> **Status split (0.16.0):** Nested pipeline composition as typed steps is
 > **Available** where examples and tests cover it. Treat deep nesting, separate
 > versioning productization, and advanced lineage claims as **pilot-bounded**
 > unless CAPABILITIES.md lists them as shipped.

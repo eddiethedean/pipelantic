@@ -193,7 +193,7 @@ layer. That work is **independent** of Prefect packaging and is owned by the
 [0.16 deletion checklist](MIGRATION_0_14_TO_0_15.md#016-deletion-checklist)
 and Migration 0.15 → 0.16 — not by `etlantic-prefect`. Plan/DPCS/plugin wire
 names stay unchanged. See
-[ROADMAP §0.16 Gate A](../../ROADMAP.md#gate-a--authoring-vocabulary-cleanup-hard).
+[ROADMAP §0.16 Gate A](https://github.com/eddiethedean/etlantic/blob/main/ROADMAP.md#gate-a--authoring-vocabulary-cleanup-hard).
 
 ## 0.16: optional `etlantic-prefect` (Gate B MVP)
 

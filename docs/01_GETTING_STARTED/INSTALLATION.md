@@ -142,7 +142,7 @@ uv sync --group sqlmodel
 ## Upgrade
 
 ```bash
-python -m pip install --upgrade 'etlantic>=0.14.0'
+python -m pip install --upgrade 'etlantic>=0.16.0'
 # or
 uv lock --upgrade-package etlantic
 ```

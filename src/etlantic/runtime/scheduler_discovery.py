@@ -126,5 +126,7 @@ def plugin_registry_snapshot() -> list[dict[str, Any]]:
     """Return serializable descriptors for discovered scheduler plugins."""
     local = builtin_local_scheduler()
     items = [local.info.to_dict()]
-    items.extend(plugin.info.to_dict() for plugin in discover_scheduler_plugins().values())
+    items.extend(
+        plugin.info.to_dict() for plugin in discover_scheduler_plugins().values()
+    )
     return items

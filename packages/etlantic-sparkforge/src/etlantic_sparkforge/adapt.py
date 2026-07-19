@@ -359,9 +359,7 @@ def adapt_pipeline(
                     },
                 )
             )
-            sink = Load[AdaptedRow](
-                input=step_inst.result, asset=binding
-            )
+            sink = Load[AdaptedRow](input=step_inst.result, asset=binding)
             ns[sink_name] = sink
             annotations[sink_name] = Load[AdaptedRow]
             members[sink_name] = sink
@@ -411,7 +409,7 @@ def adapt_pipeline(
         layer_by_node=layer_by_node,
         diagnostics=tuple(diagnostics),
         metadata={
-            "adapter_version": "0.15.0",
+            "adapter_version": "0.16.0",
             "source_name": spec.name,
             "schema": spec.schema,
         },

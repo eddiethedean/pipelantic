@@ -266,8 +266,14 @@ def main() -> None:
         raise SystemExit("Missing docs/01_GETTING_STARTED/WHATS_NEW_0_14.md")
     if not (ROOT / "docs/01_GETTING_STARTED/WHATS_NEW_0_15.md").exists():
         raise SystemExit("Missing docs/01_GETTING_STARTED/WHATS_NEW_0_15.md")
+    if not (ROOT / "docs/01_GETTING_STARTED/WHATS_NEW_0_16.md").exists():
+        raise SystemExit("Missing docs/01_GETTING_STARTED/WHATS_NEW_0_16.md")
     if "WHATS_NEW_0_15.md" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8"):
         raise SystemExit("mkdocs.yml missing WHATS_NEW_0_15.md nav entry")
+    if "WHATS_NEW_0_16.md" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8"):
+        raise SystemExit("mkdocs.yml missing WHATS_NEW_0_16.md nav entry")
+    if not (ROOT / "docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md").exists():
+        raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md")
     if not (ROOT / "examples/portable_polars_kernel.py").exists():
         raise SystemExit("Missing examples/portable_polars_kernel.py")
     if not (ROOT / "examples/portable_pandas_kernel.py").exists():
@@ -282,6 +288,7 @@ def main() -> None:
         "MIGRATION_0_12_TO_0_13.md",
         "MIGRATION_0_13_TO_0_14.md",
         "MIGRATION_0_14_TO_0_15.md",
+        "MIGRATION_0_15_TO_0_16.md",
     ):
         if migration not in mkdocs_text:
             raise SystemExit(f"mkdocs.yml missing {migration} nav entry")
@@ -321,6 +328,7 @@ def main() -> None:
     )
     for required in (
         "etlantic-airflow",
+        "etlantic-prefect",
         "etlantic-sparkforge",
         "etlantic-keyring",
         "Graphviz",
@@ -591,6 +599,7 @@ def main() -> None:
         ROOT / "packages/etlantic-sql/pyproject.toml",
         ROOT / "packages/etlantic-pyspark/pyproject.toml",
         ROOT / "packages/etlantic-airflow/pyproject.toml",
+        ROOT / "packages/etlantic-prefect/pyproject.toml",
         ROOT / "packages/etlantic-keyring/pyproject.toml",
         ROOT / "packages/etlantic-sqlmodel/pyproject.toml",
         ROOT / "packages/etlantic-sparkforge/pyproject.toml",
@@ -604,9 +613,11 @@ def main() -> None:
     # Embedded plugin component versions must also match.
     for component in (
         ROOT / "packages/etlantic-airflow/src/etlantic_airflow/plugin.py",
+        ROOT / "packages/etlantic-prefect/src/etlantic_prefect/plugin.py",
         ROOT / "packages/etlantic-pyspark/src/etlantic_pyspark/plugin.py",
         ROOT / "packages/etlantic-pyspark/src/etlantic_pyspark/provider.py",
         ROOT / "packages/etlantic-sql/src/etlantic_sql/plugin.py",
+        ROOT / "packages/etlantic-sql/src/etlantic_sql/transform_compiler.py",
         ROOT / "packages/etlantic-polars/src/etlantic_polars/__init__.py",
         ROOT / "packages/etlantic-polars/src/etlantic_polars/compiler.py",
         ROOT / "packages/etlantic-pyspark/src/etlantic_pyspark/compiler.py",

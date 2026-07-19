@@ -5,7 +5,7 @@ basis. There is **no formal SLA** and no guaranteed response time.
 
 ## What we support
 
-- Bug reports against the **current published minor** (`0.15.x`)
+- Bug reports against the **current published minor** (`0.16.x`)
 - Questions about documented Available APIs
 - Security reports via [SECURITY.md](SECURITY.md) (private disclosure)
 

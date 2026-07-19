@@ -1,18 +1,18 @@
 # Execute with Polars
 
-> **Status: Available in ETLantic 0.15.0.** This guide uses the CI-tested
+> **Status: Available in ETLantic 0.16.0.** This guide uses the CI-tested
 > dataframe parity example.
 
 
 !!! note "Repository examples"
     Companion scripts under `examples/` are not installed with the PyPI
-    wheel. Clone a matching checkout (prefer the `v0.15.0` tag) and use
+    wheel. Clone a matching checkout (prefer the `v0.16.0` tag) and use
     `uv sync` / the documented dependency group before running them.
 
 ## Install and run
 
 ```bash
-python -m pip install 'etlantic==0.15.0' 'etlantic-polars==0.15.0'
+python -m pip install 'etlantic==0.16.0' 'etlantic-polars==0.16.0'
 git clone https://github.com/eddiethedean/etlantic.git
 cd etlantic
 python examples/dataframe_parity.py polars

@@ -79,9 +79,7 @@ def test_plan_fingerprint_uses_bindings_snapshot() -> None:
         name="parity",
         assets={"raw_customers": "memory", "curated_customers": "memory"},
     )
-    plan = plan_pipeline(
-        pipeline_cls, context=PlanningContext.create(profile=profile)
-    )
+    plan = plan_pipeline(pipeline_cls, context=PlanningContext.create(profile=profile))
     assert "assets" not in (plan.profile_snapshot or {})
     assert "bindings" in (plan.profile_snapshot or {})
     assert plan.profile_snapshot["bindings"] == {

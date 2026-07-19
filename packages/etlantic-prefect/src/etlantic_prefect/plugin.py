@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import anyio
+
 from etlantic.plan.model import PipelinePlan
 from etlantic.reports.model import PipelineRunReport
 from etlantic.runtime.request import RunRequest
@@ -16,6 +18,20 @@ from etlantic.runtime.scheduler import (
 )
 
 __version__ = "0.16.0"
+
+
+def _prefect_future_id(fut: Any, *, run_id: str, name: str) -> str:
+    """Best-effort Prefect task-run identity for ETLantic correlation metadata."""
+    task_run_id = getattr(fut, "task_run_id", None)
+    if task_run_id is not None:
+        return str(task_run_id)
+    state = getattr(fut, "state", None)
+    state_task_run_id = (
+        getattr(state, "task_run_id", None) if state is not None else None
+    )
+    if state_task_run_id is not None:
+        return str(state_task_run_id)
+    return f"prefect-task:{run_id}:{name}"
 
 
 class PrefectScheduler:
@@ -100,19 +116,27 @@ class PrefectScheduler:
         correlation = self._task_correlation
 
         async def wave_runner(ready: list[str], run_one: Any) -> None:
-            futures = []
-            for name in ready:
+            @task(name="etlantic-node", retries=0, persist_result=False)
+            async def bound_node_task(node_name: str) -> str:
+                await run_one(node_name)
+                return node_name
 
-                @task(name=f"etlantic:{name}", retries=0, persist_result=False)
-                async def node_task(node_name: str = name) -> str:
-                    await run_one(node_name)
-                    return node_name
+            futures = [
+                bound_node_task.with_options(name=f"etlantic:{name}").submit(name)
+                for name in ready
+            ]
+            for name, fut in zip(ready, futures, strict=True):
+                correlation[name] = _prefect_future_id(fut, run_id=run_id, name=name)
 
-                fut = node_task.with_options(name=f"etlantic:{name}").submit()
-                correlation[name] = f"prefect-task:{run_id}:{name}"
-                futures.append(fut)
-            for fut in futures:
-                fut.result()
+            async def _wait(fut: Any) -> Any:
+                result_async = getattr(fut, "result_async", None)
+                if callable(result_async):
+                    return await result_async()
+                return await anyio.to_thread.run_sync(fut.result)
+
+            async with anyio.create_task_group() as tg:
+                for fut in futures:
+                    tg.start_soon(_wait, fut)
 
         return wave_runner
 
@@ -127,16 +151,12 @@ class PrefectScheduler:
         artifact_store: Any = None,
         context: SchedulingContext | None = None,
     ) -> PipelineRunReport:
-        report = self.analyze(
-            plan,
-            request=request,
-            context=context
-            or SchedulingContext(
-                pipeline_id=plan.pipeline_id,
-                plan_id=plan.plan_id,
-                profile_name=plan.profile_name,
-            ),
+        ctx = context or SchedulingContext(
+            pipeline_id=plan.pipeline_id,
+            plan_id=plan.plan_id,
+            profile_name=plan.profile_name,
         )
+        report = self.analyze(plan, request=request, context=ctx)
         if not report.supported:
             from etlantic.exceptions import ETLanticError
 
@@ -147,7 +167,7 @@ class PrefectScheduler:
         from prefect import flow
 
         self._task_correlation = {}
-        run_key = (context.run_id if context else None) or plan.plan_id or "run"
+        run_key = ctx.run_id or plan.plan_id or "run"
 
         @flow(name=f"etlantic:{plan.pipeline_id}", retries=0)
         async def pipeline_flow() -> PipelineRunReport:
@@ -159,6 +179,7 @@ class PrefectScheduler:
                 workspace=workspace,
                 artifacts=artifact_store,
                 wave_runner=self._make_wave_runner(run_id=str(run_key)),
+                run_id=str(run_key),
             )
             return await host.execute()
 
@@ -170,6 +191,7 @@ class PrefectScheduler:
         result.metadata.setdefault(
             "prefect_task_correlation", dict(self._task_correlation)
         )
+        result.metadata.setdefault("prefect_run_id", str(run_key))
         return result
 
 

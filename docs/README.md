@@ -25,7 +25,7 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-The published **0.15.0 alpha** ships validation, profiles, an immutable secret-free
+The published **0.16.0 alpha** ships validation, profiles, an immutable secret-free
 `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
 and Pandas plugins, a versioned SQL protocol with the `etlantic-sql`
@@ -33,12 +33,15 @@ PostgreSQL reference plugin, a versioned Spark protocol with the
 `etlantic-pyspark` reference plugin (local provider + portable compiler), and a
 versioned orchestration protocol with the `etlantic-airflow` reference
 compiler. Portable Polars and PySpark compilers claim kernel +
-`portable-relational/1`; the Pandas eager compiler ships with the same claims
-in 0.14. Structured Streaming APIs are experimental.
+`portable-relational/1`; the Pandas eager compiler and public conformance SDK
+shipped in 0.14; Safe SQL portable lowering shipped in 0.15. Optional
+`etlantic-prefect` provides a local direct-execution scheduler. Gate A removes
+public `Source` / `Sink` / `binding=` authoring aliases. Structured Streaming
+APIs are experimental.
 
 !!! tip "Green path (start here only)"
-    1. [What's new in 0.14](01_GETTING_STARTED/WHATS_NEW_0_14.md) — adopter delta
-    2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.15.0`
+    1. [What's new in 0.16](01_GETTING_STARTED/WHATS_NEW_0_16.md) — adopter delta
+    2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.16.0`
     3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
     4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
     5. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers

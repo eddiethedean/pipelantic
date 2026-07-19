@@ -6,6 +6,12 @@ import os
 
 import pytest
 
+pytest.importorskip("prefect")
+try:
+    from prefect import flow as _prefect_flow  # noqa: F401
+except ImportError:  # pragma: no cover - empty leftover namespace package
+    pytest.skip("prefect package not installed", allow_module_level=True)
+
 from etlantic import (
     Data,
     Extract,
@@ -104,4 +110,8 @@ def test_pipeline_run_with_prefect_profile() -> None:
     assert report.status is RunStatus.SUCCEEDED
     assert report.metadata.get("scheduler") == "prefect"
     assert report.metadata.get("scheduler_protocol") == SCHEDULER_PROTOCOL
+    assert report.metadata.get("prefect_run_id")
+    assert report.run_id == report.metadata["prefect_run_id"]
+    correlation = report.metadata.get("prefect_task_correlation") or {}
+    assert set(correlation) >= {"raw", "normalized", "out"}
     assert runtime.memory.get("out")

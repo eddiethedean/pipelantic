@@ -50,4 +50,4 @@ same [`ExecutionScheduler`](../../src/etlantic/runtime/scheduler.py) boundary as
 
 Vocabulary cleanup (`Source` / `Sink` / `binding=` removal) is a **sibling**
 0.16 Gate A and does not depend on this package. See
-[ROADMAP §0.16](../../ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler).
+[ROADMAP §0.16](https://github.com/eddiethedean/etlantic/blob/main/ROADMAP.md#016--authoring-vocabulary-cleanup-and-optional-prefect-scheduler).

@@ -16,8 +16,8 @@ ETLantic does **not** depend on a dataframe library. Install plugins
 separately:
 
 ```bash
-pip install 'etlantic-polars==0.15.0'
-pip install 'etlantic-pandas==0.15.0'
+pip install 'etlantic-polars==0.16.0'
+pip install 'etlantic-pandas==0.16.0'
 ```
 
 ## Protocol

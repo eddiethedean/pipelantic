@@ -12,7 +12,7 @@ py -3.11 --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.15.0**. Confirm what you installed:
+These docs describe ETLantic **0.16.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -24,9 +24,9 @@ python -m etlantic --version
 Upgrade from PyPI (pin the published alpha minor unless you intend patches):
 
 ```bash
-python -m pip install --upgrade 'etlantic==0.15.0'
+python -m pip install --upgrade 'etlantic==0.16.0'
 # or accept 0.14 patches only:
-python -m pip install --upgrade 'etlantic>=0.15.0,<0.16'
+python -m pip install --upgrade 'etlantic>=0.16.0,<0.17'
 ```
 
 From a checkout, prefer `uv sync` / `git pull`.
@@ -55,7 +55,7 @@ pipeline classes at module scope, but put seed/run side effects under
 
 ## Plugin install fails (`etlantic-polars`, `etlantic-pyspark`, …)
 
-Those packages ship with ETLantic 0.15.0 as separate distributions.
+Those packages ship with ETLantic 0.16.0 as separate distributions.
 
 From PyPI:
 
@@ -103,7 +103,7 @@ that engine with `portable_transform_policy="require"`. See
 python -c "from etlantic.transform.discovery import discover_transform_compilers; print(discover_transform_compilers())"
 ```
 
-If the map is empty, install a matching `etlantic-polars==0.15.0` into the
+If the map is empty, install a matching `etlantic-polars==0.16.0` into the
 same environment as core and reinstall if you changed Python interpreters.
 
 ## `PMXFORM301` unsupported action or function

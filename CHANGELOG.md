@@ -21,6 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Profile public JSON emits `assets` only; plan snapshots keep wire `bindings`
 - Package versions aligned at 0.16.0; plugins require `etlantic>=0.16.0,<0.17`
 
+### Fixed
+- Embedded plugin/compiler `__version__` values that still advertised `0.15.0`
+  (broke production allowlist pins and plan plugin metadata)
+- Clear `AttributeError` migration messages for `etlantic.Source` / `etlantic.Sink`
+- Prefect wave runner no longer blocks the event loop on sync `Future.result()`
+- Host `run_id` is threaded through `SchedulingContext` into Prefect/local hosts
+- Documentation, SECURITY support table, and release checklist drift after the
+  0.16 ship (including Prefect in published package lists)
+
 ### Migration
 - Prefer `Extract` / `Load` / `asset=` / `Profile(assets=...)`. See
   `docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md`.

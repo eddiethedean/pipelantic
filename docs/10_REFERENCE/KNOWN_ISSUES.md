@@ -50,7 +50,7 @@
 - Generated plans should be regenerated after incompatible schema changes
   rather than edited by hand.
 - Docs on `main` may briefly lead a published tag; pin
-  `etlantic==0.15.0` (or the version you evaluated) in production installs.
+  `etlantic==0.16.0` (or the version you evaluated) in production installs.
 
 Release-specific fixes and changes are recorded in the
 [changelog](https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md).

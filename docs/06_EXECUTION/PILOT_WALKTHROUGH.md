@@ -1,6 +1,6 @@
 # Controlled Pilot Walkthrough
 
-ETLantic 0.15.0 is alpha software. Use this walkthrough for a controlled pilot
+ETLantic 0.16.0 is alpha software. Use this walkthrough for a controlled pilot
 with pinned dependencies, non-critical data, explicit rollback, and reviewed
 plans. It is not a general production-readiness claim.
 
@@ -10,7 +10,7 @@ Create an isolated Python 3.11–3.13 environment and pin core plus only the
 plugins the pilot needs:
 
 ```bash
-python -m pip install "etlantic==0.15.0" "etlantic-polars==0.15.0"
+python -m pip install "etlantic==0.16.0" "etlantic-polars==0.16.0"
 etlantic --help
 ```
 
@@ -74,7 +74,7 @@ write_profile(
         dataframe_engine="polars",
         security_domain="production",
         validation_policy="strict",
-        plugin_allowlist={"etlantic-polars": "==0.15.0"},
+        plugin_allowlist={"etlantic-polars": "==0.16.0"},
         assets={
             "customer_source": "reviewed-source",
             "customer_sink": "reviewed-sink",

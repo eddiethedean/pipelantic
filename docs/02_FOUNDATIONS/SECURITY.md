@@ -260,8 +260,8 @@ production = Profile(
     dataframe_engine="polars",
     portable_transform_policy="require",
     plugin_allowlist={
-        "etlantic-polars": "==0.15.0",
-        "etlantic-airflow": "==0.15.0",
+        "etlantic-polars": "==0.16.0",
+        "etlantic-airflow": "==0.16.0",
     },
 )
 ```
