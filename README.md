@@ -30,9 +30,13 @@
 
 ---
 
-ETLantic catches incompatible wiring before data is processed. Define datasets,
-transformations, and pipelines as typed Python classes, then validate, plan,
-run, or compile the same logical pipeline for different execution engines.
+ETLantic is a typed control layer for data pipelines. Define datasets,
+transformations, and pipeline topology as Python contracts, catch incompatible
+wiring before data is processed, and resolve the same logical pipeline for
+local Python, dataframe, SQL, Spark, or orchestration backends.
+
+It is for teams that want pipeline interfaces to be reviewable before runtime
+and portable across engines without giving up backend-native execution.
 
 ```text
 Typed contracts ──▶ Validation ──▶ Deterministic plan ──▶ Run or compile
@@ -56,22 +60,32 @@ That is also the promise behind the name: **ETL** is the familiar data flow;
 **ETLantic** surrounds that flow with typed contracts, validation, planning,
 and evidence from source to publication.
 
-## Why ETLantic?
+## What ETLantic gives you
 
-- **Fail earlier.** Detect broken references, incompatible contracts, missing
-  implementations, unsupported capabilities, and untrusted plugins before a
-  write occurs.
-- **Validate throughout.** Check extracted inputs, transformation outputs, and
-  publication boundaries against the same typed contracts and preserve the
-  result as structured evidence.
-- **Keep logic portable.** Separate logical pipeline structure from local,
-  Polars, Pandas, SQL, PySpark, and orchestration implementations.
-- **Make plans reviewable.** Generate deterministic, immutable, secret-free
-  execution plans with stable fingerprints.
-- **Preserve evidence.** Produce structured diagnostics, lineage, schema
-  observations, and run reports instead of opaque task logs.
-- **Adopt incrementally.** The core has no dataframe, SQL, Spark, or Airflow
-  dependency. Install only the integrations you need.
+| Need | ETLantic response |
+|---|---|
+| Catch pipeline mistakes before a write | Phased validation of definitions, references, contracts, policy, capabilities, and plugin trust |
+| Validate more than the initial graph | Contract boundaries around extracts, transformation inputs/outputs, engine transitions, and loads |
+| Review what will physically happen | Deterministic, immutable, secret-free `PipelinePlan` values with stable fingerprints |
+| Keep one pipeline across engines | Logical contracts separated from local, Polars, Pandas, SQL, PySpark, Airflow, and Prefect realization |
+| Understand failures and changes | Structured diagnostics, lineage, schema observations, artifacts, and normalized run reports |
+| Avoid a heavyweight core | No dataframe, SQL, Spark, Airflow, or Prefect dependency unless its integration is installed |
+
+## One model, three contract authorities
+
+ETLantic keeps the major questions separate instead of hiding them inside one
+framework object:
+
+| Question | Public model | Contract authority |
+|---|---|---|
+| What data is valid? | `Data` | ODCS and ContractModel |
+| How should data change? | `Transformation` | DTCS |
+| How is work connected? | `Pipeline` | DPCS |
+
+A `Profile` then binds that logical model to an environment. Validation and
+planning produce a `PipelinePlan`; plugins execute or compile it. Contracts do
+not contain credentials, live dataframe objects, database connections, or
+scheduler tasks.
 
 > **Project status:** **0.18.0 is stable for documented single-tenant
 > reference deployments** (not unrestricted enterprise production). Structured
@@ -81,12 +95,28 @@ and evidence from source to publication.
 > [Evaluator](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/EVALUATOR/), and
 > [Production readiness](https://etlantic.readthedocs.io/en/latest/06_EXECUTION/PRODUCTION_READINESS/).
 
-## Green path
+## Start here
 
 1. [Install](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/INSTALLATION/) — `pip install 'etlantic==0.18.0'`
 2. [Quickstart](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/QUICKSTART/) — five-minute success
 3. [First Pipeline](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/FIRST_PIPELINE/) — CLI validate/plan
 4. [Engine selection](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/ENGINE_SELECTION/) — then an engine tutorial; diligence: [Capabilities](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/CAPABILITIES/) or [Compare](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/COMPARE/)
+
+## When ETLantic is a good fit
+
+Use ETLantic when you want to:
+
+- define pipeline boundaries as typed, versioned contracts
+- validate graph and backend compatibility before execution
+- run one logical transformation contract through multiple engines
+- review deterministic plans in CI before deploying or mutating data
+- give third-party plugins a small, testable integration contract
+- preserve structured evidence across local and orchestrated execution
+
+ETLantic is probably not the right layer when you only need a one-off dataframe
+script, or when an existing warehouse/orchestrator-specific project deliberately
+does not need portable contracts. It does not replace a dataframe engine, SQL
+database, Spark cluster, scheduler, catalog, or secret manager.
 
 ## Quickstart
 
@@ -253,6 +283,21 @@ Plugins are discovered through Python entry points and scoped to a runtime
 registry. Production profiles require an explicit plugin allowlist and reject
 untrusted plugins by default.
 
+## Where ETLantic stops
+
+```text
+Standards own contract meaning.
+ContractModel operationalizes data contracts.
+ETLantic owns the logical graph, validation, plan, and normalized evidence.
+Plugins adapt that plan to execution engines and orchestrators.
+External systems perform and persist the work.
+```
+
+This boundary is intentional. ETLantic coordinates existing tools rather than
+reimplementing their compute, scheduling, storage, or infrastructure. Polars,
+Pandas, SQL, PySpark, Airflow, and Prefect remain themselves; ETLantic gives
+them one typed pipeline model and one inspectable validation lifecycle.
+
 ## How it works
 
 ETLantic keeps logical intent separate from physical execution:
@@ -271,6 +316,10 @@ During execution, the same contracts form validation boundaries around
 extracts, transformations, engine/interchange transitions, and loads. A
 policy may fail, reject/quarantine invalid rows where supported, or record
 evidence, but a backend cannot silently weaken a required check.
+
+Read [Validation Everywhere](https://etlantic.readthedocs.io/en/latest/02_FOUNDATIONS/VALIDATION_EVERYWHERE/)
+for the boundary model, policy behavior, optimization rules, and the distinction
+between publication evidence and an explicit read-after-write check.
 
 Plans and reports contain secret references, never resolved secret values.
 Secrets are resolved only at runtime. Capability and trust failures occur
