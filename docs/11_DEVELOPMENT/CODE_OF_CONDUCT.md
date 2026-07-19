@@ -41,7 +41,7 @@ necessary to protect the community. Enforcement decisions should be documented
 privately, applied consistently, and minimize disclosure of affected people's
 information.
 
-Target response (best-effort during alpha): acknowledge within seven days when
+Target response (best-effort): acknowledge within seven days when
 possible. Formal SLAs are not available.
 
 ## Appeals

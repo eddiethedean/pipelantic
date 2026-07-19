@@ -52,11 +52,14 @@ Typed contracts ──▶ Validation ──▶ Deterministic plan ──▶ Run 
 - **Adopt incrementally.** The core has no dataframe, SQL, Spark, or Airflow
   dependency. Install only the integrations you need.
 
-> **Project status:** Alpha **0.17.0**. The local runtime and reference plugins
-> are available today. Structured Streaming is experimental. Portable
+> **Project status:** **0.17.0 is production/stable for documented
+> single-tenant reference deployments.** The local runtime and reference
+> plugins are available today. Structured Streaming remains experimental. Portable
 > transformation authoring and Polars/PySpark/Pandas/SQL relational compilers
 > plus the public conformance SDK are available; advanced portable profiles
-> graduate under **0.17**. See the
+> shipped under **0.17** where documented. Multi-tenant isolation, deployment
+> topology, compliance/SBOM/signing, and advanced supply-chain controls remain
+> adopter-owned. See the
 > [capabilities guide](docs/01_GETTING_STARTED/CAPABILITIES.md) before choosing
 > a production architecture.
 
@@ -260,7 +263,7 @@ boundary.
 
 - [Hosted documentation](https://etlantic.readthedocs.io/)
 - [Getting Started](docs/01_GETTING_STARTED/README.md)
-- [Current 0.16 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
+- [Current 0.17 User Guide](docs/01_GETTING_STARTED/CURRENT_VERSION.md)
 - [Quickstart](docs/01_GETTING_STARTED/QUICKSTART.md)
 - [Core Concepts](docs/02_FOUNDATIONS/CORE_CONCEPTS.md)
 - [Architecture](docs/02_FOUNDATIONS/ARCHITECTURE.md)

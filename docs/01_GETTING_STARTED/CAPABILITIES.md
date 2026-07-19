@@ -1,11 +1,14 @@
 # Current Capabilities and Limitations
 
-ETLantic **0.17.0** is a **published alpha** release on PyPI. This page is the
-shortest answer to "What can I use today?"
+ETLantic **0.17.0** is a published **production/stable** release for documented
+single-tenant reference deployments. Experimental features remain
+experimental, and multi-tenant isolation, deployment topology, compliance,
+SBOM/signing, and advanced supply-chain controls remain adopter-owned. This
+page is the shortest answer to "What can I use today?"
 
-## Recommended first production-like pilot
+## Recommended bounded production deployment
 
-Controlled pilot only (see [Evaluator](EVALUATOR.md) and
+Use the documented reference envelope (see [Evaluator](EVALUATOR.md) and
 [Production readiness](../06_EXECUTION/PRODUCTION_READINESS.md)):
 
 1. Core + local/file storage (`examples/quickstart.py`, `examples/file_storage.py`)
@@ -78,7 +81,7 @@ Controlled pilot only (see [Evaluator](EVALUATOR.md) and
 |---|---|
 | Structured Streaming foundation | **Experimental** |
 
-## Not included in 0.16
+## Not included in 0.17
 
 | Capability | Status |
 |---|---|

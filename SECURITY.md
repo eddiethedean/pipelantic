@@ -1,20 +1,20 @@
 # Security Policy
 
-ETLantic 0.17.0 is an alpha release. Security reports concerning the
-published package, contract loading, planning, local runtime, storage
-bindings, secret handling, dataframe, SQL, and PySpark plugins,
-documentation, or repository automation are welcome.
+ETLantic 0.17.0 is production/stable for documented single-tenant reference
+deployments. Security reports concerning the published package, contract
+loading, planning, local runtime, storage bindings, secret handling,
+dataframe, SQL, and PySpark plugins, documentation, or repository automation
+are welcome.
 
 ## Supported Versions
 
 | Version | Support |
 |---|---|
-| 0.17.x | Current alpha line (published); best-effort security fixes |
+| 0.17.x | Current supported stable line; security fixes are released on this line |
 | 0.16.x and earlier | Not actively maintained; upgrade to 0.17.x |
 
-Alpha releases do not guarantee backports across minor lines. Prefer upgrading
-to the current published minor rather than requesting multi-line critical
-fixes. Upgrade to the latest 0.17.x patch before reporting an issue.
+Backports to older minor lines are not provided. Upgrade to the latest 0.17.x
+patch before reporting an issue.
 
 ## Reporting a Vulnerability
 
@@ -69,8 +69,16 @@ The project follows coordinated disclosure: acknowledge the report, assess
 impact, prepare and test a fix, publish an upgrade, and then disclose technical
 details at an appropriate time.
 
-Target acknowledgement is seven days when possible. Formal response-time
-guarantees and CVE assignment are not available during the alpha series.
+Target acknowledgement is seven days when possible. This is a target, not an
+SLA, and CVE assignment is not guaranteed.
 Patch ownership sits with the lead maintainer ([MAINTAINERS.md](MAINTAINERS.md)).
 If a release token is compromised, revoke it immediately, yank affected
 artifacts if necessary, and publish a replacement after rotating credentials.
+
+## Residual deployment responsibilities
+
+The stable support boundary does not provide in-process multi-tenant isolation
+or guarantees for adopter deployment topology, compliance attestations,
+SBOM/signing, or advanced supply-chain controls. Adopters must supply those
+controls and isolate separate tenants or trust domains in separate execution
+environments. Experimental features do not receive stable API guarantees.

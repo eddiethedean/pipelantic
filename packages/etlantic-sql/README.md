@@ -1,7 +1,7 @@
 # etlantic-sql
 
 PostgreSQL reference SQL execution plugin for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.14.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.17.
 
 ```bash
 pip install 'etlantic==0.17.0' 'etlantic-sql==0.17.0'
@@ -29,7 +29,7 @@ not in plans.
 Register `@Transformation.implementation("sql")` handlers that take
 `RelationRef` inputs and return SQL query handles (not fetched rows).
 
-## Capabilities (0.14)
+## Capabilities
 
 - SQL→SQL fusion without intermediate Python row fetch
 - Durable run-scoped staging tables (not session TEMP)

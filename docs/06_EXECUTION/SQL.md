@@ -6,7 +6,7 @@ logical semantics from DTCS and the Pipeline Plan.
 **Status: shipped in 0.6.0** via the `etlantic-sql` PostgreSQL reference
 plugin. SQLite is supported for local demos only.
 
-Safe portable SQL lowering for kernel + `portable-relational/1` **ships in
+Safe portable SQL lowering for kernel + `portable-relational/1` **shipped in
 0.15** via the `etlantic-sql` transform compiler. Native
 `@implementation("sql")` remains fully supported.
 
@@ -79,8 +79,9 @@ Policy when portable SQL cannot claim the needed profile:
   or another dataframe engine;
 - `native` prefers a registered SQL implementation.
 
-Advanced families (window, complex types/values, reshape, …) remain under the
-**0.17** roadmap.
+SQL remains baseline-only in 0.17. Advanced families such as window,
+conversion, complex types/values, and reshape fail closed under `require`;
+use an explicit native SQL implementation where needed.
 
 ## SQL→SQL without Python fetch
 

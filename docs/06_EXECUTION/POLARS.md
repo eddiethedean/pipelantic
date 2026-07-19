@@ -3,8 +3,9 @@
 **Status: shipped in 0.5.0** as the reference dataframe backend
 (`etlantic-polars`).
 
-The portable transformation compiler ships kernel claims in 0.12 and full
-`portable-relational/1` claims in 0.13.
+The portable transformation compiler shipped kernel claims in 0.12, full
+`portable-relational/1` claims in 0.13, and the graduated 0.17 advanced
+families listed in the portable compiler matrix.
 
 ## Install
 
@@ -25,7 +26,7 @@ pip install 'etlantic-polars[arrow]'  # optional
 - Portable kernel IR compiles via `etlantic.transform_compilers` without a
   native `@implementation("polars")` callable
 
-## Portable compiler (shipped 0.12 kernel; 0.13 relational)
+## Portable compiler
 
 The Polars compiler is the first executable lowering for
 `dtcs.transform-plan/2` (v1 readable). It claims
@@ -42,9 +43,9 @@ metadata aliases — no candidate `/2` extensions). It:
 - collects only at plan-declared boundaries
 
 It must not fall back to Python row functions or collect data to emulate an
-unsupported operation. Richer authored profiles (windows, complex values,
-conversion, …) still need a native `@implementation("polars")` or a later
-compiler claim under the 0.17 roadmap.
+unsupported operation. In 0.17 it also claims string-advanced, conversion,
+statistics, window `/1`, complex-types, complex-values, and reshape `/1`.
+Explicit window frames and continuation families remain unsupported.
 
 ## Example
 

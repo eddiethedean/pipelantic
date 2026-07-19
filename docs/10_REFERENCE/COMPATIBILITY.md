@@ -26,14 +26,14 @@ This table describes the declared compatibility of ETLantic 0.17.0.
 | DTCS Transformation Plan protocol | Published in DTCS 3.0 / `dtcs` 0.13 as `dtcs.transform-plan/2` (v1 readable); ETLantic authoring shipped in 0.11 |
 | Portable authoring profile | Shipped as `etlantic.transform/1` (full DTCS 3.0 facade→IR authoring) |
 | Portable compiler protocol | Shipped as `etlantic.transform-compiler/1` (Polars + PySpark + Pandas relational in 0.13–0.14) |
-| Package stability | Alpha |
+| Package stability | Production/Stable for documented single-tenant reference deployments |
 | Plugin SDK stability | Protocol stable within 0.8; third-party SDK still evolving |
 
 ## Tested versus declared
 
 The core CI matrix runs linting and the core test suite on Ubuntu, Windows, and
 macOS with Python 3.11, 3.12, and 3.13. This is the broadest tested platform
-surface for 0.14.0.
+surface for 0.17.0.
 
 Optional plugin jobs run primarily on Ubuntu with Python 3.11. Polars and
 Pandas each have dedicated dataframe/compiler/conformance jobs. SQL runs

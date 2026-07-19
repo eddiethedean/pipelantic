@@ -17,12 +17,17 @@ Future design must not be described as a complete or runnable current example.
 
 ## Local Checks
 
+Documentation-only changes do not require the entire pytest suite. Run the
+documentation consistency and strict site-build gates:
+
 ```bash
-uv run pytest -q
 uv run python scripts/check_docs.py
-uv run python scripts/check_runnable_docs.py
 uv run python scripts/build_docs.py
 ```
+
+`check_docs.py` invokes `check_runnable_docs.py`. Run the full baseline pytest
+command from [Testing](TESTING.md) when documentation accompanies a code,
+plugin, or executable behavior change.
 
 `scripts/build_docs.py` runs `mkdocs build --strict` and sets
 `NO_MKDOCS_2_WARNING=1` so Material's MkDocs 2.0 advisory does not appear

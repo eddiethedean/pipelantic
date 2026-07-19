@@ -25,8 +25,9 @@ as executable interface declarations—to data engineering.
 
 ## Project Status
 
-The published **0.17.0 alpha** ships validation, profiles, an immutable secret-free
-`PipelinePlan`, local Python execution, runtime secret resolution, run reports,
+The published **0.17.0 release is production/stable for documented
+single-tenant reference deployments**. It ships validation, profiles, an
+immutable secret-free `PipelinePlan`, local Python execution, runtime secret resolution, run reports,
 memory/callable/JSON/CSV storage, a versioned dataframe protocol with Polars
 and Pandas plugins, a versioned SQL protocol with the `etlantic-sql`
 PostgreSQL reference plugin, a versioned Spark protocol with the
@@ -36,15 +37,17 @@ compiler. Polars and PySpark portable compilers claim kernel + relational `/1`
 plus graduated Wave 1/2 families (string-advanced, conversion, statistics,
 window/1, complex types/values, reshape); Pandas and SQL remain baseline
 kernel + relational `/1`. Optional `etlantic-prefect` provides a local
-direct-execution scheduler. Structured Streaming APIs are experimental.
+direct-execution scheduler. Structured Streaming APIs remain experimental.
+Multi-tenant isolation, deployment topology, compliance/SBOM/signing, and
+advanced supply-chain controls remain adopter-owned.
 
 !!! tip "Green path (start here only)"
-    1. [What's new in 0.17](01_GETTING_STARTED/WHATS_NEW_0_16.md) — adopter delta
-    2. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.17.0`
-    3. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
-    4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — shipped vs not
-    5. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
-    6. [Pilot walkthrough](06_EXECUTION/PILOT_WALKTHROUGH.md) — controlled pilot
+    1. [Installation](01_GETTING_STARTED/INSTALLATION.md) — `pip install etlantic==0.17.0`
+    2. [Quickstart](01_GETTING_STARTED/QUICKSTART.md) — five-minute success
+    3. [First Pipeline](01_GETTING_STARTED/FIRST_PIPELINE.md) — contracts, validation, CLI
+    4. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md) — stable vs experimental boundary
+    5. [What's new in 0.17](01_GETTING_STARTED/WHATS_NEW_0_17.md) — adopter delta after first success
+    6. [Evaluator brief](01_GETTING_STARTED/EVALUATOR.md) — for decision-makers
 
     Pages marked **Future design** are not APIs. [Capabilities](01_GETTING_STARTED/CAPABILITIES.md)
     is the single source of truth. Prefer the Green path above; persona paths
@@ -60,8 +63,8 @@ and `etlantic.transform`, emitting `dtcs.transform-plan/2`. **0.12** added
 planning integration and Polars **kernel** portable execution. **0.13** shipped
 Polars and PySpark `portable-relational/1` compilers; **0.14** shipped the
 Pandas eager compiler and public conformance SDK. Safe SQL portable lowering
-for that claim set shipped in **0.15**; advanced profiles follow as 0.15
-continuation work. Start with
+for that claim set shipped in **0.15**. **0.17** graduated advanced portable
+profiles on Polars and PySpark (see the compiler matrix). Start with
 [Portable Transformations](04_TRANSFORMATIONS/PORTABLE_TRANSFORMATIONS.md).
 
 ## Minimal working example

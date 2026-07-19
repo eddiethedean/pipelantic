@@ -21,7 +21,7 @@ Baseline:
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not airflow and not prefect and not keyring and not sqlmodel"
+uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not real_pyspark and not airflow and not prefect and not keyring and not sqlmodel"
 uv run python scripts/check_docs.py
 uv run python scripts/check_agent_guidance.py
 uv run python scripts/check_release.py
@@ -35,6 +35,14 @@ Portable dataframe examples (requires the dataframes group):
 uv sync --locked --group dataframes
 uv run python examples/portable_polars_kernel.py
 uv run python examples/portable_pandas_kernel.py
+```
+
+Prefect direct execution (optional):
+
+```bash
+uv sync --locked --group prefect
+uv run pytest -q tests/prefect -m prefect
+uv run python examples/prefect_run.py
 ```
 
 SparkForge (optional):

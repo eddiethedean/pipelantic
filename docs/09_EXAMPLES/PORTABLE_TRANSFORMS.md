@@ -10,8 +10,16 @@ Runnable companion:
 [`examples/portable_polars_kernel.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/portable_polars_kernel.py).
 
 ```bash
-pip install 'etlantic==0.16.0' 'etlantic-polars==0.16.0'
+pip install 'etlantic==0.17.0' 'etlantic-polars==0.17.0'
 python examples/portable_polars_kernel.py
+```
+
+To exercise the 0.17 advanced profile families on both Polars and PySpark, use
+[`examples/portable_wave17.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/portable_wave17.py):
+
+```bash
+uv sync --group dataframes --group pyspark
+uv run python examples/portable_wave17.py
 ```
 
 ## Author once
@@ -128,18 +136,21 @@ Age 10 is filtered out. Email is lowercased.
 
 ## Unsupported operations fail closed
 
-Joins, windows, and conversion-profile functions such as `dtcs:cast` are
-outside the 0.12 Polars kernel claim. With `portable_transform_policy="require"`,
-planning raises `PipelineValidationError` with `PMXFORM301` (or `PMXFORM302`
-when no compiler is discoverable).
+All four official compilers ship kernel + `portable-relational/1`. In 0.17,
+Polars and PySpark additionally claim string-advanced, conversion, statistics,
+window `/1`, complex-types, complex-values, and reshape `/1`. Pandas and SQL
+remain baseline-only. A plan requiring a profile the selected compiler does not
+claim raises `PipelineValidationError` during planning under
+`portable_transform_policy="require"`.
 
-## What remains future
+Explicit window frames remain unsupported; use unframed `row_number`, `rank`,
+`dense_rank`, `lag`, `lead`, `first_value`, or `last_value` on Polars or
+PySpark. Conversion and reshape are likewise available only on those two
+engines in 0.17.
 
-- Safe SQL portable lowering for kernel + `portable-relational/1` (**0.15**
-  exit gate)
-- Advanced portable profile graduation (window, reshape, …) under the **0.15
-  continuation** backlog after the SQL gate
+## What remains post-0.17
 
-Polars, PySpark, and Pandas relational compilers already ship in 0.13–0.14.
-Keep `@implementation("sql")` until the portable SQL compiler ships; keep
-native callables for profiles outside the advertised claim set.
+`portable-relational-extended/1`, `portable-temporal-iana/1`,
+`portable-nondeterministic/1`, and `portable-window/2` remain unclaimed. Keep
+native callables for those profiles and for any backend/profile combination
+outside the [compiler matrix](../10_REFERENCE/PORTABLE_COMPILER_MATRIX.md).

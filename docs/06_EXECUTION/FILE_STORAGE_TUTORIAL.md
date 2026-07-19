@@ -15,12 +15,11 @@ import-safe pipeline modules.
 ## Prerequisites
 
 Repository examples are not installed with the PyPI wheel. Clone a matching
-release checkout (prefer the `v0.16.0` tag) and use `uv`:
+release checkout (prefer the `v0.17.0` tag) and use `uv`:
 
 ```bash
-git clone https://github.com/eddiethedean/etlantic.git
+git clone --branch v0.17.0 https://github.com/eddiethedean/etlantic.git
 cd etlantic
-git checkout v0.16.0
 uv sync
 uv run python examples/file_storage.py
 ```

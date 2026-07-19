@@ -12,8 +12,8 @@ implementation-independent Pipeline Plan into runtime-specific workflow
 declared semantics.
 
 Direct in-process or Python-native coordination uses the separate
-`ExecutionScheduler` boundary (`LocalScheduler` today; optional
-`etlantic-prefect` planned for 0.16). Prefect is not modeled as an
+`ExecutionScheduler` boundary (`LocalScheduler` and the optional
+`etlantic-prefect` local MVP). Prefect is not modeled as an
 Airflow-style `compile_plan` target.
 
 ## Goals
@@ -43,7 +43,7 @@ Orchestration Plugin           ExecutionScheduler
       │                              │
  ┌────┼────────┐              ┌──────┼────────┐
  ▼    ▼        ▼              ▼               ▼
-Airflow Dagster  …        LocalScheduler   Prefect (0.16)
+Airflow Dagster  …        LocalScheduler   Prefect
 ```
 
 Compile plugins produce platform artifacts. Scheduler plugins coordinate
@@ -67,12 +67,12 @@ ETLantic is designed to support:
 
 - Local execution via built-in `LocalScheduler`
 - Airflow via `etlantic-airflow` (`OrchestratorPlugin` / `compile_plan`)
-- Prefect via planned `etlantic-prefect` (`ExecutionScheduler`, 0.16 MVP)
+- Prefect via shipped `etlantic-prefect` (`ExecutionScheduler`, local MVP)
 - Future compile or scheduler adapters (Dagster, Argo, cloud workflow
   services) behind the matching protocol
 
-Do not assume every platform is a compile target. Prefect's planned path is
-direct execution, not DAG artifact generation.
+Do not assume every platform is a compile target. Prefect's shipped path is
+local direct execution, not DAG artifact generation.
 
 ## Capability Matching
 
@@ -105,7 +105,7 @@ Examples include:
 - Argo Workflow
 - Deployment manifests
 
-Prefect Flow / task mapping for the planned 0.16 plugin belongs to the
+Prefect Flow / task mapping for the shipped local MVP belongs to the
 `ExecutionScheduler` path, not this compile binding list.
 
 Bindings must preserve:

@@ -12,9 +12,9 @@ adapter (`etlantic-sparkforge`), `@Transformation.portable` /
 Pandas + SQL portable compilers for kernel + `portable-relational/1`, Gate A
 `Extract` / `Load` / `asset=` authoring, and optional `etlantic-prefect`
 direct-execution scheduling. Structured Streaming APIs are experimental.
-Advanced profiles graduate under the 0.17 roadmap (Wave 1 / Wave 2 /
-continuation). Keep `@implementation(...)` for dialects or profiles outside
-the advertised claim set.
+Advanced Wave 1 / Wave 2 profiles shipped on Polars and PySpark in 0.17;
+continuation families remain unclaimed. Keep `@implementation(...)` for
+dialects or profiles outside the advertised claim set.
 
 Prefer pages marked **Available in 0.17** and the Green path on the docs home.
 Design Proposals and **Future design** chapters describe intended 1.0 surfaces
@@ -100,10 +100,10 @@ Polars, PySpark, and Pandas.
 **Experimental in 0.7+:** Structured Streaming foundation APIs.
 
 **Still accepted design until later milestones:** managed Spark providers
-(Databricks/EMR/Connect), Dagster compile plugins, remaining Plugin SDK
-surfaces, optional Prefect `ExecutionScheduler` (**0.16** Gate B), authoring
-vocabulary cleanup (**0.16** Gate A), and advanced profile graduation
-(**0.17**). SQL lowering shipped in **0.15**. Prefect MVP shipped in **0.16**.
+(Databricks/EMR/Connect), Dagster compile plugins, and remaining Plugin SDK
+surfaces. SQL lowering shipped in **0.15**; the Prefect local MVP and authoring
+vocabulary cleanup shipped in **0.16**; advanced profile families graduated on
+Polars and PySpark in **0.17**.
 
 ## Normative Authority
 

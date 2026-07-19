@@ -7,6 +7,12 @@
 This tutorial explains the pieces of the runnable quickstart and shows how to
 inspect the artifacts ETLantic creates.
 
+Install the published release with Python 3.11+:
+
+```bash
+python -m pip install 'etlantic==0.17.0'
+```
+
 ## Define data contracts
 
 ```python
@@ -88,6 +94,43 @@ print(CustomerPipeline.to_mermaid())
 Validation returns structured diagnostics. Inspection and Mermaid generation
 do not execute transformation code.
 
+### Try an intentional wiring error
+
+In `CustomerPipeline`, change exactly this annotation:
+
+```python
+# before
+curated: Load[Customer] = Load(
+
+# intentionally broken
+curated: Load[RawCustomer] = Load(
+```
+
+Then validate. ETLantic rejects the graph before it reads any data:
+
+```bash
+etlantic validate pipeline.py:CustomerPipeline --profile development
+```
+
+```text
+PMPIPE210: The step "curated" expects RawCustomer on "input", but received Customer from "normalized.result".
+```
+
+Restore `Load[Customer]` before continuing.
+
+### Inspect, validate, and plan from the 0.17 CLI
+
+With the complete quickstart saved as `pipeline.py`, run:
+
+```bash
+etlantic inspect pipeline.py:CustomerPipeline --format json
+etlantic validate pipeline.py:CustomerPipeline --profile development --format json
+etlantic plan pipeline.py:CustomerPipeline --profile development --format json
+```
+
+Use the same profile throughout a workflow. These commands import definitions
+but do not inherit in-memory records seeded by a different Python process.
+
 ## Generate portable contracts
 
 ```python
@@ -149,12 +192,13 @@ CSV, and no-write storage. Optional plugins are available today:
 - SQL — `etlantic-sql`
 - PySpark batch — `etlantic-pyspark`
 - Airflow compile — `etlantic-airflow`
+- Prefect direct execution — `etlantic-prefect` (`ExecutionScheduler`, local MVP)
 - SparkForge adapter — `etlantic-sparkforge`
 
-Dagster compilers, managed cloud Spark providers, and Prefect
-deployment/serve remain future work. Optional Prefect direct execution
-(`ExecutionScheduler`) is planned for **0.16**; see
-[Capabilities](CAPABILITIES.md).
+Prefect direct execution shipped in 0.17; Prefect deployment/serve, Dagster
+compilers, and managed cloud Spark providers remain outside the shipped
+boundary. Keep core and optional plugin minors matched—for this guide, pin
+both to `0.17.0`. See [Capabilities](CAPABILITIES.md).
 
 Continue with [Project Structure](PROJECT_STRUCTURE.md) or run the complete
 repository example in `examples/quickstart.py`.

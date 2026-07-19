@@ -70,8 +70,8 @@ def main() -> int:
 
     security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
     major_minor = ".".join(version.split(".")[:2])
-    if f"| {major_minor}.x | Current alpha line" not in security:
-        errors.append(f"SECURITY.md missing current alpha line {major_minor}.x")
+    if f"| {major_minor}.x |" not in security:
+        errors.append(f"SECURITY.md missing current supported line {major_minor}.x")
 
     for pkg in PACKAGES:
         path = ROOT / "packages" / pkg / "pyproject.toml"
@@ -83,7 +83,21 @@ def main() -> int:
             errors.append(f"{pkg} missing [project.urls]")
         if "classifiers =" not in text:
             errors.append(f"{pkg} missing classifiers")
+        if "Development Status :: 3 - Alpha" in text:
+            errors.append(f"{pkg} still uses Alpha classifier")
+        if "Development Status :: 5 - Production/Stable" not in text:
+            errors.append(f"{pkg} missing Production/Stable classifier")
+        major_minor = ".".join(version.split(".")[:2])
+        next_minor = f"{major_minor.split('.')[0]}.{int(major_minor.split('.')[1]) + 1}"
+        expected_dep = f"etlantic>={major_minor}.0,<{next_minor}"
+        if expected_dep not in text:
+            errors.append(f"{pkg} missing core dependency {expected_dep}")
 
+    root_pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    if "Development Status :: 3 - Alpha" in root_pyproject:
+        errors.append("root pyproject.toml still uses Alpha classifier")
+    if "Development Status :: 5 - Production/Stable" not in root_pyproject:
+        errors.append("root pyproject.toml missing Production/Stable classifier")
     release_yml = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
     for pkg in PACKAGES:
         expected = pkg.replace("-", "_")

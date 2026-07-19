@@ -176,13 +176,14 @@ Profile(
 
 `require` forbids native fallback, `prefer` permits an explicit diagnosed
 native fallback, and `native` prefers a registered backend implementation.
-The choice must be retained in `plan explain` and run reports. Prefer never
+The choice is retained in `plan explain` and run reports. Prefer never
 silently emulates portable semantics (including under SQL: no implicit Polars
 or other engine switch). Polars and PySpark shipped **kernel** +
 **relational `/1`** claims in 0.13; eager Pandas shipped the same claims in
-0.14. Safe SQL lowering for that claim set shipped in **0.15**. Richer
-profiles such as windows and reshape still need native implementations until
-they graduate under the 0.17 roadmap.
+0.14. Safe SQL lowering for that claim set shipped in **0.15**. In 0.17,
+Polars and PySpark also ship string-advanced, conversion, statistics, window
+`/1`, complex-types, complex-values, and reshape `/1`. Pandas and SQL remain
+baseline-only.
 
 ## Orchestrator Selection
 
@@ -192,7 +193,8 @@ Examples include:
 
 - Local Python
 - Airflow (`etlantic-airflow`)
-- Future orchestrators (Dagster, Prefect)
+- Prefect local MVP (`etlantic-prefect`)
+- Future orchestrators (for example Dagster)
 
 Planning verifies that the selected orchestrator satisfies all mandatory
 pipeline capabilities.

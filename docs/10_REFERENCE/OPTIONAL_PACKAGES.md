@@ -24,24 +24,23 @@ Official plugin packages declare `etlantic>=0.17.0,<0.18` so they stay on the
 0.17 line. Cross-minor mixing is unsupported unless a future release documents
 compatibility tests.
 
-## Package surfaces
+## Package API index
 
-| Package | Public entry | Role |
+| Package guide | Public entry | Role |
 |---|---|---|
-| `etlantic-polars` | `etlantic_polars` | Polars dataframe engine + portable compiler |
-| `etlantic-pandas` | `etlantic_pandas` | Pandas dataframe engine + eager portable compiler |
-| `etlantic-sql` | `etlantic_sql` | Native SQL (PostgreSQL) engine |
-| `etlantic-pyspark` | `etlantic_pyspark` | PySpark engine + portable compiler |
-| `etlantic-airflow` | `etlantic_airflow` | Airflow DAG compiler (`etlantic compile --target airflow`) |
-| `etlantic-prefect` | `etlantic_prefect` | Prefect direct-execution scheduler (`Profile(orchestrator="prefect")`) |
-| `etlantic-keyring` | `etlantic_keyring` | OS keyring secret provider |
-| `etlantic-sqlmodel` | `etlantic_sqlmodel` | SQLModel ↔ contract bridge |
-| `etlantic-sparkforge` | `etlantic_sparkforge` | SparkForge adapter (medallion stays here, not in core) |
+| [`etlantic-polars`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-polars/README.md) | `etlantic_polars` | Polars dataframe engine + portable compiler |
+| [`etlantic-pandas`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-pandas/README.md) | `etlantic_pandas` | Pandas dataframe engine + eager portable compiler |
+| [`etlantic-sql`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-sql/README.md) | `etlantic_sql` | Native SQL engine + portable SQL lowering |
+| [`etlantic-pyspark`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-pyspark/README.md) | `etlantic_pyspark` | PySpark engine + portable compiler |
+| [`etlantic-airflow`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-airflow/README.md) | `etlantic_airflow` | Airflow DAG compiler (`etlantic compile --target airflow`) |
+| [`etlantic-prefect`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-prefect/README.md) | `etlantic_prefect` | Prefect direct-execution scheduler (`Profile(orchestrator="prefect")`) |
+| [`etlantic-keyring`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-keyring/README.md) | `etlantic_keyring` | OS keyring secret provider |
+| [`etlantic-sqlmodel`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-sqlmodel/README.md) | `etlantic_sqlmodel` | SQLModel ↔ contract bridge |
+| [`etlantic-sparkforge`](https://github.com/eddiethedean/etlantic/blob/main/packages/etlantic-sparkforge/README.md) | `etlantic_sparkforge` | SparkForge adapter (medallion stays here, not in core) |
 
 MkDocs API generation scans core `src/` only. For optional-package constructors,
-registration, and failure modes, use the package READMEs under
-[`packages/`](https://github.com/eddiethedean/etlantic/tree/main/packages)
-and the engine tutorials.
+registration, protocol versions, and failure modes, use the linked package
+README and the corresponding engine tutorial.
 
 ## Related
 

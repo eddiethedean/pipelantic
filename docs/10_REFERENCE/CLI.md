@@ -69,12 +69,16 @@ identity for Polars kernel compilation.
 
 ## `run`
 
-Validate, plan, and execute with the local runtime:
+Validate, plan, and execute with the local runtime. The repository quickstart
+requires process-local seeded data, so run its complete companion directly:
 
 ```bash
-etlantic run examples/quickstart.py:CustomerPipeline \
-  --profile development
+python examples/quickstart.py
 ```
+
+Running `etlantic run examples/quickstart.py:CustomerPipeline --profile
+development` in a fresh process is an expected failure because that CLI process
+does not share the companion script's seeded in-memory runtime.
 
 Supported report formats are `text`, `json`, and `html`. Additional options:
 

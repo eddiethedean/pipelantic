@@ -4,8 +4,9 @@
     `etlantic.transform-compiler/1` is importable. Polars, PySpark, Pandas, and
     SQL claim `portable-relational-kernel/1` and `portable-relational/1`. Third
     parties must pass `run_portable_transform_conformance_suite` for every
-    advertised claim. Rich Portable Analytics / advanced family claims are
-    planned under **0.17** (Wave 1 / Wave 2 / continuation).
+    advertised claim. In 0.17, Polars and PySpark additionally claim the
+    graduated Wave 1 / Wave 2 families; continuation families remain
+    unclaimed.
 
 A portable transformation compiler translates a validated
 `dtcs.transform-plan/2` (and readable v1) into backend-native expressions without changing its
@@ -97,7 +98,7 @@ A compiler may advertise a subset as individual capabilities. It may advertise
 a profile only when every requirement and DTCS conformance fixture in that
 profile passes.
 
-### Polars / PySpark / Pandas claim matrix (0.13–0.14)
+### Baseline and 0.17 claim matrix
 
 `etlantic-polars`, `etlantic-pyspark`, and `etlantic-pandas` **must** claim
 and pass the public conformance fixtures for:
@@ -111,9 +112,11 @@ and pass the public conformance fixtures for:
 | Modes | Eager required; Pandas additionally `lazy=False`; join `collisionPolicy` **fail** only |
 | Outside claim set | Fail closed in `analyze()` / planning (`PMXFORM3xx`) with action/expression paths |
 
-They **must not** claim Rich Portable Analytics, windows, complex-values,
-reshape, relational-extended, or conversion profiles. Those graduate under
-**0.17** (not the 0.15 SQL exit gate).
+All four official compilers claim this baseline (SQL joined in 0.15). In 0.17,
+Polars and PySpark additionally claim string-advanced, conversion, statistics,
+window `/1`, complex-types, complex-values, and reshape `/1`. Pandas and SQL
+remain baseline-only. Relational-extended, temporal-IANA, nondeterministic, and
+window `/2` remain unclaimed.
 
 ## Support reports
 
@@ -230,7 +233,7 @@ explicitly non-portable capability is selected.
 
 ## Discovery
 
-The proposed entry-point group is:
+The shipped entry-point group is:
 
 ```toml
 [project.entry-points."etlantic.transform_compilers"]
@@ -276,10 +279,9 @@ Required fixture families (public suite):
 - cross-engine result equivalence
 
 Fixtures are selected from advertised capabilities. Claiming a profile or
-operation without its mandatory fixture family fails the suite. Window and
-complex-types fixtures remain experimental and require two independent
-conforming compilers before their DTCS profiles can graduate from experimental
-status.
+operation without its mandatory fixture family fails the suite. Graduated
+0.17 fixtures run for Polars and PySpark; continuation-family fixtures do not
+imply a compiler claim.
 
 Advertised capability coverage, not plugin name, determines which fixtures are
 mandatory.

@@ -8,7 +8,7 @@
     [portable compiler matrix](../10_REFERENCE/PORTABLE_COMPILER_MATRIX.md)).
     Kernel + `portable-relational/1` execute on Polars / PySpark / Pandas in
     0.13–0.14; safe SQL lowering for that claim set shipped in **0.15**;
-    advanced families graduate under the 0.17 roadmap.
+    advanced families graduated on Polars and PySpark in 0.17.
 
 Portable functions are imported through one stable namespace:
 
@@ -57,8 +57,8 @@ DTCS 2.0 publishes `trim`, `lowercase`, `uppercase`, `capitalize`, and
 DTCS 3.0 profile `dtcs:profile/portable-string-advanced/1` publishes expression
 Functions including `dtcs:trim`, `dtcs:ltrim`, `dtcs:rtrim`,
 `dtcs:normalize_whitespace`, `dtcs:split`, regex helpers, and related string
-ops. The planned ETLantic facade may expose `F.trim` / `F.split` / regex
-helpers only when the profile is selected and the compiler claims it.
+ops. ETLantic exposes `F.trim`, `F.split`, and regex helpers; they execute only
+when the selected compiler claims this profile (Polars and PySpark in 0.17).
 
 ## Numeric and conversion functions
 
@@ -100,8 +100,8 @@ remain excluded or proposals; familiar PySpark spelling is never sufficient.
 |---|---|
 | `dtcs:profile/portable-relational-kernel/1` | Required projection, filtering, field shaping, and scalar expressions |
 | `dtcs:profile/portable-relational/1` | Full joins, unions, aggregation, sorting, deduplication, and limits |
-| `dtcs:profile/portable-window/1` | Experimental window functions and frames |
-| `dtcs:profile/portable-complex-types/1` | Experimental list, map, object, tuple, and access semantics |
+| `dtcs:profile/portable-window/1` | Graduated functions on Polars + PySpark; explicit frames remain unsupported |
+| `dtcs:profile/portable-complex-types/1` | Graduated access semantics on Polars + PySpark |
 | Excluded | Incompatible with portable declarative execution |
 
 ## Operators and Column methods
@@ -178,7 +178,7 @@ only when the execution context supplies a fixed reference clock.
 
 ## Window API
 
-DTCS 2.0 publishes the following experimental window facade:
+ETLantic 0.17 ships the following window `/1` facade on Polars and PySpark:
 
 ```python
 from etlantic.transform import Window
@@ -192,9 +192,8 @@ orders.withColumn("rank", F.row_number().over(window))
 ```
 
 Published functions include `row_number`, `rank`, `dense_rank`, `lag`, `lead`,
-`first_value`, and `last_value`. Frame boundaries must use explicit portable
-row or range specifications. Framed `sum`, `count`, `average`, `min`, and `max`
-reuse the aggregate functions.
+`first_value`, and `last_value`. Explicit row/range frames and framed
+aggregates remain post-0.17 continuation work and fail closed.
 
 ## Complex types
 

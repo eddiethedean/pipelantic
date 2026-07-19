@@ -14,6 +14,9 @@ released.
 - [Governance](GOVERNANCE.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [API stability and deprecation](DEPRECATION_POLICY.md)
+- [Maintained 0.17 Documentation Audit](DOCUMENTATION_AUDIT_0_17.md)
+- [Migration 0.16 → 0.17](MIGRATION_0_16_TO_0_17.md)
+- [Migration 0.15 → 0.16](MIGRATION_0_15_TO_0_16.md)
 - [Migration 0.4 → 0.5](MIGRATION_0_4_TO_0_5.md)
 - [Migration 0.5 → 0.6](MIGRATION_0_5_TO_0_6.md)
 - [Migration 0.6 → 0.7](MIGRATION_0_6_TO_0_7.md)
@@ -34,6 +37,8 @@ released.
 - [Design Decisions](DESIGN_DECISIONS.md)
 - [Architecture Decisions](ARCHITECTURE_DECISIONS.md)
 - [Benchmarks](BENCHMARKS.md)
+- [Performance guidance](PERFORMANCE.md)
+- [Performance baselines](PERFORMANCE_RESULTS.md)
 
 ## Maintainer plans (internal)
 

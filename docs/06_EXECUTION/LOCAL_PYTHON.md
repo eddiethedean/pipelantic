@@ -16,7 +16,7 @@ durable scheduling, cross-process isolation, or fleet-scale coordination.
 - Run reports and the default report store are process-scoped
 - In-memory storage does not survive process restart
 - No multi-tenant artifact isolation between concurrent apps in one process
-- Alpha: APIs may change in 0.x releases
+- 0.x APIs may change between minor releases until 1.0
 
 ## Goals
 

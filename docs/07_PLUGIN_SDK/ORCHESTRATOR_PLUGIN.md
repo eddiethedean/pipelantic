@@ -116,8 +116,8 @@ Examples include:
 - Dagster Definitions
 - Argo Workflows
 
-Prefect Flow / task mapping belongs to the planned `ExecutionScheduler`
-plugin path (`etlantic-prefect`), not this compile-oriented SDK surface.
+Prefect Flow / task mapping belongs to the shipped `ExecutionScheduler` local
+MVP (`etlantic-prefect`), not this compile-oriented SDK surface.
 
 Compilation must preserve pipeline semantics.
 

@@ -268,12 +268,22 @@ def main() -> None:
         raise SystemExit("Missing docs/01_GETTING_STARTED/WHATS_NEW_0_15.md")
     if not (ROOT / "docs/01_GETTING_STARTED/WHATS_NEW_0_16.md").exists():
         raise SystemExit("Missing docs/01_GETTING_STARTED/WHATS_NEW_0_16.md")
-    if "WHATS_NEW_0_15.md" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8"):
-        raise SystemExit("mkdocs.yml missing WHATS_NEW_0_15.md nav entry")
-    if "WHATS_NEW_0_16.md" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8"):
-        raise SystemExit("mkdocs.yml missing WHATS_NEW_0_16.md nav entry")
+    # e.g. 0.17.0 → WHATS_NEW_0_17.md (drop patch)
+    major_minor_for_notes = ".".join(package_version.split(".")[:2])
+    whats_new_minor = (
+        ROOT
+        / "docs/01_GETTING_STARTED"
+        / f"WHATS_NEW_{major_minor_for_notes.replace('.', '_')}.md"
+    )
+    if not whats_new_minor.exists():
+        raise SystemExit(f"Missing {whats_new_minor.relative_to(ROOT)}")
     if not (ROOT / "docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md").exists():
         raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md")
+    current_migration = (
+        ROOT / "docs/11_DEVELOPMENT" / "MIGRATION_0_16_TO_0_17.md"
+    )
+    if major_minor_for_notes == "0.17" and not current_migration.exists():
+        raise SystemExit("Missing docs/11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md")
     if not (ROOT / "examples/portable_polars_kernel.py").exists():
         raise SystemExit("Missing examples/portable_polars_kernel.py")
     if not (ROOT / "examples/portable_pandas_kernel.py").exists():
@@ -289,9 +299,32 @@ def main() -> None:
         "MIGRATION_0_13_TO_0_14.md",
         "MIGRATION_0_14_TO_0_15.md",
         "MIGRATION_0_15_TO_0_16.md",
+        "MIGRATION_0_16_TO_0_17.md",
     ):
         if migration not in mkdocs_text:
             raise SystemExit(f"mkdocs.yml missing {migration} nav entry")
+    whats_new_nav = f"WHATS_NEW_{major_minor_for_notes.replace('.', '_')}.md"
+    if whats_new_nav not in mkdocs_text:
+        raise SystemExit(f"mkdocs.yml missing {whats_new_nav} nav entry")
+    if f"Configuration in {major_minor_for_notes}" not in mkdocs_text and (
+        f"Configuration in {package_version}" not in mkdocs_text
+    ):
+        raise SystemExit(
+            "mkdocs.yml must label configuration for the current release "
+            f"({major_minor_for_notes} or {package_version})"
+        )
+    if "Configuration in 0.16.0" in mkdocs_text:
+        raise SystemExit("mkdocs.yml still labels configuration as 0.16.0")
+    for required_nav in (
+        "06_EXECUTION/DEPLOYMENT.md",
+        "11_DEVELOPMENT/PERFORMANCE.md",
+        "11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_17.md",
+        "09_EXAMPLES/PREFECT_RUN.md",
+        "  - Plugin SDK:",
+        "  - Release notes:",
+    ):
+        if required_nav not in mkdocs_text:
+            raise SystemExit(f"mkdocs.yml missing required nav entry {required_nav!r}")
     if "05_PIPELINES/EXTRACTS.md" not in mkdocs_text:
         raise SystemExit("mkdocs.yml missing EXTRACTS.md nav entry")
     if "05_PIPELINES/LOADS.md" not in mkdocs_text:
@@ -302,12 +335,19 @@ def main() -> None:
         raise SystemExit(
             "mkdocs.yml must place Design Proposals after current Reference/Project sections"
         )
-    if (
+    mkdocs_text = (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    plugin_sdk_idx = mkdocs_text.find("  - Plugin SDK:")
+    design_idx = mkdocs_text.find("  - Design Proposals:")
+    compiler_idx = mkdocs_text.find(
         "Portable Transform Compiler: 07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER.md"
-        not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    )
+    if (
+        plugin_sdk_idx < 0
+        or compiler_idx < plugin_sdk_idx
+        or (design_idx >= 0 and compiler_idx > design_idx)
     ):
         raise SystemExit(
-            "mkdocs.yml must promote Portable Transform Compiler under Integrations"
+            "mkdocs.yml must promote Portable Transform Compiler under Plugin SDK"
         )
     design_proposals = (ROOT / "docs/11_DEVELOPMENT/DESIGN_PROPOSALS.md").read_text(
         encoding="utf-8"
@@ -338,21 +378,9 @@ def main() -> None:
     security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
     # e.g. 0.14.0 → 0.14.x
     major_minor = ".".join(package_version.split(".")[:2])
-    security_ok = any(
-        f"| {major_minor}.x | {label}" in security
-        for label in (
-            "Current alpha line",
-            "Current published alpha line",
-            "Current published alpha",
-        )
-    )
-    if not security_ok and f"| {major_minor}.x |" not in security:
+    if f"| {major_minor}.x |" not in security:
         raise SystemExit(
-            f"SECURITY.md support table must list {major_minor}.x as current alpha"
-        )
-    if f"| {major_minor}.x |" in security and "alpha" not in security.lower():
-        raise SystemExit(
-            f"SECURITY.md support table must list {major_minor}.x as current alpha"
+            f"SECURITY.md support table must list {major_minor}.x as current"
         )
 
     scrub_paths = [
@@ -417,6 +445,7 @@ def main() -> None:
         "SPARKFORGE_ADAPTER.md",
         "PORTABLE_TRANSFORMS.md",
         "CONTRACT_FIRST_TUTORIAL.md",
+        "PREFECT_RUN.md",
         "README.md",
     }
     for path in (ROOT / "docs/09_EXAMPLES").glob("*.md"):
@@ -467,11 +496,49 @@ def main() -> None:
     green_idx = docs_home.find("Green path")
     if green_idx < 0:
         raise SystemExit("docs/README.md missing Green path rail")
-    green_block = docs_home[green_idx : green_idx + 500]
+    green_block = docs_home[green_idx : green_idx + 700]
     if "INSTALLATION.md" not in green_block.split("Quickstart")[0]:
         raise SystemExit("docs/README.md Green path must lead with Installation")
+    if green_block.find("INSTALLATION.md") > green_block.find("WHATS_NEW_"):
+        # Installation should precede release notes for first-time visitors.
+        install_pos = green_block.find("INSTALLATION.md")
+        whats_pos = green_block.find(f"WHATS_NEW_{major_minor.replace('.', '_')}")
+        if whats_pos >= 0 and install_pos > whats_pos:
+            raise SystemExit(
+                "docs/README.md Green path must place Installation before What's new"
+            )
     if "prefer from-source until PyPI" in docs_home:
         raise SystemExit("docs/README.md still prefers from-source install")
+    # Current What's New must not point at the prior release notes file.
+    whats_new_current_link = (
+        f"WHATS_NEW_{major_minor.replace('.', '_')}.md"
+    )
+    prior_whats_new = None
+    try:
+        maj_s, min_s = major_minor.split(".")
+        if int(min_s) > 0:
+            prior_whats_new = f"WHATS_NEW_{maj_s}_{int(min_s) - 1}.md"
+    except ValueError:
+        prior_whats_new = None
+    for label in (
+        f"What's new in {major_minor}",
+        f"What's new in {package_version}",
+    ):
+        if label in docs_home and prior_whats_new is not None:
+            # Find the markdown link target after the label.
+            idx = docs_home.find(label)
+            snippet = docs_home[idx : idx + 120]
+            if prior_whats_new in snippet and whats_new_current_link not in snippet:
+                raise SystemExit(
+                    "docs/README.md What's new link targets the prior release notes"
+                )
+    if (
+        f"What's new in {major_minor}" in docs_home
+        and whats_new_current_link not in docs_home
+    ):
+        raise SystemExit(
+            f"docs/README.md must link What's new in {major_minor} to {whats_new_current_link}"
+        )
     known = (ROOT / "docs/10_REFERENCE/KNOWN_ISSUES.md").read_text(encoding="utf-8")
     if "etlantic-airflow" not in known:
         raise SystemExit(
@@ -513,6 +580,14 @@ def main() -> None:
         raise SystemExit(
             "status-banner.js must exclude runnable example guides from design banner"
         )
+    if "PREFECT_RUN/" not in banner_js:
+        raise SystemExit(
+            "status-banner.js must exclude PREFECT_RUN from design-example banner"
+        )
+    if "CONTRACT_FIRST_TUTORIAL/" not in banner_js:
+        raise SystemExit(
+            "status-banner.js must exclude CONTRACT_FIRST_TUTORIAL from design banner"
+        )
     if 'banner.dataset.etlanticStatus = "future"' not in banner_js:
         raise SystemExit("status-banner.js missing semantic future-status marker")
     if "Experimental in ETLantic 0.7" not in banner_js:
@@ -520,10 +595,6 @@ def main() -> None:
     if f"not an ETLantic {major_minor} API guide" not in banner_js:
         raise SystemExit(
             f"status-banner.js future banner must reference ETLantic {major_minor}"
-        )
-    if "PORTABLE_TRANSFORM_COMPILER/" not in banner_js:
-        raise SystemExit(
-            "status-banner.js must exclude PORTABLE_TRANSFORM_COMPILER from future SDK banner"
         )
     if "PORTABLE_TRANSFORMS/" not in banner_js:
         raise SystemExit(
@@ -565,21 +636,20 @@ def main() -> None:
                 f"status-banner.js still lists shipped page {shipped!r} as future"
             )
 
-    # Shipped plugin-protocol pages must be excluded from the future Plugin SDK banner
-    for shipped_sdk in (
-        "DATAFRAME_PLUGIN",
-        "SQL_PLUGIN",
-        "SQL_DIALECT",
-        "PYSPARK_PLUGIN",
-        "SPARK_PROVIDER",
-        "ORCHESTRATOR_PLUGIN",
-        "SECRET_PROVIDER",
-        "TESTING_PLUGINS",
-        "PORTABLE_TRANSFORM_COMPILER",
+    # Only unshipped provider protocols belong in the future Plugin SDK banner.
+    start = banner_js.find("futurePluginSdkPages = [")
+    end = banner_js.find("];", start)
+    if start < 0 or end < 0:
+        raise SystemExit("status-banner.js missing futurePluginSdkPages array")
+    future_sdk_block = banner_js[start:end]
+    for future_sdk in (
+        "STORAGE_PLUGIN",
+        "RESOURCE_PROVIDER",
+        "OBSERVABILITY_PROVIDER",
     ):
-        if f"/07_PLUGIN_SDK/{shipped_sdk}/" not in banner_js:
+        if f'"{future_sdk}"' not in future_sdk_block:
             raise SystemExit(
-                f"status-banner.js must exclude {shipped_sdk} from future Plugin SDK banner"
+                f"status-banner.js must mark {future_sdk} as future"
             )
 
     secrets = (ROOT / "docs/06_EXECUTION/SECRETS_MANAGEMENT.md").read_text(
@@ -667,6 +737,89 @@ def main() -> None:
                 raise SystemExit(
                     f"{path} support line still names {prior_minor}.x as current"
                 )
+
+    # Active install/tutorial pins must not target the prior minor release.
+    prior_pin_paths = [
+        ROOT / "docs/01_GETTING_STARTED/INSTALLATION.md",
+        ROOT / "docs/01_GETTING_STARTED/QUICKSTART.md",
+        ROOT / "docs/01_GETTING_STARTED/TROUBLESHOOTING.md",
+        ROOT / "docs/06_EXECUTION/POLARS_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/PANDAS_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/SQL_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/PYSPARK_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/AIRFLOW_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/FILE_STORAGE_TUTORIAL.md",
+        ROOT / "docs/06_EXECUTION/OPS_PILOT.md",
+        ROOT / "docs/06_EXECUTION/PRODUCTION_READINESS.md",
+        ROOT / "docs/06_EXECUTION/PRODUCTION_PROFILES.md",
+        ROOT / "docs/09_EXAMPLES/PORTABLE_TRANSFORMS.md",
+        ROOT / "docs/09_EXAMPLES/PREFECT_RUN.md",
+        ROOT / "packages/etlantic-airflow/README.md",
+        ROOT / "packages/etlantic-keyring/README.md",
+        ROOT / "packages/etlantic-sqlmodel/README.md",
+        ROOT / "packages/etlantic-sparkforge/README.md",
+        ROOT / "packages/etlantic-prefect/README.md",
+    ]
+    if prior_minor is not None:
+        prior_pin = f"etlantic=={prior_minor}.0"
+        prior_tag = f"v{prior_minor}.0"
+        for path in prior_pin_paths:
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8")
+            if prior_pin in text:
+                raise SystemExit(f"{path} still pins {prior_pin}")
+            if prior_tag in text and f"v{package_version}" not in text:
+                raise SystemExit(f"{path} still references checkout {prior_tag}")
+            if "planned for 0.16" in text.lower() or "planned for **0.16" in text:
+                raise SystemExit(f"{path} still says Prefect/features planned for 0.16")
+
+    # Classifiers and plugin dependency ranges must match the stable posture.
+    stable_classifier = "Development Status :: 5 - Production/Stable"
+    alpha_classifier = "Development Status :: 3 - Alpha"
+    next_minor = None
+    try:
+        maj_s, min_s = major_minor.split(".")
+        next_minor = f"{maj_s}.{int(min_s) + 1}"
+    except ValueError:
+        next_minor = None
+    for path in (
+        ROOT / "pyproject.toml",
+        *(ROOT / "packages").glob("etlantic-*/pyproject.toml"),
+    ):
+        text = path.read_text(encoding="utf-8")
+        if alpha_classifier in text:
+            raise SystemExit(f"{path} still uses Alpha classifier")
+        if stable_classifier not in text:
+            raise SystemExit(f"{path} missing Production/Stable classifier")
+        if path.parent.name.startswith("etlantic-") and next_minor is not None:
+            expected = f"etlantic>={package_version},<{next_minor}"
+            # Also accept major.minor.0 style already used.
+            expected_alt = f"etlantic>={major_minor}.0,<{next_minor}"
+            if expected not in text and expected_alt not in text:
+                raise SystemExit(
+                    f"{path} must depend on {expected_alt} (found mismatched core range)"
+                )
+
+    # Primary status pages must not call the current line alpha.
+    for path in (
+        ROOT / "README.md",
+        ROOT / "docs/README.md",
+        ROOT / "SUPPORT.md",
+        ROOT / "SECURITY.md",
+        ROOT / "docs/01_GETTING_STARTED/CAPABILITIES.md",
+        ROOT / "docs/01_GETTING_STARTED/README.md",
+    ):
+        text = path.read_text(encoding="utf-8")
+        for banned in (
+            f"Alpha **{package_version}**",
+            f"Alpha {package_version}",
+            f"alpha **{package_version}**",
+            "Project status:** Alpha",
+            "Package stability | Alpha",
+        ):
+            if banned in text:
+                raise SystemExit(f"{path} still presents current release as alpha: {banned!r}")
 
     subprocess.run(
         [sys.executable, str(ROOT / "scripts/check_runnable_docs.py")],

@@ -1,6 +1,8 @@
 # Known Limitations
 
-- The project is alpha and does not promise 1.0 API stability.
+- ETLantic **0.17.x** is production/stable for documented single-tenant
+  reference deployments, but 0.x releases may still introduce breaking API
+  changes between minor versions until 1.0.
 - Portable `@Transformation.portable` definitions and
   `etlantic.transform/1` authoring are available since 0.11. **0.13** shipped
   Polars and PySpark compilers for `portable-relational/1`; **0.14** shipped

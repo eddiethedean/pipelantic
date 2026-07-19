@@ -377,7 +377,8 @@ Optional package factories (install `etlantic-polars`):
 
 ## Stability
 
-ETLantic is alpha. A root export is public in the current release, but 0.x
-releases may change APIs. Review the changelog and
+ETLantic 0.17.0 is published as Production/Stable. Public compatibility follows
+the documented 0.x deprecation policy; minor releases may still include
+announced migrations. Review the changelog and
 [compatibility matrix](COMPATIBILITY.md) before upgrading. Narrative CLI docs:
 [CLI](CLI.md).

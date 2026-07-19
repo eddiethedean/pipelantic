@@ -6,9 +6,11 @@ ETLantic catches incompatible data-pipeline wiring **before** you process
 data. Define typed datasets, transformations, and pipelines in Python;
 validate and plan them once; run locally or through optional engine plugins.
 
-> **Project status:** Alpha **0.17.0**. See [Capabilities](CAPABILITIES.md)
-> for the shipped boundary and [Evaluator brief](EVALUATOR.md) for
-> decision-makers. How to read status labels:
+> **Project status:** ETLantic **0.17.0** is production/stable within the
+> documented single-tenant reference deployment boundary. Experimental
+> features and broader deployment models remain outside that claim. See
+> [Capabilities](CAPABILITIES.md) for the shipped boundary and
+> [Evaluator brief](EVALUATOR.md) for decision-makers. How to read status labels:
 > [Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
 
 ## Five-minute path
@@ -40,11 +42,15 @@ validate and plan them once; run locally or through optional engine plugins.
 1. [Installation](INSTALLATION.md)
 2. [Quickstart](QUICKSTART.md)
 3. [Your First Pipeline](FIRST_PIPELINE.md)
-4. [Capabilities and Limitations](CAPABILITIES.md)
-5. [Evaluator Brief](EVALUATOR.md)
-6. [Troubleshooting](TROUBLESHOOTING.md)
-7. [FAQ](FAQ.md)
-8. [Project Structure](PROJECT_STRUCTURE.md) (after a second pipeline)
+4. Choose an engine: [Polars](../06_EXECUTION/POLARS_TUTORIAL.md),
+   [Pandas](../06_EXECUTION/PANDAS_TUTORIAL.md),
+   [SQL](../06_EXECUTION/SQL_TUTORIAL.md), or
+   [PySpark](../06_EXECUTION/PYSPARK_TUTORIAL.md)
+5. [Capabilities and Limitations](CAPABILITIES.md)
+6. [Evaluator Brief](EVALUATOR.md)
+7. [Troubleshooting](TROUBLESHOOTING.md)
+8. [FAQ](FAQ.md)
+9. [Project Structure](PROJECT_STRUCTURE.md) (after a second pipeline)
 
 ## The ETLantic Mental Model
 
@@ -61,10 +67,11 @@ PipelinePlan (secret-free, deterministic)
 Run locally  |  Compile (Airflow)  |  Generate contracts
 ```
 
-ETLantic 0.16.0 can execute registered Python implementations with its local
+ETLantic 0.17.0 can execute registered Python implementations with its local
 runtime and optional Polars/Pandas/SQL/PySpark plugins, compile plans to
-Airflow DAGs via `etlantic-airflow`, and execute Polars **kernel** portable
-transforms without a native `@implementation("polars")`.
+Airflow DAGs via `etlantic-airflow`, execute plans through the Prefect local
+MVP, and compile supported portable transformation families without native
+engine implementations.
 
 ## Next Step
 

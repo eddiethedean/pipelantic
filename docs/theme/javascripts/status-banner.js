@@ -22,25 +22,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const isExperimentalExecution = experimentalExecutionPages.some((name) =>
     path.includes(`/06_EXECUTION/${name}/`)
   );
-  // Dataframe, SQL, Spark, Orchestrator, Secret, Testing, and Transform
-  // Compiler plugin protocols are shipped; other Plugin SDK pages are future.
-  const isPluginSdk =
-    path.includes("/07_PLUGIN_SDK/") &&
-    !path.includes("/07_PLUGIN_SDK/DATAFRAME_PLUGIN/") &&
-    !path.includes("/07_PLUGIN_SDK/SQL_PLUGIN/") &&
-    !path.includes("/07_PLUGIN_SDK/SQL_DIALECT/") &&
-    !path.includes("/07_PLUGIN_SDK/PYSPARK_PLUGIN/") &&
-    !path.includes("/07_PLUGIN_SDK/SPARK_PROVIDER/") &&
-    !path.includes("/07_PLUGIN_SDK/ORCHESTRATOR_PLUGIN/") &&
-    !path.includes("/07_PLUGIN_SDK/SECRET_PROVIDER/") &&
-    !path.includes("/07_PLUGIN_SDK/TESTING_PLUGINS/") &&
-    !path.includes("/07_PLUGIN_SDK/PORTABLE_TRANSFORM_COMPILER/");
+  // Only these unshipped provider protocol pages are future in 0.17.
+  const futurePluginSdkPages = [
+    "STORAGE_PLUGIN",
+    "RESOURCE_PROVIDER",
+    "OBSERVABILITY_PROVIDER",
+  ];
+  const isPluginSdk = futurePluginSdkPages.some((name) =>
+    path.includes(`/07_PLUGIN_SDK/${name}/`)
+  );
   const isDesignExample =
     path.includes("/09_EXAMPLES/") &&
     !path.endsWith("/09_EXAMPLES/") &&
     !path.includes("/09_EXAMPLES/AIRFLOW_COMPILE/") &&
     !path.includes("/09_EXAMPLES/SPARKFORGE_ADAPTER/") &&
-    !path.includes("/09_EXAMPLES/PORTABLE_TRANSFORMS/");
+    !path.includes("/09_EXAMPLES/PORTABLE_TRANSFORMS/") &&
+    !path.includes("/09_EXAMPLES/CONTRACT_FIRST_TUTORIAL/") &&
+    !path.includes("/09_EXAMPLES/PREFECT_RUN/");
   const isFutureVisualization =
     path.includes("/08_VISUALIZATION/") &&
     !path.endsWith("/08_VISUALIZATION/") &&
@@ -85,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     '<p class="admonition-title">Future design—not an ETLantic 0.17 API guide</p>' +
     "<p>This page may contain unshipped packages, commands, or interfaces. " +
     "Use Current Capabilities, the API reference, and the CLI reference for shipped behavior. " +
-    "Polars, PySpark, Pandas, and SQL portable-relational compilers ship through 0.15. " +
-    "Advanced portable profiles remain planned for 0.15 continuation.</p>";
+    "Polars, PySpark, Pandas, and SQL portable-relational compilers are shipped. " +
+    "Advanced 0.17 profiles are shipped on Polars and PySpark; see the compiler matrix for exact claims.</p>";
   article.prepend(banner);
 });

@@ -1,13 +1,14 @@
 # API Stability and Deprecation Policy
 
-ETLantic is pre-1.0. Breaking changes remain possible, but they must not be
-silent.
+ETLantic 0.17.0 is production/stable for documented single-tenant reference
+deployments, while remaining pre-1.0. Breaking changes remain possible, but
+they must not be silent.
 
 ## Stability levels
 
 | Surface | Current promise |
 |---|---|
-| Documented 0.14 public imports | Supported for the 0.14 line |
+| Documented 0.17 public imports | Supported for the 0.17.x line |
 | Versioned plugin protocols | Compatible within their documented protocol version |
 | Pipeline Plan schema | Governed by its schema version |
 | Experimental APIs | May change in any 0.x release |

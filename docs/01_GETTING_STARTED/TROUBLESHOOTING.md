@@ -12,7 +12,7 @@ py -3.11 --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.16.0**. Confirm what you installed:
+These docs describe ETLantic **0.17.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -21,17 +21,18 @@ etlantic --version
 python -m etlantic --version
 ```
 
-Upgrade from PyPI (pin the published alpha minor unless you intend patches):
+Upgrade from PyPI (pin the published release unless you intend compatible
+0.17.x patches):
 
 ```bash
-python -m pip install --upgrade 'etlantic==0.16.0'
-# or accept 0.14 patches only:
-python -m pip install --upgrade 'etlantic>=0.16.0,<0.17'
+python -m pip install --upgrade 'etlantic==0.17.0'
+# or accept compatible 0.17.x patches:
+python -m pip install --upgrade 'etlantic>=0.17.0,<0.18'
 ```
 
 From a checkout, prefer `uv sync` / `git pull`.
 
-## `etlantic: command not found`
+## Wrong interpreter or `etlantic: command not found`
 
 The console script is on PATH only for the environment where you installed
 ETLantic. Prefer the module form tied to the active interpreter:
@@ -55,14 +56,20 @@ pipeline classes at module scope, but put seed/run side effects under
 
 ## Plugin install fails (`etlantic-polars`, `etlantic-pyspark`, …)
 
-Those packages ship with ETLantic 0.16.0 as separate distributions.
+Those packages ship with ETLantic 0.17.0 as separate distributions. Keep every
+plugin on the same minor as core.
 
 From PyPI:
 
 ```bash
-python -m pip install --upgrade etlantic-polars etlantic-pandas
-python -m pip install --upgrade etlantic-sql etlantic-pyspark
-python -m pip install --upgrade etlantic-airflow etlantic-sparkforge
+python -m pip install --upgrade \
+  'etlantic-polars==0.17.0' 'etlantic-pandas==0.17.0'
+python -m pip install --upgrade \
+  'etlantic-sql==0.17.0' 'etlantic-pyspark==0.17.0'
+python -m pip install --upgrade \
+  'etlantic-airflow==0.17.0' 'etlantic-prefect==0.17.0'
+python -m pip install --upgrade \
+  'etlantic-sparkforge==0.17.0'
 ```
 
 From a checkout:
@@ -72,6 +79,7 @@ uv sync --group dataframes   # polars + pandas
 uv sync --group sql
 uv sync --group pyspark
 uv sync --group airflow
+uv sync --group prefect
 uv sync --group sparkforge
 uv sync --group keyring
 uv sync --group sqlmodel
@@ -79,6 +87,25 @@ uv sync --group sqlmodel
 
 Confirm Python is 3.11+ and the package name uses a hyphen
 (`etlantic-pyspark`), not an underscore.
+
+## Core and plugin versions do not match
+
+Compare distributions in the same interpreter:
+
+```bash
+python -c "import importlib.metadata as m; print(m.version('etlantic')); print(m.version('etlantic-polars'))"
+```
+
+Core 0.17.x requires plugins from the 0.17 minor. Remove stale plugin versions
+and install matching pins, for example:
+
+```bash
+python -m pip install --upgrade --force-reinstall \
+  'etlantic==0.17.0' 'etlantic-polars==0.17.0'
+```
+
+Use the plugin distribution relevant to your engine in place of
+`etlantic-polars`.
 
 ## A transformation has no implementation
 
@@ -103,15 +130,35 @@ that engine with `portable_transform_policy="require"`. See
 python -c "from etlantic.transform.discovery import discover_transform_compilers; print(discover_transform_compilers())"
 ```
 
-If the map is empty, install a matching `etlantic-polars==0.16.0` into the
-same environment as core and reinstall if you changed Python interpreters.
+If the map is empty, install a matching `etlantic-polars==0.17.0` into the same
+environment as core. Entry-point discovery uses installed distribution
+metadata, so reinstall the plugin after editable-install or interpreter
+changes. Confirm with:
+
+```bash
+python -m pip show etlantic etlantic-polars
+python -c "from etlantic.transform.discovery import discover_transform_compilers; print(sorted(discover_transform_compilers()))"
+```
 
 ## `PMXFORM301` unsupported action or function
 
-The Polars kernel claim rejects joins, windows, and conversion-profile ops such
-as `dtcs:cast`. Narrow the portable definition, add a native
-`@implementation(...)`, or use `portable_transform_policy="prefer"` /
-`"native"`.
+`PMXFORM301` means the selected compiler does not support an action, function,
+or profile required by that particular plan. In 0.17, relational joins are
+graduated across the shipped portable relational compilers, while advanced
+window and reshape families are graduated on Polars and PySpark. Conversion
+support remains capability-specific. Check the selected plugin's advertised
+capabilities; narrow the portable definition, choose a capable engine, add a
+native `@implementation(...)`, or use
+`portable_transform_policy="prefer"` / `"native"`.
+
+## Production validation fails with `PMPLUG401`
+
+The built-in `production` profile intentionally has an empty plugin allowlist
+and fails closed. Create an explicit production Profile JSON with a non-empty
+`plugin_allowlist` containing exact trusted plugin versions such as
+`"etlantic-polars": "==0.17.0"`. The allowlist permits discovery; it does not
+install plugins or resolve assets. See
+[Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md).
 
 ## My memory source returns no records
 
@@ -150,9 +197,45 @@ Install the matching plugin and set the corresponding profile engine
 | Airflow compile | `pip install etlantic-airflow` or `uv sync --group airflow` | `examples/airflow_compile.py` |
 | SparkForge adapter | `pip install etlantic-sparkforge` or `uv sync --group sparkforge` | `tests/sparkforge/` |
 
-Airflow compilation is **available** via `etlantic-airflow` (0.8+). Dagster
-compilers are not shipped. Prefect is planned for 0.16 as a direct-execution
-scheduler (`ExecutionScheduler`), not a DAG compiler.
+Airflow compilation is available via `etlantic-airflow`. The shipped
+`etlantic-prefect` local MVP is a direct-execution scheduler
+(`ExecutionScheduler`), not a DAG compiler. Prefect deployment/serve and
+Dagster compilers are not shipped.
+
+## PySpark fails before ETLantic executes a step
+
+PySpark requires a compatible Java runtime as well as
+`etlantic-pyspark==0.17.0`. Check both from the same environment:
+
+```bash
+java -version
+python -c "import pyspark; print(pyspark.__version__)"
+```
+
+Set `JAVA_HOME` to the supported JDK for your installed PySpark release. A
+missing JVM, unsupported Java/PySpark pairing, or Python interpreter mismatch
+must be fixed before ETLantic can create a local Spark session.
+
+## SQL reports a missing or invalid connection URL
+
+Install `etlantic-sql==0.17.0`, select `Profile(sql_engine="sql")`, and provide
+the URL expected by your binding or example. For the reference PostgreSQL
+path:
+
+```bash
+export ETLANTIC_SQL_URL='postgresql+psycopg://user:pass@localhost:5432/etlantic'
+```
+
+Treat that value as a placeholder and never commit real credentials. SQLite is
+demo-only; the PostgreSQL plugin is the reference production path.
+
+## Airflow compiles but the generated DAG does not run
+
+`etlantic compile TARGET --target airflow` validates a plan and emits a DAG
+artifact. It does not provision Airflow, install your pipeline and plugin
+dependencies into workers, configure connections, or seed runtime data.
+Install matching packages in the Airflow runtime and configure its external
+resources separately.
 
 ## Commands in a design page do not exist
 
@@ -177,6 +260,20 @@ uv sync --locked
 
 Only run the removal command from the repository root after confirming
 `.venv` is the project environment.
+
+## A repository checkout shadows the installed wheel
+
+Python puts the current directory early on `sys.path`. Running from an
+ETLantic source checkout can therefore import checkout code instead of the
+0.17.0 wheel in your environment. Check the imported path:
+
+```bash
+python -c "import etlantic; print(etlantic.__version__); print(etlantic.__file__)"
+```
+
+For wheel-user testing, leave the repository directory and run from a clean
+project. For contributor testing, use `uv run ...` from the checkout and do
+not mix it with a separately installed wheel.
 
 ## Where to report a problem
 

@@ -23,11 +23,13 @@ curated records.
 uv sync --group dataframes
 uv run python examples/portable_polars_kernel.py
 uv run python examples/portable_pandas_kernel.py
+uv run python examples/portable_wave17.py
 ```
 
 Authors with `@Transformation.portable`, plans with
 `portable_transform_policy="require"`, and executes through the shipped Polars
-or Pandas compilers (Pandas is eager-only / index-neutral).
+or Pandas compilers (Pandas is eager-only / index-neutral). The Wave 17 example
+demonstrates advanced families shipped on Polars and PySpark.
 
 ## JSON and CSV storage
 
@@ -81,6 +83,16 @@ python examples/airflow_compile.py
 
 Runs a pipeline locally, then compiles the same plan to an Airflow DAG module
 via `compile_plan(..., target="airflow")`.
+
+## Prefect local execution
+
+```bash
+# requires etlantic-prefect
+python examples/prefect_run.py
+```
+
+Runs an already-resolved plan through the shipped Prefect 3
+`ExecutionScheduler` local MVP.
 
 Longer design-study pages under Documentation → Examples remain illustrative.
 Structured Streaming APIs are experimental.

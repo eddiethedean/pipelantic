@@ -1,11 +1,12 @@
 # Portable Transformations
 
-!!! success "Available in ETLantic 0.11 (authoring) / 0.12–0.14 (relational compilers)"
+!!! success "Available in ETLantic 0.17"
     `@Transformation.portable` and `etlantic.transform` emit validated
     `dtcs.transform-plan/2` IR. Polars, PySpark, and Pandas execute kernel +
     `portable-relational/1` plans in 0.12–0.14; safe SQL lowering for that
-    claim set shipped in **0.15**; richer profiles need native
-    implementations until they graduate under the 0.17 roadmap.
+    claim set shipped in **0.15**. Advanced string, conversion, statistics,
+    window `/1`, complex, and reshape families shipped on Polars and PySpark
+    in **0.17**.
 
 A portable transformation expresses dataframe logic once and lets ETLantic
 plugins compile it for Polars, Pandas, SQL, PySpark, and future engines.
@@ -149,9 +150,9 @@ F.col("total") * F.col("quantity")
 F.lower(F.col("email")).alias("email")
 ```
 
-`F.try_cast` and other conversion helpers are not part of the 0.14 kernel claim
-set; use a claimed cast surface or a native implementation until conversion
-profiles ship.
+`F.try_cast` and other conversion helpers are outside the baseline kernel
+claim. The conversion profile shipped on Polars and PySpark in 0.17; use a
+native implementation on Pandas, SQL, or an unclaimed backend.
 
 DTCS `trim` is a field-targeted Semantic Action, not a general DTCS 2.0
 expression Function, so the strict facade does not pretend that
@@ -254,7 +255,7 @@ backend order and claim deterministic semantics.
 
 ## Windows
 
-DTCS 2.0 publishes experimental `dtcs:profile/portable-window/1` semantics:
+ETLantic 0.17 ships `dtcs:profile/portable-window/1` on Polars and PySpark:
 
 ```python
 from etlantic.transform import Window
@@ -262,30 +263,25 @@ from etlantic.transform import Window
 w = (
     Window.partitionBy("customer_id")
     .orderBy(F.col("created_at").desc_nulls_last())
-    .rowsBetween(Window.unboundedPreceding, Window.currentRow)
 )
 
 orders.withColumn("row_number", F.row_number().over(w))
 ```
 
-Frames are `rows` or `range`; bounds are unbounded preceding, `n` preceding,
-current row, `n` following, or unbounded following. The default is rows from
-unbounded preceding through current row. Published functions include
+Explicit frames remain unsupported in 0.17 and fail closed. Published
+functions include
 `row_number`, `rank`, `dense_rank`, `lag`, `lead`, `first_value`,
-`last_value`, and framed `sum`, `count`, `average`, `min`, and `max`.
-
-ETLantic will keep this facade experimental until two independent compilers
-pass the DTCS window conformance family.
+and `last_value`.
 
 ## Complex types
 
-DTCS 2.0 publishes experimental
-`dtcs:profile/portable-complex-types/1` for lists/arrays, maps, and
+ETLantic 0.17 ships `dtcs:profile/portable-complex-types/1` and
+`portable-complex-values/1` on Polars and PySpark for lists/arrays, maps, and
 objects/structs. The facade maps indexed and keyed access through
 `dtcs:index`, `dtcs:field`, and `dtcs:element_at`; out-of-bounds
-`element_at` returns null. Constructors, explode, higher-order lambdas, and
-map/array mutation are not in the DTCS 2.0 standard catalog and remain excluded
-from the ETLantic portable UI until standardized.
+`element_at` returns null. Constructors and `size` are included; `explode`
+ships under `portable-reshape/1`. Higher-order lambdas and map/array mutation
+remain post-0.17.
 
 ## Value states
 
@@ -338,12 +334,12 @@ Profiles choose an implementation policy:
 | Policy | Meaning |
 |---|---|
 | `require` | Require portable compilation; native fallback is forbidden |
-| `prefer` | Prefer portable compilation; allow an explicit native fallback (default in 0.12) |
+| `prefer` | Prefer portable compilation; allow an explicit native fallback (default) |
 | `native` | Prefer a registered native implementation |
 
 The selected path is recorded in the plan and run report. Fallback is never
-silent. Until 0.12 ships, only native implementations execute; portable IR is
-inspectable via `to_transform_plan()` / `portable_fingerprint()`.
+silent. Portable IR is inspectable via `to_transform_plan()` /
+`portable_fingerprint()`.
 
 ## Planning
 

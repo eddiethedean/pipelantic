@@ -1,8 +1,10 @@
 # ETLantic 0.17 User Guide
 
-This is the current, installable ETLantic manual. Every page linked from this
-guide documents behavior available in ETLantic 0.17 unless it is explicitly
-marked **Experimental**.
+This is the current manual for published ETLantic **0.17.0**. Core onboarding
+paths below are available in 0.17; linked reference and design pages may also
+describe Experimental, partial, or future work and retain their own status
+labels. ETLantic 0.17.0 is production/stable only within the documented
+single-tenant reference deployment boundary.
 
 ## Start here
 

@@ -4,12 +4,13 @@ ETLantic coordinates contracts, Python code, plugins, credentials, data
 artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
-This chapter covers both **implemented 0.14 controls** and the broader
-**proposed 1.0 threat model**. Read the status labels carefully: alpha 0.14.0
-is a published release suitable for controlled pilots, not a claim of
-enterprise production readiness.
+This chapter covers **implemented 0.17 controls** and the broader
+**proposed threat model**. ETLantic 0.17.0 is production/stable for documented
+single-tenant reference deployments. It does not provide unrestricted
+multi-tenant, compliance, deployment-topology, SBOM/signing, or advanced
+supply-chain guarantees; those controls remain adopter-owned.
 
-## Implemented in 0.14
+## Implemented in 0.17
 
 - Secret-free plans and reports (`SecretRef` metadata only; resolve at runtime)
 - Production `Profile.plugin_allowlist` fail-closed selection of discovered plugins
@@ -19,7 +20,7 @@ enterprise production readiness.
 - SARIF/JSON diagnostics for CI
 - Central redaction expectations for logs/reports (see run-report guidance)
 
-## Required before treating 1.0 as production-ready
+## Required before an unrestricted production claim
 
 - Plugin provenance / supply-chain attestation
 - Artifact and cache isolation across tenants/security domains
@@ -260,8 +261,8 @@ production = Profile(
     dataframe_engine="polars",
     portable_transform_policy="require",
     plugin_allowlist={
-        "etlantic-polars": "==0.16.0",
-        "etlantic-airflow": "==0.16.0",
+        "etlantic-polars": "==0.17.0",
+        "etlantic-airflow": "==0.17.0",
     },
 )
 ```
@@ -271,7 +272,7 @@ See [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 !!! note "Future design (1.0)"
     A proposed `etlantic.toml` `[plugins.security]` block may eventually mirror
     the same allowlist semantics. Do not configure TOML as if it is loaded in
-    0.14—use `Profile.plugin_allowlist`.
+    0.17—use `Profile.plugin_allowlist`.
 
 Controls should include:
 
@@ -703,7 +704,8 @@ configuration.
 
 ## Verification
 
-Before 1.0, automated tests should cover:
+Before expanding beyond the bounded 0.17 support envelope, automated tests
+should cover:
 
 - malicious YAML tags and deeply nested inputs
 - path traversal and symlink escapes
@@ -734,9 +736,10 @@ The repository should publish:
 - credential-rotation guidance
 - plugin advisory and revocation process
 
-## Security Release Gate
+## Unrestricted Production Security Gate
 
-ETLantic is not production-ready until:
+The documented single-tenant/reference 0.17 deployment is bounded stable.
+Broader production claims require:
 
 - the threat model is reviewed
 - mandatory controls have implementation owners and tests

@@ -14,10 +14,17 @@ uv run python scripts/build_docs.py
 Run the narrowest relevant test directory while developing, then the complete
 suite before opening a pull request. Current test areas include core validation
 and planning plus `tests/dataframe`, `tests/sql`, `tests/spark`,
-`tests/orchestration`, `tests/airflow`, and `tests/sparkforge` where present.
+`tests/orchestration`, `tests/airflow`, `tests/prefect`, and
+`tests/sparkforge`.
 
-Current optional markers are `polars`, `pandas`, `sql`, `spark`, `airflow`,
-`keyring`, `sqlmodel`, and `sparkforge`; `pyproject.toml` is authoritative.
+Current optional markers are `polars`, `pandas`, `sql`, `spark`,
+`real_pyspark`, `airflow`, `prefect`, `keyring`, `sqlmodel`, and `sparkforge`;
+`pyproject.toml` is authoritative. The baseline job excludes dependency-backed
+markers:
+
+```bash
+uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not real_pyspark and not airflow and not prefect and not keyring and not sqlmodel"
+```
 
 ```bash
 uv sync --group dataframes
@@ -29,6 +36,11 @@ uv run pytest -m sql
 
 uv sync --group pyspark
 uv run pytest -m spark
+
+SPARKLESS_TEST_MODE=pyspark uv run pytest -m real_pyspark
+
+uv sync --group prefect
+uv run pytest -m prefect
 ```
 
 To debug collection or plugin discovery, begin with `pytest --collect-only`,
@@ -189,17 +201,24 @@ Backend test environments should be isolated and optional:
 - Containerized databases where necessary
 - Airflow compilation tests without requiring a scheduler for every test
 
-Mark tests by dependency:
+Mark dependency-backed tests only with markers registered in `pyproject.toml`:
 
 ```text
-unit
-integration
+polars
+pandas
 sql
 spark
+real_pyspark
 airflow
-slow
-network
+prefect
+keyring
+sqlmodel
+sparkforge
 ```
+
+`unit`, `integration`, `slow`, and `network` are descriptive categories in
+this guide, not registered pytest markers in 0.17. Add a marker to
+`pyproject.toml` before using it.
 
 ## End-to-End Tests
 
@@ -287,15 +306,15 @@ controlled fakes.
 
 ## Type-Checking Tests
 
-Maintain positive and negative typing fixtures:
+ETLantic ships `py.typed`, but 0.17 does not contain committed
+`tests/typing/pass` or `tests/typing/fail` directories and does not enforce a
+static type-checker in CI. Positive and negative typing fixtures remain a
+future contributor improvement, not a current test command.
 
 ```text
 tests/typing/pass/
 tests/typing/fail/
 ```
-
-Examples should prove IDE-visible types for step outputs and catch invalid
-wiring where standard Python typing permits.
 
 ## Coverage
 

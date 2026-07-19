@@ -92,7 +92,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
-    "etlantic>=0.15,<0.16",
+    "etlantic>=0.17,<0.18",
     "acme-dataframe>=2,<3",
 ]
 classifiers = [
@@ -195,13 +195,13 @@ operators, types, and modes. The compiler name alone never implies coverage.
 
 ### First-party portable policy (0.17)
 
-Beginning with the 0.17 roadmap, every first-party ETLantic plugin that
-executes dataframe, SQL, or Spark transformations is expected to ship a
+Beginning with 0.17, every first-party ETLantic plugin that executes
+dataframe, SQL, or Spark transformations ships a
 portable transform compiler as well as its runtime integration. The compiler
 may live in the same distribution or a clearly documented companion package,
 but it must use the `etlantic.transform_compilers` entry point and pass the
 public portable conformance suite for every advertised claim. Gate A of 0.17
-makes those claims inspectable through the capability matrix, `etlantic plugin
+made those claims inspectable through the capability matrix, `etlantic plugin
 list` transform-compiler inventory, and guide-drift checks.
 
 This is a first-party completeness policy, not a universal protocol

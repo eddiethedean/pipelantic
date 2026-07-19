@@ -1,7 +1,8 @@
 # Support
 
-ETLantic is an **alpha** open-source project supported on a **best-effort**
-basis. There is **no formal SLA** and no guaranteed response time.
+ETLantic **0.17.x** is production/stable for documented single-tenant
+reference deployments. Community support has **no formal SLA** or guaranteed
+response time.
 
 ## What we support
 
@@ -9,10 +10,13 @@ basis. There is **no formal SLA** and no guaranteed response time.
 - Questions about documented Available APIs
 - Security reports via [SECURITY.md](SECURITY.md) (private disclosure)
 
-## What we do not support (alpha)
+## Adopter-owned and unsupported areas
 
 - Production incident response or on-call coverage
-- Compliance attestations (SOC2, GDPR certification, etc.)—customer-owned
+- Multi-tenant isolation and deployment topology
+- Compliance attestations (SOC2, GDPR certification, etc.)
+- SBOM/signing and advanced supply-chain controls beyond documented package
+  pins and plugin allowlists
 - Guarantees for Experimental APIs (for example Structured Streaming)
 - Guarantees for Future design / Design Proposal pages
 

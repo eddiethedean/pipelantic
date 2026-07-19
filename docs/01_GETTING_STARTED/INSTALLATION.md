@@ -1,6 +1,6 @@
-# Installation
+# Installing ETLantic 0.17.0
 
-ETLantic 0.16.0 provides the typed modeling kernel, contract interoperability
+ETLantic 0.17.0 provides the typed modeling kernel, contract interoperability
 (ODCS/DTCS/DPCS), multi-phase validation, profiles, deterministic planning,
 a local runtime that executes plans with Python callables, in-memory
 artifacts, and stdlib JSON/CSV bindings, plus optional Polars, Pandas, SQL,
@@ -28,8 +28,8 @@ uv add 'etlantic==0.17.0'
 uv run etlantic --version
 ```
 
-Use `etlantic>=0.16.0,<0.16` only when you intentionally accept compatible
-0.14 patches.
+Use `etlantic>=0.17.0,<0.18` when you intentionally accept compatible 0.17.x
+patches.
 
 Verify the import:
 
@@ -57,6 +57,7 @@ pip install 'etlantic-pandas==0.17.0'     # dataframe + Pandas portable compiler
 pip install 'etlantic-sql==0.17.0'        # PostgreSQL SQL reference plugin
 pip install 'etlantic-pyspark==0.17.0'    # PySpark plugin + portable compiler
 pip install 'etlantic-airflow==0.17.0'    # Airflow DAG compiler
+pip install 'etlantic-prefect==0.17.0'    # Prefect direct-execution scheduler
 pip install 'etlantic-keyring==0.17.0'    # OS keyring secret provider
 pip install 'etlantic-sqlmodel==0.17.0'   # SQLModel bridge helpers
 pip install 'etlantic-sparkforge==0.17.0' # SparkForge → ETLantic IR adapter
@@ -100,10 +101,14 @@ Select Spark with `Profile(spark_engine="pyspark")` and
 [Migration 0.6 → 0.7](../11_DEVELOPMENT/MIGRATION_0_6_TO_0_7.md).
 
 Airflow compilation is available via `etlantic-airflow` (`compile_plan` /
-`etlantic compile … --target airflow`). Optional Prefect direct execution is available via `etlantic-prefect`
-(`ExecutionScheduler`, local MVP). Dagster and other platforms remain future.
+`etlantic compile … --target airflow`). Optional Prefect direct execution is
+available via `etlantic-prefect` (`ExecutionScheduler`, local MVP). Dagster and
+other platforms remain future.
 
-## Install from source (contributors)
+## Repository checkout (contributors)
+
+The commands above are the wheel-user flow. Use a repository checkout only
+when contributing to ETLantic or running repository-only examples:
 
 ```bash
 git clone https://github.com/eddiethedean/etlantic.git
@@ -134,6 +139,7 @@ uv sync --group dataframes   # polars + pandas
 uv sync --group sql
 uv sync --group pyspark
 uv sync --group airflow
+uv sync --group prefect
 uv sync --group sparkforge
 uv sync --group keyring
 uv sync --group sqlmodel
@@ -142,7 +148,9 @@ uv sync --group sqlmodel
 ## Upgrade
 
 ```bash
-python -m pip install --upgrade 'etlantic>=0.16.0'
+python -m pip install --upgrade 'etlantic>=0.17.0,<0.18'
+# or pin the published release exactly:
+python -m pip install --upgrade 'etlantic==0.17.0'
 # or
 uv lock --upgrade-package etlantic
 ```
@@ -172,6 +180,7 @@ uv run ruff format --check .
 | `uv sync --group dataframes` | Also install Polars and Pandas plugins |
 | `uv sync --group pyspark` | Also install the PySpark plugin + sparkless |
 | `uv sync --group airflow` | Also install the Airflow orchestrator plugin |
+| `uv sync --group prefect` | Also install the Prefect scheduler plugin |
 | `uv sync --group sql` | Also install the SQL plugin |
 | `uv sync --group sparkforge` | Also install the SparkForge adapter |
 | `uv sync --group keyring` | Also install the keyring provider |

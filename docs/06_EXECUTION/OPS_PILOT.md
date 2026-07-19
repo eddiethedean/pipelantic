@@ -1,18 +1,20 @@
 # Ops Pilot Guide
 
-> **Status: Available in ETLantic 0.17.0.** Alpha operational checklist—not a
-> multi-tenant deployment product.
+> **Status: Production/stable in ETLantic 0.17.0 for the documented
+> single-tenant reference deployment.** This is not a multi-tenant deployment
+> product.
 
-Use this page for a **bounded pilot**: one team, pinned packages, process
-isolation, and fail-closed production profiles. It does not claim SLA, HA, or
-compliance certification.
+Use this page for a **bounded deployment**: one team or tenant, pinned packages,
+process isolation, and fail-closed production profiles. SLA, HA, deployment
+topology, compliance/SBOM/signing, and advanced supply-chain controls remain
+adopter-owned.
 
 ## Pin matrix
 
 ```bash
-pip install 'etlantic==0.16.0'
+pip install 'etlantic==0.17.0'
 # Only the engines you need:
-pip install 'etlantic-polars==0.16.0'   # or pandas / sql / pyspark / airflow
+pip install 'etlantic-polars==0.17.0'   # or pandas / sql / pyspark / airflow / prefect
 ```
 
 Record the exact versions in your lockfile. Production profiles should pin

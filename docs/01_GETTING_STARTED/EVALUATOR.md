@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is ready in alpha 0.16.0
+## What is stable in bounded 0.17.0
 
 | Area | Ready? |
 |---|---|
@@ -46,20 +46,21 @@ manager.
   `Profile.plugin_allowlist` (production profiles fail closed when empty)
 - Threat model documents residual Gaps (provenance, artifact/cache isolation,
   DoS budgets, outbound constraints, unsafe-serialization prohibition)
-- Report vulnerabilities privately; alpha has best-effort fixes only
+- Report vulnerabilities privately; security fixes are supported on 0.17.x
 
 Read [Security](../02_FOUNDATIONS/SECURITY.md) and the repository
 [security policy](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md).
-For a bounded pilot topology and required controls, read
+For the bounded reference topology and required controls, read
 [Production Readiness](../06_EXECUTION/PRODUCTION_READINESS.md).
 
-## Production readiness gate (do not skip)
+## Bounded production support (do not skip)
 
-**ETLantic 0.16.0 is alpha.** Plugin allowlists being “Available” does **not**
-mean the product is production-ready.
+**ETLantic 0.17.0 is production/stable for documented single-tenant reference
+deployments.** Plugin allowlists being “Available” do not make an arbitrary
+topology safe.
 
-Do **not** productionize until the security release gate closes (targeted for
-1.0). Residual Gaps that still block a production claim include:
+The following residual gaps remain adopter-owned and block unrestricted
+multi-tenant or enterprise-wide production claims:
 
 | Gap (from Security Evaluation) | Why it matters |
 |---|---|
@@ -76,7 +77,7 @@ not an audit system of record.
 How to read status labels in deeper chapters:
 [Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
 
-## What not to bet on yet
+## What remains outside the stable envelope
 
 - Copying long Airflow **design study** tutorials into production—use
   `examples/airflow_compile.py` and `etlantic-airflow` instead
@@ -86,25 +87,26 @@ How to read status labels in deeper chapters:
 - Process-local reports as an audit system of record
 - Stable 1.0 compatibility guarantees
 - Managed Databricks/EMR/Connect Spark providers
-- **Advanced portable profiles** — Polars, PySpark, Pandas, and SQL claim
-  kernel + `portable-relational/1` in 0.13–0.15. Richer profiles graduate under
-  **0.17** (Wave 1 / Wave 2 / continuation). Keep a native
+- **Undocumented advanced portable profiles** — Polars and PySpark ship the
+  documented 0.17 Wave 1 / Wave 2 families; Pandas and SQL remain at kernel +
+  `portable-relational/1`. Continuation profiles remain outside the advertised
+  claim set. Keep a native
   `@implementation(...)` for profiles outside the advertised claim set, or
   for `portable_transform_policy="native"`.
 
 ## Enterprise readiness matrix
 
-| Concern | Status in 0.15 |
+| Concern | Status in 0.17 |
 |---|---|
 | License | MIT (core and official plugins) |
-| Supported versions / EOL | Best-effort on current alpha line; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
+| Supported versions / EOL | Current stable line is 0.17.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
 | Compliance attestations (SOC2, GDPR cert) | Adopter-owned — not provided |
 | Identity / RBAC / SSO | Out of scope — use process and network isolation |
 | HA / DR / RPO / RTO | Adopter-owned topology |
 | SBOM / signed provenance | Gap — not yet emitted by release automation |
 | Audit system of record | Gap — process-local reports are operational evidence only |
 | Tested scale | Local/pilot workloads; no published capacity guarantees |
-| Upgrade / rollback | Pin exact versions; see [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) |
 
 ## Recommended evaluation path
 
@@ -120,7 +122,7 @@ How to read status labels in deeper chapters:
 9. Optional: Prefect scheduler via `etlantic-prefect` /
    `Profile(orchestrator="prefect")`
 10. Optional: SparkForge adapter via `uv sync --group sparkforge`
-11. [Migration 0.15 → 0.16](../11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md) (and
+11. [Migration 0.16 → 0.17](../11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md) (and
     earlier migration guides when needed)
 12. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
 

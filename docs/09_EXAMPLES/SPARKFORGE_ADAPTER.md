@@ -3,8 +3,8 @@
 > **Status: Available.** Uses `etlantic-sparkforge` and the IR parity suite
 > under `tests/sparkforge/`.
 
-Map medallion SparkForge IR onto ordinary ETLantic `Source` / `Step` /
-`Sink` graphs without putting bronze/silver/gold types in core.
+Map medallion SparkForge IR onto ordinary ETLantic `Extract` / `Step` /
+`Load` graphs without putting bronze/silver/gold types in core.
 
 ## Setup
 

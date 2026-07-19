@@ -1,10 +1,10 @@
 # etlantic-airflow
 
 Airflow reference orchestrator compiler for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.14.
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.17.
 
 ```bash
-pip install 'etlantic==0.16.0' 'etlantic-airflow==0.16.0'
+pip install 'etlantic==0.17.0' 'etlantic-airflow==0.17.0'
 # or: pip install 'etlantic[airflow]'
 # To import generated DAGs into an Airflow process, install apache-airflow
 # separately in the Airflow environment (not required for compile).
@@ -31,7 +31,7 @@ The `etlantic.orchestrator_plugins` entry point named `airflow` registers
 validate and plan first, then compile the valid plan with
 `etlantic compile TARGET --target airflow -o dags/`.
 
-## Capabilities (0.14)
+## Capabilities
 
 - Deterministic Airflow DAG module generation from a secret-free `PipelinePlan`
 - Schedule, retry, timeout, and dependency mapping
@@ -40,5 +40,5 @@ validate and plan first, then compile the valid plan with
 - Lifecycle correlation keys for normalized run reports
 
 **Not included:** managed Airflow deployments, Dagster compile plugins, or
-Prefect (planned separately as an `ExecutionScheduler` in 0.16, not as an
+Prefect (shipped separately as an `ExecutionScheduler` local MVP, not as an
 Airflow-style compiler).

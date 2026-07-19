@@ -17,7 +17,29 @@ ETLantic models pipelines and produces resolved `PipelinePlan` objects. It
 includes a built-in `LocalScheduler` for development and tests, and
 intentionally delegates durable scheduling and external workflow platforms to
 optional plugins (for example Airflow compilation via `etlantic-airflow`, or
-a planned Prefect `ExecutionScheduler` in 0.16).
+Prefect direct execution via the shipped `etlantic-prefect`
+`ExecutionScheduler` local MVP).
+
+------------------------------------------------------------------------
+
+## Is ETLantic 0.17 production-supported?
+
+Yes, within a bounded scope. ETLantic 0.17.0 is production/stable for the
+documented single-tenant reference deployments in
+[Capabilities](CAPABILITIES.md) and
+[Production readiness](../06_EXECUTION/PRODUCTION_READINESS.md). Multi-tenant
+isolation, deployment topology, compliance, and advanced supply-chain controls
+remain adopter-owned; this is not an unrestricted production claim.
+
+------------------------------------------------------------------------
+
+## What is the difference between Stable and Experimental?
+
+Stable APIs and behaviors are supported within the documented 0.17 reference
+envelope. Features explicitly labeled **Experimental**, currently including
+Structured Streaming foundations, may change and are outside that stable
+claim. A page describing a shipped feature does not make every feature on that
+page stable; check its status label and [Capabilities](CAPABILITIES.md).
 
 ------------------------------------------------------------------------
 
@@ -52,7 +74,7 @@ Its focus is:
 ETLantic's architecture is designed so plugins can consume the same
 logical model. Use Airflow (via `etlantic-airflow`) to compile plans into DAG
 artifacts; use a direct-execution scheduler (built-in `LocalScheduler`, or
-planned `etlantic-prefect`) to run resolved plans in process; use ETLantic for
+the shipped `etlantic-prefect` local MVP) to run resolved plans in process; use ETLantic for
 typed contracts and fail-closed planning.
 
 ------------------------------------------------------------------------
@@ -62,7 +84,7 @@ typed contracts and fail-closed planning.
 | Tool | Primary job | ETLantic relationship |
 |---|---|---|
 | **dbt** | SQL transformation project / warehouse analytics | Complementary. ETLantic models typed Python pipelines and multi-engine plans; dbt owns SQL project workflows. |
-| **Prefect / Dagster / Airflow** | Orchestration and scheduling | Complementary. Airflow compiles plans to DAG artifacts today; Prefect is planned as a direct-execution `ExecutionScheduler` in 0.16 (not a DAG compiler). Dagster remains future. |
+| **Prefect / Dagster / Airflow** | Orchestration and scheduling | Complementary. Airflow compiles plans to DAG artifacts; the shipped `etlantic-prefect` local MVP directly executes resolved plans (it is not a DAG compiler). Prefect deployment/serve and Dagster remain future. |
 | **Pandera / Great Expectations** | Dataframe / table validation libraries | Complementary. ETLantic validates **wiring and contracts** before run; row-level suites remain engine-side or library-side. |
 
 If you need only SQL analytics projects, start with dbt. If you need only
@@ -119,10 +141,10 @@ ETLantic ships `@Transformation.portable` / `etlantic.transform` authoring
 installed. **0.13** shipped Polars and PySpark `portable-relational/1`
 compilers; **0.14** shipped the eager Pandas compiler. Safe SQL portable
 lowering for that claim set shipped in **0.15**—register native
-`@implementation("sql")` today, and keep native implementations for profiles
-outside the advertised claim set. Advanced families graduate later (0.15
-continuation). Native implementations remain the escape hatch outside the
-portable claim.
+`@implementation("sql")` for behavior outside its advertised claim set.
+In 0.17, advanced window and reshape families graduated on Polars and PySpark;
+continuation families remain. Native implementations remain the escape hatch
+outside each plugin's portable claim.
 
 ------------------------------------------------------------------------
 
@@ -165,6 +187,40 @@ preservation or portable relational compilation; use Pandas when you need the
 Pandas ecosystem (eager portable relational compilation is available in 0.14).
 SQL is available via `etlantic-sql` and `Profile.sql_engine="sql"`. Spark is
 available via `etlantic-pyspark` and `Profile.spark_engine="pyspark"`.
+
+------------------------------------------------------------------------
+
+## Which engine should I start with?
+
+Start with the built-in local Python engine and memory or JSON/CSV storage; it
+has no optional engine dependency and makes validation and wiring easiest to
+understand. Add Polars for a first dataframe engine, Pandas for ecosystem
+compatibility, SQL when work should remain in PostgreSQL, or PySpark only when
+you need Spark semantics and have a working Java environment.
+
+------------------------------------------------------------------------
+
+## Must core and plugin versions match?
+
+Yes. Keep core and optional plugins on the same minor release. For a
+reproducible 0.17.0 environment, pin both exactly, for example:
+
+```bash
+python -m pip install 'etlantic==0.17.0' 'etlantic-polars==0.17.0'
+```
+
+A mismatched plugin may fail discovery, protocol checks, validation, or
+planning even when both packages install successfully.
+
+------------------------------------------------------------------------
+
+## Why do `validate` and `plan` work but CLI `run` has no input data?
+
+Validation and planning inspect definitions and do not need source rows. The
+quickstart seeds memory inside its Python process; a later `etlantic run`
+process has a fresh in-memory store and cannot see those records. Run that
+example with `python pipeline.py`, or configure JSON/CSV or another durable
+storage binding for cross-process CLI execution.
 
 ------------------------------------------------------------------------
 

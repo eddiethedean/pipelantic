@@ -6,14 +6,14 @@
 
 !!! note "Repository examples"
     Companion scripts under `examples/` are not installed with the PyPI
-    wheel. Clone a matching checkout (prefer the `v0.16.0` tag) and use
+    wheel. Clone a matching checkout (prefer the `v0.17.0` tag) and use
     `uv sync` / the documented dependency group before running them.
 
 ## Install and run
 
 ```bash
-python -m pip install 'etlantic==0.16.0' 'etlantic-sql==0.16.0'
-git clone https://github.com/eddiethedean/etlantic.git
+python -m pip install 'etlantic==0.17.0' 'etlantic-sql==0.17.0'
+git clone --branch v0.17.0 https://github.com/eddiethedean/etlantic.git
 cd etlantic
 python examples/sql_to_sql.py
 ```
@@ -26,7 +26,7 @@ export ETLANTIC_SQL_URL='postgresql+psycopg://user:password@localhost/dbname'
 
 Never commit a real URL. Prefer a runtime secret provider outside local demos.
 
-## Define a typed SQL implementation
+## Typed SQL implementation excerpt
 
 ```python
 @NormalizeCustomers.implementation("sql")

@@ -17,8 +17,11 @@ shipped.
 - [SQL](../06_EXECUTION/SQL_TUTORIAL.md)
 - [PySpark](../06_EXECUTION/PYSPARK_TUTORIAL.md)
 - [Airflow](../06_EXECUTION/AIRFLOW_TUTORIAL.md)
+- [Prefect direct execution](PREFECT_RUN.md) — `examples/prefect_run.py`
 - [Airflow Compile](AIRFLOW_COMPILE.md) — `examples/airflow_compile.py`
-- [Portable Polars Kernel](PORTABLE_TRANSFORMS.md) — `examples/portable_polars_kernel.py`
+- [Portable transforms](PORTABLE_TRANSFORMS.md) —
+  `examples/portable_polars_kernel.py`, `portable_pandas_kernel.py`, and
+  `portable_wave17.py`
 - [SparkForge Adapter](SPARKFORGE_ADAPTER.md) — `tests/sparkforge/`
 
 ## Runnable scripts (repository `examples/`)
@@ -31,11 +34,13 @@ These scripts are exercised by CI. From a checkout:
 uv run python examples/quickstart.py
 ```
 
-### Portable Polars kernel
+### Portable kernels and 0.17 families
 
 ```bash
 uv sync --group dataframes
 uv run python examples/portable_polars_kernel.py
+uv run python examples/portable_pandas_kernel.py
+uv run python examples/portable_wave17.py
 ```
 
 ### JSON and CSV storage
@@ -77,6 +82,13 @@ uv run python examples/pyspark_local.py
 ```bash
 uv sync --group airflow
 uv run python examples/airflow_compile.py
+```
+
+### Prefect local execution
+
+```bash
+uv sync --group prefect
+uv run python examples/prefect_run.py
 ```
 
 ## Design studies (aspirational)

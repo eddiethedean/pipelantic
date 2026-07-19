@@ -1,7 +1,8 @@
 # Roadmap Summary
 
-ETLantic is an alpha project moving toward a stable, secure modeling and plugin
-platform. Milestones describe capability order, not release-date commitments.
+ETLantic 0.17.0 is production/stable for documented single-tenant reference
+deployments. Milestones describe capability order, not release-date
+commitments, and do not expand that bounded support envelope.
 
 ## Shipped: 0.15, 0.16, and 0.17
 
@@ -46,9 +47,10 @@ The 1.0 goal is a stable foundation with:
   orchestrators;
 - complete executable tutorials, references, and migration guides.
 
-> **Do not productionize ETLantic before the 1.0 security release gate
-> closes.** Version 0.17.0 is alpha; available allowlists and version pins do
-> not make the product production-ready. See the
+> **Production use is supported only within the documented 0.17 reference
+> envelope.** Multi-tenant isolation, deployment topology, compliance/SBOM/
+> signing, and advanced supply-chain controls remain adopter-owned. Available
+> allowlists and version pins do not make arbitrary topologies safe. See the
 > [Evaluator Brief](../01_GETTING_STARTED/EVALUATOR.md).
 
 Read the

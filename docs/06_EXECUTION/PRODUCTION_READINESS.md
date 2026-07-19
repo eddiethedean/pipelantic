@@ -1,9 +1,11 @@
 # Production Readiness and Deployment Boundaries
 
-ETLantic 0.16.0 is alpha. Use this page to scope a controlled evaluation; it is
-not a production-readiness claim.
+ETLantic 0.17.0 is production/stable for the documented single-tenant reference
+deployment on this page. Experimental features remain experimental. Broader
+deployment topology, multi-tenancy, compliance/SBOM/signing, and advanced
+supply-chain controls remain adopter-owned.
 
-## Supported pilot shape
+## Supported reference shape
 
 ```text
 Version-pinned application process / container
@@ -14,13 +16,14 @@ Version-pinned application process / container
   └─ External orchestrator or supervised local process
 ```
 
-Suitable pilots are single-team, process-isolated, reproducible, and use
-non-sensitive or synthetic data. ETLantic does not provide multi-tenant process
-isolation, a distributed scheduler, durable control-plane state, or an SLA.
+Supported deployments are single-team or single-tenant, process-isolated, and
+reproducible. Adopters own data-classification controls. ETLantic does not
+provide multi-tenant process isolation, a distributed scheduler, durable
+control-plane state, or an SLA.
 
 ## Reference single-process topology
 
-1. Pin `etlantic==0.16.0` and matching plugins in a lockfile.
+1. Pin `etlantic==0.17.0` and matching plugins in a lockfile.
 2. Build an immutable image or venv; do not install untrusted entry points.
 3. Configure `Profile.plugin_allowlist` for production.
 4. Resolve secrets from env/files/keyring at runtime only.
@@ -50,7 +53,7 @@ engine wheels to workers.
 | Recovery | Define engine-specific retries and idempotency outside assumptions |
 | Retention | Define report/plan retention and filesystem ownership yourself |
 
-## Explicit blockers for a general production claim
+## Boundaries on a general production claim
 
 - Supply-chain provenance beyond package allowlists and version pins
 - Cross-run and cross-tenant artifact/cache isolation guarantees
@@ -62,7 +65,7 @@ engine wheels to workers.
 
 ## Shipped / adopter-owned / gap
 
-| Concern | 0.14 status |
+| Concern | 0.17 status |
 |---|---|
 | Typed validate/plan/run | Shipped |
 | Polars kernel portable compile | Shipped |
@@ -71,12 +74,13 @@ engine wheels to workers.
 | Signed SBOM / provenance | Gap |
 | Capacity / performance SLA | Gap — see benchmarks docs for local baselines only |
 
-## Pilot exit criteria
+## Deployment acceptance criteria
 
-An evaluation should record supported versions, validation results, plan
+A deployment review should record supported versions, validation results, plan
 fingerprints, plugin capability decisions, observed run reports, recovery
 behavior, performance overhead, and every accepted security gap. Do not expand
-the pilot if any required backend semantic is silently degraded.
+beyond the bounded envelope if any required backend semantic is silently
+degraded.
 
 See [Evaluator Brief](../01_GETTING_STARTED/EVALUATOR.md),
 [Ops Pilot](OPS_PILOT.md),

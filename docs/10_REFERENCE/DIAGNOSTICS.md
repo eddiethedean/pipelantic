@@ -59,6 +59,78 @@ PMINTxxx   Internal framework invariants
 Standards and plugins retain their own namespaces, such as `ODCS`, `DTCS`,
 `DPCS`, or a documented plugin prefix.
 
+## Practical code index
+
+These codes are emitted by the 0.17 source tree. The message, path, metadata,
+and severity provide the case-specific detail.
+
+### Pipeline and planning
+
+| Code | Meaning |
+|---|---|
+| `PMPIPE201` | A pipeline member, connection, or referenced port is invalid or unresolved |
+| `PMPIPE210` | Connected producer and consumer contracts are incompatible |
+| `PMPIPE220` | An invalid-output port feeds a normal required input |
+| `PMPIPE301` | Pipeline graph contains a cycle |
+| `PMPIPE302` | The logical graph could not be built |
+| `PMPLAN201` | An Extract/Load asset has no binding in the selected profile or registry |
+| `PMPLAN202` | A node contract lacks a published ODCS identifier |
+| `PMPLAN301` | A step has no implementation for the selected engine |
+| `PMPLAN401` | No plugin capabilities are registered for the selected engine |
+| `PMPLAN402` | A required capability is unsupported |
+| `PMPLAN403` | Planning selected an allowed capability fallback |
+
+### Plugin trust and portable transforms
+
+| Code | Meaning |
+|---|---|
+| `PMPLUG401` | A production profile has an empty plugin allowlist and fails closed |
+| `PMPLUG402` | A discovered plugin is not allowlisted or does not match its version constraint |
+| `PMXFORM201` | A declared portable output is missing from the return value |
+| `PMXFORM202` | A portable definition returned an undeclared output |
+| `PMXFORM301` | A compiler cannot satisfy a portable operation or capability requirement |
+| `PMXFORM302` | Portable compilation is required but no suitable compiler is registered |
+| `PMXFORM501` | Portable execution failed |
+| `PMXFORM801` | Portable IR captured a callable |
+| `PMXFORM802` | Portable IR contains a forbidden binary literal |
+| `PMXFORM803` | Portable IR captured a secret value or reference |
+| `PMXFORM810` | Portable plan exceeds the document-size budget |
+| `PMXFORM811` | Portable plan exceeds the node-count budget |
+| `PMXFORM812` | Portable plan exceeds the depth budget |
+
+### Orchestration and execution
+
+| Code | Meaning |
+|---|---|
+| `PMORCH300` | The requested orchestrator compiler plugin is missing or compilation failed |
+| `PMORCH301` | The orchestrator lacks a required capability |
+| `PMORCH340` | An in-memory artifact cannot cross the external orchestration boundary |
+| `PMORCH341` | An oversized inline artifact requires durable transport |
+| `PMORCH342` | Artifact metadata appears to contain a secret |
+| `PMEXEC100` | `Pipeline.run()` was called from an active event loop; use `arun()` |
+| `PMEXEC300` | A runtime node failed |
+| `PMEXEC301` | Failure policy continued or skipped a node after an upstream failure |
+| `PMEXEC320` | A planned step lacks required transformation identity or registration |
+| `PMEXEC330` | Runtime input or output validation failed |
+| `PMEXEC401` | An environment-backed secret is unavailable |
+| `PMEXEC402` | A file-backed secret cannot be loaded safely |
+| `PMEXEC420` | A dataframe plugin is unavailable, or a JSON binding lacks a location |
+| `PMEXEC430` | A SQL plugin is unavailable, or a CSV binding lacks a location |
+| `PMEXEC440` | No Spark plugin is available for the selected engine |
+
+### Backend-specific
+
+| Code | Meaning |
+|---|---|
+| `PMDF410` | A dataframe row failed contract validation |
+| `PMSPARK220` | Spark schema compatibility produced a lossy or incompatible finding |
+| `PMSPARK221` | Spark schema inspection failed |
+| `PMSPARK310` | The profile's UDF policy forbids a planned Spark UDF strategy |
+| `PMSPARK320` | A batch-only transformation was placed in a streaming region |
+
+Search the exact code in the source or include it in an issue when a code is
+not listed here. Do not suppress trust, secret, or semantic safety diagnostics.
+
 ## Source Locations
 
 When available, diagnostics should identify:

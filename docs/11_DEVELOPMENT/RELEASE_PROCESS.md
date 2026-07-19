@@ -12,7 +12,7 @@ ETLantic follows Semantic Versioning after 1.0:
 - Major: incompatible public API or persistent-format changes
 
 During 0.x, breaking changes remain possible but must be documented. Official
-plugin packages currently share the core minor version (for example `0.14.0`).
+plugin packages currently share the core minor version (for example `0.17.0`).
 
 ## Packages published on each tag
 
@@ -44,7 +44,7 @@ Tag `vX.Y.Z` publishes ten distributions:
    (Added / Changed / Fixed / Upgrade notes) and migration guide when needed.
 5. Confirm
    [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md)
-   lists the current alpha line.
+   lists the currently supported release line and support policy.
 6. Run local gates:
 
    ```bash
@@ -75,7 +75,7 @@ Tag `vX.Y.Z` publishes ten distributions:
     consumers rely on it, re-run that job until remaining packages land, or
     cut a new patch version.
 
-## Tag and publish (0.14.0 example)
+## Tag and publish (`X.Y.Z` example)
 
 ```bash
 # On a clean main matching the intended commit:
@@ -83,8 +83,8 @@ git status
 git pull --ff-only origin main
 
 # Tag must match src/etlantic/_version.py (and every plugin package).
-git tag -a v0.16.0 -m "ETLantic 0.16.0"
-git push origin v0.16.0
+git tag -a vX.Y.Z -m "ETLantic X.Y.Z"
+git push origin vX.Y.Z
 ```
 
 GitHub Actions workflow
@@ -102,8 +102,8 @@ GitHub Actions workflow
 
 ## After PyPI succeeds
 
-1. Verify `pip install etlantic==0.16.0` and plugin extras from a clean venv.
-2. Create or confirm the GitHub Release for `v0.16.0`.
+1. Verify `pip install etlantic==X.Y.Z` and plugin extras from a clean venv.
+2. Create or confirm the GitHub Release for `vX.Y.Z`.
 3. Confirm install docs remain pip-first (`README.md`,
    `docs/01_GETTING_STARTED/INSTALLATION.md`) and hosted docs
    (`https://etlantic.readthedocs.io/`) build for the tag.
@@ -159,7 +159,8 @@ Recommended order:
 
 ## Plugin Releases
 
-Plugins are separately installable and declare `etlantic>=X.Y.Z,<1.0`. A core
+Plugins are separately installable and declare a tested minor bound (for
+0.17 plugins, `etlantic>=0.17,<0.18`). A core
 release should not require third-party plugins to release simultaneously unless
 the SDK compatibility range changes.
 

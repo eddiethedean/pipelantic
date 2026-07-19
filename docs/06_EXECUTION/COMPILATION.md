@@ -68,8 +68,8 @@ Execution backends require backend-specific artifacts such as:
 - Local execution graphs
 - Deployment manifests
 
-Prefect is planned as a direct-execution `ExecutionScheduler` (0.16), not as
-a `compile_plan` target like Airflow.
+Prefect ships as a direct-execution `ExecutionScheduler` local MVP, not as a
+`compile_plan` target like Airflow.
 
 Compilation performs this translation.
 
@@ -101,7 +101,7 @@ ETLantic may compile to:
 - Argo Workflows (future)
 - Future orchestration systems that consume `compile_plan`
 
-Prefect is **not** a compilation target in the planned 0.16 path; it is a
+Prefect is **not** a compilation target; the shipped plugin is a local
 direct-execution scheduler. Additional plugins may define new compilation
 targets.
 

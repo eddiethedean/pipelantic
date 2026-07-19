@@ -1,7 +1,9 @@
 # What's New in 0.17
 
-ETLantic 0.17.0 expands portable transform coverage with platform
-discoverability and multi-family graduation on Polars and PySpark.
+ETLantic 0.17.0 expanded portable transform coverage with platform
+discoverability and multi-family graduation on Polars and PySpark. It is
+published as production/stable within the bounded single-tenant reference
+envelope documented in [Capabilities](CAPABILITIES.md).
 
 ## Gate A — Platform
 

@@ -39,7 +39,7 @@ uv sync
 
 `uv sync` installs runtime dependencies, the editable workspace packages, and
 the `dev` group (pytest, ruff, mkdocs). Optional groups: `dataframes`, `sql`,
-`pyspark`, `airflow`, `sparkforge`, `keyring`, `sqlmodel`. See
+`pyspark`, `airflow`, `prefect`, `sparkforge`, `keyring`, `sqlmodel`. See
 [Installation](../01_GETTING_STARTED/INSTALLATION.md).
 
 Use the supported Python versions documented in `pyproject.toml` (3.11+).
@@ -55,7 +55,7 @@ Baseline (core + docs):
 uv sync --locked
 uv run ruff check .
 uv run ruff format --check .
-uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not airflow and not prefect and not keyring and not sqlmodel"
+uv run pytest -q -m "not sparkforge and not polars and not pandas and not sql and not spark and not real_pyspark and not airflow and not prefect and not keyring and not sqlmodel"
 uv run python scripts/check_docs.py
 uv run python scripts/check_agent_guidance.py
 uv run python scripts/check_release.py
@@ -181,6 +181,14 @@ For Airflow orchestrator work:
 uv sync --group airflow
 uv run pytest tests/orchestration tests/airflow
 uv run python examples/airflow_compile.py
+```
+
+For Prefect scheduler work:
+
+```bash
+uv sync --group prefect
+uv run pytest tests/prefect -m prefect
+uv run python examples/prefect_run.py
 ```
 
 The committed toolchain is uv + pytest + ruff + mkdocs.
