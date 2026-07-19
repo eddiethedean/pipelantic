@@ -229,7 +229,8 @@ jobs:
 
           # Hatchling normalizes dashes to underscores in artifact filenames.
           # Publish existing projects first, then brand-new names, so a cancelled
-          # run can be re-run without re-sleeping between already-published files.
+          # run can be re-run without re-sleeping between already-published files
+          # and so a new-project 429 cannot block later existing-project uploads.
           publish_pair etlantic \
             "dist/etlantic-${TAG}-py3-none-any.whl" \
             "dist/etlantic-${TAG}.tar.gz"
@@ -248,15 +249,16 @@ jobs:
           publish_pair etlantic-airflow \
             "dist/etlantic_airflow-${TAG}-py3-none-any.whl" \
             "dist/etlantic_airflow-${TAG}.tar.gz"
-          publish_pair etlantic-prefect \
-            "dist/etlantic_prefect-${TAG}-py3-none-any.whl" \
-            "dist/etlantic_prefect-${TAG}.tar.gz"
           publish_pair etlantic-keyring \
             "dist/etlantic_keyring-${TAG}-py3-none-any.whl" \
             "dist/etlantic_keyring-${TAG}.tar.gz"
           publish_pair etlantic-sqlmodel \
             "dist/etlantic_sqlmodel-${TAG}-py3-none-any.whl" \
             "dist/etlantic_sqlmodel-${TAG}.tar.gz"
+          # Brand-new PyPI project names (first upload creates the project).
+          publish_pair etlantic-prefect \
+            "dist/etlantic_prefect-${TAG}-py3-none-any.whl" \
+            "dist/etlantic_prefect-${TAG}.tar.gz"
           publish_pair etlantic-sparkforge \
             "dist/etlantic_sparkforge-${TAG}-py3-none-any.whl" \
             "dist/etlantic_sparkforge-${TAG}.tar.gz"

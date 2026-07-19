@@ -32,6 +32,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bound, or ownership requirement cannot be honored
 - Plan explain and runtime evidence consistently report Gate A selection and
   fallback decisions without embedding rows or secrets
+- Spark MERGE/UPSERT fails closed when Delta is unavailable, `merge_keys` are
+  missing, or `delta-spark` is not installed (no parquet overwrite fallback);
+  the local orchestrator raises on Spark write error diagnostics
+- Production schema-drift BLOCK uses the same production-profile detection as
+  plugin trust (`prod` / `staging` / security-domain aliases)
+- Schema history refuses row-like payloads in observation and schema metadata,
+  on disk load, and in in-memory history
+- CLI `generate --sqlmodel` emits real SQLModel source; `reliability freshness`
+  fails closed without `--observed-age`; `diff` reports per-side load errors;
+  `plugin info` honors profile allowlists and supports scheduler plugins
+- Documentation, contributor checks, and ROADMAP status aligned for 0.18.0
+  (including `asset=` authoring and current install pins)
 
 ## [0.17.0] - 2026-07-19
 

@@ -1,6 +1,6 @@
 # Current Capabilities and Limitations
 
-ETLantic **0.18.0** is a published **production/stable** release for documented
+ETLantic **0.18.0** is **production/stable** for documented
 single-tenant reference deployments. Experimental features remain
 experimental, and multi-tenant isolation, deployment topology, compliance,
 SBOM/signing, and advanced supply-chain controls remain adopter-owned. This

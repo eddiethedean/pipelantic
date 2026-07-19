@@ -55,6 +55,7 @@ Tag `vX.Y.Z` publishes ten distributions:
    uv run python scripts/check_docs.py
    uv run python scripts/check_agent_guidance.py
    uv run python scripts/check_release.py
+   uv run --group polars --group pandas --group sql --group pyspark python scripts/check_transform_compiler_drift.py
    uv run python scripts/build_docs.py
    uv sync --locked --group sparkforge
    uv run pytest -q tests/sparkforge -m sparkforge
@@ -67,7 +68,12 @@ Tag `vX.Y.Z` publishes ten distributions:
 8. **New distribution bootstrap only:** if introducing a brand-new PyPI name,
    review `scripts/check_release.py` output and PyPI new-project rate limits
    (`429 Too many new projects created`). Release CI waits between brand-new
-   creates; existing projects upload immediately.
+   creates; existing projects upload immediately. Before tagging 0.18.0,
+   confirm whether `etlantic-prefect` and `etlantic-sparkforge` already exist
+   on PyPI (they did not after the incomplete `v0.17.0` publish). If the
+   account is still rate-limited for new projects, either wait for the rolling
+   hour window or create those empty projects manually on PyPI first so the
+   release job only uploads versions.
 9. Prefer tagging only the current release (do not `git push --tags`).
    Treat published tags as immutable. If a publish fails after the tag is
    public, prefer a new patch version rather than moving the tag.
@@ -95,9 +101,10 @@ GitHub Actions workflow
 3. Builds all ten wheels/sdists.
 4. Smokes the core wheel (driver-free) **and** plugin discovery/import
    **before** any PyPI upload.
-5. Publishes to PyPI: existing projects upload immediately; **10-minute**
-   gaps only between brand-new project creates; skips files already present
-   via `--check-url`; retries on transient 429s.
+5. Publishes to PyPI: **existing projects first** (including keyring/sqlmodel),
+   then brand-new names (`etlantic-prefect`, `etlantic-sparkforge`);
+   **10-minute** gaps only between brand-new project creates; skips files
+   already present via `--check-url`; retries on transient 429s.
 6. Creates the GitHub Release from `CHANGELOG.md` notes when publish succeeds.
 
 ## After PyPI succeeds
