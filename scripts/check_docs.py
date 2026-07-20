@@ -43,10 +43,11 @@ def main() -> None:
 
     support = (ROOT / "SUPPORT.md").read_text(encoding="utf-8")
     support_opening = "\n".join(support.splitlines()[:8])
-    if f"**{package_version}**" not in support_opening or "stable" not in support_opening:
-        raise SystemExit(
-            f"SUPPORT.md opening must claim {package_version} is stable"
-        )
+    if (
+        f"**{package_version}**" not in support_opening
+        or "stable" not in support_opening
+    ):
+        raise SystemExit(f"SUPPORT.md opening must claim {package_version} is stable")
 
     examples_index = (ROOT / "docs/09_EXAMPLES/README.md").read_text(encoding="utf-8")
     if "complete working examples" in examples_index.lower():
@@ -477,7 +478,9 @@ def main() -> None:
     if "etlantic init" not in quickstart:
         raise SystemExit("QUICKSTART.md must document etlantic init")
     if "data/out.json" not in quickstart:
-        raise SystemExit("QUICKSTART.md must include success criteria for data/out.json")
+        raise SystemExit(
+            "QUICKSTART.md must include success criteria for data/out.json"
+        )
     if "examples/quickstart.py" in quickstart:
         raise SystemExit(
             "QUICKSTART.md must not link examples/quickstart.py "
@@ -510,9 +513,7 @@ def main() -> None:
     # e.g. 0.14.0 → 0.14.x
     major_minor = ".".join(package_version.split(".")[:2])
     current_support_rows = [
-        line
-        for line in security.splitlines()
-        if f"| {major_minor}.x |" in line
+        line for line in security.splitlines() if f"| {major_minor}.x |" in line
     ]
     if len(current_support_rows) != 1:
         raise SystemExit(
@@ -1080,7 +1081,7 @@ def main() -> None:
 
     # CLI.md must document every public CLI command (contract vs Typer surface).
     sys.path.insert(0, str(ROOT / "src"))
-    from etlantic.agents import PUBLIC_CLI_COMMANDS  # noqa: E402
+    from etlantic.agents import PUBLIC_CLI_COMMANDS
 
     cli_md = (ROOT / "docs/10_REFERENCE/CLI.md").read_text(encoding="utf-8")
     for cmd in PUBLIC_CLI_COMMANDS:

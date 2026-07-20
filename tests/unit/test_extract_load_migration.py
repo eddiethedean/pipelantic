@@ -106,9 +106,9 @@ def test_dpcs_round_trip_ok(tmp_path) -> None:
     loaded.pipeline.build_graph()
 
 
-def test_example_quickstart_import_ok() -> None:
+def test_example_memory_customers_import_ok() -> None:
     import importlib
     import sys
 
-    sys.modules.pop("examples.quickstart", None)
-    importlib.import_module("examples.quickstart")
+    sys.modules.pop("examples.memory_customers", None)
+    importlib.import_module("examples.memory_customers")
