@@ -1943,6 +1943,22 @@ outside the monorepo before freezing protocol `/1` surfaces.
   expose packaging, documentation, and compatibility assumptions
 - document protocol evolution, optional-method negotiation, support windows,
   and the difference between protocol compatibility and production trust
+- make `import etlantic as etl` the recommended application and tutorial
+  import style through a deliberately curated, typed root facade
+- keep common authoring and operational primitives directly available as
+  `etl.Data`, `etl.Transformation`, `etl.Pipeline`, `etl.Extract`, `etl.Load`,
+  `etl.Input`, `etl.Output`, `etl.Parameter`, `etl.Profile`, and
+  `etl.PipelineRuntime`; do not flatten every specialized symbol into the root
+- guarantee stable, discoverable namespaces such as `etl.transform`,
+  `etl.dataframe`, `etl.sql`, `etl.spark`, `etl.orchestration`, `etl.viz`,
+  `etl.secrets`, and `etl.testing`, using lazy loading where needed to preserve
+  minimal-install behavior and prevent optional plugin imports
+- retain explicit `from etlantic import ...` and public submodule imports as
+  supported alternatives; migrate misplaced specialist root exports only
+  through documented pre-1.0 compatibility aliases
+- publish and test the root-versus-namespace ownership rule in the public
+  surface inventory, generated API reference, type-consumer fixtures, and
+  import-time budget
 - freeze protocol `/1` only after external implementation feedback and a
   release-candidate compatibility period
 
@@ -1957,12 +1973,20 @@ outside the monorepo before freezing protocol `/1` surfaces.
   private underscore modules
 - older compatible plugins work across the documented core range, while
   incompatible protocol or schema ranges fail before execution
+- `import etlantic as etl` succeeds in a minimal installation without loading
+  optional plugins, backend engines, credentials, or external resources
+- the documented root primitives and subsystem namespaces are available to
+  static type checkers, IDE completion, runtime introspection, and generated
+  reference documentation
+- alias-style, explicit root, and public submodule imports resolve to the same
+  supported objects without duplicate registration or import-order changes
 
 ### Exit gate
 
 The Plugin SDK has external proof, a compatibility policy, a conformance
 contract, and no architectural dependency on the identities of first-party
-plugins.
+plugins. The curated `etl.*` facade is typed, documented, import-safe, and
+covered by the public surface and compatibility policy.
 
 ## 0.23 — Runtime Resilience and Performance Budgets
 
