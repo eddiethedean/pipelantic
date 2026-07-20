@@ -7,8 +7,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from etlantic.io_policy import SafeIoPolicy, read_text_safe, write_json_safe
 from etlantic.schema_drift import SchemaObservation
 from etlantic.schema_policy import InMemorySchemaHistory
+from etlantic.serialization_policy import assert_safe_load_path
 
 
 def _observation_to_dict(observation: SchemaObservation) -> dict[str, Any]:
@@ -90,14 +92,18 @@ class FileSchemaHistoryProvider:
     """Canonical-file schema history under a root directory.
 
     Observations are fingerprints and field metadata only — never source rows.
+    Writes go through :class:`SafeIoPolicy` (0.20).
     """
 
     root: Path
+    policy: SafeIoPolicy | None = None
     _memory: InMemorySchemaHistory = field(default_factory=InMemorySchemaHistory)
 
     def __post_init__(self) -> None:
-        self.root = Path(self.root)
+        self.root = Path(self.root).expanduser().resolve()
         self.root.mkdir(parents=True, exist_ok=True)
+        if self.policy is None:
+            self.policy = SafeIoPolicy.for_root(self.root)
         self._load()
 
     def _subject_path(self, subject_id: str) -> Path:
@@ -105,33 +111,40 @@ class FileSchemaHistoryProvider:
         return self.root / f"{safe}.json"
 
     def _load(self) -> None:
+        assert self.policy is not None
         for path in sorted(self.root.glob("*.json")):
-            if path.name.endswith(".ack.json"):
+            if path.name.endswith(".ack.json") or path.name.endswith(".lock"):
                 continue
-            data = json.loads(path.read_text(encoding="utf-8"))
+            try:
+                assert_safe_load_path(path)
+                _resolved, text, _events = read_text_safe(
+                    path, self.policy, run_id="schema-history-load"
+                )
+                data = json.loads(text)
+            except Exception:
+                continue
             for item in data.get("history") or []:
                 if isinstance(item, dict):
                     self._memory.record(_observation_from_dict(item))
 
     def record(self, observation: SchemaObservation) -> None:
+        assert_no_row_payload(observation)
         self._memory.record(observation)
+        assert self.policy is not None
         path = self._subject_path(observation.subject_id)
         history = [
             _observation_to_dict(o)
             for o in self._memory.history(observation.subject_id)
         ]
-        path.write_text(
-            json.dumps(
-                {
-                    "subject_id": observation.subject_id,
-                    "latest": _observation_to_dict(observation),
-                    "history": history,
-                },
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
+        write_json_safe(
+            path,
+            {
+                "subject_id": observation.subject_id,
+                "latest": _observation_to_dict(observation),
+                "history": history,
+            },
+            self.policy,
+            run_id="schema-history",
         )
 
     def latest(self, subject_id: str) -> SchemaObservation | None:
@@ -155,7 +168,6 @@ class FileSchemaHistoryProvider:
         }
         safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in subject_id)
         ack_path = self.root / f"{safe}.ack.json"
-        ack_path.write_text(
-            json.dumps(ack, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        assert self.policy is not None
+        write_json_safe(ack_path, ack, self.policy, run_id="schema-history-ack")
         return ack

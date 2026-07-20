@@ -82,6 +82,12 @@ class Profile:
     plugin_allowlist: dict[str, str | None] = field(default_factory=dict)
     # 0.12: portable vs native selection (no silent fallback).
     portable_transform_policy: PortableTransformPolicy = "prefer"
+    # 0.20: safe I/O, outbound, isolation, optional capability probe.
+    tenant: str = "default"
+    environment: str = "default"
+    safe_io: dict[str, Any] = field(default_factory=dict)
+    outbound: dict[str, Any] = field(default_factory=dict)
+    require_plugin_probe: bool = False
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __init__(
@@ -113,6 +119,11 @@ class Profile:
         required_orchestrator_capabilities: tuple[str, ...] = (),
         plugin_allowlist: dict[str, str | None] | None = None,
         portable_transform_policy: PortableTransformPolicy = "prefer",
+        tenant: str = "default",
+        environment: str = "default",
+        safe_io: dict[str, Any] | None = None,
+        outbound: dict[str, Any] | None = None,
+        require_plugin_probe: bool = False,
         metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
@@ -156,6 +167,11 @@ class Profile:
         )
         object.__setattr__(self, "plugin_allowlist", dict(plugin_allowlist or {}))
         object.__setattr__(self, "portable_transform_policy", portable_transform_policy)
+        object.__setattr__(self, "tenant", str(tenant or "default"))
+        object.__setattr__(self, "environment", str(environment or "default"))
+        object.__setattr__(self, "safe_io", dict(safe_io or {}))
+        object.__setattr__(self, "outbound", dict(outbound or {}))
+        object.__setattr__(self, "require_plugin_probe", bool(require_plugin_probe))
         object.__setattr__(self, "metadata", dict(metadata or {}))
 
     @property
@@ -281,6 +297,11 @@ class Profile:
             portable_transform_policy=_parse_portable_policy(
                 data.get("portable_transform_policy")
             ),
+            tenant=str(data.get("tenant") or "default"),
+            environment=str(data.get("environment") or "default"),
+            safe_io=dict(data.get("safe_io") or {}),
+            outbound=dict(data.get("outbound") or {}),
+            require_plugin_probe=bool(data.get("require_plugin_probe", False)),
             metadata=_validated_profile_metadata(data.get("metadata") or {}),
         )
 
@@ -437,14 +458,16 @@ def resolve_profile(
 
 
 def write_profile(profile: Profile, path: str | Path) -> Path:
-    """Write a profile as JSON."""
-    resolved = Path(path)
-    resolved.parent.mkdir(parents=True, exist_ok=True)
-    resolved.write_text(
-        json.dumps(profile.to_dict(), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    return resolved
+    """Write a profile as JSON through SafeIoPolicy when a parent root exists."""
+    from etlantic.io_policy import SafeIoPolicy, write_text_safe
+
+    resolved = Path(path).expanduser()
+    parent = resolved.parent
+    parent.mkdir(parents=True, exist_ok=True)
+    policy = SafeIoPolicy.for_root(parent)
+    text = json.dumps(profile.to_dict(), indent=2, sort_keys=True) + "\n"
+    write_text_safe(resolved, text, policy, run_id="profile-write")
+    return resolved.resolve()
 
 
 def load_profile(path: str | Path) -> Profile:

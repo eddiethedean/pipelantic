@@ -1,6 +1,6 @@
 # 5–10 Minute Quickstart
 
-> **Status: Available in ETLantic 0.19.0.** Stable within the documented
+> **Status: Available in ETLantic 0.20.0.** Stable within the documented
 > single-tenant reference deployment boundary. See
 > [Capabilities](CAPABILITIES.md) for that boundary.
 
@@ -12,7 +12,7 @@ ETLantic and in-memory storage.
 ETLantic requires Python 3.11 or newer.
 
 ```bash
-python -m pip install 'etlantic==0.19.0'
+python -m pip install 'etlantic==0.20.0'
 python -m etlantic --version
 ```
 

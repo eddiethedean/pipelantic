@@ -1,0 +1,38 @@
+{
+  "capabilities": [
+    "dataframe",
+    "portable"
+  ],
+  "digest": "sha256:0704253874378e8dd00cbeb61052f7be70811e322ca713faea3f444bdc544e2e",
+  "entries": [
+    {
+      "capabilities": [
+        "dataframe",
+        "eager"
+      ],
+      "engine": "pandas",
+      "group": "etlantic.dataframe_plugins",
+      "name": "pandas",
+      "protocol": "etlantic.dataframe/1",
+      "target": "etlantic_pandas:create_plugin"
+    },
+    {
+      "capabilities": [
+        "portable"
+      ],
+      "engine": "pandas",
+      "group": "etlantic.transform_compilers",
+      "name": "pandas",
+      "protocol": "etlantic.transform-compiler/1",
+      "target": "etlantic_pandas:create_transform_compiler"
+    }
+  ],
+  "package": "etlantic-pandas",
+  "privileges": [],
+  "protocol_range": "etlantic.dataframe/1,etlantic.transform-compiler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

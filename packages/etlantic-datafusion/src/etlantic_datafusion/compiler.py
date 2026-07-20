@@ -16,7 +16,7 @@ from etlantic.transform.compiler import (
     TransformSupportReport,
 )
 
-__version__ = "0.19.0"
+__version__ = "0.20.0"
 
 
 class DataFusionTransformCompiler:
@@ -44,7 +44,7 @@ class DataFusionTransformCompiler:
     ) -> TransformSupportReport:
         raise NotImplementedError(
             "etlantic-datafusion portable compiler is experimental; no claims "
-            "graduated in 0.19.0"
+            "experimental as of 0.20.0"
         )
 
     def compile(

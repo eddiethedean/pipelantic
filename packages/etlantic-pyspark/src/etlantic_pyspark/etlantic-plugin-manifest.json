@@ -1,0 +1,47 @@
+{
+  "capabilities": [
+    "spark",
+    "portable"
+  ],
+  "digest": "sha256:7e5cb46169f7d350a9b9a08cc4f9029fe8fb6fdbe1f2d4d3666f5a3e10985feb",
+  "entries": [
+    {
+      "capabilities": [
+        "spark"
+      ],
+      "engine": "pyspark",
+      "group": "etlantic.spark_plugins",
+      "name": "pyspark",
+      "protocol": "etlantic.spark/1",
+      "target": "etlantic_pyspark:create_plugin"
+    },
+    {
+      "capabilities": [
+        "local_spark"
+      ],
+      "engine": "local",
+      "group": "etlantic.spark_providers",
+      "name": "local",
+      "protocol": null,
+      "target": "etlantic_pyspark:create_provider"
+    },
+    {
+      "capabilities": [
+        "portable"
+      ],
+      "engine": "pyspark",
+      "group": "etlantic.transform_compilers",
+      "name": "pyspark",
+      "protocol": "etlantic.transform-compiler/1",
+      "target": "etlantic_pyspark:create_transform_compiler"
+    }
+  ],
+  "package": "etlantic-pyspark",
+  "privileges": [],
+  "protocol_range": "etlantic.spark/1,etlantic.transform-compiler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

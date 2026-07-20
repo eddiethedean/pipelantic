@@ -1,6 +1,6 @@
 [project]
 name = "etlantic-prefect"
-version = "0.19.0"
+version = "0.20.0"
 description = "Prefect ExecutionScheduler plugin for ETLantic."
 readme = "README.md"
 license = "MIT"
@@ -17,7 +17,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "etlantic>=0.19.0,<0.20",
+    "etlantic>=0.20.0,<0.21",
     "prefect>=3,<4",
 ]
 
@@ -37,3 +37,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/etlantic_prefect"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/etlantic_prefect/etlantic-plugin-manifest.json" = "etlantic_prefect/etlantic-plugin-manifest.json"

@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   checks:
@@ -17,6 +19,7 @@ jobs:
     name: Publish to PyPI
     needs: checks
     runs-on: ubuntu-latest
+    environment: pypi
 
     steps:
       - uses: actions/checkout@v4
@@ -69,6 +72,43 @@ jobs:
           uv build --package etlantic-sparkforge --out-dir dist
           uv build --package etlantic-datafusion --out-dir dist
           ls -la dist/
+
+      - name: Generate CycloneDX SBOMs
+        run: |
+          set -euo pipefail
+          mkdir -p dist/sbom
+          uv tool run cyclonedx-py environment \
+            --output-format JSON \
+            --outfile dist/sbom/etlantic-environment.cdx.json || true
+          # Per-wheel SPDX-ish checksum manifest (always available).
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          dist = Path("dist")
+          entries = []
+          for path in sorted(dist.glob("*.whl")) + sorted(dist.glob("*.tar.gz")):
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              entries.append({
+                  "path": path.name,
+                  "sha256": digest,
+                  "bytes": path.stat().st_size,
+              })
+              path.with_suffix(path.suffix + ".sha256").write_text(
+                  f"{digest}  {path.name}\n", encoding="utf-8"
+              )
+          Path("dist/sbom/release-artifacts.json").write_text(
+              json.dumps({"schema": "etlantic.release_artifacts/1", "artifacts": entries}, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(f"wrote {len(entries)} artifact digests")
+          PY
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
 
       - name: Smoke test core wheel
         run: |
@@ -152,15 +192,17 @@ jobs:
           print('ok', etlantic.__version__, sorted(found), sorted(sql), sorted(spark), sorted(orch), sorted(sched), sorted(compilers))
           "
 
-      - name: Publish packages to PyPI (paced + 429 retry)
+      - name: Publish packages to PyPI (OIDC preferred, token fallback)
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME#v}"
 
-          # Pace only brand-new PyPI project creates (quota ~20/hour). Existing
-          # projects upload immediately so partial releases finish in minutes.
+          # Prefer short-lived Trusted Publishing (OIDC). Fall back to the
+          # repository token only when OIDC is not configured for a project.
+          # Residual risk: long-lived tokens remain available as bootstrap.
+
           NEW_PROJECT_GAP_SECONDS=600
           RETRY_BASE_SECONDS=60
           new_projects_published=0
@@ -181,6 +223,7 @@ jobs:
             local delay="$RETRY_BASE_SECONDS"
             local log=""
             local is_new=0
+            local status=0
 
             if pypi_project_exists "$name"; then
               echo "PyPI project exists: $name (no new-project gap)"
@@ -196,10 +239,14 @@ jobs:
             while true; do
               echo "Publishing $(basename "$wheel") (attempt $attempt/$max_attempts)"
               set +e
-              log="$(
-                uv publish --check-url https://pypi.org/simple/ "$wheel" "$sdist" 2>&1
-              )"
-              local status=$?
+              # Try OIDC trusted publishing first (no token).
+              log="$(uv publish --trusted-publishing always --check-url https://pypi.org/simple/ "$wheel" "$sdist" 2>&1)"
+              status=$?
+              if [ "$status" -ne 0 ] && [ -n "${UV_PUBLISH_TOKEN:-}" ]; then
+                echo "OIDC publish unavailable; falling back to token for $name"
+                log="$(uv publish --check-url https://pypi.org/simple/ "$wheel" "$sdist" 2>&1)"
+                status=$?
+              fi
               set -e
               printf '%s\n' "$log"
               if [ "$status" -eq 0 ]; then
@@ -208,8 +255,6 @@ jobs:
                 fi
                 return 0
               fi
-              # Already on PyPI (same filename): treat as success so re-runs
-              # and partially completed releases do not fail the job.
               if printf '%s' "$log" | grep -Eiq \
                 'file already exists|already uploaded|skipping.*already'; then
                 echo "Already published; continuing: $(basename "$wheel")"
@@ -220,7 +265,6 @@ jobs:
                 echo "If this is a new-project 429, wait for the rolling hour window and re-run."
                 exit 1
               fi
-              # Only back off for rate limits / transient failures.
               if ! printf '%s' "$log" | grep -Eiq \
                 '429|too many|rate limit|timeout|temporar|connection'; then
                 echo "Non-retryable publish failure for $(basename "$wheel")"
@@ -233,10 +277,6 @@ jobs:
             done
           }
 
-          # Hatchling normalizes dashes to underscores in artifact filenames.
-          # Publish existing projects first, then brand-new names, so a cancelled
-          # run can be re-run without re-sleeping between already-published files
-          # and so a new-project 429 cannot block later existing-project uploads.
           publish_pair etlantic \
             "dist/etlantic-${TAG}-py3-none-any.whl" \
             "dist/etlantic-${TAG}.tar.gz"
@@ -261,7 +301,6 @@ jobs:
           publish_pair etlantic-sqlmodel \
             "dist/etlantic_sqlmodel-${TAG}-py3-none-any.whl" \
             "dist/etlantic_sqlmodel-${TAG}.tar.gz"
-          # Brand-new PyPI project names (first upload creates the project).
           publish_pair etlantic-prefect \
             "dist/etlantic_prefect-${TAG}-py3-none-any.whl" \
             "dist/etlantic_prefect-${TAG}.tar.gz"
@@ -279,7 +318,6 @@ jobs:
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
           VER="${TAG#v}"
-          # Extract the matching CHANGELOG section for release notes.
           python3 - "$VER" <<'PY' > /tmp/release-notes.md
           import re
           import sys
@@ -292,12 +330,18 @@ jobs:
           body = match.group(0).strip() if match else f"ETLantic {tag}"
           print(body)
           PY
+          assets=(dist/etlantic-${VER}-py3-none-any.whl dist/etlantic-${VER}.tar.gz)
+          if [ -f dist/sbom/release-artifacts.json ]; then
+            assets+=(dist/sbom/release-artifacts.json)
+          fi
+          if [ -f dist/sbom/etlantic-environment.cdx.json ]; then
+            assets+=(dist/sbom/etlantic-environment.cdx.json)
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "GitHub release $TAG already exists"
           else
             gh release create "$TAG" \
               --title "ETLantic ${VER}" \
               --notes-file /tmp/release-notes.md \
-              "dist/etlantic-${VER}-py3-none-any.whl" \
-              "dist/etlantic-${VER}.tar.gz"
+              "${assets[@]}"
           fi

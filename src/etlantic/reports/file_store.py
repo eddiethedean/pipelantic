@@ -7,23 +7,34 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from etlantic.io_policy import SafeIoPolicy, read_text_safe, write_text_safe
 from etlantic.reports.model import PipelineRunReport
 from etlantic.reports.store import ReportStore
+from etlantic.serialization_policy import assert_safe_load_path
 
 
 @dataclass
 class FileReportStore:
-    """Durable report store writing one JSON file per run_id."""
+    """Durable report store writing one JSON file per run_id via SafeIoPolicy."""
 
     root: Path
+    policy: SafeIoPolicy | None = None
     _memory: ReportStore = field(default_factory=ReportStore)
 
     def __post_init__(self) -> None:
-        self.root = Path(self.root)
+        self.root = Path(self.root).expanduser().resolve()
         self.root.mkdir(parents=True, exist_ok=True)
-        for path in sorted(self.root.glob("*.json")):
+        if self.policy is None:
+            self.policy = SafeIoPolicy.for_root(self.root)
+        for path in sorted(self.root.rglob("*.json")):
+            if path.name.endswith(".lock"):
+                continue
             try:
-                data = json.loads(path.read_text(encoding="utf-8"))
+                assert_safe_load_path(path)
+                _resolved, text, _events = read_text_safe(
+                    path, self.policy, run_id="report-load"
+                )
+                data = json.loads(text)
                 report = PipelineRunReport.from_dict(data)
                 self._memory.put(report)
             except Exception:
@@ -31,8 +42,14 @@ class FileReportStore:
 
     def put(self, report: PipelineRunReport) -> None:
         self._memory.put(report)
+        assert self.policy is not None
         path = self.root / f"{report.run_id}.json"
-        path.write_text(report.to_json(), encoding="utf-8")
+        write_text_safe(
+            path,
+            report.to_json(),
+            self.policy,
+            run_id=report.run_id,
+        )
 
     def get(self, run_id: str) -> PipelineRunReport | None:
         return self._memory.get(run_id)

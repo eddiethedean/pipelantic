@@ -1,6 +1,6 @@
 # etlantic-sparkforge
 
-SparkForge → ETLantic migration adapter for ETLantic 0.19.
+SparkForge → ETLantic migration adapter for ETLantic 0.20.
 
 SparkForge remains the medallion-facing facade (bronze / silver / gold).
 This package maps those conventions onto ordinary ETLantic `Extract` / `Step` /
@@ -10,7 +10,7 @@ surfaces. **ETLantic core never gains medallion types.**
 ## Install
 
 ```bash
-pip install 'etlantic==0.19.0' 'etlantic-sparkforge==0.19.0'
+pip install 'etlantic==0.20.0' 'etlantic-sparkforge==0.20.0'
 # or
 pip install 'etlantic[sparkforge]'
 ```

@@ -8,7 +8,7 @@ from etlantic.capabilities import PluginCapabilities
 from etlantic.dataframe.protocol import DataframePluginInfo
 from etlantic.interchange.tabular import InterchangeMechanism
 
-__version__ = "0.19.0"
+__version__ = "0.20.0"
 
 
 class DataFusionPlugin:
@@ -38,7 +38,7 @@ class DataFusionPlugin:
     def materialize(self, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError(
             "etlantic-datafusion is experimental; kernel materialize is not "
-            "graduated in 0.19.0. See CAPABILITIES and INTEROPERABILITY plan."
+            "experimental as of 0.20.0. See CAPABILITIES and INTEROPERABILITY plan."
         )
 
     def execute_transformation(self, *args: Any, **kwargs: Any) -> Any:

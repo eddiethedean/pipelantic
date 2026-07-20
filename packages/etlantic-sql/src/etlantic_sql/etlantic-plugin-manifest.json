@@ -1,0 +1,38 @@
+{
+  "capabilities": [
+    "sql",
+    "portable"
+  ],
+  "digest": "sha256:0c08cf32a2c9868b5be6b17134335204d7a5066f904997916cfbff9d167446ef",
+  "entries": [
+    {
+      "capabilities": [
+        "sql",
+        "transactions"
+      ],
+      "engine": "sql",
+      "group": "etlantic.sql_plugins",
+      "name": "sql",
+      "protocol": "etlantic.sql/1",
+      "target": "etlantic_sql:create_plugin"
+    },
+    {
+      "capabilities": [
+        "portable"
+      ],
+      "engine": "sql",
+      "group": "etlantic.transform_compilers",
+      "name": "sql",
+      "protocol": "etlantic.transform-compiler/1",
+      "target": "etlantic_sql.transform_compiler:create_transform_compiler"
+    }
+  ],
+  "package": "etlantic-sql",
+  "privileges": [],
+  "protocol_range": "etlantic.sql/1,etlantic.transform-compiler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

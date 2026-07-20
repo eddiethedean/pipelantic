@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import warnings
-from importlib.metadata import entry_points
 from typing import Any
 
+from etlantic.plugin_lifecycle import discover_evaluate_authorize_load
+from etlantic.profile import Profile
 from etlantic.registry import PluginDescriptor, RegistryBundle
 from etlantic.runtime.scheduler import (
     SCHEDULER_PROTOCOL,
@@ -15,52 +15,49 @@ from etlantic.runtime.scheduler import (
 )
 
 SCHEDULER_PLUGIN_ENTRY_POINT = "etlantic.scheduler_plugins"
-_LOG = logging.getLogger(__name__)
 
 # Compile-only engines must never be treated as ExecutionScheduler names.
 _COMPILE_ONLY = frozenset({"airflow"})
 
 
-def _iter_entry_points(group: str) -> Any:
-    try:
-        return entry_points(group=group)
-    except TypeError:  # pragma: no cover
-        return entry_points().get(group, [])  # type: ignore[attr-defined]
+def discover_scheduler_plugins(
+    *,
+    profile: Profile | None = None,
+) -> dict[str, ExecutionScheduler]:
+    """Discover scheduler plugins with authorize-before-load (0.20)."""
 
+    def _key(item: Any, plugin: Any) -> str:
+        name = getattr(getattr(plugin, "info", None), "name", None) or item.name
+        key = str(name)
+        if key in _COMPILE_ONLY:
+            raise RuntimeError(
+                f"Ignoring scheduler entry point {item.name!r}: {key!r} is a "
+                "compile-only orchestrator name, not an ExecutionScheduler."
+            )
+        return key
 
-def discover_scheduler_plugins() -> dict[str, ExecutionScheduler]:
-    """Load scheduler plugins registered under the entry-point group."""
-    found: dict[str, ExecutionScheduler] = {}
-    for ep in _iter_entry_points(SCHEDULER_PLUGIN_ENTRY_POINT):
-        try:
-            factory = ep.load()
-            plugin = factory() if callable(factory) else factory
-            name = getattr(getattr(plugin, "info", None), "name", None) or ep.name
-            key = str(name)
-            if key in _COMPILE_ONLY:
-                warnings.warn(
-                    f"Ignoring scheduler entry point {ep.name!r}: {key!r} is a "
-                    "compile-only orchestrator name, not an ExecutionScheduler.",
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-                continue
-            found[key] = plugin
-        except Exception as exc:
-            msg = f"Failed to load scheduler plugin entry point {ep.name!r}: {exc}"
-            _LOG.warning(msg)
-            warnings.warn(msg, RuntimeWarning, stacklevel=2)
-            continue
-    return found
+    result = discover_evaluate_authorize_load(
+        SCHEDULER_PLUGIN_ENTRY_POINT,
+        profile=profile,
+        key_fn=_key,
+    )
+    # Surface compile-only skips as warnings when load failed that way.
+    for diag in result.diagnostics:
+        if "compile-only" in diag.message:
+            warnings.warn(diag.message, RuntimeWarning, stacklevel=2)
+    return result.loaded  # type: ignore[return-value]
 
 
 def register_discovered_plugins(
     registry: RegistryBundle,
     *,
     plugins: dict[str, ExecutionScheduler] | None = None,
+    profile: Profile | None = None,
 ) -> dict[str, ExecutionScheduler]:
     """Register discovered scheduler plugins into a planning registry."""
-    discovered = plugins if plugins is not None else discover_scheduler_plugins()
+    discovered = (
+        plugins if plugins is not None else discover_scheduler_plugins(profile=profile)
+    )
     for name, plugin in discovered.items():
         info = plugin.info
         registry.register_plugin(
@@ -88,6 +85,7 @@ def resolve_scheduler(
     name: str,
     *,
     plugins: dict[str, ExecutionScheduler] | None = None,
+    profile: Profile | None = None,
 ) -> ExecutionScheduler:
     """Resolve a scheduler by profile/orchestrator name (fail closed)."""
     key = str(name or "local").strip() or "local"
@@ -102,7 +100,9 @@ def resolve_scheduler(
         )
     if key == "local":
         return builtin_local_scheduler()
-    discovered = plugins if plugins is not None else discover_scheduler_plugins()
+    discovered = (
+        plugins if plugins is not None else discover_scheduler_plugins(profile=profile)
+    )
     plugin = discovered.get(key)
     if plugin is None:
         from etlantic.exceptions import ETLanticError
@@ -115,18 +115,26 @@ def resolve_scheduler(
     return plugin
 
 
-def load_scheduler_plugin(name: str) -> ExecutionScheduler | None:
+def load_scheduler_plugin(
+    name: str,
+    *,
+    profile: Profile | None = None,
+) -> ExecutionScheduler | None:
     """Return a discovered scheduler plugin for ``name``, or None."""
     if name == "local":
         return builtin_local_scheduler()
-    return discover_scheduler_plugins().get(name)
+    return discover_scheduler_plugins(profile=profile).get(name)
 
 
-def plugin_registry_snapshot() -> list[dict[str, Any]]:
+def plugin_registry_snapshot(
+    *,
+    profile: Profile | None = None,
+) -> list[dict[str, Any]]:
     """Return serializable descriptors for discovered scheduler plugins."""
     local = builtin_local_scheduler()
     items = [local.info.to_dict()]
     items.extend(
-        plugin.info.to_dict() for plugin in discover_scheduler_plugins().values()
+        plugin.info.to_dict()
+        for plugin in discover_scheduler_plugins(profile=profile).values()
     )
     return items

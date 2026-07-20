@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+SECURITY_EVENT_SCHEMA = "etlantic.security_event/1"
+
 
 @dataclass(frozen=True, slots=True)
 class LifecycleEvent:
@@ -38,19 +40,23 @@ class LifecycleEvent:
 
 @dataclass(frozen=True, slots=True)
 class SecurityEvent:
-    """Immutable security audit event (never includes secret values)."""
+    """Immutable security audit event (never includes secret values or rows)."""
 
     kind: str
     run_id: str
     provider: str
-    secret_identity: str
-    outcome: str
+    secret_identity: str = ""
+    outcome: str = "unknown"
     at: datetime = field(default_factory=lambda: datetime.now(UTC))
     step_name: str | None = None
     message: str | None = None
+    schema_version: str = SECURITY_EVENT_SCHEMA
+    subject: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema": self.schema_version,
             "kind": self.kind,
             "run_id": self.run_id,
             "provider": self.provider,
@@ -59,6 +65,8 @@ class SecurityEvent:
             "at": self.at.isoformat(),
             "step_name": self.step_name,
             "message": self.message,
+            "subject": self.subject,
+            "metadata": dict(self.metadata),
         }
 
 
@@ -81,5 +89,5 @@ class EventBus:
             listener(event)
 
     @property
-    def events(self) -> tuple[LifecycleEvent | SecurityEvent, ...]:
-        return tuple(self._events)
+    def events(self) -> list[LifecycleEvent | SecurityEvent]:
+        return list(self._events)

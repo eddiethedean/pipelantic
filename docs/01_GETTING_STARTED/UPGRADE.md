@@ -5,7 +5,7 @@ and first-party plugins to the **same minor** after upgrading.
 
 ## Current target
 
-**ETLantic 0.19.0** — start with
+**ETLantic 0.20.0** — start with
 [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) if you are
 on 0.18.x.
 

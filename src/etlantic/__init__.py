@@ -54,6 +54,7 @@ from etlantic.interchange import (
     normalize_pipeline,
     write_contracts,
 )
+from etlantic.io_policy import SafeIoPolicy
 from etlantic.lifecycle import (
     Emit,
     FailureAction,
@@ -68,6 +69,7 @@ from etlantic.orchestration import (
     compile_plan,
     discover_orchestrator_plugins,
 )
+from etlantic.outbound import OutboundPolicy
 from etlantic.pipeline import Extract, Load, Pipeline, SubpipelineInstance
 from etlantic.plan import (
     ArtifactRef,
@@ -76,6 +78,7 @@ from etlantic.plan import (
     explain_plan,
     plan_pipeline,
 )
+from etlantic.plugin_manifest import PLUGIN_MANIFEST_SCHEMA, PluginManifest
 from etlantic.policy import ValidationPolicy
 from etlantic.ports import Input, Output, Parameter
 from etlantic.profile import (
@@ -132,6 +135,7 @@ from etlantic.schema_drift import (
 )
 from etlantic.schema_policy import DriftAction, SchemaDriftPolicy
 from etlantic.secrets import SecretRef, SecretValue
+from etlantic.serialization_policy import UnsafeSerializationError
 from etlantic.spark import (
     SPARK_PROTOCOL_VERSION,
     STREAMING_STABILITY,
@@ -161,6 +165,7 @@ from etlantic.transformation import ImplementationRecord, Step, Transformation
 __all__ = [
     "DATAFRAME_PROTOCOL_VERSION",
     "ORCHESTRATION_PROTOCOL_VERSION",
+    "PLUGIN_MANIFEST_SCHEMA",
     "SPARK_PROTOCOL_VERSION",
     "SQL_PROTOCOL_VERSION",
     "STREAMING_STABILITY",
@@ -211,6 +216,7 @@ __all__ = [
     "NormalizedSchema",
     "NullStorage",
     "OutboundEvent",
+    "OutboundPolicy",
     "Output",
     "OutputRef",
     "Parameter",
@@ -226,6 +232,7 @@ __all__ = [
     "PlanningContext",
     "PluginCapabilities",
     "PluginDescriptor",
+    "PluginManifest",
     "Profile",
     "ProvenanceKind",
     "ReconciliationDeclaration",
@@ -239,6 +246,7 @@ __all__ = [
     "RunRequest",
     "RunSelection",
     "RunStatus",
+    "SafeIoPolicy",
     "SchemaChange",
     "SchemaChangeSet",
     "SchemaDriftPolicy",
@@ -253,6 +261,7 @@ __all__ = [
     "StepFailureContext",
     "SubpipelineInstance",
     "Transformation",
+    "UnsafeSerializationError",
     "ValidationPolicy",
     "ValidationReport",
     "WriteIntent",

@@ -249,6 +249,9 @@ def _build_plan(
         default_engine,
         security_domain,
         provisional_fp,
+        tenant=getattr(profile, "tenant", "default") or "default",
+        environment=getattr(profile, "environment", "default") or "default",
+        authorization=profile.name,
     )
 
     # 9. Bindings / resource refs (secret-free; only referenced secrets)
@@ -403,6 +406,9 @@ def _build_plan(
         default_engine,
         security_domain,
         fingerprint,
+        tenant=str((plan.profile_snapshot or {}).get("tenant") or "default"),
+        environment=str((plan.profile_snapshot or {}).get("environment") or "default"),
+        authorization=str(plan.profile_name or "default"),
     )
     return PipelinePlan(
         schema=plan.schema,
@@ -1394,6 +1400,10 @@ def _resolve_outputs(
     default_engine: str,
     security_domain: str,
     plan_fp: str,
+    *,
+    tenant: str = "default",
+    environment: str = "default",
+    authorization: str = "default",
 ) -> list[OutputResolution]:
     region_of = {
         name: region.identity for region in regions for name in region.node_names
@@ -1451,6 +1461,14 @@ def _resolve_outputs(
                 node_name=node.name,
                 port_name=port.name,
                 security_domain=security_domain,
+                tenant=tenant,
+                environment=environment,
+                authorization=authorization,
+                contract_version=published_contract_version(
+                    getattr(node, "contract_type", None)
+                )
+                if getattr(node, "contract_type", None) is not None
+                else None,
             )
             impl = implementations.get(node.name)
             compiler_fp = None
@@ -1464,6 +1482,9 @@ def _resolve_outputs(
                 plan_fingerprint=plan_fp,
                 ir_fingerprint=impl.ir_fingerprint if impl is not None else None,
                 compiler_fingerprint=compiler_fp,
+                tenant=tenant,
+                environment=environment,
+                authorization=authorization,
             )
             metadata: dict[str, Any] = {}
             if key in fanout_ports:

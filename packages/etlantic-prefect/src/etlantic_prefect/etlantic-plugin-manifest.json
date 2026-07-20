@@ -1,0 +1,26 @@
+{
+  "capabilities": [
+    "scheduler"
+  ],
+  "digest": "sha256:7084ea9ad62e12ca4e33d8da43529aee9b35bba3acead6b81448ded4f9f7d358",
+  "entries": [
+    {
+      "capabilities": [
+        "direct_execution"
+      ],
+      "engine": "prefect",
+      "group": "etlantic.scheduler_plugins",
+      "name": "prefect",
+      "protocol": "etlantic.scheduler/1",
+      "target": "etlantic_prefect:create_plugin"
+    }
+  ],
+  "package": "etlantic-prefect",
+  "privileges": [],
+  "protocol_range": "etlantic.scheduler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

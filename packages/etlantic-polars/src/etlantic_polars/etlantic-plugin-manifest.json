@@ -1,0 +1,39 @@
+{
+  "capabilities": [
+    "dataframe",
+    "portable"
+  ],
+  "digest": "sha256:ed4e3a583fabcb9802edd590ea2be392efa2381d96db867400c60ed2aa0a1087",
+  "entries": [
+    {
+      "capabilities": [
+        "dataframe",
+        "eager",
+        "lazy"
+      ],
+      "engine": "polars",
+      "group": "etlantic.dataframe_plugins",
+      "name": "polars",
+      "protocol": "etlantic.dataframe/1",
+      "target": "etlantic_polars:create_plugin"
+    },
+    {
+      "capabilities": [
+        "portable"
+      ],
+      "engine": "polars",
+      "group": "etlantic.transform_compilers",
+      "name": "polars",
+      "protocol": "etlantic.transform-compiler/1",
+      "target": "etlantic_polars:create_transform_compiler"
+    }
+  ],
+  "package": "etlantic-polars",
+  "privileges": [],
+  "protocol_range": "etlantic.dataframe/1,etlantic.transform-compiler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

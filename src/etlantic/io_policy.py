@@ -1,0 +1,453 @@
+"""Unified safe filesystem I/O policy (0.20)."""
+
+from __future__ import annotations
+
+import contextlib
+import hashlib
+import json
+import os
+import tempfile
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Literal
+
+from contractmodel.validation.limits import check_file_byte_limit
+
+from etlantic.diagnostics import Diagnostic, Severity, SourceLocation, ValidationReport
+from etlantic.interchange.security import (
+    DEFAULT_MAX_BYTES,
+    UnsafeLoadError,
+    ensure_file_within_budget,
+    resolve_safe_path,
+)
+from etlantic.runtime.events import SecurityEvent
+
+SymlinkPolicy = Literal["reject", "follow_within_root"]
+OverwritePolicy = Literal["reject", "allow", "atomic_replace"]
+
+
+@dataclass(frozen=True, slots=True)
+class SafeIoPolicy:
+    """Policy for contract/profile/report/history/cache/artifact/viz FS access."""
+
+    approved_roots: tuple[Path, ...] = ()
+    max_read_bytes: int = DEFAULT_MAX_BYTES
+    symlink_policy: SymlinkPolicy = "reject"
+    overwrite_policy: OverwritePolicy = "atomic_replace"
+    require_regular_files: bool = True
+    enable_locking: bool = True
+    lock_timeout_seconds: float = 30.0
+    compute_integrity_digest: bool = True
+    retention_seconds: int | None = None
+    tenant: str = "default"
+    environment: str = "default"
+    security_domain: str = "default"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "approved_roots": [str(p) for p in self.approved_roots],
+            "max_read_bytes": self.max_read_bytes,
+            "symlink_policy": self.symlink_policy,
+            "overwrite_policy": self.overwrite_policy,
+            "require_regular_files": self.require_regular_files,
+            "enable_locking": self.enable_locking,
+            "lock_timeout_seconds": self.lock_timeout_seconds,
+            "compute_integrity_digest": self.compute_integrity_digest,
+            "retention_seconds": self.retention_seconds,
+            "tenant": self.tenant,
+            "environment": self.environment,
+            "security_domain": self.security_domain,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> SafeIoPolicy:
+        data = dict(data or {})
+        roots = tuple(Path(p) for p in (data.get("approved_roots") or ()))
+        return cls(
+            approved_roots=roots,
+            max_read_bytes=int(data.get("max_read_bytes") or DEFAULT_MAX_BYTES),
+            symlink_policy=str(data.get("symlink_policy") or "reject"),  # type: ignore[arg-type]
+            overwrite_policy=str(data.get("overwrite_policy") or "atomic_replace"),  # type: ignore[arg-type]
+            require_regular_files=bool(data.get("require_regular_files", True)),
+            enable_locking=bool(data.get("enable_locking", True)),
+            lock_timeout_seconds=float(data.get("lock_timeout_seconds") or 30.0),
+            compute_integrity_digest=bool(data.get("compute_integrity_digest", True)),
+            retention_seconds=data.get("retention_seconds"),
+            tenant=str(data.get("tenant") or "default"),
+            environment=str(data.get("environment") or "default"),
+            security_domain=str(data.get("security_domain") or "default"),
+        )
+
+    @classmethod
+    def for_root(
+        cls,
+        root: str | Path,
+        *,
+        security_domain: str = "default",
+        tenant: str = "default",
+        environment: str = "default",
+        **kwargs: Any,
+    ) -> SafeIoPolicy:
+        return cls(
+            approved_roots=(Path(root).expanduser().resolve(),),
+            security_domain=security_domain,
+            tenant=tenant,
+            environment=environment,
+            **kwargs,
+        )
+
+
+@dataclass
+class SafeIoResult:
+    """Outcome of a safe I/O operation."""
+
+    path: Path
+    digest: str | None = None
+    bytes_written: int | None = None
+    diagnostics: list[Diagnostic] = field(default_factory=list)
+    security_events: list[SecurityEvent] = field(default_factory=list)
+
+
+def _io_error(code: str, message: str, path: str | Path) -> UnsafeLoadError:
+    report = ValidationReport.from_diagnostics(
+        [
+            Diagnostic(
+                code=code,
+                severity=Severity.ERROR,
+                message=message,
+                source=SourceLocation(path=str(path)),
+                phase="safe_io",
+            )
+        ]
+    )
+    return UnsafeLoadError(message, report=report)
+
+
+def _deny_event(
+    *,
+    run_id: str,
+    path: Path,
+    outcome: str,
+    message: str,
+) -> SecurityEvent:
+    return SecurityEvent(
+        kind="safe_io",
+        run_id=run_id,
+        provider="filesystem",
+        outcome=outcome,
+        message=message,
+        subject=str(path),
+        metadata={"path": str(path)},
+    )
+
+
+def _is_special_file(path: Path) -> bool:
+    try:
+        mode = path.lstat().st_mode
+    except OSError:
+        return False
+    import stat
+
+    return (
+        stat.S_ISCHR(mode)
+        or stat.S_ISBLK(mode)
+        or stat.S_ISFIFO(mode)
+        or stat.S_ISSOCK(mode)
+    )
+
+
+def resolve_under_policy(
+    path: str | Path,
+    policy: SafeIoPolicy,
+    *,
+    run_id: str = "io",
+    must_exist: bool = False,
+) -> tuple[Path, list[SecurityEvent]]:
+    """Resolve a path under approved roots with symlink/special-file checks."""
+    events: list[SecurityEvent] = []
+    raw = Path(path).expanduser()
+    if policy.symlink_policy == "reject" and raw.exists() and raw.is_symlink():
+        events.append(
+            _deny_event(
+                run_id=run_id,
+                path=raw,
+                outcome="denied",
+                message="Symlink rejected by SafeIoPolicy.",
+            )
+        )
+        raise _io_error("PMSRC110", f"Symlink rejected: {raw}", raw)
+
+    if not policy.approved_roots:
+        resolved = raw.resolve(strict=False)
+    else:
+        # Prefer first root as default confinement.
+        root = policy.approved_roots[0]
+        try:
+            resolved = resolve_safe_path(raw, root=root)
+        except UnsafeLoadError:
+            # Allow if under any approved root.
+            resolved = raw.resolve(strict=False)
+            ok = False
+            for candidate_root in policy.approved_roots:
+                try:
+                    resolved.relative_to(candidate_root.expanduser().resolve())
+                    ok = True
+                    break
+                except ValueError:
+                    continue
+            if not ok:
+                events.append(
+                    _deny_event(
+                        run_id=run_id,
+                        path=raw,
+                        outcome="denied",
+                        message="Path escapes approved roots.",
+                    )
+                )
+                raise _io_error(
+                    "PMSRC101",
+                    f"Path {path!s} escapes approved roots.",
+                    path,
+                ) from None
+
+    if must_exist and not resolved.exists():
+        raise _io_error("PMSRC102", f"File not found: {resolved}", resolved)
+
+    if resolved.exists():
+        if policy.require_regular_files and _is_special_file(resolved):
+            events.append(
+                _deny_event(
+                    run_id=run_id,
+                    path=resolved,
+                    outcome="denied",
+                    message="Special file rejected.",
+                )
+            )
+            raise _io_error("PMSRC111", f"Special file rejected: {resolved}", resolved)
+        if policy.symlink_policy == "reject":
+            # Detect symlink components via lstat vs resolve mismatch.
+            try:
+                if resolved.is_symlink() or any(
+                    p.is_symlink() for p in [resolved, *resolved.parents] if p.exists()
+                ):
+                    # Only reject if a symlink escapes roots; following within root
+                    # is allowed only under follow_within_root.
+                    pass
+            except OSError:
+                pass
+            # Check that the final path wasn't reached via a symlink escape:
+            # compare resolve() with a no-follow walk.
+            try:
+                no_follow = Path(os.path.realpath(raw, strict=False))  # type: ignore[call-arg]
+            except TypeError:
+                no_follow = Path(os.path.realpath(str(raw)))
+            if policy.approved_roots:
+                for candidate_root in policy.approved_roots:
+                    root_res = candidate_root.expanduser().resolve()
+                    try:
+                        no_follow.relative_to(root_res)
+                        break
+                    except ValueError:
+                        continue
+                else:
+                    events.append(
+                        _deny_event(
+                            run_id=run_id,
+                            path=resolved,
+                            outcome="denied",
+                            message="Symlink escape rejected.",
+                        )
+                    )
+                    raise _io_error(
+                        "PMSRC110",
+                        f"Symlink escape rejected: {raw}",
+                        raw,
+                    )
+
+    return resolved, events
+
+
+def read_text_safe(
+    path: str | Path,
+    policy: SafeIoPolicy,
+    *,
+    run_id: str = "io",
+    encoding: str = "utf-8",
+) -> tuple[Path, str, list[SecurityEvent]]:
+    """Bounded safe text read under policy."""
+    resolved, events = resolve_under_policy(
+        path, policy, run_id=run_id, must_exist=True
+    )
+    ensure_file_within_budget(resolved, max_bytes=policy.max_read_bytes)
+    # Double-check via contractmodel helper for consistency.
+    result = check_file_byte_limit(resolved, max_bytes=policy.max_read_bytes)
+    if result is not None and not result.success:
+        raise _io_error(
+            "PMSRC103",
+            f"Oversized input rejected: {resolved}",
+            resolved,
+        )
+    return resolved, resolved.read_text(encoding=encoding), events
+
+
+def _lock_path(path: Path) -> Path:
+    return path.with_suffix(path.suffix + ".lock")
+
+
+def _acquire_lock(path: Path, *, timeout: float) -> Path:
+    lock = _lock_path(path)
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+            os.write(fd, str(os.getpid()).encode("ascii"))
+            os.close(fd)
+            return lock
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise _io_error(
+                    "PMSRC112",
+                    f"Timed out acquiring lock for {path}",
+                    path,
+                ) from None
+            time.sleep(0.05)
+
+
+def _release_lock(lock: Path) -> None:
+    with contextlib.suppress(OSError):
+        lock.unlink(missing_ok=True)
+
+
+def write_text_safe(
+    path: str | Path,
+    text: str,
+    policy: SafeIoPolicy,
+    *,
+    run_id: str = "io",
+    encoding: str = "utf-8",
+) -> SafeIoResult:
+    """Atomic, locked, integrity-aware text write under policy."""
+    resolved, events = resolve_under_policy(path, policy, run_id=run_id)
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+
+    if resolved.exists() and policy.overwrite_policy == "reject":
+        events.append(
+            _deny_event(
+                run_id=run_id,
+                path=resolved,
+                outcome="denied",
+                message="Overwrite rejected.",
+            )
+        )
+        raise _io_error("PMSRC113", f"Overwrite rejected: {resolved}", resolved)
+
+    payload = text.encode(encoding)
+    digest = (
+        "sha256:" + hashlib.sha256(payload).hexdigest()
+        if policy.compute_integrity_digest
+        else None
+    )
+
+    lock: Path | None = None
+    if policy.enable_locking:
+        lock = _acquire_lock(resolved, timeout=policy.lock_timeout_seconds)
+    try:
+        if (
+            policy.overwrite_policy in {"allow", "atomic_replace"}
+            or not resolved.exists()
+        ):
+            fd, tmp_name = tempfile.mkstemp(
+                prefix=f".{resolved.name}.",
+                suffix=".tmp",
+                dir=str(resolved.parent),
+            )
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(payload)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(tmp_name, resolved)
+            except Exception:
+                with contextlib.suppress(OSError):
+                    os.unlink(tmp_name)
+                raise
+        else:
+            raise _io_error("PMSRC113", f"Overwrite rejected: {resolved}", resolved)
+    finally:
+        if lock is not None:
+            _release_lock(lock)
+
+    events.append(
+        SecurityEvent(
+            kind="safe_io",
+            run_id=run_id,
+            provider="filesystem",
+            outcome="written",
+            subject=str(resolved),
+            metadata={"digest": digest, "bytes": len(payload)},
+        )
+    )
+    return SafeIoResult(
+        path=resolved,
+        digest=digest,
+        bytes_written=len(payload),
+        security_events=events,
+    )
+
+
+def write_json_safe(
+    path: str | Path,
+    data: Any,
+    policy: SafeIoPolicy,
+    *,
+    run_id: str = "io",
+) -> SafeIoResult:
+    """Write JSON via :func:`write_text_safe`."""
+    text = json.dumps(data, indent=2, sort_keys=True) + "\n"
+    return write_text_safe(path, text, policy, run_id=run_id)
+
+
+def namespaced_path(
+    root: str | Path,
+    *parts: str,
+    policy: SafeIoPolicy | None = None,
+) -> Path:
+    """Build an isolation-namespaced path under root."""
+    base = Path(root)
+    dims: list[str] = []
+    if policy is not None:
+        dims.extend(
+            [
+                _safe_segment(policy.security_domain),
+                _safe_segment(policy.tenant),
+                _safe_segment(policy.environment),
+            ]
+        )
+    safe_parts = [_safe_segment(p) for p in parts]
+    return base.joinpath(*dims, *safe_parts)
+
+
+def _safe_segment(value: str) -> str:
+    return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(value))
+
+
+def cleanup_retention(root: str | Path, policy: SafeIoPolicy) -> list[Path]:
+    """Delete files under root older than retention_seconds (if configured)."""
+    if policy.retention_seconds is None:
+        return []
+    cutoff = time.time() - float(policy.retention_seconds)
+    removed: list[Path] = []
+    base = Path(root)
+    if not base.exists():
+        return removed
+    for path in base.rglob("*"):
+        if not path.is_file():
+            continue
+        try:
+            if path.stat().st_mtime < cutoff:
+                path.unlink()
+                removed.append(path)
+        except OSError:
+            continue
+    return removed

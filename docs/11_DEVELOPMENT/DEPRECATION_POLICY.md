@@ -1,6 +1,6 @@
 # API Stability and Deprecation Policy
 
-ETLantic 0.19.0 is stable for documented single-tenant reference deployments,
+ETLantic 0.20.0 is stable for documented single-tenant reference deployments,
 while remaining pre-1.0. Breaking changes remain possible, but they must not
 be silent. See [Surface Inventory](../10_REFERENCE/SURFACE_INVENTORY.md).
 

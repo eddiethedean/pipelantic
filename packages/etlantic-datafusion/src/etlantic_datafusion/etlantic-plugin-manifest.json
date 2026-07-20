@@ -1,0 +1,41 @@
+{
+  "capabilities": [
+    "dataframe",
+    "portable",
+    "experimental"
+  ],
+  "digest": "sha256:74b48e6234f9b3994e153ebd79367170fbe25b77aabb4c45fe6fa83101ba5588",
+  "entries": [
+    {
+      "capabilities": [
+        "dataframe",
+        "lazy",
+        "experimental"
+      ],
+      "engine": "datafusion",
+      "group": "etlantic.dataframe_plugins",
+      "name": "datafusion",
+      "protocol": "etlantic.dataframe/1",
+      "target": "etlantic_datafusion:create_plugin"
+    },
+    {
+      "capabilities": [
+        "portable",
+        "experimental"
+      ],
+      "engine": "datafusion",
+      "group": "etlantic.transform_compilers",
+      "name": "datafusion",
+      "protocol": "etlantic.transform-compiler/1",
+      "target": "etlantic_datafusion:create_transform_compiler"
+    }
+  ],
+  "package": "etlantic-datafusion",
+  "privileges": [],
+  "protocol_range": "etlantic.dataframe/1,etlantic.transform-compiler/1",
+  "provenance": {
+    "publisher": "etlantic"
+  },
+  "schema": "etlantic.plugin_manifest/1",
+  "version": "0.20.0"
+}

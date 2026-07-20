@@ -53,15 +53,37 @@ class ArtifactRef:
         )
 
 
+def _seg(value: str) -> str:
+    return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(value))
+
+
 def artifact_identity(
     *,
     pipeline_id: str,
     node_name: str,
     port_name: str,
     security_domain: str,
+    tenant: str = "default",
+    environment: str = "default",
+    run_id: str | None = None,
+    authorization: str = "default",
+    contract_version: str | None = None,
 ) -> str:
-    """Deterministic artifact identity including security domain."""
-    return f"artifact:{security_domain}/{pipeline_id}/{node_name}.{port_name}"
+    """Deterministic artifact identity including isolation dimensions (0.20)."""
+    parts = [
+        "artifact",
+        _seg(security_domain),
+        _seg(tenant),
+        _seg(environment),
+        _seg(authorization),
+    ]
+    if run_id:
+        parts.append(_seg(run_id))
+    if contract_version:
+        parts.append(f"cv-{_seg(contract_version)}")
+    parts.append(_seg(pipeline_id))
+    parts.append(f"{_seg(node_name)}.{_seg(port_name)}")
+    return ":".join(parts[:1]) + ":" + "/".join(parts[1:])
 
 
 def cache_identity(
@@ -73,14 +95,60 @@ def cache_identity(
     plan_fingerprint: str,
     ir_fingerprint: str | None = None,
     compiler_fingerprint: str | None = None,
+    tenant: str = "default",
+    environment: str = "default",
+    run_id: str | None = None,
+    authorization: str = "default",
+    contract_version: str | None = None,
 ) -> str:
-    """Deterministic cache key that cannot cross security domains."""
+    """Deterministic cache key that cannot cross isolation domains (0.20)."""
     parts = [
-        f"cache:{security_domain}/{pipeline_id}/",
-        f"{node_name}.{port_name}@{plan_fingerprint}",
+        "cache",
+        _seg(security_domain),
+        _seg(tenant),
+        _seg(environment),
+        _seg(authorization),
     ]
+    if run_id:
+        parts.append(_seg(run_id))
+    if contract_version:
+        parts.append(f"cv-{_seg(contract_version)}")
+    body = "/".join(parts[1:])
+    key = (
+        f"cache:{body}/{_seg(pipeline_id)}/"
+        f"{_seg(node_name)}.{_seg(port_name)}@{plan_fingerprint}"
+    )
     if ir_fingerprint:
-        parts.append(f"+ir:{ir_fingerprint}")
+        key += f"+ir:{ir_fingerprint}"
     if compiler_fingerprint:
-        parts.append(f"+cc:{compiler_fingerprint}")
-    return "".join(parts)
+        key += f"+cc:{compiler_fingerprint}"
+    return key
+
+
+def assert_identity_compatible(
+    identity: str,
+    *,
+    security_domain: str,
+    tenant: str = "default",
+    environment: str = "default",
+) -> None:
+    """Reject selecting an artifact/cache identity from another isolation domain."""
+    from etlantic.exceptions import ETLanticError
+
+    expected_prefix_parts = [
+        _seg(security_domain),
+        _seg(tenant),
+        _seg(environment),
+    ]
+    # identity forms: artifact:domain/tenant/env/... or cache:domain/tenant/env/...
+    if ":" not in identity:
+        raise ETLanticError(f"Malformed artifact/cache identity: {identity!r}")
+    _, _, rest = identity.partition(":")
+    segments = rest.split("/")
+    for idx, expected in enumerate(expected_prefix_parts):
+        if idx >= len(segments) or segments[idx] != expected:
+            raise ETLanticError(
+                "Artifact/cache identity isolation violation: "
+                f"expected domain/tenant/env "
+                f"{'/'.join(expected_prefix_parts)} in {identity!r}"
+            )

@@ -2,55 +2,45 @@
 
 from __future__ import annotations
 
-import logging
-import warnings
-from importlib.metadata import entry_points
 from typing import Any
 
 from etlantic.dataframe.protocol import DataframePlugin
+from etlantic.plugin_lifecycle import discover_evaluate_authorize_load
+from etlantic.profile import Profile
 from etlantic.registry import PluginDescriptor, RegistryBundle
 
 DATAFRAME_PLUGIN_ENTRY_POINT = "etlantic.dataframe_plugins"
-_LOG = logging.getLogger(__name__)
 
 
-def discover_dataframe_plugins() -> dict[str, DataframePlugin]:
-    """Load dataframe plugins registered under the entry-point group.
+def discover_dataframe_plugins(
+    *,
+    profile: Profile | None = None,
+) -> dict[str, DataframePlugin]:
+    """Discover dataframe plugins with authorize-before-load (0.20).
 
-    Returns a mapping of engine name → plugin instance. Missing or broken
-    entry points are skipped with a warning (callers should fail closed at
-    planning when the selected engine is absent).
+    When ``profile`` is omitted, allowlists are open (non-production behavior).
+    Production profiles require manifests and a non-empty allowlist.
     """
-    found: dict[str, DataframePlugin] = {}
-    try:
-        eps = entry_points(group=DATAFRAME_PLUGIN_ENTRY_POINT)
-    except TypeError:  # pragma: no cover - older importlib API
-        eps = entry_points().get(DATAFRAME_PLUGIN_ENTRY_POINT, [])  # type: ignore[attr-defined]
-    for ep in eps:
-        try:
-            factory = ep.load()
-            plugin = factory() if callable(factory) else factory
-            engine = getattr(getattr(plugin, "info", None), "engine", None) or ep.name
-            found[str(engine)] = plugin
-        except Exception as exc:
-            msg = f"Failed to load dataframe plugin entry point {ep.name!r}: {exc}"
-            _LOG.warning(msg)
-            warnings.warn(msg, RuntimeWarning, stacklevel=2)
-            continue
-    return found
+    result = discover_evaluate_authorize_load(
+        DATAFRAME_PLUGIN_ENTRY_POINT,
+        profile=profile,
+        key_fn=lambda item, plugin: str(
+            getattr(getattr(plugin, "info", None), "engine", None) or item.name
+        ),
+    )
+    return result.loaded  # type: ignore[return-value]
 
 
 def register_discovered_plugins(
     registry: RegistryBundle,
     *,
     plugins: dict[str, DataframePlugin] | None = None,
+    profile: Profile | None = None,
 ) -> dict[str, DataframePlugin]:
-    """Register discovered dataframe plugins into a planning registry.
-
-    Returns the plugin instances (live handles for the runtime; descriptors
-    only are stored on the registry).
-    """
-    discovered = plugins if plugins is not None else discover_dataframe_plugins()
+    """Register discovered dataframe plugins into a planning registry."""
+    discovered = (
+        plugins if plugins is not None else discover_dataframe_plugins(profile=profile)
+    )
     for engine, plugin in discovered.items():
         info = plugin.info
         caps = info.capabilities
@@ -67,14 +57,21 @@ def register_discovered_plugins(
     return discovered
 
 
-def load_dataframe_plugin(engine: str) -> DataframePlugin | None:
+def load_dataframe_plugin(
+    engine: str,
+    *,
+    profile: Profile | None = None,
+) -> DataframePlugin | None:
     """Return a discovered plugin for ``engine``, or None."""
-    return discover_dataframe_plugins().get(engine)
+    return discover_dataframe_plugins(profile=profile).get(engine)
 
 
-def plugin_registry_snapshot() -> list[dict[str, Any]]:
+def plugin_registry_snapshot(
+    *,
+    profile: Profile | None = None,
+) -> list[dict[str, Any]]:
     """Return serializable descriptors for discovered plugins."""
     out: list[dict[str, Any]] = []
-    for plugin in discover_dataframe_plugins().values():
+    for plugin in discover_dataframe_plugins(profile=profile).values():
         out.append(plugin.info.to_dict())
     return out

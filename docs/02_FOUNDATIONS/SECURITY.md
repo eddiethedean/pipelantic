@@ -5,9 +5,9 @@ artifacts, and external execution systems. Security is therefore a
 cross-cutting architectural constraint, not a feature delegated to one plugin.
 
 This chapter covers **implemented 0.19 controls** and the broader
-**proposed threat model**. ETLantic 0.19.0 is production/stable for documented
+**proposed threat model**. ETLantic 0.20.0 is production/stable for documented
 single-tenant reference deployments. It does not provide unrestricted
-multi-tenant, compliance, deployment-topology, SBOM/signing, or advanced
+full multi-tenant control planes, compliance attestations, deployment-topology, or advanced
 supply-chain guarantees; those controls remain adopter-owned.
 
 ## Implemented in 0.19
@@ -103,22 +103,22 @@ The analysis boundary must not require runtime privileges.
 
 | Area | Main risk | Required control | Design status |
 |---|---|---|---|
-| Contract loading | parser abuse, traversal, SSRF | bounded safe loaders and approved resolvers | Partial |
-| Python discovery | import-time execution | static discovery or explicit trusted import | Gap |
+| Contract loading | parser abuse, traversal, SSRF | bounded safe loaders and approved resolvers | Available (SafeIoPolicy) |
+| Python discovery | import-time execution | static discovery or explicit trusted import | Available (manifest-first authorize-before-load) |
 | Planning | code or secret resolution | pure, secret-free planning | Strong |
-| Plugins | supply-chain execution | curated installs, allowlists, pins, provenance | Partial (allowlists/pins select already-discovered plugins; provenance Gap) |
+| Plugins | supply-chain execution | curated installs, allowlists, pins, provenance | Available (pre-import allowlist + manifests; probe optional) |
 | Resource providers | excessive authority | scopes, least privilege, cleanup | Strong concept |
 | SQL | injection and query leakage | structured compilation and parameters | Strong |
 | PySpark | remote code and cluster overreach | isolation and provider policy | Partial |
-| Artifacts | cross-run or cross-tenant exposure | identity, authorization, integrity, expiry | Gap |
-| Caching | unauthorized reuse | security-domain-aware cache keys | Gap |
+| Artifacts | cross-run or cross-tenant exposure | identity, authorization, integrity, expiry | Available (isolation keys; retention optional) |
+| Caching | unauthorized reuse | security-domain-aware cache keys | Available |
 | Logging and reports | secret or regulated-data leakage | central redaction | Strong |
 | HTML and docs | script or template injection | escaping and safe renderers | Strong |
-| Outbound events | SSRF and exfiltration | bound destinations and payload policy | Gap |
+| Outbound events | SSRF and exfiltration | bound destinations and payload policy | Available (default deny) |
 | CLI | shell injection and unsafe writes | argument lists and approved roots | Partial |
-| Serialization | arbitrary object construction | prohibit executable formats | Gap |
-| Denial of service | unbounded work | configurable budgets | Gap |
-| Audit | incomplete evidence | immutable security events and provenance | Partial |
+| Serialization | arbitrary object construction | prohibit executable formats | Available |
+| Denial of service | unbounded work | configurable budgets | Partial (I/O/probe/outbound budgets) |
+| Audit | incomplete evidence | immutable security events and provenance | Available (versioned SecurityEvent) |
 
 ## Loading and Parsing
 
@@ -265,8 +265,8 @@ production = Profile(
     dataframe_engine="polars",
     portable_transform_policy="require",
     plugin_allowlist={
-        "etlantic-polars": "==0.19.0",
-        "etlantic-airflow": "==0.19.0",
+        "etlantic-polars": "==0.20.0",
+        "etlantic-airflow": "==0.20.0",
     },
 )
 ```
@@ -675,8 +675,8 @@ production = Profile(
     name="production",
     security_domain="production",
     plugin_allowlist={
-        "etlantic-polars": "==0.19.0",
-        "etlantic-sql": "==0.19.0",
+        "etlantic-polars": "==0.20.0",
+        "etlantic-sql": "==0.20.0",
     },
 )
 ```

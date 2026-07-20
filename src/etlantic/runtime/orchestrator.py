@@ -248,6 +248,49 @@ class LocalOrchestrator:
                 return resolution.artifact.strategy
         return ArtifactStrategy.IN_MEMORY
 
+    def _isolation_dims(self) -> dict[str, str]:
+        snap = self.plan.profile_snapshot or {}
+        return {
+            "tenant": str(snap.get("tenant") or "default"),
+            "environment": str(snap.get("environment") or "default"),
+            "authorization": str(self.plan.profile_name or "default"),
+        }
+
+    def _artifact_identity(self, *, node_name: str, port_name: str) -> str:
+        dims = self._isolation_dims()
+        return artifact_identity(
+            pipeline_id=self.plan.pipeline_id,
+            node_name=node_name,
+            port_name=port_name,
+            security_domain=self.plan.security_domain,
+            tenant=dims["tenant"],
+            environment=dims["environment"],
+            authorization=dims["authorization"],
+            run_id=self.run_id,
+        )
+
+    def _enforce_outbound_emit(
+        self, emit: Emit[Any], *, run_id: str, step: str
+    ) -> None:
+        """Apply profile outbound policy to Emit destinations (default deny)."""
+        from etlantic.outbound import (
+            OutboundDeniedError,
+            OutboundPolicy,
+            assert_outbound_allowed,
+        )
+
+        snap = self.plan.profile_snapshot or {}
+        policy = OutboundPolicy.from_dict(snap.get("outbound") or {})
+        meta = dict(emit.metadata or {})
+        url = meta.get("url") or meta.get("destination") or meta.get("webhook")
+        if url is None:
+            return
+        decision = assert_outbound_allowed(str(url), policy, run_id=run_id)
+        if decision.event is not None:
+            self.runtime.events.emit(decision.event)
+        if not policy.allow_redirects and meta.get("follow_redirects"):
+            raise OutboundDeniedError("redirects are not permitted by outbound policy")
+
     async def execute(self) -> PipelineRunReport:
         from etlantic.lifecycle.lifespan import run_lifespan
         from etlantic.plan.serialize import verify_plan_fingerprint
@@ -1288,11 +1331,8 @@ class LocalOrchestrator:
                 strategy = self._strategy_for(node.name, port_name)
                 logical = f"{node.name}.{port_name}"
                 ref = ArtifactRef(
-                    identity=artifact_identity(
-                        pipeline_id=self.plan.pipeline_id,
-                        node_name=node.name,
-                        port_name=port_name,
-                        security_domain=self.plan.security_domain,
+                    identity=self._artifact_identity(
+                        node_name=node.name, port_name=port_name
                     ),
                     logical_output=logical,
                     strategy=strategy,
@@ -1354,11 +1394,8 @@ class LocalOrchestrator:
                 for port_name, value in bundle.invalid.items():
                     logical = f"{node.name}.{port_name}#invalid"
                     ref = ArtifactRef(
-                        identity=artifact_identity(
-                            pipeline_id=self.plan.pipeline_id,
-                            node_name=node.name,
-                            port_name=f"{port_name}#invalid",
-                            security_domain=self.plan.security_domain,
+                        identity=self._artifact_identity(
+                            node_name=node.name, port_name=f"{port_name}#invalid"
                         ),
                         logical_output=logical,
                         strategy=ArtifactStrategy.IN_MEMORY,
@@ -1380,11 +1417,8 @@ class LocalOrchestrator:
 
                     logical = f"{node.name}.{port_name}"
                     ref = ArtifactRef(
-                        identity=artifact_identity(
-                            pipeline_id=self.plan.pipeline_id,
-                            node_name=node.name,
-                            port_name=port_name,
-                            security_domain=self.plan.security_domain,
+                        identity=self._artifact_identity(
+                            node_name=node.name, port_name=port_name
                         ),
                         logical_output=logical,
                         strategy=strategy,
@@ -1464,11 +1498,8 @@ class LocalOrchestrator:
                 strategy = self._strategy_for(node.name, port_name)
                 logical = f"{node.name}.{port_name}"
                 ref = ArtifactRef(
-                    identity=artifact_identity(
-                        pipeline_id=self.plan.pipeline_id,
-                        node_name=node.name,
-                        port_name=port_name,
-                        security_domain=self.plan.security_domain,
+                    identity=self._artifact_identity(
+                        node_name=node.name, port_name=port_name
                     ),
                     logical_output=logical,
                     strategy=strategy,
@@ -1543,11 +1574,8 @@ class LocalOrchestrator:
                 strategy = self._strategy_for(node.name, port_name)
                 logical = f"{node.name}.{port_name}"
                 ref = ArtifactRef(
-                    identity=artifact_identity(
-                        pipeline_id=self.plan.pipeline_id,
-                        node_name=node.name,
-                        port_name=port_name,
-                        security_domain=self.plan.security_domain,
+                    identity=self._artifact_identity(
+                        node_name=node.name, port_name=port_name
                     ),
                     logical_output=logical,
                     strategy=strategy,
@@ -1595,6 +1623,7 @@ class LocalOrchestrator:
             )
             result, emits = self._split_emits(result)
             for emit in emits:
+                self._enforce_outbound_emit(emit, run_id=run_id, step=node.name)
                 self.outbound_events.append(
                     {
                         "event": emit.event,
@@ -1631,11 +1660,8 @@ class LocalOrchestrator:
                 strategy = self._strategy_for(node.name, port_name)
                 logical = f"{node.name}.{port_name}"
                 ref = ArtifactRef(
-                    identity=artifact_identity(
-                        pipeline_id=self.plan.pipeline_id,
-                        node_name=node.name,
-                        port_name=port_name,
-                        security_domain=self.plan.security_domain,
+                    identity=self._artifact_identity(
+                        node_name=node.name, port_name=port_name
                     ),
                     logical_output=logical,
                     strategy=strategy,
@@ -1787,12 +1813,7 @@ class LocalOrchestrator:
         strategy = self._strategy_for(node.name, port)
         logical = f"{node.name}.{port}"
         ref = ArtifactRef(
-            identity=artifact_identity(
-                pipeline_id=self.plan.pipeline_id,
-                node_name=node.name,
-                port_name=port,
-                security_domain=self.plan.security_domain,
-            ),
+            identity=self._artifact_identity(node_name=node.name, port_name=port),
             logical_output=logical,
             strategy=strategy,
             security_domain=self.plan.security_domain,

@@ -55,7 +55,7 @@ For the bounded reference topology and required controls, read
 
 ## Bounded production support (do not skip)
 
-**ETLantic 0.19.0 is production/stable for documented single-tenant reference
+**ETLantic 0.20.0 is production/stable for documented single-tenant reference
 deployments.** Plugin allowlists being “Available” do not make an arbitrary
 topology safe.
 
@@ -113,14 +113,14 @@ How to read status labels in deeper chapters:
 Follow this path **after** the green path (Install → Quickstart → First Pipeline
 → Engine selection), or as an enterprise diligence track:
 
-1. [Installation](INSTALLATION.md) — `pip install etlantic==0.19.0`
+1. [Installation](INSTALLATION.md) — `pip install etlantic==0.20.0`
 2. [Quickstart](QUICKSTART.md) (paste-ready; `examples/` requires a checkout)
 3. [First Pipeline](FIRST_PIPELINE.md)
 4. [Engine selection](ENGINE_SELECTION.md)
 5. [Capabilities](CAPABILITIES.md)
 6. Optional Gate A: checkout
    [`examples/interchange_polars_pandas.py`](https://github.com/eddiethedean/etlantic/blob/main/examples/interchange_polars_pandas.py)
-   with `etlantic-polars` + `etlantic-pandas` at `==0.19.0`
+   with `etlantic-polars` + `etlantic-pandas` at `==0.20.0`
 7. Optional engine examples from a checkout (portable kernels, SQL, PySpark,
    Airflow compile, Prefect)
 8. [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) if

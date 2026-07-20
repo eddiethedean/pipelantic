@@ -1,12 +1,12 @@
 # Support
 
-ETLantic **0.19.0** is **stable** for documented single-tenant reference
+ETLantic **0.20.0** is **stable** for documented single-tenant reference
 deployments (not unrestricted enterprise production). Community support has
 **no formal SLA** or guaranteed response time.
 
 ## What we support
 
-- Bug reports against the **current published minor** (`0.19.x`)
+- Bug reports against the **current published minor** (`0.20.x`)
 - Questions about documented Available APIs
 - Security reports via [SECURITY.md](SECURITY.md) (private disclosure)
 
@@ -15,7 +15,7 @@ deployments (not unrestricted enterprise production). Community support has
 - Production incident response or on-call coverage
 - Multi-tenant isolation and deployment topology
 - Compliance attestations (SOC2, GDPR certification, etc.)
-- SBOM/signing and advanced supply-chain controls beyond documented package
+- advanced supply-chain controls beyond shipped SBOM digests, attestations, OIDC publish, and documented package
   pins and plugin allowlists
 - Guarantees for Experimental APIs (for example Structured Streaming)
 - Guarantees for Future design / Design Proposal pages

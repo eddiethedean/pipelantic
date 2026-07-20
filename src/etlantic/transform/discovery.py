@@ -2,77 +2,71 @@
 
 from __future__ import annotations
 
-import logging
 import warnings
-from importlib.metadata import entry_points
 from typing import Any
 
+from etlantic.plugin_lifecycle import discover_evaluate_authorize_load
+from etlantic.profile import Profile
 from etlantic.registry import PluginDescriptor, RegistryBundle
 from etlantic.transform.compiler import PortableTransformCompiler
 
 TRANSFORM_COMPILER_ENTRY_POINT = "etlantic.transform_compilers"
-_LOG = logging.getLogger(__name__)
+
+
+def _key(item: Any, compiler: Any) -> str:
+    engine_key = str(item.name)
+    info_engine = getattr(getattr(compiler, "info", None), "engine", None)
+    if info_engine is not None and str(info_engine) != engine_key:
+        warnings.warn(
+            f"Transform compiler entry point {engine_key!r} reports "
+            f"info.engine={info_engine!r}; the entry-point name is the "
+            "stable discovery key.",
+            RuntimeWarning,
+            stacklevel=3,
+        )
+    if not isinstance(compiler, PortableTransformCompiler):
+        missing = [
+            name
+            for name in ("info", "analyze", "compile", "execute")
+            if not hasattr(compiler, name)
+        ]
+        if missing:
+            raise TypeError(
+                f"entry point {engine_key!r} does not implement "
+                f"PortableTransformCompiler (missing {missing})"
+            )
+    return engine_key
 
 
 def discover_transform_compilers() -> dict[str, PortableTransformCompiler]:
-    """Load compilers registered under ``etlantic.transform_compilers``.
+    """Discover compilers (open allowlist) with authorize-before-load.
 
-    Returns entry-point name → compiler instance. The entry-point name is the
-    stable engine key. Broken entry points are skipped with a warning. Duplicate
-    entry-point names fail closed.
+    Parameterless for monkeypatch compatibility in unit tests. Profile-aware
+    discovery uses :func:`discover_transform_compilers_for_profile`.
     """
-    found: dict[str, PortableTransformCompiler] = {}
-    try:
-        eps = entry_points(group=TRANSFORM_COMPILER_ENTRY_POINT)
-    except TypeError:  # pragma: no cover - older importlib API
-        eps = entry_points().get(TRANSFORM_COMPILER_ENTRY_POINT, [])  # type: ignore[attr-defined]
-    for ep in eps:
-        try:
-            factory = ep.load()
-            compiler = factory() if callable(factory) else factory
-            if not isinstance(compiler, PortableTransformCompiler):
-                # runtime_checkable Protocol — require info/analyze/compile/execute
-                missing = [
-                    name
-                    for name in ("info", "analyze", "compile", "execute")
-                    if not hasattr(compiler, name)
-                ]
-                if missing:
-                    raise TypeError(
-                        f"entry point {ep.name!r} does not implement "
-                        f"PortableTransformCompiler (missing {missing})"
-                    )
-            engine_key = str(ep.name)
-            if engine_key in found:
-                raise RuntimeError(
-                    f"Duplicate transform compiler entry point {engine_key!r}; "
-                    "entry-point names must be unique stable engine keys."
-                )
-            info_engine = getattr(getattr(compiler, "info", None), "engine", None)
-            if info_engine is not None and str(info_engine) != engine_key:
-                warnings.warn(
-                    f"Transform compiler entry point {engine_key!r} reports "
-                    f"info.engine={info_engine!r}; the entry-point name is the "
-                    "stable discovery key.",
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-            found[engine_key] = compiler
-        except Exception as exc:
-            msg = f"Failed to load transform compiler entry point {ep.name!r}: {exc}"
-            _LOG.warning(msg)
-            warnings.warn(msg, RuntimeWarning, stacklevel=2)
-            continue
-    return found
+    result = discover_evaluate_authorize_load(
+        TRANSFORM_COMPILER_ENTRY_POINT,
+        profile=None,
+        key_fn=_key,
+    )
+    return result.loaded  # type: ignore[return-value]
+
+
+discover_transform_compilers._etlantic_lifecycle = True  # type: ignore[attr-defined]
 
 
 def register_discovered_compilers(
     registry: RegistryBundle,
     *,
     compilers: dict[str, PortableTransformCompiler] | None = None,
+    profile: Profile | None = None,
 ) -> dict[str, PortableTransformCompiler]:
     """Register discovered transform compilers into a planning registry."""
-    discovered = compilers if compilers is not None else discover_transform_compilers()
+    discovered = (
+        compilers
+        if compilers is not None
+        else discover_transform_compilers_for_profile(profile)
+    )
     for engine, compiler in discovered.items():
         info = compiler.info
         registry.register_plugin(
@@ -92,26 +86,43 @@ def register_discovered_compilers(
     return discovered
 
 
-def load_transform_compiler(engine: str) -> PortableTransformCompiler | None:
-    """Return a discovered compiler for ``engine``, or None.
+def load_transform_compiler(
+    engine: str,
+    *,
+    profile: Profile | None = None,
+) -> PortableTransformCompiler | None:
+    """Return a discovered compiler for ``engine``, or None."""
+    return discover_transform_compilers_for_profile(profile).get(engine)
 
-    This loads the unfiltered discovery set. Prefer
-    :func:`discover_transform_compilers_for_profile` on planning and run paths
-    so production allowlists cannot be bypassed.
-    """
-    return discover_transform_compilers().get(engine)
 
-
-def compiler_registry_snapshot() -> list[dict[str, Any]]:
+def compiler_registry_snapshot(
+    *,
+    profile: Profile | None = None,
+) -> list[dict[str, Any]]:
     """Return serializable descriptors for discovered compilers."""
-    return [c.info.to_dict() for c in discover_transform_compilers().values()]
+    return [
+        c.info.to_dict()
+        for c in discover_transform_compilers_for_profile(profile).values()
+    ]
 
 
 def discover_transform_compilers_for_profile(
     profile: Any | None,
 ) -> dict[str, PortableTransformCompiler]:
-    """Discover compilers and apply ``profile.plugin_allowlist`` trust rules."""
-    found = discover_transform_compilers()
+    """Discover compilers applying ``profile.plugin_allowlist`` before load.
+
+    Honors monkeypatches of :func:`discover_transform_compilers` (tests).
+    """
+    discover = discover_transform_compilers
+    if getattr(discover, "_etlantic_lifecycle", False):
+        result = discover_evaluate_authorize_load(
+            TRANSFORM_COMPILER_ENTRY_POINT,
+            profile=profile,
+            key_fn=_key,
+        )
+        return result.loaded  # type: ignore[return-value]
+
+    found = discover()
     if profile is None:
         return found
     from etlantic.plugin_trust import filter_plugins_by_allowlist

@@ -1,6 +1,6 @@
 # Production Readiness and Deployment Boundaries
 
-ETLantic 0.19.0 is production/stable for the documented single-tenant reference
+ETLantic 0.20.0 is production/stable for the documented single-tenant reference
 deployment on this page. Experimental features remain experimental. Broader
 deployment topology, multi-tenancy, compliance/SBOM/signing, and advanced
 supply-chain controls remain adopter-owned.
@@ -23,7 +23,7 @@ control-plane state, or an SLA.
 
 ## Reference single-process topology
 
-1. Pin `etlantic==0.19.0` and matching plugins in a lockfile.
+1. Pin `etlantic==0.20.0` and matching plugins in a lockfile.
 2. Build an immutable image or venv; do not install untrusted entry points.
 3. Configure `Profile.plugin_allowlist` for production.
 4. Resolve secrets from env/files/keyring at runtime only.
@@ -65,13 +65,13 @@ engine wheels to workers.
 
 ## Shipped / adopter-owned / gap
 
-| Concern | 0.19 status |
+| Concern | 0.20 status |
 |---|---|
 | Typed validate/plan/run | Shipped |
 | Polars kernel portable compile | Shipped |
 | Plugin allowlists | Shipped (selection, not sandbox) |
 | Durable multi-worker control plane | Gap |
-| Signed SBOM / provenance | Gap |
+| Signed SBOM / provenance | Available (digests + GitHub attestations; OIDC preferred) |
 | Capacity / performance SLA | Gap — see benchmarks docs for local baselines only |
 
 ## Deployment acceptance criteria

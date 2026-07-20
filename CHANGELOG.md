@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-07-19
+
+### Added
+- Pre-import plugin lifecycle: `discover → evaluate → authorize → load`
+- Static `etlantic.plugin_manifest/1` for first-party plugins (no entry-point import)
+- Optional isolated capability probe with time/output budgets
+- Unified `SafeIoPolicy` (roots, symlinks, special files, atomic writes, locks, digests)
+- Artifact/cache isolation dimensions: tenant, environment, authorization, run, contract version
+- Default-deny `OutboundPolicy` for Emit/webhook/remote-reference destinations
+- Unsafe-serialization prohibitions (`PMSEC060`)
+- Versioned `SecurityEvent` schema (`etlantic.security_event/1`) for auth/I/O/network/probe
+- Profile fields: `tenant`, `environment`, `safe_io`, `outbound`, `require_plugin_probe`
+- Release SBOM digests, GitHub build provenance attestations, OIDC-preferred publish
+- Docs: What's New 0.20, Migration 0.19→0.20, Exit gate matrix
+
+### Changed
+- Official package versions align at 0.20.0; plugins require `etlantic>=0.20.0,<0.21`
+- Discovery modules authorize before `ep.load()`; production requires manifests
+- Report and schema-history file stores write through `SafeIoPolicy`
+
+### Fixed
+- Allowlisted plugins can no longer be selected after an unauthorized import
+- Cross-domain artifact/cache identity collisions fail closed
+
+### Migration
+- See `docs/11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md`
+
 ## [0.19.0] - 2026-07-19
 
 ### Added
@@ -744,6 +771,7 @@ compliance, and supply-chain controls remain outside that support claim. See
 - uv + ruff toolchain, MkDocs documentation site, shared GitHub Actions
   checks, and tag-triggered PyPI release
 
+[0.20.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.20.0
 [0.19.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.19.0
 [0.18.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.18.0
 [0.17.0]: https://github.com/eddiethedean/etlantic/releases/tag/v0.17.0

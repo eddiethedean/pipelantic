@@ -15,7 +15,7 @@ uv run python examples/interchange_polars_pandas.py
 Or from published packages:
 
 ```bash
-pip install 'etlantic[dataframes]==0.19.0'
+pip install 'etlantic[dataframes]==0.20.0'
 python examples/interchange_polars_pandas.py
 ```
 

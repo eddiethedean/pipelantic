@@ -48,6 +48,28 @@
       "type": "object",
       "additionalProperties": { "type": ["string", "null"] }
     },
+    "tenant": {
+      "type": "string",
+      "description": "Isolation tenant label for artifact/cache identity (0.20)."
+    },
+    "environment": {
+      "type": "string",
+      "description": "Isolation environment label for artifact/cache identity (0.20)."
+    },
+    "safe_io": {
+      "type": "object",
+      "description": "SafeIoPolicy overrides (approved roots, budgets, retention).",
+      "additionalProperties": true
+    },
+    "outbound": {
+      "type": "object",
+      "description": "OutboundPolicy overrides (schemes, hosts, SSRF controls).",
+      "additionalProperties": true
+    },
+    "require_plugin_probe": {
+      "type": "boolean",
+      "description": "When true, run isolated capability probes before load."
+    },
     "security_domain": { "type": "string" },
     "security_mode": {
       "type": "string",

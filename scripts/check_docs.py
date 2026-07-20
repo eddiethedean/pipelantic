@@ -421,6 +421,10 @@ def main() -> None:
         )
     if "Contract and configuration freeze" not in capabilities:
         raise SystemExit("CAPABILITIES.md must list 0.19 contract/configuration freeze")
+    if "Pre-import plugin authorization" not in capabilities:
+        raise SystemExit(
+            "CAPABILITIES.md must list 0.20 pre-import plugin authorization"
+        )
     roadmap_summary = (ROOT / "docs/11_DEVELOPMENT/ROADMAP_SUMMARY.md").read_text(
         encoding="utf-8"
     )
@@ -428,6 +432,8 @@ def main() -> None:
         raise SystemExit("ROADMAP_SUMMARY.md must state 0.18.0 Gate A scope")
     if "0.19.0" not in roadmap_summary:
         raise SystemExit("ROADMAP_SUMMARY.md must mention 0.19.0 freeze")
+    if "0.20.0" not in roadmap_summary:
+        raise SystemExit("ROADMAP_SUMMARY.md must mention 0.20.0 trust/isolation")
     if "non-blocking" not in roadmap_summary.lower():
         raise SystemExit("ROADMAP_SUMMARY.md must label DataFusion as non-blocking")
     interop = (

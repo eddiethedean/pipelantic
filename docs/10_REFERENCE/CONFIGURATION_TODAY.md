@@ -1,6 +1,6 @@
-# Configuration in 0.19.0
+# Configuration in 0.20.0
 
-ETLantic 0.19.0 configures execution with a `Profile` object or a JSON profile
+ETLantic 0.20.0 configures execution with a `Profile` object or a JSON profile
 document. It does **not** load `etlantic.toml`.
 
 ## Profile fields
@@ -22,7 +22,8 @@ document. It does **not** load `etlantic.toml`.
 | `secret_providers` | `{}` | Logical secret-provider bindings |
 | `resources` | `{}` | Logical resource bindings |
 | `secrets` | `{}` | `SecretRef` values, never resolved secret values |
-| `security_domain` | `"default"` | Security domain; `production` enables fail-closed trust |
+| `security_domain` | `"default"` | Security domain label for artifacts/caches |
+| `security_mode` | `"development"` | `development` \| `test` \| `production` trust posture |
 | `validation_policy` | `"default"` | Validation policy name |
 | `concurrency` | `None` | Optional concurrency limit |
 | `timeout_seconds` | `None` | Optional timeout |
@@ -34,6 +35,11 @@ document. It does **not** load `etlantic.toml`.
 | `required_orchestrator_capabilities` | `()` | Required orchestrator capabilities |
 | `plugin_allowlist` | `{}` | Plugin names and optional version specifiers |
 | `portable_transform_policy` | `"prefer"` | `"require"`, `"prefer"`, or `"native"` |
+| `tenant` | `"default"` | Artifact/cache isolation tenant (0.20) |
+| `environment` | `"default"` | Artifact/cache isolation environment (0.20) |
+| `safe_io` | `{}` | SafeIoPolicy overrides (0.20) |
+| `outbound` | `{}` | OutboundPolicy overrides (0.20) |
+| `require_plugin_probe` | `False` | Optional isolated capability probe (0.20) |
 | `metadata` | `{}` | User metadata |
 
 ## JSON profiles
@@ -86,14 +92,14 @@ from `DATABASE_PASSWORD_TOKEN`. Applications may instantiate
 `EnvSecretProvider(prefix="ETLANTIC_SECRET_")` themselves and register it on a
 runtime, but `ETLANTIC_SECRET_*` is not an ambient core convention.
 
-ETLantic 0.19.0 does not auto-read `ETLANTIC_PROFILE`, `ETLANTIC_CONFIG`,
+ETLantic 0.20.0 does not auto-read `ETLANTIC_PROFILE`, `ETLANTIC_CONFIG`,
 `ETLANTIC_PROJECT`, logging overrides, or output-format overrides. Names on
 [Environment Variables](ENVIRONMENT_VARIABLES.md) are proposed unless this
 page lists them as shipped.
 
 ## No `etlantic.toml`
 
-Do not create `etlantic.toml` expecting 0.19.0 to load it. The
+Do not create `etlantic.toml` expecting 0.20.0 to load it. The
 [Configuration Reference](CONFIGURATION.md) describes a future design, not the
 published runtime. Use explicit Python profiles or JSON profile files today.
 

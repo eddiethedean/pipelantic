@@ -1804,6 +1804,9 @@ stable backend or control-plane surface may bypass these contracts.
 
 ## 0.20 — Trust, Isolation, and Safe I/O
 
+**Status:** Implemented in ETLantic 0.20.0 (see
+[EXIT_GATE_0_20](docs/11_DEVELOPMENT/EXIT_GATE_0_20.md)).
+
 **Objective:** authorize plugins and external effects before executable code or
 mutable resources cross the analysis boundary.
 
