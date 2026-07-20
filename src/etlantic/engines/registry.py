@@ -82,7 +82,9 @@ class EngineRegistry:
             return _SPARK
         if profile.sql_engine:
             return _SQL
-        return _DATAFRAME if (profile.dataframe_engine or "local") != "local" else _LOCAL
+        return (
+            _DATAFRAME if (profile.dataframe_engine or "local") != "local" else _LOCAL
+        )
 
     def primary_engine(self, profile: Profile) -> str:
         if profile.spark_engine:

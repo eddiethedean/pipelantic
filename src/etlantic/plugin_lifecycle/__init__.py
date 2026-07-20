@@ -237,9 +237,7 @@ def authorize_plugins(
     """Authorize plugins by allowlist before any entry-point import."""
     from etlantic.plugin_lifecycle.policies import policy_for_profile
 
-    return policy_for_profile(profile).authorize(
-        discovered, profile, run_id=run_id
-    )
+    return policy_for_profile(profile).authorize(discovered, profile, run_id=run_id)
 
 
 def _with_auth(item: DiscoveredPlugin, authorization: str) -> DiscoveredPlugin:

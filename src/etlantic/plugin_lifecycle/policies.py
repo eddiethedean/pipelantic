@@ -19,8 +19,7 @@ class AuthorizationPolicy(Protocol):
         profile: Profile | None,
         *,
         run_id: str = "plan",
-    ) -> tuple[list, list[Diagnostic], list[SecurityEvent]]:
-        ...
+    ) -> tuple[list, list[Diagnostic], list[SecurityEvent]]: ...
 
 
 def _with_auth(item: Any, authorization: str) -> Any:
@@ -43,7 +42,9 @@ def _with_auth(item: Any, authorization: str) -> Any:
     )
 
 
-def _plugin_event(*, run_id: str, item: Any, outcome: str, message: str) -> SecurityEvent:
+def _plugin_event(
+    *, run_id: str, item: Any, outcome: str, message: str
+) -> SecurityEvent:
     return SecurityEvent(
         kind="plugin_authorization",
         run_id=run_id,

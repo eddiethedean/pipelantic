@@ -119,7 +119,10 @@ def test_planning_context_with_shared_registry_skips_rediscovery(
     runtime.ensure_plugins_for_profile(profile)
     loads_after_runtime = _LOAD_COUNT["value"]
     # Real plugins register under the engine name; mirror that for the mock.
-    if profile.dataframe_engine and profile.dataframe_engine not in runtime.registry.engines:
+    if (
+        profile.dataframe_engine
+        and profile.dataframe_engine not in runtime.registry.engines
+    ):
         runtime.registry.engines[profile.dataframe_engine] = runtime.registry.engines[
             "local"
         ]

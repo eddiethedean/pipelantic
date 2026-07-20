@@ -98,12 +98,18 @@ class PipelineRuntime:
             include_runtime_groups=True,
             include_transform_compilers=True,
         )
-        self.dataframe_plugins.update(result.dataframe_plugins)
-        self.sql_plugins.update(result.sql_plugins)
-        self.spark_plugins.update(result.spark_plugins)
-        self.spark_providers.update(result.spark_providers)
-        self.orchestrator_plugins.update(result.orchestrator_plugins)
-        self.scheduler_plugins.update(result.scheduler_plugins)
+        for key, plugin in result.dataframe_plugins.items():
+            self.dataframe_plugins.setdefault(key, plugin)
+        for key, plugin in result.sql_plugins.items():
+            self.sql_plugins.setdefault(key, plugin)
+        for key, plugin in result.spark_plugins.items():
+            self.spark_plugins.setdefault(key, plugin)
+        for key, provider in result.spark_providers.items():
+            self.spark_providers.setdefault(key, provider)
+        for key, plugin in result.orchestrator_plugins.items():
+            self.orchestrator_plugins.setdefault(key, plugin)
+        for key, plugin in result.scheduler_plugins.items():
+            self.scheduler_plugins.setdefault(key, plugin)
         self._configured_profile_key = key
         self._plugin_diagnostics = list(result.diagnostics)
         return list(result.diagnostics)
