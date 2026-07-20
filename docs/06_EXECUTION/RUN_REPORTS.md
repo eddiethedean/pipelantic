@@ -7,8 +7,9 @@ Every ETLantic run returns a structured `PipelineRunReport`.
 
 The report is the canonical, backend-independent summary of what was planned,
 executed, produced, validated, retried, skipped, and failed. It is
-**secret-free** and process-local unless you persist it yourself—do not treat
-it as an audit system of record.
+**secret-free**. CLI runs persist reports under `.etlantic/reports/` by default
+(pass `--ephemeral` for process-local). Do not treat reports as an audit system
+of record.
 
 ## Basic Usage
 
@@ -267,23 +268,24 @@ etlantic run customer.py:CustomerPipeline --profile development
 etlantic run customer.py:CustomerPipeline --profile development --format json
 ```
 
-`etlantic report show` / `report export` read the **process-local** report
-store for that CLI invocation. A new process does not see earlier runs unless
-you persist reports yourself.
+`etlantic report list` / `show` / `export` read the durable store at
+`.etlantic/reports/` by default, so separate shell invocations see earlier
+runs. Pass `--ephemeral` only when you want process-local storage.
 
 HTML reports may add diagrams and styling, but they consume the same canonical
 report model.
 
 ## Durable Run History
 
-Use `FileReportStore` when reports must survive process boundaries:
+CLI runs use a durable `FileReportStore` by default. For SDK execution, bind
+the public store explicitly:
 
 ```python
 from pathlib import Path
 
-from etlantic.reports.file_store import FileReportStore
+from etlantic.reports import FileReportStore
 
-store = FileReportStore(Path("reports"))
+store = FileReportStore(Path(".etlantic/reports"))
 # After Pipeline.run(...):
 # store.put(run_report)
 # later:

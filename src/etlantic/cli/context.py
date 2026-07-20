@@ -84,6 +84,7 @@ class CliContext:
         name = profile or self.globals.default_profile or "development"
         return resolve_project_profile(
             name,
+            start=self.workspace().root,
             allow_adhoc_profile=allow_adhoc_profile,
             accept_legacy_bindings=self.globals.accept_legacy_bindings,
         )
@@ -98,14 +99,25 @@ class CliContext:
         errors = [d for d in diags if d.severity is Severity.ERROR]
         if errors:
             if not self.globals.quiet:
-                typer.echo("Plugin authorization failed:", err=True)
-                for diagnostic in errors:
-                    typer.echo(
-                        render_diagnostic_human(
-                            diagnostic, verbose=self.globals.verbose
-                        ),
-                        err=True,
+                if fmt in {"json", "sarif"}:
+                    from etlantic.cli.output import diagnostic_to_dict, emit_payload
+
+                    emit_payload(
+                        {
+                            "ok": False,
+                            "diagnostics": [diagnostic_to_dict(d) for d in errors],
+                        },
+                        fmt="json" if fmt == "sarif" else fmt,
                     )
+                else:
+                    typer.echo("Plugin authorization failed:", err=True)
+                    for diagnostic in errors:
+                        typer.echo(
+                            render_diagnostic_human(
+                                diagnostic, verbose=self.globals.verbose
+                            ),
+                            err=True,
+                        )
             raise typer.Exit(ec.TRUST_FAILURE)
 
     def emit_mutation_preamble(
@@ -119,7 +131,7 @@ class CliContext:
         preview: bool = False,
         fmt: str = "human",
     ) -> None:
-        if preview or fmt == "json":
+        if fmt == "json":
             payload = {
                 "command": command,
                 "target": target,
@@ -129,11 +141,11 @@ class CliContext:
                 "write_intent": write_intent,
                 "ephemeral": self.globals.ephemeral,
                 "workspace": str(self.workspace().root),
+                "preview": preview,
             }
-            if fmt == "json":
-                from etlantic.cli.output import emit_payload
+            from etlantic.cli.output import emit_payload
 
-                emit_payload(payload, fmt="json", quiet=self.globals.quiet)
+            emit_payload(payload, fmt="json", quiet=self.globals.quiet)
             return
         if self.globals.quiet:
             return
@@ -147,6 +159,8 @@ class CliContext:
             typer.echo(f"write_intent: {write_intent}")
         if self.globals.ephemeral:
             typer.echo("mode: ephemeral (process-local reports)")
+        if preview:
+            typer.echo("preview: true (no mutation)")
 
     def confirm_mutation(self, message: str) -> None:
         if self.globals.non_interactive:

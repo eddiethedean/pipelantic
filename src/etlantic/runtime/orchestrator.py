@@ -1952,8 +1952,16 @@ class LocalOrchestrator:
             provider_name = "memory"
         storage = self.runtime.storage.get(provider_name)
         if storage is None:
-            storage = self.runtime.memory
-            provider_name = "memory"
+            if provider_name == "memory":
+                storage = self.runtime.memory
+            else:
+                raise NodeExecutionError(
+                    f"Unknown storage provider {provider_name!r} for "
+                    f"source {node.name!r}",
+                    node_name=node.name,
+                    stage=FailureStage.READ.value,
+                    code="PMEXEC430",
+                )
         location = descriptor.location if descriptor is not None else None
         context: dict[str, Any] = {"run_id": run_id, "node": node.name}
         if descriptor is not None and descriptor.secret_ref is not None:
@@ -1976,7 +1984,18 @@ class LocalOrchestrator:
             provider_name = "memory"
         if self.request.no_write:
             provider_name = "null"
-        storage = self.runtime.storage.get(provider_name) or self.runtime.memory
+        storage = self.runtime.storage.get(provider_name)
+        if storage is None:
+            if provider_name == "memory":
+                storage = self.runtime.memory
+            else:
+                raise NodeExecutionError(
+                    f"Unknown storage provider {provider_name!r} for "
+                    f"sink {node.name!r}",
+                    node_name=node.name,
+                    stage=FailureStage.WRITE.value,
+                    code="PMEXEC431",
+                )
         location = descriptor.location if descriptor is not None else None
         context: dict[str, Any] = {"run_id": run_id, "node": node.name}
         if descriptor is not None and descriptor.secret_ref is not None:

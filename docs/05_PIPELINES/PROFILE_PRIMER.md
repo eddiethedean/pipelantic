@@ -8,13 +8,12 @@ profile shape for local work, CI, and production.
 
 | Profile | Typical use | Trust posture |
 |---------|-------------|---------------|
-| **`local`** | Default for CLI when `--profile` is omitted; in-process Python records | Open plugin discovery; `security_mode` defaults to development |
-| **`development`** | Tutorials and local dataframe/SQL work | Open discovery; relaxed validation unless overridden |
+| **`development`** | Default for CLI when `--profile` is omitted; tutorials and local dataframe/SQL work | Open discovery; relaxed validation unless overridden |
+| **`local`** | Alias-style built-in for in-process Python records | Open plugin discovery; `security_mode` defaults to development |
 | **`production`** | Staging and production runs | Fail-closed: non-empty `plugin_allowlist`, manifests, optional capability probes |
 
-The CLI defaults to **`local`**; most tutorials pass **`development`**. Use the
-same profile for `validate`, `plan`, and `run` in one workflow. See
-[CLI reference](../10_REFERENCE/CLI.md).
+The CLI defaults to **`development`**. Use the same profile for `validate`,
+`plan`, and `run` in one workflow. See [CLI reference](../10_REFERENCE/CLI.md).
 
 ## JSON profiles vs built-ins
 
@@ -68,8 +67,9 @@ See [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md) and
 ### `assets` vs legacy `bindings`
 
 Prefer **`assets`** for logical-to-physical maps (extract/load locations).
-Legacy **`bindings`** keys still load but emit diagnostic `PMCFG110`; migrate
-to `assets` in new profiles.
+Legacy **`bindings`** keys fail closed with `PMCFG111` unless
+`--accept-legacy-bindings` / `accept_legacy_bindings=True`. Migrate with
+`etlantic profile migrate`.
 
 ### Engines and orchestrator
 
@@ -79,7 +79,7 @@ to `assets` in new profiles.
 - `orchestrator`: `local`, `airflow`, `prefect`, etc.
 
 Keep plugin package versions on the **same minor** as core (`0.21.x` with
-`0.20.0` core).
+`0.21.0` core).
 
 ### Optional 0.20 trust controls
 
@@ -90,7 +90,7 @@ Keep plugin package versions on the **same minor** as core (`0.21.x` with
 ## When to use which profile
 
 ```text
-Quick CLI check (no plugins)     →  local (default)
+Quick CLI check (no plugins)     →  development (default)
 Tutorial / dataframe dev         →  development
 CI validate + plan               →  development or checked-in JSON
 Production deploy                →  production JSON + allowlist + assets
@@ -101,4 +101,4 @@ Production deploy                →  production JSON + allowlist + assets
 - [Profiles](PROFILES.md) — full profile model
 - [Production profiles](../06_EXECUTION/PRODUCTION_PROFILES.md)
 - [Security model](../02_FOUNDATIONS/SECURITY.md)
-- [Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md)
+- [Migration 0.20 → 0.21](../11_DEVELOPMENT/MIGRATION_0_20_TO_0_21.md)

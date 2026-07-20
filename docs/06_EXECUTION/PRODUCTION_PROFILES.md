@@ -53,9 +53,9 @@ enable production fail-closed behavior.
 
 ## Legacy bindings
 
-Prefer `assets` in profile JSON. Legacy `bindings`-only files load with
-warning `PMCFG110`. Use `Profile.from_dict(..., accept_legacy_bindings=False)`
-in CI to fail closed.
+Prefer `assets` in profile JSON. Legacy `bindings`-only files fail closed with
+`PMCFG111` unless `accept_legacy_bindings=True` / `--accept-legacy-bindings`.
+Migrate with `etlantic profile migrate`.
 
 See [Profiles](../05_PIPELINES/PROFILES.md) and
-[Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md).
+[Migration 0.20 → 0.21](../11_DEVELOPMENT/MIGRATION_0_20_TO_0_21.md).

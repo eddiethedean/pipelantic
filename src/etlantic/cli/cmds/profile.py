@@ -29,16 +29,23 @@ def _resolve_profile_arg(
     *,
     accept_legacy_bindings: bool,
     allow_adhoc_profile: bool,
+    start: Path | None = None,
 ) -> tuple[Profile, Path | None]:
     path = Path(ref)
     if path.suffix == ".json" and path.is_file():
-        return Profile.from_dict(
-            json.loads(path.read_text(encoding="utf-8")),
-            accept_legacy_bindings=accept_legacy_bindings,
-        ), path
-    profiles_candidate = Path("profiles") / f"{ref}.json"
+        return (
+            load_profile(path, accept_legacy_bindings=accept_legacy_bindings),
+            path,
+        )
+    root = start or Path.cwd()
+    profiles_candidate = root / "profiles" / f"{ref}.json"
     if profiles_candidate.is_file():
-        return load_profile(profiles_candidate), profiles_candidate
+        return (
+            load_profile(
+                profiles_candidate, accept_legacy_bindings=accept_legacy_bindings
+            ),
+            profiles_candidate,
+        )
     return (
         resolve_profile(ref, allow_adhoc_profile=allow_adhoc_profile),
         None,
@@ -93,6 +100,7 @@ def register_profile_commands(app: typer.Typer) -> None:
                 ref,
                 accept_legacy_bindings=cli.globals.accept_legacy_bindings,
                 allow_adhoc_profile=allow_adhoc_profile,
+                start=cli.workspace().root,
             )
             raw = profile.to_dict()
         errors: list[str] = []
@@ -137,6 +145,7 @@ def register_profile_commands(app: typer.Typer) -> None:
             ref,
             accept_legacy_bindings=cli.globals.accept_legacy_bindings,
             allow_adhoc_profile=allow_adhoc_profile,
+            start=cli.workspace().root,
         )
         emit_payload(profile.to_dict(), fmt=fmt, quiet=cli.globals.quiet)
 
@@ -154,11 +163,13 @@ def register_profile_commands(app: typer.Typer) -> None:
             left,
             accept_legacy_bindings=cli.globals.accept_legacy_bindings,
             allow_adhoc_profile=allow_adhoc_profile,
+            start=cli.workspace().root,
         )
         right_profile, _ = _resolve_profile_arg(
             right,
             accept_legacy_bindings=cli.globals.accept_legacy_bindings,
             allow_adhoc_profile=allow_adhoc_profile,
+            start=cli.workspace().root,
         )
         left_data = left_profile.to_dict()
         right_data = right_profile.to_dict()
@@ -196,13 +207,21 @@ def register_profile_commands(app: typer.Typer) -> None:
             raise typer.BadParameter(f"Profile file not found: {path}")
         raw = json.loads(path.read_text(encoding="utf-8"))
         migrated = dict(raw)
-        if "bindings" in migrated and "assets" not in migrated:
-            migrated["assets"] = dict(migrated.pop("bindings"))
+        bindings = dict(migrated.get("bindings") or {})
+        assets = dict(migrated.get("assets") or {}) if "assets" in migrated else None
+        if bindings:
+            if assets is None or not assets:
+                migrated["assets"] = dict(bindings)
+            elif assets != normalize_assets_map(bindings) and assets != bindings:
+                raise typer.BadParameter(
+                    "Profile has both assets and bindings that disagree; "
+                    "resolve manually before migrate."
+                )
+        migrated.pop("bindings", None)
         if "assets" in migrated:
             migrated["assets"] = normalize_assets_map(migrated["assets"])
         if "security_mode" not in migrated:
             migrated["security_mode"] = "development"
-        migrated.pop("bindings", None)
         payload = {"path": str(path), "dry_run": dry_run, "profile": migrated}
         if fmt == "json":
             emit_payload(payload, fmt="json")

@@ -47,7 +47,7 @@ def register_core_commands(
         resolved, _source = cli.resolve_profile(
             profile, allow_adhoc_profile=allow_adhoc_profile
         )
-        cli.ensure_plugins(resolved)
+        cli.ensure_plugins(resolved, fmt=fmt)
         pipeline_cls = cli.load_target(target)
         context = PlanningContext.create(
             profile=resolved,
@@ -122,7 +122,7 @@ def register_core_commands(
             profile, allow_adhoc_profile=allow_adhoc_profile
         )
         write_intent = "no_write" if no_write else "execute_and_persist"
-        if preview or (fmt == "human" and not cli.globals.quiet):
+        if preview or (fmt in {"human", "text"} and not cli.globals.quiet):
             cli.emit_mutation_preamble(
                 command="run",
                 target=target,
@@ -130,11 +130,11 @@ def register_core_commands(
                 profile_source=source,
                 write_intent=write_intent,
                 preview=preview,
-                fmt=fmt if preview else "human",
+                fmt="json" if preview and fmt == "json" else "human",
             )
         if preview:
             raise typer.Exit(ec.SUCCESS)
-        cli.ensure_plugins(resolved)
+        cli.ensure_plugins(resolved, fmt=fmt)
         pipeline_cls = cli.load_target(target)
         if run_one and run_until:
             raise typer.BadParameter("Use only one of --run-one or --run-until.")
@@ -194,7 +194,7 @@ def register_core_commands(
         resolved, _source = cli.resolve_profile(
             profile, allow_adhoc_profile=allow_adhoc_profile
         )
-        cli.ensure_plugins(resolved)
+        cli.ensure_plugins(resolved, fmt=fmt)
         pipeline_cls = cli.load_target(target)
         selection = build_selection(run_one=run_one, run_until=run_until, nodes=nodes)
         context = PlanningContext.create(
@@ -208,7 +208,7 @@ def register_core_commands(
         if plan is None:
             emit_validation_report(
                 report,
-                fmt=fmt if fmt != "json" else "human",
+                fmt=fmt,
                 prefix="Planning failed",
                 verbose=cli.globals.verbose,
                 quiet=cli.globals.quiet,
@@ -349,9 +349,11 @@ def register_core_commands(
     ) -> None:
         """List durable run reports."""
         cli = get_cli_context(ctx)
-        store_root = Path(store) if store else cli.workspace().reports
-        file_store = FileReportStore(store_root)
-        reports = file_store.list(pipeline_id=pipeline_id, limit=limit)
+        if store is not None:
+            report_store = FileReportStore(Path(store))
+        else:
+            report_store = cli.report_store()
+        reports = report_store.list(pipeline_id=pipeline_id, limit=limit)
         payload = {
             "reports": [
                 {

@@ -253,8 +253,9 @@ run import-time code before the allowlist is applied. Install only trusted
 packages, prefer locked environments, and isolate untrusted evaluation.
 
 **Shipped in 0.9+:** production profiles fail closed unless
-`Profile.plugin_allowlist` is set. Configure allowlists in Python (ETLantic
-does **not** load `etlantic.toml` today):
+`Profile.plugin_allowlist` is set. Configure allowlists on `Profile` in Python
+or JSON (optional `etlantic.toml` may set `default_profile` / profile refs; it
+does not replace allowlist configuration):
 
 ```python
 from etlantic import Profile
@@ -275,8 +276,8 @@ See [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 
 !!! note "Future design (1.0)"
     A proposed `etlantic.toml` `[plugins.security]` block may eventually mirror
-    the same allowlist semantics. Do not configure TOML as if it is loaded in
-    0.18—use `Profile.plugin_allowlist`.
+    the same allowlist semantics. 0.21's optional project toml does not define
+    plugin security—use `Profile.plugin_allowlist`.
 
 Controls should include:
 
@@ -664,8 +665,9 @@ variables help correctness but are not a security boundary.
 
 ## Configuration
 
-**Shipped today:** configure security-relevant controls on `Profile` in Python.
-ETLantic does **not** load `etlantic.toml`. See
+**Shipped today:** configure security-relevant controls on `Profile` in Python
+or JSON. Optional `etlantic.toml` may set `default_profile` only—it does not
+replace Profile trust fields. See
 [Runtime configuration](../10_REFERENCE/RUNTIME_CONFIGURATION.md).
 
 ```python

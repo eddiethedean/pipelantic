@@ -35,10 +35,10 @@
             "required": ["provider"],
             "properties": {
               "provider": {"type": "string"},
-              "location": {"type": "string"},
-              "metadata": {"type": "object"}
+              "location": {"type": "string"}
             },
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Object form normalizes to provider://location. Metadata persistence is not shipped in 0.21."
           }
         ]
       }
@@ -46,7 +46,7 @@
     "bindings": {
       "type": "object",
       "additionalProperties": { "type": "string" },
-      "description": "Deprecated. Prefer assets=. Diagnosed on load (PMCFG110)."
+      "description": "Deprecated legacy key. Rejected on load (PMCFG111) unless --accept-legacy-bindings / accept_legacy_bindings=True. Prefer assets=."
     },
     "implementation_overrides": {
       "type": "object",

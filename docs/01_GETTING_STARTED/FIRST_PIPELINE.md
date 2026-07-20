@@ -132,8 +132,7 @@ etlantic plan pipeline.py:CustomerPipeline --profile development --format json
     These commands import definitions but do not inherit in-memory records
     seeded by a different Python process. Prefer the same `--profile` for
     validate, plan, and run (`development` here). If you omit `--profile`,
-    `etlantic plan` defaults to `local` while `etlantic run` defaults to
-    `development`.
+    the CLI defaults to `development`.
 
 ## Generate portable contracts
 
@@ -202,7 +201,7 @@ CSV, and no-write storage. Optional plugins are available today:
 Prefect direct execution shipped in 0.17; Prefect deployment/serve, Dagster
 compilers, and managed cloud Spark providers remain outside the shipped
 boundary. Keep core and optional plugin minors matched—for this guide, pin
-both to `0.20.0`. See [Capabilities](CAPABILITIES.md).
+both to `0.21.0`. See [Capabilities](CAPABILITIES.md).
 
 Continue with [Engine selection](ENGINE_SELECTION.md), or continue diligence
 with [Capabilities](CAPABILITIES.md). For a production profile starter, copy the

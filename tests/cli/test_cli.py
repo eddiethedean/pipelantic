@@ -143,6 +143,8 @@ def test_cli_partition_check_flags() -> None:
 
 
 def test_cli_diff_load_failure_is_explicit() -> None:
+    from etlantic.cli import exit_codes as ec
+
     result = runner.invoke(
         app,
         [
@@ -155,7 +157,7 @@ def test_cli_diff_load_failure_is_explicit() -> None:
             "json",
         ],
     )
-    assert result.exit_code == 1
+    assert result.exit_code == ec.INVALID_MODEL
     payload = json.loads(result.stdout)
     assert payload.get("ok") is False
     assert "previous" in str(payload.get("error", "")).lower()

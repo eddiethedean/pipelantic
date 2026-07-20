@@ -113,7 +113,7 @@ Construct the Python runtime with a `FileReportStore`:
 
 ```python
 from etlantic import PipelineRuntime, PlanningContext
-from etlantic.reports.file_store import FileReportStore
+from etlantic.reports import FileReportStore
 
 profile_path = "profiles/pilot-production.json"
 context = PlanningContext.create(profile=profile_path)

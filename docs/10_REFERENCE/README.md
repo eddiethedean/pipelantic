@@ -7,7 +7,8 @@ interfaces.
 
 - [Command-Line Interface](CLI.md)
 - [Python API](API_REFERENCE.md)
-- [Runtime configuration](RUNTIME_CONFIGURATION.md) (env vars and Profile-in-Python)
+- [Runtime configuration](RUNTIME_CONFIGURATION.md) (Profile, optional `etlantic.toml`, env vars)
+- [Configuration today](CONFIGURATION_TODAY.md) (shipped 0.21 profile + project toml)
 - [Compatibility Matrix](COMPATIBILITY.md)
 - [Portable Compiler Matrix](PORTABLE_COMPILER_MATRIX.md)
 - [Known Limitations](KNOWN_ISSUES.md)
@@ -23,7 +24,7 @@ interfaces.
 
 ## Future design / proposed 1.0
 
-- [Configuration](CONFIGURATION.md) (`etlantic.toml` fantasy)
+- [Configuration](CONFIGURATION.md) (proposed 1.0 surface beyond shipped toml)
 - [Environment Variables](ENVIRONMENT_VARIABLES.md) (proposed names beyond shipped)
 - 0.17 continuation families (`portable-relational-extended/1`,
   `portable-temporal-iana/1`, `portable-nondeterministic/1`,

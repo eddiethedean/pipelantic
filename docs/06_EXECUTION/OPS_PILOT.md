@@ -47,9 +47,9 @@ etlantic plan path/to/pipeline.py:MyPipeline \
 
 ## Reports and observability
 
-- Run reports are **process-local operational evidence**, not an audit system
-  of record. Export with `etlantic report` or a file report store when you need
-  persistence.
+- Run reports default to durable `.etlantic/reports/` (pass `--ephemeral` for
+  process-local). They are operational evidence, not an audit system of
+  record. Use `etlantic report list` / `show` / `export` across invocations.
 - Optional OpenTelemetry adapter: `pip install 'etlantic[otel]'` — see
   [Capabilities](../01_GETTING_STARTED/CAPABILITIES.md).
 

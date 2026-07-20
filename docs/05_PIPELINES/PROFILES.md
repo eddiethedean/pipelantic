@@ -109,7 +109,8 @@ Planning uses the selected profile when generating a Pipeline Plan.
 Profiles resolve logical asset names into physical resources. Prefer
 `Profile(assets=...)` is required for new authoring; `bindings=` authoring was
 removed. Public profile JSON emits `assets` only. Loading legacy JSON that
-only has `bindings` emits `PMCFG110`. Plan `profile_snapshot` may still keep
+only has `bindings` fails closed with `PMCFG111` unless
+`accept_legacy_bindings=True`. Plan `profile_snapshot` may still keep
 a fingerprint-stable bindings-shaped map for `etlantic.plan/1` continuity.
 
 Pipeline:

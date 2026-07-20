@@ -16,7 +16,6 @@ from etlantic.cli.context import get_cli_context
 from etlantic.cli.output import emit_payload
 from etlantic.diagnostics import Severity
 from etlantic.io_policy import SafeIoPolicy
-from etlantic.workspace import ensure_workspace_layout
 
 
 def _check(
@@ -118,8 +117,7 @@ def register_doctor_command(app: typer.Typer) -> None:
 
         paths = cli.workspace()
         try:
-            ensure_workspace_layout(paths)
-            SafeIoPolicy.for_root(paths.reports)
+            SafeIoPolicy.for_root(paths.root)
             checks.append(
                 _check(
                     "workspace",
@@ -132,7 +130,18 @@ def register_doctor_command(app: typer.Typer) -> None:
                 ("reports", paths.reports),
                 ("artifacts", paths.artifacts),
             ):
-                writable = directory.exists() and os.access(directory, os.W_OK)
+                if not directory.exists():
+                    checks.append(
+                        _check(
+                            f"workspace:{label}",
+                            False,
+                            f"{label} directory missing at {directory} "
+                            "(run etlantic init or create it)",
+                            severity="warning",
+                        )
+                    )
+                    continue
+                writable = os.access(directory, os.W_OK)
                 checks.append(
                     _check(
                         f"workspace:{label}",

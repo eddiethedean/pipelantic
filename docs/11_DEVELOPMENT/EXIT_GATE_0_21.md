@@ -33,3 +33,15 @@
   for the recommended stable set. Further slimming targets 0.22+.
 - `ArtifactStore` durable writes still use direct filesystem I/O; SafeIoPolicy
   integration for artifacts is a follow-up hardening item.
+
+## Post-ship hardening
+
+A follow-up pass closed remaining gaps after the 0.21 exit gate:
+
+- **PMCFG111 empty-assets bypass** — empty `assets` no longer unlocks legacy
+  `bindings` without `accept_legacy_bindings`
+- **`accept_legacy_bindings` plumbing** — CLI `--accept-legacy-bindings` and
+  project/profile load paths honor the flag end-to-end
+- **CLI workspace / preamble wiring** — `--workspace`, durable vs
+  `--ephemeral` stores, and `--preview` mutation preambles on `run` /
+  `compile`

@@ -1,12 +1,13 @@
 # Environment Variables
 
-!!! warning "Future design—not a ETLantic 0.18 API guide"
-    This page describes a proposed 1.0 configuration surface. ETLantic 0.18
-    does not load `etlantic.toml` or most of these environment variables.
-    Configure profiles and bindings in Python.
+!!! warning "Future design—most names are proposed 1.0"
+    This page lists proposed 1.0 environment variables. ETLantic **0.21** loads
+    an optional project `etlantic.toml` for `default_profile` but does **not**
+    auto-read most variables below.
 
     **Shipped today:** see [Runtime configuration](RUNTIME_CONFIGURATION.md)
-    for `ETLANTIC_SQL_URL`, secret prefixes, and related vars.
+    for `ETLANTIC_SQL_URL`, secret prefixes, and related vars; see
+    [Configuration today](CONFIGURATION_TODAY.md) for optional `etlantic.toml`.
 
 
 Environment variables provide deployment-time overrides and references to

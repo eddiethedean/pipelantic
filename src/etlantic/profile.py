@@ -45,7 +45,10 @@ def _normalize_assets(
             "Profile assets and bindings disagree. Provide only assets=. "
             f"assets={assets_map!r} bindings={bindings_map!r}"
         )
-    return assets_map or bindings_map
+    # Prefer non-empty assets; never let empty assets unlock legacy bindings.
+    if assets_map:
+        return assets_map
+    return bindings_map
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -268,6 +271,8 @@ class Profile:
         snap = dict(data)
         if "assets" not in snap and "bindings" in snap:
             snap["assets"] = dict(snap.get("bindings") or {})
+        # Plan wire uses ``bindings`` intentionally; never treat as adopter JSON.
+        snap.pop("bindings", None)
         return cls.from_dict(snap)
 
     @classmethod
@@ -298,9 +303,17 @@ class Profile:
                     f"Profile secret {key!r} must be a SecretRef mapping, "
                     "not a plaintext value"
                 )
-        has_assets = "assets" in data and data.get("assets") is not None
-        has_bindings = "bindings" in data and data.get("bindings") is not None
-        if has_bindings and not has_assets:
+        assets_raw = data.get("assets")
+        bindings_raw = data.get("bindings")
+        has_assets_key = "assets" in data and assets_raw is not None
+        has_bindings_key = "bindings" in data and bindings_raw is not None
+        assets_map_preview = dict(assets_raw or {}) if has_assets_key else {}
+        bindings_map_preview = dict(bindings_raw or {}) if has_bindings_key else {}
+        # Empty assets must not unlock legacy bindings (PMCFG111).
+        needs_legacy_opt_in = bool(bindings_map_preview) or (
+            has_bindings_key and not assets_map_preview
+        )
+        if needs_legacy_opt_in:
             if not accept_legacy_bindings:
                 raise ValueError(_LEGACY_BINDINGS_REJECTED)
             warnings.warn(
@@ -309,8 +322,8 @@ class Profile:
                 stacklevel=2,
             )
         store = _normalize_assets(
-            assets=dict(data.get("assets") or {}) if has_assets else None,
-            bindings=dict(data.get("bindings") or {}) if has_bindings else None,
+            assets=assets_map_preview if has_assets_key else None,
+            bindings=bindings_map_preview if has_bindings_key else None,
             allow_legacy_bindings=True,
         )
         security_mode = data.get("security_mode")
@@ -326,6 +339,7 @@ class Profile:
                 UserWarning,
                 stacklevel=2,
             )
+        mode = _parse_security_mode(security_mode)
         return cls(
             name=str(data["name"]),
             orchestrator=str(data.get("orchestrator") or "local"),
@@ -341,7 +355,7 @@ class Profile:
             resources=dict(data.get("resources") or {}),
             secrets=secrets,
             security_domain=str(data.get("security_domain") or "default"),
-            security_mode=_parse_security_mode(security_mode),
+            security_mode=mode,
             validation_policy=str(data.get("validation_policy") or "default"),
             concurrency=data.get("concurrency"),
             timeout_seconds=data.get("timeout_seconds"),
@@ -371,7 +385,7 @@ class Profile:
             require_plugin_probe=bool(data.get("require_plugin_probe", False)),
             metadata=_validated_profile_metadata(
                 data.get("metadata") or {},
-                strict=data.get("security_mode") == "production",
+                strict=mode == "production",
             ),
         )
 

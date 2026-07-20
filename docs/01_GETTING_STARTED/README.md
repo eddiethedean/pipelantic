@@ -6,7 +6,7 @@ ETLantic catches incompatible data-pipeline wiring **before** you process
 data. Define typed datasets, transformations, and pipelines in Python;
 validate and plan them once; run locally or through optional engine plugins.
 
-> **Project status:** ETLantic **0.20.0** is **stable** within the documented
+> **Project status:** ETLantic **0.21.0** is **stable** within the documented
 > single-tenant reference deployment boundary. Experimental features and
 > broader deployment models remain outside that claim. See
 > [Capabilities](CAPABILITIES.md) for the shipped boundary and
@@ -24,9 +24,9 @@ validate and plan them once; run locally or through optional engine plugins.
     Use the CLI for `inspect`, `validate`, and `plan`. In-memory quickstarts
     must seed data in Python (`PipelineRuntime.memory.seed`) before
     `Pipeline.run`—a fresh `etlantic run` process has an empty memory store.
-    Use CLI `run` when assets are bound to durable storage (JSON/CSV/SQL).
-    Prefer the same `--profile` for validate, plan, and run (`development` in
-    tutorials; CLI `plan` defaults to `local` if omitted).
+    Use CLI `run` when assets are bound to durable storage (JSON/CSV/SQL), or
+    start from `etlantic init`. Prefer the same `--profile` for validate, plan,
+    and run (`development` by default when omitted).
 
 ## What You'll Learn
 

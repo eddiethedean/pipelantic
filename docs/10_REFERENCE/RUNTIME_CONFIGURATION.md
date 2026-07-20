@@ -1,8 +1,9 @@
 # Runtime configuration (shipped)
 
-> **Status: Available in ETLantic 0.21.0.** ETLantic does **not** load
-> `etlantic.toml` today. Configure profiles, bindings, and engines in Python.
-> Only the environment variables listed here are read by shipped code.
+> **Status: Available in ETLantic 0.21.0.** Configure profiles, bindings, and
+> engines in Python or JSON. Optional `etlantic.toml` may set `default_profile`
+> and named profile references. Only the environment variables listed here are
+> read by shipped code.
 
 ## Profiles in Python
 
@@ -27,6 +28,13 @@ profile = Profile(
 
 Pass `profile=` to `validate`, `plan`, `run`, and `compile_plan`. Production
 fail-closed trust uses `security_mode="production"` only (not the profile name).
+
+## Optional project file
+
+When `etlantic.toml` exists at the project root, ETLantic loads
+`default_profile` and optional `[profiles]` entries. See
+[Configuration today](CONFIGURATION_TODAY.md). Absent that file, profiles
+resolve from `profiles/{name}.json`, built-ins, or explicit JSON paths.
 
 ## Environment variables
 
@@ -58,14 +66,13 @@ protocol. JSON console logging is available without OTel. See
 
 ## Not shipped
 
-Do not configure these as if they exist in 0.19:
+Do not configure these as if they exist in 0.21:
 
-- `etlantic.toml` / `ETLANTIC_CONFIG`
-- `ETLANTIC_PROFILE` auto-loading
+- `ETLANTIC_CONFIG` / `ETLANTIC_PROFILE` / `ETLANTIC_PROJECT` auto-loading
 - AWS Secrets Manager / Vault providers (OS keyring is optional via
   `etlantic-keyring`)
 
-Proposed names live under Future Design:
+Proposed 1.0 names beyond the optional project toml live under Future Design:
 [Configuration](CONFIGURATION.md) and
 [Environment Variables](ENVIRONMENT_VARIABLES.md).
 

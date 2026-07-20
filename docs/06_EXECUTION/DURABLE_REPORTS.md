@@ -59,7 +59,7 @@ The Python comparison helper reports status, step-status, plan-fingerprint,
 and artifact-count differences:
 
 ```python
-from etlantic.reports.file_store import FileReportStore, compare_reports
+from etlantic.reports import FileReportStore, compare_reports
 
 store = FileReportStore(".etlantic/reports")
 left = store.get("run-left")

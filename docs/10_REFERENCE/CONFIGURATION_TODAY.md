@@ -1,7 +1,27 @@
 # Configuration in 0.21.0
 
-ETLantic 0.21.0 configures execution with a `Profile` object or a JSON profile
-document. It does **not** load `etlantic.toml`.
+ETLantic 0.21.0 configures execution with a `Profile` object, a JSON profile
+document, and an optional project `etlantic.toml`. Prefer **`assets`** for
+logical-to-physical maps; legacy `bindings` fail closed (`PMCFG111`) unless
+`--accept-legacy-bindings` / `accept_legacy_bindings=True`.
+
+## Optional `etlantic.toml`
+
+When present at the project root, `etlantic.toml` sets project metadata and
+`default_profile`. Example (also written by `etlantic init --with-toml`):
+
+```toml
+project = "my-pipeline"
+default_profile = "development"
+
+[metadata]
+etlantic.version = "0.21"
+```
+
+Optional `[profiles]` entries may reference built-in names, `profiles/*.json`
+paths, or inline profile tables. When `etlantic.toml` is absent, profiles
+resolve from `profiles/{name}.json`, built-in templates, or explicit JSON
+paths.
 
 ## Profile fields
 
@@ -17,7 +37,7 @@ document. It does **not** load `etlantic.toml`.
 | `allow_trusted_sql` | `False` | Permit explicitly trusted SQL |
 | `spark_udf_policy` | `"warn"` | Spark UDF policy |
 | `spark_streaming` | `False` | Require Spark streaming capabilities |
-| `bindings` | `{}` | Logical binding names to provider or descriptor names |
+| `assets` | `{}` | Logical asset names to providers/URIs/descriptors |
 | `implementation_overrides` | `{}` | Transformation implementation overrides |
 | `secret_providers` | `{}` | Logical secret-provider bindings |
 | `resources` | `{}` | Logical resource bindings |
@@ -74,8 +94,9 @@ etlantic plan package.pipeline:CustomerPipeline \
 ```
 
 Built-in names are `development`/`dev`, `local`, `test`, and
-`production`/`prod`. Any other bare name creates a default `Profile` with that
-name. A `.json` string is loaded as a file only when that file exists.
+`production`/`prod`. The CLI default is `development`. Any other bare name
+fails closed (`PMCFG100`) unless `--allow-adhoc-profile` is set. A `.json`
+string is loaded as a file only when that file exists.
 
 ## Environment variables shipped today
 
@@ -94,14 +115,8 @@ runtime, but `ETLANTIC_SECRET_*` is not an ambient core convention.
 
 ETLantic 0.21.0 does not auto-read `ETLANTIC_PROFILE`, `ETLANTIC_CONFIG`,
 `ETLANTIC_PROJECT`, logging overrides, or output-format overrides. Names on
-[Environment Variables](ENVIRONMENT_VARIABLES.md) are proposed unless this
-page lists them as shipped.
-
-## No `etlantic.toml`
-
-Do not create `etlantic.toml` expecting 0.20.0 to load it. The
-[Configuration Reference](CONFIGURATION.md) describes a future design, not the
-published runtime. Use explicit Python profiles or JSON profile files today.
+[Environment Variables](ENVIRONMENT_VARIABLES.md) beyond this page remain
+proposed 1.0 design unless listed here as shipped.
 
 See also [Production Profiles](../06_EXECUTION/PRODUCTION_PROFILES.md) and
 [Runtime Configuration](RUNTIME_CONFIGURATION.md).

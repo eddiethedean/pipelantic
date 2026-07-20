@@ -7,6 +7,7 @@ from typing import Any
 
 import typer
 
+from etlantic.cli import exit_codes as ec
 from etlantic.cli.cmds.context import emit_payload, report_to_payload
 from etlantic.cli.context import CliContext, get_cli_context
 from etlantic.diagnostics.sarif import validation_report_to_sarif
@@ -34,7 +35,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
         target: str = typer.Argument(..., help="module:Class or path.py:Class"),
         orch_target: str = typer.Option("airflow", "--target", "-t"),
         output: str = typer.Option("dags", "--output", "-o"),
-        profile: str = typer.Option("local", "--profile", "-p"),
+        profile: str | None = typer.Option(None, "--profile", "-p"),
         allow_adhoc_profile: bool = typer.Option(
             False,
             "--allow-adhoc-profile",
@@ -59,7 +60,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
             fmt=fmt if preview else "human",
         )
         if preview:
-            raise typer.Exit(0)
+            raise typer.Exit(ec.SUCCESS)
         diags = cli.runtime.ensure_plugins_for_profile(resolved)
         from etlantic.diagnostics import Severity
 
@@ -79,7 +80,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
                 },
                 fmt=fmt,
             )
-            raise typer.Exit(1)
+            raise typer.Exit(ec.TRUST_FAILURE)
         context = PlanningContext.create(
             profile=resolved, registry=cli.runtime.registry
         )
@@ -90,7 +91,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
                 emit_payload(validation_report_to_sarif(report), fmt="json")
             else:
                 emit_payload(payload, fmt=fmt)
-            raise typer.Exit(1)
+            raise typer.Exit(ec.PLANNING_FAILURE)
         try:
             artifact = compile_plan(
                 plan,
@@ -107,7 +108,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
                 },
                 fmt=fmt,
             )
-            raise typer.Exit(1) from exc
+            raise typer.Exit(ec.PLANNING_FAILURE) from exc
         out = Path(output)
         out.mkdir(parents=True, exist_ok=True)
         path = out / f"{artifact.dag_id}.py"
@@ -160,7 +161,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
                     },
                     fmt=fmt,
                 )
-                raise typer.Exit(1) from exc
+                raise typer.Exit(ec.ENVIRONMENT_FAILURE) from exc
             stubs: dict[str, str] = {}
             out = Path(output) / "sqlmodel"
             out.mkdir(parents=True, exist_ok=True)
@@ -226,7 +227,7 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
             errors.append(f"current ({current}): {exc}")
         if errors:
             emit_payload({"ok": False, "error": "; ".join(errors)}, fmt=fmt)
-            raise typer.Exit(1)
+            raise typer.Exit(ec.INVALID_MODEL)
 
         if kind == "auto":
             if isinstance(prev_obj, Path):
@@ -249,4 +250,4 @@ def register_compile_commands(app: typer.Typer, context_factory: Any) -> None:
             emit_payload(validation_report_to_sarif(report), fmt="json")
         else:
             emit_payload(report_to_payload(report), fmt=fmt)
-        raise typer.Exit(0 if report.valid else 1)
+        raise typer.Exit(ec.SUCCESS if report.valid else ec.BREAKING_CHANGE)

@@ -12,7 +12,7 @@ py -3.11 --version
 
 ## Installed version is older than the docs
 
-These docs describe ETLantic **0.20.0**. Confirm what you installed:
+These docs describe ETLantic **0.21.0**. Confirm what you installed:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__)"
@@ -21,7 +21,7 @@ etlantic --version
 python -m etlantic --version
 ```
 
-Upgrade from PyPI (pin the published **0.20.0** release for reproducible installs):
+Upgrade from PyPI (pin the published **0.21.0** release for reproducible installs):
 
 ```bash
 python -m pip install --upgrade 'etlantic==0.21.0'
@@ -186,11 +186,12 @@ etlantic validate path.py:P --profile typo --allow-adhoc-profile
 SDK: `resolve_profile("typo", allow_adhoc_profile=True)`. Prefer an explicit
 Profile JSON path for CI.
 
-## Legacy profile `bindings` warning (`PMCFG110`)
+## Legacy profile `bindings` rejected (`PMCFG111`)
 
-Profile JSON that only has `"bindings"` still loads with warning `PMCFG110`.
-Prefer `"assets"`. Fail closed in CI with
-`Profile.from_dict(data, accept_legacy_bindings=False)`.
+Profile JSON that only has `"bindings"` fails closed with `PMCFG111`. Prefer
+`"assets"`. Migrate with `etlantic profile migrate PATH --write`, or load once
+with `--accept-legacy-bindings` /
+`Profile.from_dict(data, accept_legacy_bindings=True)`.
 
 ## Plan fingerprint or schema errors
 
@@ -202,10 +203,9 @@ See [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md).
 
 ## Planning and execution use different profiles
 
-Use one profile name for the whole workflow. The built-in local runtime
-examples in these docs use `development`. The CLI `plan` command defaults to
-`local` and `run` defaults to `development`—pass `--profile development`
-explicitly when you want them to match.
+Use one profile name for the whole workflow. The CLI defaults to
+`development` when `--profile` is omitted (or `default_profile` from optional
+`etlantic.toml`). Pass `--profile` explicitly when you want a different name.
 
 Do not silently switch profile names within one workflow.
 
@@ -308,7 +308,7 @@ Only run the removal command from the repository root after confirming
 
 Python puts the current directory early on `sys.path`. Running from an
 ETLantic source checkout can therefore import checkout code instead of the
-0.20.0 wheel in your environment. Check the imported path:
+0.21.0 wheel in your environment. Check the imported path:
 
 ```bash
 python -c "import etlantic; print(etlantic.__version__); print(etlantic.__file__)"

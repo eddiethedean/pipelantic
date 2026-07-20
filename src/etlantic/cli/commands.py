@@ -8,11 +8,11 @@ from typing import Any
 
 import typer
 
+from etlantic.cli import exit_codes as ec
 from etlantic.cli.cmds.compile import register_compile_commands
-from etlantic.cli.cmds.context import CliContext, emit_payload, report_to_payload
+from etlantic.cli.cmds.context import emit_payload, report_to_payload
 from etlantic.cli.context import get_cli_context
 from etlantic.plan.planner import plan_pipeline_with_report
-from etlantic.profile import resolve_profile
 from etlantic.registry import PlanningContext
 from etlantic.schema_drift import (
     diff_normalized_schemas,
@@ -35,10 +35,6 @@ def register_commands(
 ) -> None:
     """Attach 0.9 CLI commands onto the root Typer app."""
 
-    def _ctx(ctx: typer.Context) -> CliContext:
-        cli = get_cli_context(ctx)
-        return cli
-
     def load_target(target: str) -> Any:
         return context_factory().load_target(target)
 
@@ -60,7 +56,8 @@ def register_commands(
 
     @plugin_app.command("list")
     def plugin_list_cmd(
-        profile: str = typer.Option("local", "--profile", "-p"),
+        ctx: typer.Context,
+        profile: str | None = typer.Option(None, "--profile", "-p"),
         allow_adhoc_profile: bool = typer.Option(
             False,
             "--allow-adhoc-profile",
@@ -83,7 +80,9 @@ def register_commands(
         from etlantic.spark.discovery import discover_spark_plugins
         from etlantic.sql.discovery import discover_sql_plugins
 
-        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        resolved, _ = get_cli_context(ctx).resolve_profile(
+            profile, allow_adhoc_profile=allow_adhoc_profile
+        )
         groups: dict[str, dict[str, Any]] = {}
         if kind in {"all", "dataframe"}:
             groups["dataframe"] = discover_dataframe_plugins(profile=resolved)
@@ -131,13 +130,14 @@ def register_commands(
                 items.append(item)
         emit_payload({"plugins": items, "diagnostics": diagnostics}, fmt=fmt)
         if any(d.get("severity") == "error" for d in diagnostics):
-            raise typer.Exit(1)
+            raise typer.Exit(ec.TRUST_FAILURE)
 
     @plugin_app.command("info")
     def plugin_info_cmd(
+        ctx: typer.Context,
         engine: str = typer.Argument(..., help="Plugin engine name"),
         kind: str = typer.Option("dataframe", "--kind"),
-        profile: str = typer.Option("local", "--profile", "-p"),
+        profile: str | None = typer.Option(None, "--profile", "-p"),
         allow_adhoc_profile: bool = typer.Option(
             False,
             "--allow-adhoc-profile",
@@ -146,7 +146,9 @@ def register_commands(
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
         """Show details for one discovered plugin."""
-        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        resolved, _ = get_cli_context(ctx).resolve_profile(
+            profile, allow_adhoc_profile=allow_adhoc_profile
+        )
         plugins: dict[str, Any] = {}
         if kind == "dataframe":
             from etlantic.dataframe.discovery import discover_dataframe_plugins
@@ -189,12 +191,12 @@ def register_commands(
                 },
                 fmt=fmt,
             )
-            raise typer.Exit(1)
+            raise typer.Exit(ec.GENERAL_FAILURE)
 
         plugin = plugins.get(engine)
         if plugin is None:
             emit_payload({"ok": False, "error": f"Unknown plugin {engine!r}"}, fmt=fmt)
-            raise typer.Exit(1)
+            raise typer.Exit(ec.GENERAL_FAILURE)
         info = getattr(plugin, "info", None)
         payload = (
             info.to_dict()
@@ -203,8 +205,10 @@ def register_commands(
         )
         emit_payload(payload, fmt=fmt)
 
-    def _history_root(path: str | None) -> Path:
-        return Path(path or ".etlantic/schema-history")
+    def _history_root(ctx: typer.Context, path: str | None) -> Path:
+        if path:
+            return Path(path)
+        return get_cli_context(ctx).workspace().schema_history
 
     @schema_app.command("inspect")
     def schema_inspect_cmd(
@@ -217,13 +221,14 @@ def register_commands(
 
     @schema_app.command("check")
     def schema_check_cmd(
+        ctx: typer.Context,
         target: str = typer.Argument(...),
         subject_id: str = typer.Option(..., "--subject"),
         history: str | None = typer.Option(None, "--history"),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
         model = load_target(target)
-        provider = FileSchemaHistoryProvider(_history_root(history))
+        provider = FileSchemaHistoryProvider(_history_root(ctx, history))
         current = observe_model_schema(subject_id, model, layer="current")
         previous = provider.latest(subject_id)
         change_set = None
@@ -239,7 +244,7 @@ def register_commands(
         }
         emit_payload(payload, fmt=fmt)
         if change_set is not None and change_set.overall_impact.value == "breaking":
-            raise typer.Exit(1)
+            raise typer.Exit(ec.BREAKING_CHANGE)
 
     @schema_app.command("diff")
     def schema_diff_cmd(
@@ -251,15 +256,20 @@ def register_commands(
         right = normalize_schema_from_model(load_target(current))
         change_set = diff_normalized_schemas(left, right)
         emit_payload(change_set.to_dict(), fmt=fmt)
-        raise typer.Exit(1 if change_set.overall_impact.value == "breaking" else 0)
+        raise typer.Exit(
+            ec.BREAKING_CHANGE
+            if change_set.overall_impact.value == "breaking"
+            else ec.SUCCESS
+        )
 
     @schema_app.command("history")
     def schema_history_cmd(
+        ctx: typer.Context,
         subject_id: str = typer.Argument(...),
         history: str | None = typer.Option(None, "--history"),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
-        provider = FileSchemaHistoryProvider(_history_root(history))
+        provider = FileSchemaHistoryProvider(_history_root(ctx, history))
         items = [o.to_dict() for o in provider.history(subject_id)]
         emit_payload({"subject_id": subject_id, "history": items}, fmt=fmt)
 
@@ -283,16 +293,18 @@ def register_commands(
 
     @schema_app.command("acknowledge")
     def schema_ack_cmd(
+        ctx: typer.Context,
         subject_id: str = typer.Argument(...),
         note: str | None = typer.Option(None, "--note"),
         history: str | None = typer.Option(None, "--history"),
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
-        provider = FileSchemaHistoryProvider(_history_root(history))
+        provider = FileSchemaHistoryProvider(_history_root(ctx, history))
         emit_payload(provider.acknowledge(subject_id, note=note), fmt=fmt)
 
     @schema_app.command("propose")
     def schema_propose_cmd(
+        ctx: typer.Context,
         target: str = typer.Argument(...),
         subject_id: str = typer.Option(..., "--subject"),
         history: str | None = typer.Option(None, "--history"),
@@ -303,12 +315,12 @@ def register_commands(
         obs = observe_model_schema(subject_id, model, layer="proposed")
         if obs is None:
             emit_payload({"ok": False, "error": "No schema observed"}, fmt=fmt)
-            raise typer.Exit(1)
+            raise typer.Exit(ec.GENERAL_FAILURE)
         emit_payload(
             {
                 "ok": True,
                 "proposal": obs.to_dict(),
-                "history_root": str(_history_root(history)),
+                "history_root": str(_history_root(ctx, history)),
                 "note": "Call schema monitor/record separately; contracts are unchanged.",
             },
             fmt=fmt,
@@ -316,6 +328,7 @@ def register_commands(
 
     @schema_app.command("monitor")
     def schema_monitor_cmd(
+        ctx: typer.Context,
         target: str = typer.Argument(...),
         subject_id: str = typer.Option(..., "--subject"),
         history: str | None = typer.Option(None, "--history"),
@@ -323,11 +336,11 @@ def register_commands(
     ) -> None:
         """Record a schema observation into file history (no source rows)."""
         model = load_target(target)
-        provider = FileSchemaHistoryProvider(_history_root(history))
+        provider = FileSchemaHistoryProvider(_history_root(ctx, history))
         obs = observe_model_schema(subject_id, model, layer="current")
         if obs is None:
             emit_payload({"ok": False, "error": "No schema observed"}, fmt=fmt)
-            raise typer.Exit(1)
+            raise typer.Exit(ec.GENERAL_FAILURE)
         provider.record(obs)
         emit_payload(
             {
@@ -464,7 +477,7 @@ def register_commands(
         ctx: typer.Context,
         left_target: str = typer.Argument(...),
         right_target: str = typer.Argument(...),
-        profile: str = typer.Option("local", "--profile", "-p"),
+        profile: str | None = typer.Option(None, "--profile", "-p"),
         allow_adhoc_profile: bool = typer.Option(
             False,
             "--allow-adhoc-profile",
@@ -481,7 +494,9 @@ def register_commands(
             stacklevel=2,
         )
         cli = get_cli_context(ctx)
-        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        resolved, _ = cli.resolve_profile(
+            profile, allow_adhoc_profile=allow_adhoc_profile
+        )
         context = PlanningContext.create(
             profile=resolved, registry=cli.runtime.registry
         )
@@ -500,7 +515,7 @@ def register_commands(
                 },
                 fmt=fmt,
             )
-            raise typer.Exit(1)
+            raise typer.Exit(ec.PLANNING_FAILURE)
         emit_payload(
             {
                 "ok": True,

@@ -22,9 +22,9 @@ Prefect direct execution via the shipped `etlantic-prefect`
 
 ------------------------------------------------------------------------
 
-## Is ETLantic 0.20 production-supported?
+## Is ETLantic 0.21 production-supported?
 
-ETLantic **0.20.0** is **stable** for documented single-tenant reference
+ETLantic **0.21.0** is **stable** for documented single-tenant reference
 deployments (not unrestricted enterprise production). See
 [Capabilities](CAPABILITIES.md) and
 [Production readiness](../06_EXECUTION/PRODUCTION_READINESS.md). Multi-tenant
@@ -35,7 +35,7 @@ remain adopter-owned.
 
 ## What is the difference between Stable and Experimental?
 
-Stable APIs and behaviors are supported within the documented 0.20 reference
+Stable APIs and behaviors are supported within the documented 0.21 reference
 envelope. Features explicitly labeled **Experimental**, currently including
 Structured Streaming foundations and `etlantic-datafusion`, may change and are
 outside that stable claim. A page describing a shipped feature does not make
@@ -197,7 +197,7 @@ you need Spark semantics and have a working Java environment.
 ## Must core and plugin versions match?
 
 Yes. Keep core and optional plugins on the same minor release. For a
-reproducible 0.20.0 environment, pin both exactly, for example:
+reproducible 0.21.0 environment, pin both exactly, for example:
 
 ```bash
 python -m pip install 'etlantic==0.21.0' 'etlantic-polars==0.21.0'

@@ -11,7 +11,7 @@ plans them; plugins execute.
 It is **not** a dataframe engine, distributed scheduler, warehouse, or secret
 manager.
 
-## What is stable in bounded 0.20.0
+## What is stable in bounded 0.21.0
 
 | Area | Ready? |
 |---|---|
@@ -71,8 +71,9 @@ multi-tenant or enterprise-wide production claims:
 | Unsafe serialization prohibition | Deserialization attack surface |
 | In-process multi-tenancy | Explicitly out of scope—use process isolation |
 
-Treat process-local run reports as operational evidence for a single process,
-not an audit system of record.
+Treat CLI run reports under `.etlantic/reports/` as operational evidence (not
+an audit system of record). Pass `--ephemeral` only when you want process-local
+storage.
 
 How to read status labels in deeper chapters:
 [Documentation Status](../02_FOUNDATIONS/DOCUMENTATION_STATUS.md).
@@ -84,7 +85,7 @@ How to read status labels in deeper chapters:
 - Treating Structured Streaming APIs as stable (they are experimental)
 - AWS Secrets Manager / Vault (not shipped); OS keyring **is** available via
   `etlantic-keyring`
-- Process-local reports as an audit system of record
+- Process-local / durable file reports as an audit system of record
 - Stable 1.0 compatibility guarantees
 - Managed Databricks/EMR/Connect Spark providers
 - **Undocumented advanced portable profiles** — Polars and PySpark ship the
@@ -96,7 +97,7 @@ How to read status labels in deeper chapters:
 
 ## Enterprise readiness matrix
 
-| Concern | Status in 0.20 |
+| Concern | Status in 0.21 |
 |---|---|
 | License | MIT (core and official plugins) |
 | Supported versions / EOL | Current stable line is 0.21.x; see [SECURITY.md](https://github.com/eddiethedean/etlantic/blob/main/SECURITY.md) |
@@ -104,9 +105,9 @@ How to read status labels in deeper chapters:
 | Identity / RBAC / SSO | Out of scope — use process and network isolation |
 | HA / DR / RPO / RTO | Adopter-owned topology |
 | SBOM / signed provenance | Release CI emits SPDX SBOM digests and GitHub build provenance attestations |
-| Audit system of record | Gap — process-local reports are operational evidence only |
+| Audit system of record | Gap — durable/file reports are operational evidence only |
 | Tested scale | Local/pilot workloads; no published capacity guarantees |
-| Upgrade / rollback | Pin exact versions; see [Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md) |
+| Upgrade / rollback | Pin exact versions; see [Migration 0.20 → 0.21](../11_DEVELOPMENT/MIGRATION_0_20_TO_0_21.md) |
 
 ## Recommended evaluation path
 
@@ -123,7 +124,7 @@ Follow this path **after** the green path (Install → Quickstart → First Pipe
    with `etlantic-polars` + `etlantic-pandas` at `==0.21.0`
 7. Optional engine examples from a checkout (portable kernels, SQL, PySpark,
    Airflow compile, Prefect)
-8. [Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md) if
+8. [Migration 0.20 → 0.21](../11_DEVELOPMENT/MIGRATION_0_20_TO_0_21.md) if
    upgrading; otherwise [Upgrade hub](UPGRADE.md)
 9. [Roadmap summary](../11_DEVELOPMENT/ROADMAP_SUMMARY.md) for sequencing
 10. Production path: create `profiles/prod.json` from

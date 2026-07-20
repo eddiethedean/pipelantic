@@ -1,9 +1,9 @@
 # Current Capabilities and Limitations
 
-ETLantic **0.20.0** is **stable** for documented
+ETLantic **0.21.0** is **stable** for documented
 single-tenant reference deployments. Experimental features remain
 experimental, and multi-tenant isolation, deployment topology, compliance,
-advanced multi-tenant control planes remain adopter-owned; 0.20 ships SBOM digests, attestations, and OIDC-preferred publish. This
+advanced multi-tenant control planes remain adopter-owned; 0.21 ships SBOM digests, attestations, and OIDC-preferred publish. This
 page is the shortest answer to "What can I use today?"
 
 ## Recommended bounded production deployment

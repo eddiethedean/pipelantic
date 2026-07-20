@@ -11,11 +11,50 @@ etlantic --version
 Pipeline targets use `package.module:PipelineClass` or
 `path/to/file.py:PipelineClass`.
 
+## Global options
+
+| Option | Purpose |
+|---|---|
+| `--workspace PATH` | Project/workspace root (default: cwd or `etlantic.toml` parent) |
+| `--ephemeral` | Process-local stores instead of durable `.etlantic/` |
+| `--profile`, `-p` | Default profile for commands that accept `--profile` |
+| `--accept-legacy-bindings` | Allow deprecated profile JSON `bindings` (else `PMCFG111`) |
+| `--verbose` / `-v`, `--quiet` / `-q` | Output verbosity |
+| `--color` / `--no-color` | Colorized output |
+| `--non-interactive` | Do not prompt for confirmation |
+
 !!! note "Profile defaults"
-    CLI `validate`, `plan`, and `run` default to profile **`local`** when
-    `--profile` is omitted. Tutorials use **`development`**. Pass the same
-    `--profile` for every command in a workflow (for example
-    `--profile development` on validate, plan, and run).
+    When `--profile` is omitted, the CLI defaults to **`development`** (or
+    `default_profile` from optional `etlantic.toml`). Pass the same
+    `--profile` for every command in a workflow.
+
+!!! note "Durable workspace"
+    By default the CLI writes run reports to `.etlantic/reports/` and uses
+    `.etlantic/artifacts/` for durable materialization. Pass `--ephemeral`
+    for process-local stores (0.20 behavior).
+
+## `init`
+
+Scaffold a minimal import-safe pipeline project:
+
+```bash
+etlantic init
+etlantic init --directory ./my-pipeline --name SamplePipeline --with-toml
+```
+
+Creates `pipeline.py`, `profiles/<profile>.json`, sample JSON under `data/`,
+workspace dirs under `.etlantic/`, and optionally `etlantic.toml`.
+
+## `doctor`
+
+Read-only environment, plugin, profile, and workspace checks:
+
+```bash
+etlantic doctor --profile development
+etlantic doctor pipeline.py:SamplePipeline --format json
+```
+
+Exits `0` when checks pass, `16` (`ENVIRONMENT_FAILURE`) when they fail.
 
 ## `validate`
 
@@ -28,12 +67,12 @@ etlantic validate examples/quickstart.py:CustomerPipeline \
 
 Options:
 
-- `--profile`, `-p`: profile name; default `local`
+- `--profile`, `-p`: profile name; default `development`
 - `--format`: `human`, `json`, or `sarif`
 - `--allow-adhoc-profile`: allow unknown bare profile names (default fails
   closed with `PMCFG100`)
 
-Exit status is 0 for a valid pipeline and 1 for validation errors.
+Exit `0` when valid, `10` (`INVALID_MODEL`) on validation errors.
 
 ## `inspect`
 
@@ -76,18 +115,42 @@ Explain output includes bindings, implementations, capability decisions, and
 (when selected) portable `implementation_kind`, `ir_fingerprint`, and compiler
 identity for Polars kernel compilation.
 
-## `run`
+### `plan diff`
 
-Validate, plan, and execute with the local runtime. The repository quickstart
-requires process-local seeded data, so run its complete companion directly:
+Compare two resolved plans structurally (targets or plan JSON paths):
 
 ```bash
-python examples/quickstart.py
+etlantic plan diff LEFT RIGHT --profile development --format json
 ```
 
-Running `etlantic run examples/quickstart.py:CustomerPipeline --profile
-development` in a fresh process is an expected failure because that CLI process
-does not share the companion script's seeded in-memory runtime.
+Exit `0` when equal, `15` (`BREAKING_CHANGE`) when they differ.
+
+## `profile`
+
+Profile lifecycle helpers:
+
+```bash
+etlantic profile validate profiles/development.json
+etlantic profile show development --format json
+etlantic profile diff LEFT.json RIGHT.json
+etlantic profile migrate profiles/legacy.json --write
+```
+
+| Subcommand | Purpose |
+|---|---|
+| `validate` | Schema + semantic checks |
+| `show` | Print resolved profile |
+| `diff` | Compare two profiles |
+| `migrate` | Rewrite legacy `bindings` → `assets` |
+
+## `run`
+
+Validate, plan, and execute with the local runtime:
+
+```bash
+etlantic run pipeline.py:SamplePipeline --profile development
+etlantic run pipeline.py:SamplePipeline --profile development --preview
+```
 
 Supported report formats are `text`, `json`, and `html`. Additional options:
 
@@ -95,16 +158,15 @@ Supported report formats are `text`, `json`, and `html`. Additional options:
 - `--run-until NODE`
 - `--intent INTENT`
 - `--no-write`
+- `--preview`: show mutation scope only (no execution)
 - `--allow-adhoc-profile`: allow unknown bare profile names (`PMCFG100` otherwise)
 
-CLI runs start with a new process-local runtime. A source that requires seeded
-in-memory data is therefore better run through Python, as shown in the
-quickstart. For durable JSON/CSV storage, use the
-[file-storage tutorial](../06_EXECUTION/FILE_STORAGE_TUTORIAL.md) Python
-companion—it registers bindings in-process and is not directly runnable with
-`etlantic run` today. Keep pipeline modules import-safe (guard side effects
-under `if __name__ == "__main__"`) so `validate` / `plan` do not execute during
-import.
+Reports are written to `.etlantic/reports/` unless `--ephemeral` is set. Keep
+pipeline modules import-safe (guard side effects under
+`if __name__ == "__main__"`) so `validate` / `plan` do not execute during
+import. In-memory sources that require seeded data still need a Python
+companion; file-backed assets (for example `json://data/sample.json` from
+`etlantic init`) run directly via CLI.
 
 ## `compile`
 
@@ -114,7 +176,11 @@ Compile a planned pipeline to an external orchestrator artifact
 ```bash
 etlantic compile examples/quickstart.py:CustomerPipeline \
   --target airflow -o dags/ --profile development
+etlantic compile examples/quickstart.py:CustomerPipeline \
+  --target airflow -o dags/ --preview
 ```
+
+`--preview` shows mutation scope without writing artifacts.
 
 ## `generate`
 
@@ -182,9 +248,10 @@ These are local ops helpers—not a managed reliability product.
 etlantic reliability freshness orders --max-age 3600 --observed-age 120
 etlantic reliability partition-check orders --keys dt,region --count 24 --minimum-count 24
 etlantic reliability reconcile orders --left 100 --right 100
-etlantic reliability plan-diff PREV.json CURRENT.json
 etlantic reliability env-diff LEFT.json RIGHT.json
 ```
+
+`reliability plan-diff` is deprecated; prefer `etlantic plan diff`.
 
 ## `viz`
 
@@ -197,36 +264,48 @@ etlantic viz lineage examples/quickstart.py:CustomerPipeline --format json
 ## `report`
 
 ```bash
+etlantic report list
 etlantic report show RUN_ID --format text
 etlantic report export RUN_ID --format json --output report.json
 etlantic report compare LEFT RIGHT --store .etlantic/reports
 ```
 
-`show` and `export` read the **process-local** CLI runtime store created in the
-same Python process. A separate `etlantic run` invocation cannot see that
-report. Persist across processes with a Python `FileReportStore` on
-`PipelineRuntime(reports=...)`, or use `report compare --store` against a file
-store root that your application already wrote.
+By default `list` / `show` / `export` read the durable store at
+`.etlantic/reports/` (or under `--workspace`). Separate shell invocations see
+the same runs. Pass `--ephemeral` on `run` (and later `report` commands) only
+when you intentionally want process-local storage. `report compare --store`
+reads an explicit file-store root.
 
 ## Exit codes
 
-| Code | Typical meaning |
-|---|---|
-| `0` | Success (validate/plan valid; run succeeded; diff non-breaking) |
-| `1` | Validation/trust failure, run not succeeded, compile/plugin error, or breaking schema impact |
+Documented in `etlantic.cli.exit_codes`:
 
-Exact meaning depends on the subcommand. Prefer `--format json` / SARIF in CI
-and gate on `valid` / diagnostic severity rather than inventing additional
-exit-code semantics.
+| Code | Name | Typical meaning |
+|---|---|---|
+| `0` | `SUCCESS` | Command succeeded |
+| `1` | `GENERAL_FAILURE` | Unclassified failure |
+| `2` | `USAGE_ERROR` | Bad arguments / usage |
+| `10` | `INVALID_MODEL` | Validation or profile model errors |
+| `11` | `TRUST_FAILURE` | Plugin trust / allowlist failure |
+| `12` | `PLANNING_FAILURE` | Planning failed |
+| `13` | `EXECUTION_FAILURE` | Run failed |
+| `14` | `PARTIAL_RUN` | Run completed with partial success |
+| `15` | `BREAKING_CHANGE` | Diff / impact / plan-diff breaking |
+| `16` | `ENVIRONMENT_FAILURE` | Doctor / environment / missing tooling |
+
+Prefer `--format json` / SARIF in CI and gate on `valid` / diagnostic severity
+in addition to exit codes.
 
 ## Mutations
 
 | Command | Mutates workspace? |
 |---|---|
-| `validate`, `inspect`, `plan`, `diff`, `plugin`, `viz` | No (read-only analysis) |
+| `validate`, `inspect`, `plan`, `diff`, `plugin`, `viz`, `doctor` | No (read-only analysis) |
+| `init` | Writes scaffold files and `.etlantic/` layout |
 | `generate` | Writes contract files to `-o` / output directory |
-| `compile` | Writes orchestrator artifacts to `-o` |
-| `run` | Executes pipeline side effects via bound storage |
+| `compile` | Writes orchestrator artifacts to `-o` (unless `--preview`) |
+| `run` | Executes pipeline side effects; writes `.etlantic/reports/` (unless `--ephemeral` / `--preview`) |
+| `profile migrate --write` | Rewrites profile JSON |
 | `schema monitor` / `acknowledge` | Writes schema history under `.etlantic/schema-history/` |
 | `report export` | Writes the chosen `--output` file |
 

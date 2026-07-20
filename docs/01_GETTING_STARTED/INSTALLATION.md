@@ -46,7 +46,7 @@ checkout are below—skip them until after first success.
 ## Optional engine plugins
 
 Core never installs Polars, Pandas, database drivers, or PySpark. Add engines
-explicitly and **match the core minor** (`0.20.0` with `0.20.0`).
+explicitly and **match the core minor** (`0.21.0` with `0.21.0`).
 
 **Primary install (separate packages):**
 

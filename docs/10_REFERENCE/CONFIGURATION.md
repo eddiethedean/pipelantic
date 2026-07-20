@@ -1,9 +1,10 @@
 # Configuration Reference
 
-!!! warning "Future design—not a ETLantic 0.18 API guide"
-    This page describes a proposed 1.0 configuration surface. ETLantic 0.18
-    does not load `etlantic.toml` or these environment variables. Configure
-    profiles and bindings in Python. For what is shipped today, see
+!!! warning "Mixed: optional toml ships in 0.21; most of this page is 1.0 design"
+    ETLantic **0.21** loads an optional minimal `etlantic.toml` (`default_profile`,
+    optional `[profiles]`). Most keys and env vars on this page remain proposed
+    1.0 design. For what is shipped today, see
+    [Configuration today](CONFIGURATION_TODAY.md) and
     [Runtime configuration](RUNTIME_CONFIGURATION.md).
 
 

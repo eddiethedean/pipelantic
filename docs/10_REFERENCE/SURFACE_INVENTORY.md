@@ -1,4 +1,4 @@
-# Public Surface Inventory (0.20)
+# Public Surface Inventory (0.21)
 
 Machine-readable companion: [`surface-inventory.json`](https://github.com/eddiethedean/etlantic/blob/main/src/etlantic/schemas/surface-inventory.json)
 (also packaged under `etlantic.schemas`).
@@ -28,17 +28,21 @@ Stability classes:
 
 ## CLI
 
-`validate`, `inspect`, `plan`, `run`, `compile`, `generate`, `diff`, `plugin`,
-`schema`, `reliability`, `viz`, `report` — **stable** within 0.20.
+`init`, `doctor`, `validate`, `inspect`, `plan`, `profile`, `run`, `compile`,
+`generate`, `diff`, `plugin`, `schema`, `reliability`, `viz`, `report` —
+**stable** within 0.21.
 
 `--allow-adhoc-profile` on validate/plan/run — **stable** (opt-in fail-open for
 unknown bare profile names; default is fail-closed `PMCFG100`).
+`--accept-legacy-bindings` — **stable** (opt-in for legacy `bindings`; default
+fail-closed `PMCFG111`). `--workspace`, `--ephemeral`, and `--preview`
+(on `run` / `compile`) — **stable**.
 
 ## Wire schemas
 
 | Schema ID | Class |
 |---|---|
-| `etlantic.plan/1` | stable (nested defs tightening through 0.20) |
+| `etlantic.plan/1` | stable (nested defs tightening through 0.21) |
 | `etlantic.run_report/1` | stable |
 | `etlantic.interchange/1` | stable (Gate A) |
 | Profile JSON + `security_mode` | stable |

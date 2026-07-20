@@ -1,7 +1,7 @@
-# ETLantic 0.20 User Guide
+# ETLantic 0.21 User Guide
 
-This is the current manual for published ETLantic **0.20.0**. Core onboarding
-paths below are available in 0.20; linked reference and design pages may also
+This is the current manual for published ETLantic **0.21.0**. Core onboarding
+paths below are available in 0.21; linked reference and design pages may also
 describe Experimental, partial, or future work and retain their own status
 labels. ETLantic 0.21.0 is **stable** only within the documented
 single-tenant reference deployment boundary.
@@ -14,7 +14,7 @@ single-tenant reference deployment boundary.
 4. [Choose an engine](ENGINE_SELECTION.md)
 
 After first success: [Capabilities](CAPABILITIES.md),
-[What's new in 0.20](WHATS_NEW_0_20.md), [Compare](COMPARE.md), or
+[What's new in 0.21](WHATS_NEW_0_21.md), [Compare](COMPARE.md), or
 [Upgrade](UPGRADE.md).
 
 ## Choose your next task
@@ -33,7 +33,8 @@ After first success: [Capabilities](CAPABILITIES.md),
 | Run Pandas portable (no native impl) | `examples/portable_pandas_kernel.py` |
 | Run SQL portable (kernel + relational `/1`) | `etlantic-sql` + public conformance suite |
 | Controlled pilot | [Pilot walkthrough](../06_EXECUTION/PILOT_WALKTHROUGH.md) |
-| Trust / safe I/O / outbound policy | [Security](../02_FOUNDATIONS/SECURITY.md) / [Exit gate 0.20](../11_DEVELOPMENT/EXIT_GATE_0_20.md) |
+| Trust / safe I/O / outbound policy | [Security](../02_FOUNDATIONS/SECURITY.md) / [Exit gate 0.21](../11_DEVELOPMENT/EXIT_GATE_0_21.md) |
+| Upgrade from 0.20 | [Migration 0.20 → 0.21](../11_DEVELOPMENT/MIGRATION_0_20_TO_0_21.md) |
 | Upgrade from 0.19 | [Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md) |
 | Upgrade from 0.18 | [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) |
 | Upgrade from 0.17 | [Migration 0.17 → 0.18](../11_DEVELOPMENT/MIGRATION_0_17_TO_0_18.md) |
@@ -45,4 +46,4 @@ After first success: [Capabilities](CAPABILITIES.md),
 
 Pages and tables use **Available**, **Partial**, **Experimental**, **Gap**,
 and **Future design**. Only **Available** surfaces are supported production
-API in 0.20.
+API in 0.21.
