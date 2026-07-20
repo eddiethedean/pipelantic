@@ -66,6 +66,7 @@ def compile_plan(
     plugin: OrchestratorPlugin | None = None,
     context: CompilationContext | None = None,
     plugins: dict[str, OrchestratorPlugin] | None = None,
+    allow_adhoc_profile: bool = False,
 ) -> CompiledOrchestrationArtifact:
     """Compile a secret-free ``PipelinePlan`` into an orchestration artifact.
 
@@ -75,7 +76,11 @@ def compile_plan(
     from etlantic.plan.serialize import verify_plan_fingerprint
 
     verify_plan_fingerprint(plan)
-    resolved_profile = resolve_profile(profile) if profile is not None else None
+    resolved_profile = (
+        resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        if profile is not None
+        else None
+    )
     if context is None:
         if resolved_profile is not None:
             context = context_from_profile(resolved_profile, target=target)
@@ -83,14 +88,14 @@ def compile_plan(
             context = CompilationContext(target=target)
 
     if plugin is None:
-        discovered = plugins if plugins is not None else discover_orchestrator_plugins()
-        if resolved_profile is not None:
-            from etlantic.plugin_trust import assert_plugin_trust
-
-            discovered = assert_plugin_trust(discovered, resolved_profile)
+        discovered = (
+            plugins
+            if plugins is not None
+            else discover_orchestrator_plugins(profile=resolved_profile)
+        )
         plugin = discovered.get(target)
         if plugin is None and plugins is None:
-            plugin = load_orchestrator_plugin(target)
+            plugin = load_orchestrator_plugin(target, profile=resolved_profile)
 
     if plugin is None:
         raise OrchestrationCompilationError(

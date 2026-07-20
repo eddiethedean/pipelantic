@@ -1,7 +1,7 @@
 # etlantic-keyring
 
 Local workstation secret provider for
-[ETLantic](https://github.com/eddiethedean/etlantic) 0.19 using the Python
+[ETLantic](https://github.com/eddiethedean/etlantic) 0.20 using the Python
 [`keyring`](https://keyring.readthedocs.io/) library and OS credential stores.
 
 ```bash

@@ -336,6 +336,7 @@ def _build_plan(
         metadata={
             "planner": "etlantic.plan.planner",
             "planner_version": __version__,
+            "plugin_trust_records": list(context.plugin_trust_records),
             "dataframe_protocol": "etlantic.dataframe/1",
             "sql_protocol": "etlantic.sql/1",
             "spark_protocol": "etlantic.spark/1",

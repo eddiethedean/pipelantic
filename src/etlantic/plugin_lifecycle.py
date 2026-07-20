@@ -394,6 +394,7 @@ def load_authorized_plugins(
     *,
     key_fn: Callable[[DiscoveredPlugin, Any], str] | None = None,
     instantiate: bool = True,
+    production: bool = False,
 ) -> tuple[dict[str, Any], list[Diagnostic]]:
     """Load entry points only for previously authorized plugins."""
     loaded: dict[str, Any] = {}
@@ -418,12 +419,16 @@ def load_authorized_plugins(
                 f"Failed to load authorized plugin entry point "
                 f"{item.group}:{item.name}: {exc}"
             )
-            _LOG.warning(msg)
-            warnings.warn(msg, RuntimeWarning, stacklevel=2)
+            severity = Severity.ERROR if production else Severity.WARNING
+            if production:
+                _LOG.error(msg)
+            else:
+                _LOG.warning(msg)
+                warnings.warn(msg, RuntimeWarning, stacklevel=2)
             diagnostics.append(
                 Diagnostic(
                     code="PMPLUG421",
-                    severity=Severity.WARNING,
+                    severity=severity,
                     message=msg,
                     path=("plugin", item.distribution_name or item.name),
                     phase="plugin_load",
@@ -497,7 +502,50 @@ def discover_evaluate_authorize_load(
     result.security_events.extend(events)
     result.trust_records = [item.trust_record() for item in authorized]
 
-    loaded, l_diags = load_authorized_plugins(authorized, key_fn=key_fn)
+    probe_enabled = bool(profile is not None and profile.require_plugin_probe)
+    if probe_enabled:
+        from etlantic.capability_probe import (
+            CapabilityProbeConfig,
+            run_capability_probe,
+        )
+
+        probe_config = CapabilityProbeConfig(enabled=True)
+        probed: list[DiscoveredPlugin] = []
+        for item in authorized:
+            if item.authorization != "allowed":
+                continue
+            probe = run_capability_probe(
+                group=item.group,
+                name=item.name,
+                target=item.target,
+                config=probe_config,
+                run_id=run_id,
+            )
+            result.diagnostics.extend(probe.diagnostics)
+            if probe.event is not None:
+                result.security_events.append(probe.event)
+            if probe.ok:
+                probed.append(item)
+            elif production:
+                result.diagnostics.append(
+                    Diagnostic(
+                        code="PMPLUG432",
+                        severity=Severity.ERROR,
+                        message=(
+                            f"Capability probe required but failed for "
+                            f"{item.group}:{item.name}."
+                        ),
+                        path=("plugin", item.distribution_name or item.name),
+                        phase="plugin_probe",
+                    )
+                )
+        authorized = probed if production else authorized
+
+    loaded, l_diags = load_authorized_plugins(
+        authorized,
+        key_fn=key_fn,
+        production=production,
+    )
     result.diagnostics.extend(l_diags)
     result.loaded = loaded
     return result

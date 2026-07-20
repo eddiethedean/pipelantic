@@ -1,6 +1,6 @@
 # Support Policy
 
-ETLantic **0.19.x** is production/stable for documented single-tenant
+ETLantic **0.20.x** is production/stable for documented single-tenant
 reference deployments. Community support is best-effort and provides **no
 formal SLA** or guaranteed response time.
 
@@ -16,8 +16,8 @@ Remove credentials, customer data, internal hostnames, and production plans.
 
 ## Supported versions
 
-The current published minor line (`0.19.x`) receives best-effort correctness
-and security fixes. Older 0.x lines (including **0.18.x**) are not actively
+The current published minor line (`0.20.x`) receives best-effort correctness
+and security fixes. Older 0.x lines (including **0.19.x**) are not actively
 maintained. See `SECURITY.md` for the security-support table.
 
 ## Adopter-owned and unsupported areas

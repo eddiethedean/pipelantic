@@ -37,12 +37,18 @@ class PhysicalUnit:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PhysicalUnit:
         """Deserialize physical unit."""
+        from etlantic.extensions import validate_extension_metadata
+
+        metadata = dict(data.get("metadata") or {})
+        validate_extension_metadata(
+            metadata, path="physical_unit.metadata", strict=False
+        )
         unit = cls(
             identity=str(data["identity"]),
             region_id=str(data["region_id"]),
             logical_nodes=tuple(data.get("logical_nodes") or ()),
             engine=str(data["engine"]),
-            metadata=dict(data.get("metadata") or {}),
+            metadata=metadata,
         )
         object.__setattr__(unit, "metadata", deep_freeze(unit.metadata))
         return unit
@@ -175,16 +181,16 @@ class PipelinePlan:
         (e.g. intermediate planner builds) skip verification.
         """
         from etlantic.extensions import validate_extension_metadata
-        from etlantic.plan.upgrade import upgrade_plan_dict
+        from etlantic.plan.upgrade import UnsupportedPlanSchemaError, upgrade_plan_dict
 
         data = upgrade_plan_dict(data)
         schema = data.get("schema")
         if schema is None or schema == "":
-            raise ValueError(
+            raise UnsupportedPlanSchemaError(
                 f"PipelinePlan is missing required 'schema' (expected {PLAN_SCHEMA!r})."
             )
         if schema != PLAN_SCHEMA:
-            raise ValueError(
+            raise UnsupportedPlanSchemaError(
                 f"Unknown PipelinePlan schema {schema!r}; expected {PLAN_SCHEMA!r}."
             )
         metadata = dict(data.get("metadata") or {})
@@ -359,6 +365,10 @@ def _graph_from_dict(data: dict[str, Any]) -> LogicalGraph:
 
 
 def _node_from_dict(data: dict[str, Any]) -> Node:
+    from etlantic.extensions import validate_extension_metadata
+
+    node_metadata = dict(data.get("metadata") or {})
+    validate_extension_metadata(node_metadata, path="node.metadata", strict=False)
     return Node(
         name=str(data["name"]),
         kind=NodeKind(str(data["kind"])),
@@ -399,5 +409,5 @@ def _node_from_dict(data: dict[str, Any]) -> Node:
             for p in data.get("parameters") or ()
         ),
         nested_pipeline_id=data.get("nested_pipeline_id"),
-        metadata=deep_freeze(dict(data.get("metadata") or {})),
+        metadata=deep_freeze(node_metadata),
     )

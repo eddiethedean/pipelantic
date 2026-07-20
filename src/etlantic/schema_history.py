@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,8 @@ from etlantic.io_policy import SafeIoPolicy, read_text_safe, write_json_safe
 from etlantic.schema_drift import SchemaObservation
 from etlantic.schema_policy import InMemorySchemaHistory
 from etlantic.serialization_policy import assert_safe_load_path
+
+_LOG = logging.getLogger(__name__)
 
 
 def _observation_to_dict(observation: SchemaObservation) -> dict[str, Any]:
@@ -121,7 +124,12 @@ class FileSchemaHistoryProvider:
                     path, self.policy, run_id="schema-history-load"
                 )
                 data = json.loads(text)
-            except Exception:
+            except Exception as exc:
+                _LOG.warning(
+                    "Skipping schema history file %s: %s",
+                    path,
+                    exc,
+                )
                 continue
             for item in data.get("history") or []:
                 if isinstance(item, dict):

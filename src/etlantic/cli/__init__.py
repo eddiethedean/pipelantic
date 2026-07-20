@@ -14,6 +14,7 @@ import typer
 from typer.core import TyperGroup
 
 from etlantic import __version__
+from etlantic.diagnostics import Severity
 from etlantic.lifecycle.runtime import PipelineRuntime
 from etlantic.plan.explain import explain_plan
 from etlantic.plan.planner import plan_pipeline_with_report
@@ -55,6 +56,22 @@ app.add_typer(report_app, name="report")
 
 # Process-local runtime for CLI report history within a process.
 _CLI_RUNTIME = PipelineRuntime()
+
+
+def _ensure_cli_plugins(
+    profile: str,
+    *,
+    allow_adhoc_profile: bool = False,
+) -> None:
+    """Authorize and load plugins for CLI commands before plan/run."""
+    resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+    diags = _CLI_RUNTIME.ensure_plugins_for_profile(resolved)
+    errors = [d for d in diags if d.severity is Severity.ERROR]
+    if errors:
+        typer.echo("Plugin authorization failed:", err=True)
+        for diagnostic in errors:
+            typer.echo(f"  {diagnostic.code}: {diagnostic.message}", err=True)
+        raise typer.Exit(1)
 
 
 def _load_target(target: str) -> type[Any]:
@@ -121,6 +138,7 @@ def _plan_and_emit(
     explain: bool,
     allow_adhoc_profile: bool = False,
 ) -> None:
+    _ensure_cli_plugins(profile, allow_adhoc_profile=allow_adhoc_profile)
     pipeline_cls = _load_target(target)
     selection = _build_selection(run_one=run_one, run_until=run_until, nodes=nodes)
     context = PlanningContext.create(
@@ -178,6 +196,7 @@ def validate_cmd(
     ),
 ) -> None:
     """Validate a pipeline without executing it."""
+    _ensure_cli_plugins(profile, allow_adhoc_profile=allow_adhoc_profile)
     pipeline_cls = _load_target(target)
     context = PlanningContext.create(
         profile=profile,
@@ -272,6 +291,7 @@ def run_cmd(
     """Execute a pipeline locally and emit a run report."""
     from etlantic.exceptions import PipelineExecutionError
 
+    _ensure_cli_plugins(profile, allow_adhoc_profile=allow_adhoc_profile)
     pipeline_cls = _load_target(target)
     if run_one and run_until:
         raise typer.BadParameter("Use only one of --run-one or --run-until.")

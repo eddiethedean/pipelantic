@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import AsyncIterator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
+from etlantic.diagnostics import Diagnostic, Severity
 from etlantic.lifecycle.callbacks import CallbackRegistry
 from etlantic.lifecycle.middleware import MiddlewareStack
 from etlantic.lifecycle.resources import ResourceManager
+from etlantic.profile import Profile
 from etlantic.registry import RegistryBundle, builtin_stub_registry
 from etlantic.reports.store import ReportStore
 from etlantic.runtime.events import EventBus
@@ -24,6 +27,17 @@ from etlantic.storage.null import NullStorage
 from etlantic.storage.protocol import StorageBinding
 
 Lifespan = Callable[["PipelineRuntime"], AbstractAsyncContextManager[Any]]
+
+
+def _profile_plugin_key(profile: Profile) -> str:
+    """Stable key for profile-scoped plugin discovery idempotency."""
+    payload = {
+        "name": profile.name,
+        "security_mode": profile.security_mode,
+        "plugin_allowlist": dict(profile.plugin_allowlist or {}),
+        "require_plugin_probe": profile.require_plugin_probe,
+    }
+    return json.dumps(payload, sort_keys=True)
 
 
 @dataclass
@@ -51,6 +65,8 @@ class PipelineRuntime:
     memory: MemoryStorage = field(default_factory=MemoryStorage)
     callables: CallableStorage = field(default_factory=CallableStorage)
     _entered: bool = False
+    _configured_profile_key: str | None = field(default=None, repr=False)
+    _plugin_diagnostics: list[Diagnostic] = field(default_factory=list, repr=False)
 
     def __post_init__(self) -> None:
         if (
@@ -60,102 +76,6 @@ class PipelineRuntime:
             env = EnvSecretProvider()
             self.secret_providers["env"] = env
             self.secret_providers["env-secrets"] = env
-        if not self.dataframe_plugins:
-            try:
-                from etlantic.dataframe.discovery import (
-                    discover_dataframe_plugins,
-                    register_discovered_plugins,
-                )
-
-                discovered = discover_dataframe_plugins()
-                self.dataframe_plugins.update(discovered)
-                register_discovered_plugins(self.registry, plugins=discovered)
-            except Exception as exc:
-                import logging
-                import warnings
-
-                msg = f"Dataframe plugin discovery failed during runtime init: {exc}"
-                logging.getLogger(__name__).warning(msg)
-                warnings.warn(msg, RuntimeWarning, stacklevel=2)
-        if not self.sql_plugins:
-            try:
-                from etlantic.sql.discovery import (
-                    discover_sql_plugins,
-                )
-                from etlantic.sql.discovery import (
-                    register_discovered_plugins as register_sql_plugins,
-                )
-
-                discovered_sql = discover_sql_plugins()
-                self.sql_plugins.update(discovered_sql)
-                register_sql_plugins(self.registry, plugins=discovered_sql)
-            except Exception as exc:
-                import logging
-                import warnings
-
-                msg = f"SQL plugin discovery failed during runtime init: {exc}"
-                logging.getLogger(__name__).warning(msg)
-                warnings.warn(msg, RuntimeWarning, stacklevel=2)
-        if not self.spark_plugins:
-            try:
-                from etlantic.spark.discovery import (
-                    discover_spark_plugins,
-                    discover_spark_providers,
-                )
-                from etlantic.spark.discovery import (
-                    register_discovered_plugins as register_spark_plugins,
-                )
-
-                discovered_spark = discover_spark_plugins()
-                self.spark_plugins.update(discovered_spark)
-                register_spark_plugins(self.registry, plugins=discovered_spark)
-                if not self.spark_providers:
-                    self.spark_providers.update(discover_spark_providers())
-            except Exception as exc:
-                import logging
-                import warnings
-
-                msg = f"Spark plugin discovery failed during runtime init: {exc}"
-                logging.getLogger(__name__).warning(msg)
-                warnings.warn(msg, RuntimeWarning, stacklevel=2)
-        if not self.orchestrator_plugins:
-            try:
-                from etlantic.orchestration.discovery import (
-                    discover_orchestrator_plugins,
-                )
-                from etlantic.orchestration.discovery import (
-                    register_discovered_plugins as register_orch_plugins,
-                )
-
-                discovered_orch = discover_orchestrator_plugins()
-                self.orchestrator_plugins.update(discovered_orch)
-                register_orch_plugins(self.registry, plugins=discovered_orch)
-            except Exception as exc:
-                import logging
-                import warnings
-
-                msg = f"Orchestrator plugin discovery failed during runtime init: {exc}"
-                logging.getLogger(__name__).warning(msg)
-                warnings.warn(msg, RuntimeWarning, stacklevel=2)
-        if not self.scheduler_plugins:
-            try:
-                from etlantic.runtime.scheduler_discovery import (
-                    discover_scheduler_plugins,
-                )
-                from etlantic.runtime.scheduler_discovery import (
-                    register_discovered_plugins as register_sched_plugins,
-                )
-
-                discovered_sched = discover_scheduler_plugins()
-                self.scheduler_plugins.update(discovered_sched)
-                register_sched_plugins(self.registry, plugins=discovered_sched)
-            except Exception as exc:
-                import logging
-                import warnings
-
-                msg = f"Scheduler plugin discovery failed during runtime init: {exc}"
-                logging.getLogger(__name__).warning(msg)
-                warnings.warn(msg, RuntimeWarning, stacklevel=2)
         if not self.storage:
             self.storage = {
                 "memory": self.memory,
@@ -170,6 +90,165 @@ class PipelineRuntime:
             self.storage.setdefault("memory", self.memory)
             self.storage.setdefault("local", self.memory)
             self.storage.setdefault("python", self.memory)
+
+    def ensure_plugins_for_profile(self, profile: Profile) -> list[Diagnostic]:
+        """Discover and load plugins authorized for ``profile`` (0.20).
+
+        Idempotent per profile key. No entry points are imported until this
+        method runs (or manual ``register_*_plugin`` calls).
+        """
+        key = _profile_plugin_key(profile)
+        if self._configured_profile_key == key:
+            return list(self._plugin_diagnostics)
+
+        diagnostics: list[Diagnostic] = []
+        from etlantic.dataframe.discovery import (
+            DATAFRAME_PLUGIN_ENTRY_POINT,
+            register_discovered_plugins,
+        )
+        from etlantic.orchestration.discovery import ORCHESTRATOR_PLUGIN_ENTRY_POINT
+        from etlantic.plugin_lifecycle import discover_evaluate_authorize_load
+        from etlantic.runtime.scheduler_discovery import SCHEDULER_PLUGIN_ENTRY_POINT
+        from etlantic.spark.discovery import (
+            SPARK_PLUGIN_ENTRY_POINT,
+            SPARK_PROVIDER_ENTRY_POINT,
+        )
+        from etlantic.sql.discovery import SQL_PLUGIN_ENTRY_POINT
+        from etlantic.transform.discovery import (
+            TRANSFORM_COMPILER_ENTRY_POINT,
+        )
+        from etlantic.transform.discovery import (
+            _key as transform_key,
+        )
+
+        def _df_key(item: Any, plugin: Any) -> str:
+            return str(
+                getattr(getattr(plugin, "info", None), "engine", None) or item.name
+            )
+
+        def _generic_key(item: Any, plugin: Any) -> str:
+            return str(
+                getattr(getattr(plugin, "info", None), "engine", None) or item.name
+            )
+
+        def _provider_key(item: Any, plugin: Any) -> str:
+            return str(
+                getattr(getattr(plugin, "info", None), "name", None) or item.name
+            )
+
+        groups: list[tuple[str, str, Callable[[Any, Any], str] | None, str]] = [
+            (DATAFRAME_PLUGIN_ENTRY_POINT, "dataframe", _df_key, "dataframe_plugins"),
+            (SQL_PLUGIN_ENTRY_POINT, "sql", _generic_key, "sql_plugins"),
+            (SPARK_PLUGIN_ENTRY_POINT, "spark", _generic_key, "spark_plugins"),
+            (
+                ORCHESTRATOR_PLUGIN_ENTRY_POINT,
+                "orchestrator",
+                _generic_key,
+                "orchestrator_plugins",
+            ),
+            (
+                SCHEDULER_PLUGIN_ENTRY_POINT,
+                "scheduler",
+                None,
+                "scheduler_plugins",
+            ),
+        ]
+
+        for group, _label, key_fn, attr in groups:
+            try:
+                result = discover_evaluate_authorize_load(
+                    group, profile=profile, key_fn=key_fn
+                )
+                diagnostics.extend(result.diagnostics)
+                setattr(self, attr, dict(result.loaded))
+                if attr == "dataframe_plugins":
+                    register_discovered_plugins(
+                        self.registry, plugins=result.loaded, profile=profile
+                    )
+                elif attr == "sql_plugins":
+                    from etlantic.sql.discovery import (
+                        register_discovered_plugins as register_sql,
+                    )
+
+                    register_sql(self.registry, plugins=result.loaded, profile=profile)
+                elif attr == "spark_plugins":
+                    from etlantic.spark.discovery import (
+                        register_discovered_plugins as register_spark,
+                    )
+
+                    register_spark(
+                        self.registry, plugins=result.loaded, profile=profile
+                    )
+                elif attr == "orchestrator_plugins":
+                    from etlantic.orchestration.discovery import (
+                        register_discovered_plugins as register_orch,
+                    )
+
+                    register_orch(self.registry, plugins=result.loaded, profile=profile)
+                elif attr == "scheduler_plugins":
+                    from etlantic.runtime.scheduler_discovery import (
+                        register_discovered_plugins as register_sched,
+                    )
+
+                    register_sched(
+                        self.registry, plugins=result.loaded, profile=profile
+                    )
+            except Exception as exc:
+                diagnostics.append(
+                    Diagnostic(
+                        code="PMPLUG421",
+                        severity=Severity.ERROR,
+                        message=f"Plugin discovery failed for {group}: {exc}",
+                        path=("plugin", group),
+                        phase="plugin_load",
+                    )
+                )
+
+        try:
+            spark_providers = discover_evaluate_authorize_load(
+                SPARK_PROVIDER_ENTRY_POINT,
+                profile=profile,
+                key_fn=_provider_key,
+            )
+            diagnostics.extend(spark_providers.diagnostics)
+            self.spark_providers = dict(spark_providers.loaded)
+        except Exception as exc:
+            diagnostics.append(
+                Diagnostic(
+                    code="PMPLUG421",
+                    severity=Severity.ERROR,
+                    message=f"Spark provider discovery failed: {exc}",
+                    path=("plugin", "spark_providers"),
+                    phase="plugin_load",
+                )
+            )
+
+        try:
+            compilers = discover_evaluate_authorize_load(
+                TRANSFORM_COMPILER_ENTRY_POINT,
+                profile=profile,
+                key_fn=transform_key,
+            )
+            diagnostics.extend(compilers.diagnostics)
+            from etlantic.transform.discovery import register_discovered_compilers
+
+            register_discovered_compilers(
+                self.registry, compilers=compilers.loaded, profile=profile
+            )
+        except Exception as exc:
+            diagnostics.append(
+                Diagnostic(
+                    code="PMPLUG421",
+                    severity=Severity.ERROR,
+                    message=f"Transform compiler discovery failed: {exc}",
+                    path=("plugin", "transform_compiler"),
+                    phase="plugin_load",
+                )
+            )
+
+        self._configured_profile_key = key
+        self._plugin_diagnostics = diagnostics
+        return list(diagnostics)
 
     def add_run_middleware(self, middleware: Any, *, name: str | None = None) -> None:
         self.run_middleware.add(middleware, name=name)
@@ -228,23 +307,16 @@ class PipelineRuntime:
     def apply_plugin_allowlist(self, profile: Any) -> list[Any]:
         """Filter discovered plugins using ``profile.plugin_allowlist``.
 
-        Production profiles fail closed. Returns trust diagnostics.
+        Deprecated: prefer :meth:`ensure_plugins_for_profile` which authorizes
+        before import. This method re-runs profile-aware discovery.
         """
-        from etlantic.plugin_trust import filter_plugins_by_allowlist
+        from etlantic.profile import Profile as ProfileType
 
-        diagnostics: list[Any] = []
-        for attr in (
-            "dataframe_plugins",
-            "sql_plugins",
-            "spark_plugins",
-            "orchestrator_plugins",
-            "scheduler_plugins",
-        ):
-            plugins = getattr(self, attr)
-            kept, diags = filter_plugins_by_allowlist(plugins, profile)
-            setattr(self, attr, kept)
-            diagnostics.extend(diags)
-        return diagnostics
+        if isinstance(profile, ProfileType):
+            return self.ensure_plugins_for_profile(profile)
+        from etlantic.profile import resolve_profile
+
+        return self.ensure_plugins_for_profile(resolve_profile(profile))
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[PipelineRuntime]:

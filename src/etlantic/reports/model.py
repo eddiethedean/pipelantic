@@ -12,6 +12,14 @@ from etlantic.runtime.state import RunStatus, StepStatus
 REPORT_SCHEMA = "etlantic.run_report/1"
 
 
+def _validated_report_metadata(value: Any, *, path: str) -> dict[str, Any]:
+    from etlantic.extensions import validate_extension_metadata
+
+    metadata = dict(value or {})
+    validate_extension_metadata(metadata, path=path, strict=False)
+    return metadata
+
+
 @dataclass(frozen=True, slots=True)
 class RunSummary:
     """Aggregate counters for a run."""
@@ -296,7 +304,9 @@ class PipelineRunReport:
                 records_in=item.get("records_in"),
                 records_out=item.get("records_out"),
                 implementation=item.get("implementation"),
-                metadata=dict(item.get("metadata") or {}),
+                metadata=_validated_report_metadata(
+                    item.get("metadata"), path="step.metadata"
+                ),
             )
             for item in (data.get("steps") or ())
             if isinstance(item, dict)
@@ -419,7 +429,9 @@ class PipelineRunReport:
             schema_observations=schema_observations,
             lineage=lineage,
             plan_fingerprint=data.get("plan_fingerprint"),
-            metadata=dict(data.get("metadata") or {}),
+            metadata=_validated_report_metadata(
+                data.get("metadata"), path="report.metadata"
+            ),
             schema=str(schema),
         )
 

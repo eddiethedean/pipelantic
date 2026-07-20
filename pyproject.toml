@@ -62,6 +62,7 @@ Changelog = "https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md"
 [dependency-groups]
 dev = [
     "hypothesis>=6.100,<7",
+    "jsonschema>=4.23,<5",
     "mkdocs>=1.6,<2",
     "mkdocs-material>=9.6,<10",
     "mkdocstrings[python]>=0.29,<1",

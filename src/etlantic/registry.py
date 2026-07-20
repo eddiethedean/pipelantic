@@ -204,7 +204,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="local",
             kind="runtime",
-            version="0.6.1",
+            version="0.20.0",
             engine="local",
             capabilities=local_caps,
         )
@@ -213,7 +213,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="null",
             kind="runtime",
-            version="0.6.1",
+            version="0.20.0",
             engine="null",
             capabilities=null_caps,
         )
@@ -222,7 +222,7 @@ def builtin_stub_registry() -> RegistryBundle:
         PluginDescriptor(
             name="env-secrets",
             kind="secret_provider",
-            version="0.6.1",
+            version="0.20.0",
             engine="env",
             capabilities=PluginCapabilities(
                 engine="env",
@@ -245,6 +245,7 @@ class PlanningContext:
     allow_capability_fallback: bool = False
     fallback_engine: str | None = "null"
     selection: dict[str, Any] = field(default_factory=dict)
+    plugin_trust_records: list[dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def create(
@@ -287,31 +288,72 @@ class PlanningContext:
             if resolved.spark_streaming:
                 caps.extend(["streaming", "spark_streaming"])
         reg = registry
+        trust_records: list[dict[str, Any]] = []
         if reg is None:
             reg = builtin_stub_registry()
-            if engine in {"polars", "pandas"}:
-                from etlantic.dataframe.discovery import register_discovered_plugins
+            from etlantic.plugin_lifecycle import discover_evaluate_authorize_load
 
-                register_discovered_plugins(reg)
+            if engine in {"polars", "pandas"}:
+                from etlantic.dataframe.discovery import (
+                    DATAFRAME_PLUGIN_ENTRY_POINT,
+                    register_discovered_plugins,
+                )
+
+                result = discover_evaluate_authorize_load(
+                    DATAFRAME_PLUGIN_ENTRY_POINT, profile=resolved
+                )
+                trust_records.extend(result.trust_records)
+                register_discovered_plugins(
+                    reg, plugins=result.loaded, profile=resolved
+                )
             if sql_engine == "sql":
+                from etlantic.sql.discovery import (
+                    SQL_PLUGIN_ENTRY_POINT,
+                )
                 from etlantic.sql.discovery import (
                     register_discovered_plugins as register_sql,
                 )
 
-                register_sql(reg)
+                result = discover_evaluate_authorize_load(
+                    SQL_PLUGIN_ENTRY_POINT, profile=resolved
+                )
+                trust_records.extend(result.trust_records)
+                register_sql(reg, plugins=result.loaded, profile=resolved)
             if spark_engine in {"pyspark", "spark"}:
+                from etlantic.spark.discovery import (
+                    SPARK_PLUGIN_ENTRY_POINT,
+                )
                 from etlantic.spark.discovery import (
                     register_discovered_plugins as register_spark,
                 )
 
-                register_spark(reg)
+                result = discover_evaluate_authorize_load(
+                    SPARK_PLUGIN_ENTRY_POINT, profile=resolved
+                )
+                trust_records.extend(result.trust_records)
+                register_spark(reg, plugins=result.loaded, profile=resolved)
             if engine in {"polars", "pandas"} or spark_engine in {"pyspark", "spark"}:
-                from etlantic.transform.discovery import register_discovered_compilers
+                from etlantic.transform.discovery import (
+                    TRANSFORM_COMPILER_ENTRY_POINT,
+                    register_discovered_compilers,
+                )
+                from etlantic.transform.discovery import (
+                    _key as transform_key,
+                )
 
-                register_discovered_compilers(reg)
+                result = discover_evaluate_authorize_load(
+                    TRANSFORM_COMPILER_ENTRY_POINT,
+                    profile=resolved,
+                    key_fn=transform_key,
+                )
+                trust_records.extend(result.trust_records)
+                register_discovered_compilers(
+                    reg, compilers=result.loaded, profile=resolved
+                )
         return cls(
             profile=resolved,
             registry=reg,
             required_capabilities=caps,
             allow_capability_fallback=allow_capability_fallback,
+            plugin_trust_records=trust_records,
         )

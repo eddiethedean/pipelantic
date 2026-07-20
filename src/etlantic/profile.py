@@ -259,6 +259,13 @@ class Profile:
                 name=str(data.get("name") or ""),
                 security_domain=str(data.get("security_domain") or "default"),
             )
+            warnings.warn(
+                "Profile JSON omitted explicit security_mode; inferred "
+                f"{security_mode!r} from name/domain. Prefer setting security_mode "
+                "explicitly.",
+                UserWarning,
+                stacklevel=2,
+            )
         return cls(
             name=str(data["name"]),
             orchestrator=str(data.get("orchestrator") or "local"),

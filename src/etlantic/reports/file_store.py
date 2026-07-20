@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,8 @@ from etlantic.io_policy import SafeIoPolicy, read_text_safe, write_text_safe
 from etlantic.reports.model import PipelineRunReport
 from etlantic.reports.store import ReportStore
 from etlantic.serialization_policy import assert_safe_load_path
+
+_LOG = logging.getLogger(__name__)
 
 
 @dataclass
@@ -37,7 +40,8 @@ class FileReportStore:
                 data = json.loads(text)
                 report = PipelineRunReport.from_dict(data)
                 self._memory.put(report)
-            except Exception:
+            except Exception as exc:
+                _LOG.warning("Skipping report file %s: %s", path, exc)
                 continue
 
     def put(self, report: PipelineRunReport) -> None:

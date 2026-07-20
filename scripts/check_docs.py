@@ -810,6 +810,8 @@ def main() -> None:
             ROOT / "docs/01_GETTING_STARTED/EVALUATOR.md",
             ROOT / "docs/02_FOUNDATIONS/DOCUMENTATION_STATUS.md",
             ROOT / "docs/10_REFERENCE/README.md",
+            ROOT / "docs/10_REFERENCE/KNOWN_ISSUES.md",
+            ROOT / "docs/11_DEVELOPMENT/SUPPORT.md",
             ROOT / "SUPPORT.md",
         ):
             text = path.read_text(encoding="utf-8")
@@ -833,6 +835,11 @@ def main() -> None:
 
     # Active install/tutorial pins must not target the prior minor release.
     prior_pin_paths = [
+        ROOT / "examples/README.md",
+        ROOT / "profiles/prod.example.json",
+        ROOT / "docs/01_GETTING_STARTED/prod.example.json",
+        ROOT / "docs/10_REFERENCE/KNOWN_ISSUES.md",
+        ROOT / "docs/11_DEVELOPMENT/SUPPORT.md",
         ROOT / "docs/01_GETTING_STARTED/INSTALLATION.md",
         ROOT / "docs/01_GETTING_STARTED/QUICKSTART.md",
         ROOT / "docs/01_GETTING_STARTED/TROUBLESHOOTING.md",

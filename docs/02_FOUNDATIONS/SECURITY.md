@@ -10,7 +10,7 @@ single-tenant reference deployments. It does not provide unrestricted
 full multi-tenant control planes, compliance attestations, deployment-topology, or advanced
 supply-chain guarantees; those controls remain adopter-owned.
 
-## Implemented in 0.19
+## Implemented in 0.19–0.20
 
 - Secret-free plans and reports (`SecretRef` metadata only; resolve at runtime)
 - Explicit `Profile.security_mode` (`development` \| `test` \| `production`);

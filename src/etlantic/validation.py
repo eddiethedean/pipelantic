@@ -458,7 +458,7 @@ def _phase_plugin_trust(context: PlanningContext) -> list[Diagnostic]:
     local production templates.
     """
     from etlantic.plugin_trust import filter_plugins_by_allowlist
-    from etlantic.transform.discovery import discover_transform_compilers
+    from etlantic.transform.discovery import discover_transform_compilers_for_profile
 
     profile = context.profile
     selected: dict[str, object] = {}
@@ -477,7 +477,7 @@ def _phase_plugin_trust(context: PlanningContext) -> list[Diagnostic]:
         if name in selected_engines or engine in selected_engines:
             selected[name] = descriptor
 
-    for engine, compiler in discover_transform_compilers().items():
+    for engine, compiler in discover_transform_compilers_for_profile(profile).items():
         if engine in selected_engines:
             selected[f"transform_compiler:{engine}"] = compiler
 

@@ -18,7 +18,6 @@ from etlantic.interchange.diff import (
 from etlantic.lifecycle.runtime import PipelineRuntime
 from etlantic.orchestration.compile import OrchestrationCompilationError, compile_plan
 from etlantic.plan.planner import plan_pipeline_with_report
-from etlantic.plugin_trust import filter_plugins_by_allowlist
 from etlantic.profile import resolve_profile
 from etlantic.registry import PlanningContext
 from etlantic.schema_drift import (
@@ -98,6 +97,26 @@ def register_commands(
         """Compile a planned pipeline to an external orchestrator artifact."""
         pipeline_cls = load_target(target)
         resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
+        diags = runtime.ensure_plugins_for_profile(resolved)
+        from etlantic.diagnostics import Severity
+
+        errors = [d for d in diags if d.severity is Severity.ERROR]
+        if errors:
+            emit_payload(
+                {
+                    "ok": False,
+                    "diagnostics": [
+                        {
+                            "code": d.code,
+                            "severity": d.severity.value,
+                            "message": d.message,
+                        }
+                        for d in errors
+                    ],
+                },
+                fmt=fmt,
+            )
+            raise typer.Exit(1)
         context = PlanningContext.create(profile=resolved, registry=runtime.registry)
         plan, report = plan_pipeline_with_report(pipeline_cls, context=context)
         if plan is None:
@@ -108,7 +127,12 @@ def register_commands(
                 emit_payload(payload, fmt=fmt)
             raise typer.Exit(1)
         try:
-            artifact = compile_plan(plan, target=orch_target, profile=resolved)
+            artifact = compile_plan(
+                plan,
+                target=orch_target,
+                profile=resolved,
+                allow_adhoc_profile=allow_adhoc_profile,
+            )
         except OrchestrationCompilationError as exc:
             emit_payload(
                 {
@@ -281,37 +305,33 @@ def register_commands(
         )
         from etlantic.spark.discovery import discover_spark_plugins
         from etlantic.sql.discovery import discover_sql_plugins
-        from etlantic.transform.discovery import discover_transform_compilers
 
         resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         groups: dict[str, dict[str, Any]] = {}
         if kind in {"all", "dataframe"}:
-            groups["dataframe"] = discover_dataframe_plugins()
+            groups["dataframe"] = discover_dataframe_plugins(profile=resolved)
         if kind in {"all", "sql"}:
-            groups["sql"] = discover_sql_plugins()
+            groups["sql"] = discover_sql_plugins(profile=resolved)
         if kind in {"all", "spark"}:
-            groups["spark"] = discover_spark_plugins()
+            groups["spark"] = discover_spark_plugins(profile=resolved)
         if kind in {"all", "orchestrator"}:
-            groups["orchestrator"] = discover_orchestrator_plugins()
+            groups["orchestrator"] = discover_orchestrator_plugins(profile=resolved)
         if kind in {"all", "scheduler"}:
-            sched = dict(discover_scheduler_plugins())
+            sched = dict(discover_scheduler_plugins(profile=resolved))
             sched.setdefault("local", builtin_local_scheduler())
             groups["scheduler"] = sched
         if kind in {"all", "transform_compiler"}:
-            groups["transform_compiler"] = discover_transform_compilers()
+            from etlantic.transform.discovery import (
+                discover_transform_compilers_for_profile,
+            )
+
+            groups["transform_compiler"] = discover_transform_compilers_for_profile(
+                resolved
+            )
         items: list[dict[str, Any]] = []
         diagnostics: list[dict[str, Any]] = []
         for group_name, plugins in groups.items():
-            kept, diags = filter_plugins_by_allowlist(plugins, resolved)
-            diagnostics.extend(
-                {
-                    "code": d.code,
-                    "severity": d.severity.value,
-                    "message": d.message,
-                }
-                for d in diags
-            )
-            for engine, plugin in kept.items():
+            for engine, plugin in plugins.items():
                 info = getattr(plugin, "info", None)
                 item: dict[str, Any] = {
                     "kind": group_name,
@@ -349,35 +369,38 @@ def register_commands(
         fmt: str = typer.Option("json", "--format"),
     ) -> None:
         """Show details for one discovered plugin."""
+        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
         plugins: dict[str, Any] = {}
         if kind == "dataframe":
             from etlantic.dataframe.discovery import discover_dataframe_plugins
 
-            plugins = discover_dataframe_plugins()
+            plugins = discover_dataframe_plugins(profile=resolved)
         elif kind == "sql":
             from etlantic.sql.discovery import discover_sql_plugins
 
-            plugins = discover_sql_plugins()
+            plugins = discover_sql_plugins(profile=resolved)
         elif kind == "spark":
             from etlantic.spark.discovery import discover_spark_plugins
 
-            plugins = discover_spark_plugins()
+            plugins = discover_spark_plugins(profile=resolved)
         elif kind == "orchestrator":
             from etlantic.orchestration.discovery import discover_orchestrator_plugins
 
-            plugins = discover_orchestrator_plugins()
+            plugins = discover_orchestrator_plugins(profile=resolved)
         elif kind == "scheduler":
             from etlantic.runtime.scheduler_discovery import (
                 builtin_local_scheduler,
                 discover_scheduler_plugins,
             )
 
-            plugins = dict(discover_scheduler_plugins())
+            plugins = dict(discover_scheduler_plugins(profile=resolved))
             plugins.setdefault("local", builtin_local_scheduler())
         elif kind == "transform_compiler":
-            from etlantic.transform.discovery import discover_transform_compilers
+            from etlantic.transform.discovery import (
+                discover_transform_compilers_for_profile,
+            )
 
-            plugins = discover_transform_compilers()
+            plugins = discover_transform_compilers_for_profile(resolved)
         else:
             emit_payload(
                 {
@@ -391,27 +414,7 @@ def register_commands(
             )
             raise typer.Exit(1)
 
-        resolved = resolve_profile(profile, allow_adhoc_profile=allow_adhoc_profile)
-        kept, diags = filter_plugins_by_allowlist(plugins, resolved)
-        if any(d.severity.value == "error" for d in diags) and engine not in kept:
-            emit_payload(
-                {
-                    "ok": False,
-                    "error": f"Plugin {engine!r} blocked by profile allowlist",
-                    "diagnostics": [
-                        {
-                            "code": d.code,
-                            "severity": d.severity.value,
-                            "message": d.message,
-                        }
-                        for d in diags
-                    ],
-                },
-                fmt=fmt,
-            )
-            raise typer.Exit(1)
-
-        plugin = kept.get(engine)
+        plugin = plugins.get(engine)
         if plugin is None:
             emit_payload({"ok": False, "error": f"Unknown plugin {engine!r}"}, fmt=fmt)
             raise typer.Exit(1)

@@ -16,6 +16,8 @@ released.
 - [API stability and deprecation](DEPRECATION_POLICY.md)
 - [Maintained 0.18 Documentation Audit](DOCUMENTATION_AUDIT_0_18.md)
 - [Historical 0.17 Documentation Audit](DOCUMENTATION_AUDIT_0_17.md)
+- [Migration 0.19 → 0.20](MIGRATION_0_19_TO_0_20.md)
+- [Exit gate 0.20](EXIT_GATE_0_20.md)
 - [Migration 0.17 → 0.18](MIGRATION_0_17_TO_0_18.md)
 - [Migration 0.16 → 0.17](MIGRATION_0_16_TO_0_17.md)
 - [Migration 0.15 → 0.16](MIGRATION_0_15_TO_0_16.md)
