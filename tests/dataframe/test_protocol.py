@@ -203,9 +203,14 @@ def test_planning_context_auto_requires_dataframe_caps() -> None:
 
 
 def test_plan_fails_without_polars_plugin() -> None:
-    context = PlanningContext.create(
-        profile=Profile(name="p", dataframe_engine="polars"),
+    from etlantic.engines import get_engine_registry
+
+    profile = Profile(name="p", dataframe_engine="polars")
+    caps = get_engine_registry().default_capabilities(profile)
+    context = PlanningContext(
+        profile=profile,
         registry=builtin_stub_registry(),
+        required_capabilities=caps,
     )
     with pytest.raises(PipelineValidationError) as exc:
         plan_pipeline(_PolarsPipeline, context=context)

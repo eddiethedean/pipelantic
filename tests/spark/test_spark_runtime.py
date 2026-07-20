@@ -169,10 +169,16 @@ def test_region_split_reason_visible_in_plan_explain() -> None:
 
 
 def test_missing_spark_plugin_fails_planning() -> None:
-    from etlantic.registry import builtin_stub_registry
+    from etlantic.engines import get_engine_registry
+    from etlantic.registry import PlanningContext, builtin_stub_registry
 
     profile = Profile(name="spark-missing", spark_engine="pyspark")
-    ctx = PlanningContext.create(profile, registry=builtin_stub_registry())
+    caps = get_engine_registry().default_capabilities(profile)
+    ctx = PlanningContext(
+        profile=profile,
+        registry=builtin_stub_registry(),
+        required_capabilities=caps,
+    )
     with pytest.raises(PipelineValidationError):
         plan_pipeline(CustomerSparkPipeline, context=ctx)
 

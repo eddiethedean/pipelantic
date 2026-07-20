@@ -309,7 +309,7 @@ def test_capability_probe_failure_emits_pmplug432(
     item = discovered[0]
     allow_key = item.distribution_name or item.name
     profile = production_profile(
-        plugin_allowlist={allow_key: "*"},
+        plugin_allowlist={allow_key: None},
         require_plugin_probe=True,
     )
     result = discover_evaluate_authorize_load(
