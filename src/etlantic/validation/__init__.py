@@ -78,6 +78,11 @@ def validate_pipeline(
     # Phase 6: plugin trust (production allowlist fail-closed)
     from etlantic.validation.phases.plugin_trust import phase_plugin_trust
 
+    discovery = _dedupe_diagnostics(
+        _tag_phase(list(context.plugin_discovery_diagnostics), "plugin_discovery")
+    )
+    diagnostics.extend(discovery)
+
     trust = phase_plugin_trust(context)
     diagnostics.extend(_tag_phase(trust, "plugin_trust"))
 
@@ -103,6 +108,19 @@ def validate_pipeline(
         ]
 
     return ValidationReport.from_diagnostics(diagnostics, phases=VALIDATION_PHASES)
+
+
+def _dedupe_diagnostics(diagnostics: list[Diagnostic]) -> list[Diagnostic]:
+    """Drop duplicate diagnostics by (code, path) pair."""
+    seen: set[tuple[str, tuple[str, ...] | None]] = set()
+    unique: list[Diagnostic] = []
+    for diagnostic in diagnostics:
+        key = (diagnostic.code, diagnostic.path)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(diagnostic)
+    return unique
 
 
 def _tag_phase(diagnostics: list[Diagnostic], phase: str) -> list[Diagnostic]:

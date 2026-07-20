@@ -269,21 +269,34 @@ class OrchestratorPluginInfo:
 
 @runtime_checkable
 class OrchestratorPlugin(Protocol):
-    """Protocol for external orchestration compilers."""
+    """Protocol for external orchestration compilers.
+
+    Implementations turn a resolved :class:`~etlantic.plan.model.PipelinePlan`
+    into backend artifacts (for example Airflow DAG modules) without executing
+    user transformation code during compilation.
+    """
 
     @property
-    def info(self) -> OrchestratorPluginInfo: ...
+    def info(self) -> OrchestratorPluginInfo:
+        """Plugin metadata including orchestrator id and capabilities."""
+        ...
 
-    def capabilities(self) -> PluginCapabilities: ...
+    def capabilities(self) -> PluginCapabilities:
+        """Return scheduling/retry/parallelism flags for planning."""
+        ...
 
     def compile(
         self,
         plan: PipelinePlan,
         *,
         context: CompilationContext,
-    ) -> CompiledOrchestrationArtifact: ...
+    ) -> CompiledOrchestrationArtifact:
+        """Compile a pipeline plan into a deterministic orchestration artifact."""
+        ...
 
     def explain(
         self,
         artifact: CompiledOrchestrationArtifact,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """Return a JSON-serializable summary of a compiled artifact."""
+        ...

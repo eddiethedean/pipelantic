@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 
+from etlantic.capability_probe import CapabilityProbeResult
 from etlantic.dataframe.discovery import discover_dataframe_plugins
+from etlantic.diagnostics import Diagnostic, Severity
 from etlantic.exceptions import ETLanticError
 from etlantic.interchange.security import UnsafeLoadError
 from etlantic.io_policy import SafeIoPolicy, read_text_safe, write_text_safe
@@ -25,13 +27,14 @@ from etlantic.plan.artifacts import (
 from etlantic.plugin_lifecycle import (
     authorize_plugins,
     discover_entry_points,
+    discover_evaluate_authorize_load,
 )
 from etlantic.plugin_manifest import (
     PLUGIN_MANIFEST_SCHEMA,
     compute_manifest_digest,
     parse_plugin_manifest,
 )
-from etlantic.profile import Profile, production_profile
+from etlantic.profile import Profile, load_profile, production_profile, write_profile
 from etlantic.serialization_policy import (
     UnsafeSerializationError,
     assert_safe_load_path,
@@ -261,3 +264,79 @@ def test_first_party_polars_manifest_readable() -> None:
     assert manifest.package == "etlantic-polars"
     assert manifest.schema == PLUGIN_MANIFEST_SCHEMA
     assert any(e.name == "polars" for e in manifest.entries)
+
+
+def test_load_profile_rejects_outside_root(tmp_path: Path) -> None:
+    root = tmp_path / "profiles"
+    root.mkdir()
+    profile_path = root / "prod.json"
+    write_profile(production_profile(name="prod"), profile_path)
+    outside = tmp_path / "escape.json"
+    try:
+        outside.symlink_to(profile_path)
+    except OSError:
+        pytest.skip("symlinks not supported")
+    with pytest.raises(UnsafeLoadError):
+        load_profile(outside)
+
+
+def test_capability_probe_failure_emits_pmplug432(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _fail_probe(**kwargs):  # type: ignore[no-untyped-def]
+        name = kwargs.get("name", "unknown")
+        return CapabilityProbeResult(
+            ok=False,
+            summary={"ok": False, "error": "simulated"},
+            diagnostics=(
+                Diagnostic(
+                    code="PMPLUG432",
+                    severity=Severity.ERROR,
+                    message="Capability probe failed (simulated).",
+                    phase="plugin_probe",
+                    path=("plugin", name),
+                ),
+            ),
+        )
+
+    monkeypatch.setattr(
+        "etlantic.capability_probe.run_capability_probe",
+        _fail_probe,
+    )
+    discovered, _ = discover_entry_points("etlantic.dataframe_plugins")
+    if not discovered:
+        pytest.skip("no dataframe plugins installed")
+    item = discovered[0]
+    allow_key = item.distribution_name or item.name
+    profile = production_profile(
+        plugin_allowlist={allow_key: "*"},
+        require_plugin_probe=True,
+    )
+    result = discover_evaluate_authorize_load(
+        "etlantic.dataframe_plugins",
+        profile=profile,
+    )
+    assert any(d.code == "PMPLUG432" for d in result.diagnostics)
+
+
+def test_capability_probe_disabled_skips_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import subprocess
+
+    def _boom(*args, **kwargs):  # type: ignore[no-untyped-def]
+        raise AssertionError("subprocess.run should not be called")
+
+    monkeypatch.setattr(subprocess, "run", _boom)
+    discovered, _ = discover_entry_points("etlantic.dataframe_plugins")
+    if not discovered:
+        pytest.skip("no dataframe plugins installed")
+    profile = Profile(
+        name="dev",
+        security_mode="development",
+        require_plugin_probe=False,
+    )
+    discover_evaluate_authorize_load(
+        "etlantic.dataframe_plugins",
+        profile=profile,
+    )

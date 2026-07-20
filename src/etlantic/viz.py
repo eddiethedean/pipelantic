@@ -34,6 +34,7 @@ class GraphNode:
 @dataclass(frozen=True, slots=True)
 class GraphEdge:
     """Directed edge in a visualization IR."""
+
     source: str
     target: str
     label: str = ""

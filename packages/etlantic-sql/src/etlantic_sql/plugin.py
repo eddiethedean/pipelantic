@@ -33,7 +33,7 @@ __version__ = "0.20.0"
 
 
 def create_plugin() -> PostgresSqlPlugin:
-    """Entry-point factory."""
+    """Entry-point factory for ``etlantic.sql_plugins``."""
     return PostgresSqlPlugin()
 
 

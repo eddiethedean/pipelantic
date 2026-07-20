@@ -369,6 +369,50 @@ engine.
 9. Domain standards remain authoritative for contract meaning.
 10. Execution technology never becomes the source of truth.
 
+## 0.20 trust and safe I/O delta
+
+ETLantic **0.20.0** adds fail-closed trust boundaries that apply before plugins
+load and before profile or artifact files are read from disk.
+
+### Pre-import plugin trust
+
+- Static **plugin manifests** ship inside each distribution; tampered manifests
+  fail with diagnostic `PMPLUG411`.
+- **Production profiles** require a non-empty `plugin_allowlist`; unauthorized
+  plugins never reach `entry_point.load()`.
+- Optional **capability probes** (`require_plugin_probe`) validate entry points
+  in an isolated subprocess before load.
+
+Plugin discovery diagnostics surface in `validate` / SARIF under the
+`plugin_discovery` phase (alongside `plugin_trust`).
+
+### Safe filesystem I/O
+
+`:class:`~etlantic.io_policy.SafeIoPolicy` confines reads and writes to
+**approved roots**, rejects symlink escapes (`symlink_policy="reject"`),
+bounds file size, and can enforce atomic writes with integrity digests.
+Profile JSON load/save, reports, schema history, and cache paths use this
+policy — not unbounded `open()`.
+
+### Artifact and cache isolation
+
+Plan artifacts and compiler caches include **security domain**, tenant, and
+environment dimensions so cross-tenant reuse fails closed at identity check
+boundaries.
+
+### Outbound policy
+
+Runtime outbound HTTP(S) calls evaluate against an explicit host/scheme
+allowlist; metadata endpoints and private ranges are denied by default.
+
+### Fingerprint verification
+
+Portable transform plans and interchange payloads carry fingerprints verified
+at trust boundaries (planning, compilation, and artifact handoff).
+
+See also [Security Model](SECURITY.md) and
+[Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md).
+
 ## Related Reading
 
 - [Core Concepts](CORE_CONCEPTS.md)

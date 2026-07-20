@@ -494,7 +494,12 @@ class SqlExecutionContext:
 
 @runtime_checkable
 class SqlPlugin(Protocol):
-    """Protocol for SQL execution backends."""
+    """Protocol for SQL execution backends.
+
+    Plugins compile portable :class:`~etlantic.sql.protocol.SqlQuery` and
+    :class:`~etlantic.sql.protocol.SqlWrite` intents to dialect SQL, execute
+    with parameterized bindings, and expose catalog helpers for planning.
+    """
 
     @property
     def info(self) -> SqlPluginInfo: ...

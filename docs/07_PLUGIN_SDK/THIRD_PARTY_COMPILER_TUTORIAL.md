@@ -148,7 +148,7 @@ capabilities = TransformCapabilities(
 
 Do not claim `portable-relational/1` until joins, unions, grouping,
 aggregation, ordering, distinct/deduplication, and limits all satisfy the
-profile. In 0.19.0, a relational claim must reject join collision policies
+profile. In 0.20.0, a relational claim must reject join collision policies
 other than `fail`. If the backend is eager-only, set `lazy=False`.
 
 Unsupported requirements must produce deterministic
@@ -229,7 +229,7 @@ myengine = "my_compiler.plugin:create_transform_compiler"
 ```
 
 Depend on a matching ETLantic minor (`etlantic>=0.20.0,<0.21` for official
-0.19 plugins).
+0.20 plugins).
 
 ## 3. Run the public conformance suite
 

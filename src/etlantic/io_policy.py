@@ -226,46 +226,89 @@ def resolve_under_policy(
             )
             raise _io_error("PMSRC111", f"Special file rejected: {resolved}", resolved)
         if policy.symlink_policy == "reject":
-            # Detect symlink components via lstat vs resolve mismatch.
-            try:
-                if resolved.is_symlink() or any(
-                    p.is_symlink() for p in [resolved, *resolved.parents] if p.exists()
-                ):
-                    # Only reject if a symlink escapes roots; following within root
-                    # is allowed only under follow_within_root.
-                    pass
-            except OSError:
-                pass
-            # Check that the final path wasn't reached via a symlink escape:
-            # compare resolve() with a no-follow walk.
-            try:
-                no_follow = Path(os.path.realpath(raw, strict=False))  # type: ignore[call-arg]
-            except TypeError:
-                no_follow = Path(os.path.realpath(str(raw)))
-            if policy.approved_roots:
-                for candidate_root in policy.approved_roots:
-                    root_res = candidate_root.expanduser().resolve()
-                    try:
-                        no_follow.relative_to(root_res)
-                        break
-                    except ValueError:
-                        continue
-                else:
-                    events.append(
-                        _deny_event(
-                            run_id=run_id,
-                            path=resolved,
-                            outcome="denied",
-                            message="Symlink escape rejected.",
-                        )
-                    )
-                    raise _io_error(
-                        "PMSRC110",
-                        f"Symlink escape rejected: {raw}",
-                        raw,
-                    )
+            _reject_symlink_escape(
+                raw=raw,
+                resolved=resolved,
+                policy=policy,
+                run_id=run_id,
+                events=events,
+            )
+        elif policy.symlink_policy == "follow_within_root":
+            _reject_symlink_escape(
+                raw=raw,
+                resolved=resolved,
+                policy=policy,
+                run_id=run_id,
+                events=events,
+                allow_within_root=True,
+            )
 
     return resolved, events
+
+
+def _path_has_symlink_component(path: Path) -> bool:
+    """Return True when any existing component along path is a symlink."""
+    try:
+        if path.is_symlink():
+            return True
+        for parent in path.parents:
+            if parent.exists() and parent.is_symlink():
+                return True
+    except OSError:
+        return False
+    return False
+
+
+def _reject_symlink_escape(
+    *,
+    raw: Path,
+    resolved: Path,
+    policy: SafeIoPolicy,
+    run_id: str,
+    events: list[SecurityEvent],
+    allow_within_root: bool = False,
+) -> None:
+    """Reject symlink paths that escape approved roots."""
+    if not _path_has_symlink_component(raw) and not _path_has_symlink_component(
+        resolved
+    ):
+        return
+
+    if allow_within_root and policy.approved_roots:
+        for candidate_root in policy.approved_roots:
+            root_res = candidate_root.expanduser().resolve()
+            try:
+                resolved.relative_to(root_res)
+                return
+            except ValueError:
+                continue
+
+    try:
+        no_follow = Path(os.path.realpath(raw, strict=False))  # type: ignore[call-arg]
+    except TypeError:
+        no_follow = Path(os.path.realpath(str(raw)))
+    if policy.approved_roots:
+        for candidate_root in policy.approved_roots:
+            root_res = candidate_root.expanduser().resolve()
+            try:
+                no_follow.relative_to(root_res)
+                return
+            except ValueError:
+                continue
+
+    events.append(
+        _deny_event(
+            run_id=run_id,
+            path=resolved,
+            outcome="denied",
+            message="Symlink escape rejected.",
+        )
+    )
+    raise _io_error(
+        "PMSRC110",
+        f"Symlink escape rejected: {raw}",
+        raw,
+    )
 
 
 def read_text_safe(

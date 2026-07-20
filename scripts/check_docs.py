@@ -65,7 +65,15 @@ def main() -> None:
         "Available in 0.19.0** for Polars",
         "Public Surface Inventory (0.19)",
         "docs target 0.19.0",
-        "python -m pip install -e \".[dev]\"",
+        "0.19.x patches",
+        "Core 0.19.x",
+        "0.19.0 wheel",
+        "Public imports (0.19)",
+        "protocols in 0.19.0",
+        "In 0.19.0, a relational claim",
+        "shipped in ETLantic 0.19.0",
+        "0.19 plugins",
+        'python -m pip install -e ".[dev]"',
         "ETLantic 0.18.0 shipped portable coverage expansion",
         "not a ETLantic 0.11 API guide",
         "etlantic==0.13.0",
@@ -339,6 +347,8 @@ def main() -> None:
         "MIGRATION_0_15_TO_0_16.md",
         "MIGRATION_0_16_TO_0_17.md",
         "MIGRATION_0_17_TO_0_18.md",
+        "MIGRATION_0_18_TO_0_19.md",
+        "MIGRATION_0_19_TO_0_20.md",
     ):
         if migration not in mkdocs_text:
             raise SystemExit(f"mkdocs.yml missing {migration} nav entry")
@@ -357,7 +367,7 @@ def main() -> None:
     for required_nav in (
         "06_EXECUTION/DEPLOYMENT.md",
         "11_DEVELOPMENT/PERFORMANCE.md",
-        "11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_17.md",
+        "11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_20.md",
         "09_EXAMPLES/PREFECT_RUN.md",
         "  - Plugin SDK:",
         "  - Release notes:",
@@ -779,6 +789,7 @@ def main() -> None:
         ROOT / "packages/etlantic-keyring/pyproject.toml",
         ROOT / "packages/etlantic-sqlmodel/pyproject.toml",
         ROOT / "packages/etlantic-sparkforge/pyproject.toml",
+        ROOT / "packages/etlantic-datafusion/pyproject.toml",
     ):
         plugin_version = version_from(plugin_pyproject, r'(?m)^version = "([^"]+)"')
         if plugin_version != package_version:
@@ -942,10 +953,10 @@ def main() -> None:
     if root_beta_classifier not in root_text:
         raise SystemExit(f"{root_pyproject_path} missing Beta classifier")
     if plugin_stable_classifier in root_text:
-        raise SystemExit(f"{root_pyproject_path} should use Beta, not Production/Stable")
-    for path in (
-        *(ROOT / "packages").glob("etlantic-*/pyproject.toml"),
-    ):
+        raise SystemExit(
+            f"{root_pyproject_path} should use Beta, not Production/Stable"
+        )
+    for path in (*(ROOT / "packages").glob("etlantic-*/pyproject.toml"),):
         text = path.read_text(encoding="utf-8")
         pkg_name = path.parent.name
         if pkg_name in experimental_packages:
@@ -994,23 +1005,42 @@ def main() -> None:
                 )
 
     # Adopter-facing pages must use current milestone vocabulary.
+    major_minor = ".".join(package_version.split(".")[:2])
     doc_status = (ROOT / "docs/02_FOUNDATIONS/DOCUMENTATION_STATUS.md").read_text(
         encoding="utf-8"
     )
-    if "Available in 0.20" not in doc_status:
-        raise SystemExit("DOCUMENTATION_STATUS.md must reference Available in 0.20")
-    surface_inventory = (
-        ROOT / "docs/10_REFERENCE/SURFACE_INVENTORY.md"
-    ).read_text(encoding="utf-8")
-    if "0.20 reference envelope" not in surface_inventory:
-        raise SystemExit("SURFACE_INVENTORY.md must reference 0.20 reference envelope")
+    if f"Available in {major_minor}" not in doc_status:
+        raise SystemExit(
+            f"DOCUMENTATION_STATUS.md must reference Available in {major_minor}"
+        )
+    surface_inventory = (ROOT / "docs/10_REFERENCE/SURFACE_INVENTORY.md").read_text(
+        encoding="utf-8"
+    )
+    if f"{major_minor} reference envelope" not in surface_inventory:
+        raise SystemExit(
+            f"SURFACE_INVENTORY.md must reference {major_minor} reference envelope"
+        )
     upgrade_hub = (ROOT / "docs/01_GETTING_STARTED/UPGRADE.md").read_text(
         encoding="utf-8"
     )
-    if "MIGRATION_0_19_TO_0_20" not in upgrade_hub:
-        raise SystemExit("UPGRADE.md must link Migration 0.19 → 0.20")
-    if "0.20 configuration cheat sheet" not in upgrade_hub.lower():
-        raise SystemExit("UPGRADE.md must include 0.20 configuration cheat sheet")
+    prev_major, prev_minor = major_minor.split(".")
+    prev_minor_int = int(prev_minor)
+    if prev_minor_int > 0:
+        prior_migration = (
+            f"MIGRATION_{prev_major}_{prev_minor_int - 1}_TO_"
+            f"{prev_major}_{prev_minor_int}"
+        )
+    else:
+        prior_migration = f"MIGRATION_{int(prev_major) - 1}_9_TO_{prev_major}_0"
+    if (
+        prior_migration not in upgrade_hub
+        and "MIGRATION_0_19_TO_0_20" not in upgrade_hub
+    ):
+        raise SystemExit(f"UPGRADE.md must link prior migration ({prior_migration})")
+    if f"{major_minor} configuration cheat sheet" not in upgrade_hub.lower():
+        raise SystemExit(
+            f"UPGRADE.md must include {major_minor} configuration cheat sheet"
+        )
 
     subprocess.run(
         [sys.executable, str(ROOT / "scripts/check_runnable_docs.py")],

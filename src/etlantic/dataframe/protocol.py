@@ -174,7 +174,12 @@ class DataframeOutputBundle:
 
 @runtime_checkable
 class DataframePlugin(Protocol):
-    """Protocol for in-process dataframe execution backends."""
+    """Protocol for in-process dataframe execution backends.
+
+    Plugins materialize inputs, invoke registered implementations, validate
+    frames against ContractModel types, and export records — without changing
+    portable pipeline semantics.
+    """
 
     @property
     def info(self) -> DataframePluginInfo: ...

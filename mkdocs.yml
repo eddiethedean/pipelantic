@@ -182,6 +182,7 @@ nav:
       - Validation: 05_PIPELINES/PIPELINE_VALIDATION.md
       - Planning: 05_PIPELINES/PLANNING.md
       - Profiles: 05_PIPELINES/PROFILES.md
+      - Profile primer: 05_PIPELINES/PROFILE_PRIMER.md
       - Contract Generation: 05_PIPELINES/CONTRACT_GENERATION.md
       - Contract Loading: 05_PIPELINES/CONTRACT_LOADING.md
       - Sources (deprecated): 05_PIPELINES/SOURCES.md

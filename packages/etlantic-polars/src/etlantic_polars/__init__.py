@@ -45,7 +45,7 @@ __all__ = [
 
 
 def create_plugin() -> PolarsDataframePlugin:
-    """Entry-point factory."""
+    """Entry-point factory for ``etlantic.dataframe_plugins``."""
     return PolarsDataframePlugin()
 
 

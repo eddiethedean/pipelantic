@@ -351,12 +351,21 @@ class SparkPluginInfo:
 
 @runtime_checkable
 class SparkPlugin(Protocol):
-    """PySpark / Spark execution plugin protocol."""
+    """PySpark / Spark execution plugin protocol.
+
+    Implementations compile portable Spark plan regions, execute transformations
+    and writes against a live ``SparkSession``, and expose schema inspection and
+    record export for hybrid boundaries.
+    """
 
     @property
-    def info(self) -> SparkPluginInfo: ...
+    def info(self) -> SparkPluginInfo:
+        """Plugin metadata including engine id and declared capabilities."""
+        ...
 
-    def capabilities(self) -> PluginCapabilities: ...
+    def capabilities(self) -> PluginCapabilities:
+        """Return Spark-specific capability flags for planning."""
+        ...
 
     def dataset_from_binding(
         self,
@@ -364,14 +373,18 @@ class SparkPlugin(Protocol):
         binding: str,
         location: str | None = None,
         metadata: Mapping[str, Any] | None = None,
-    ) -> DatasetRef: ...
+    ) -> DatasetRef:
+        """Resolve a profile asset/binding to a logical dataset reference."""
+        ...
 
     def compile(
         self,
         region: SparkPlanRegion,
         *,
         context: SparkCompilationContext,
-    ) -> CompiledSparkPlan: ...
+    ) -> CompiledSparkPlan:
+        """Lower a portable Spark plan region to engine-specific actions."""
+        ...
 
     def execute(
         self,
@@ -379,7 +392,9 @@ class SparkPlugin(Protocol):
         *,
         context: SparkExecutionContext,
         inputs: Mapping[str, Any] | None = None,
-    ) -> SparkExecutionResult: ...
+    ) -> SparkExecutionResult:
+        """Execute a compiled plan region and return metrics plus outputs."""
+        ...
 
     def execute_step(
         self,
@@ -388,28 +403,36 @@ class SparkPlugin(Protocol):
         inputs: Mapping[str, Any],
         params: Mapping[str, Any],
         context: SparkExecutionContext,
-    ) -> Any: ...
+    ) -> Any:
+        """Invoke a native Spark transformation implementation."""
+        ...
 
     def execute_write(
         self,
         write: SparkWrite,
         *,
         context: SparkExecutionContext,
-    ) -> SparkExecutionResult: ...
+    ) -> SparkExecutionResult:
+        """Execute a write/publication intent against Spark storage."""
+        ...
 
     def inspect_schema(
         self,
         value: Any,
         *,
         contract_type: type[Any] | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """Return a NormalizedSchema-compatible mapping for a DataFrame handle."""
+        ...
 
     def to_records(
         self,
         value: Any,
         *,
         contract_type: type[Any] | None = None,
-    ) -> list[Any]: ...
+    ) -> list[Any]:
+        """Materialize rows as Python records for storage or publication."""
+        ...
 
     def split_valid_invalid(
         self,
@@ -417,4 +440,6 @@ class SparkPlugin(Protocol):
         *,
         contract_type: type[Any],
         context: SparkExecutionContext,
-    ) -> tuple[Any, Any]: ...
+    ) -> tuple[Any, Any]:
+        """Split a DataFrame into valid and invalid partitions by contract."""
+        ...

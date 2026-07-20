@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from etlantic.capabilities import PluginCapabilities
+from etlantic.diagnostics import Diagnostic
 from etlantic.profile import Profile, resolve_profile
 from etlantic.secrets import SecretRef
 
@@ -246,6 +247,7 @@ class PlanningContext:
     fallback_engine: str | None = "null"
     selection: dict[str, Any] = field(default_factory=dict)
     plugin_trust_records: list[dict[str, Any]] = field(default_factory=list)
+    plugin_discovery_diagnostics: tuple[Diagnostic, ...] = ()
 
     @classmethod
     def create(
@@ -282,6 +284,7 @@ class PlanningContext:
         spark_engine = resolved.spark_engine
         reg = registry if registry is not None else builtin_stub_registry()
         trust_records: list[dict[str, Any]] = []
+        plan_diags: tuple[Diagnostic, ...] = ()
 
         def _needs_planning_discovery() -> bool:
             if registry is None:
@@ -297,17 +300,19 @@ class PlanningContext:
         if _needs_planning_discovery():
             from etlantic.plugins.coordinator import discover_planning_plugins
 
-            trust_records, _plan_diags = discover_planning_plugins(
+            trust_records, discovered = discover_planning_plugins(
                 resolved,
                 reg,
                 dataframe_engine=engine,
                 sql_engine=sql_engine,
                 spark_engine=spark_engine,
             )
+            plan_diags = tuple(discovered)
         return cls(
             profile=resolved,
             registry=reg,
             required_capabilities=caps,
             allow_capability_fallback=allow_capability_fallback,
             plugin_trust_records=trust_records,
+            plugin_discovery_diagnostics=plan_diags,
         )

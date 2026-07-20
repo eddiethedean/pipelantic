@@ -151,5 +151,5 @@ class LocalSparkProvider:
 
 
 def create_provider() -> LocalSparkProvider:
-    """Entry-point factory for the local Spark provider."""
+    """Entry-point factory for ``etlantic.spark_providers``."""
     return LocalSparkProvider()

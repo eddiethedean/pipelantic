@@ -43,7 +43,7 @@ __all__ = [
 
 
 def create_plugin() -> PandasDataframePlugin:
-    """Entry-point factory."""
+    """Entry-point factory for ``etlantic.dataframe_plugins``."""
     return PandasDataframePlugin()
 
 
@@ -64,6 +64,8 @@ def __getattr__(name: str) -> Any:
 
 
 class PandasDataframePlugin:
+    """Reference Pandas dataframe execution plugin (eager-only)."""
+
     """Compatibility Pandas dataframe execution plugin (eager only)."""
 
     def __init__(self) -> None:

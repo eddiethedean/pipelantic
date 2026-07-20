@@ -21,7 +21,7 @@ ETLantic is intentionally designed around a small, stable core and a rich
 plugin ecosystem. The SDK defines the public interfaces, lifecycle, and
 conformance requirements for building those plugins.
 
-## Public imports (0.19)
+## Public imports (0.20)
 
 Also available: `etlantic.transform` for portable authoring.
 

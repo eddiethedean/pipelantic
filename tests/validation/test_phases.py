@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from etlantic import (
     Data,
     Extract,
@@ -148,3 +150,25 @@ def test_subpipeline_inherits_parent_strict_bindings() -> None:
     report = ParentWithChild.validate(profile=profile, policy=STRICT_POLICY)
     assert any(d.code == "PMPLAN201" for d in report.errors)
     assert any("child_in" in d.message or "child" in d.path for d in report.errors)
+
+
+def test_planning_discovery_diagnostics_surface_in_validate() -> None:
+    """Plugin discovery diagnostics from PlanningContext appear in validate output."""
+    from importlib.metadata import distribution
+
+    from etlantic.profile import production_profile
+
+    try:
+        distribution("etlantic-polars")
+    except Exception:
+        pytest.skip("etlantic-polars not installed")
+
+    profile = production_profile(
+        plugin_allowlist={},
+        dataframe_engine="polars",
+        assets={"in": "x", "out": "y"},
+    )
+    report = GoodPipeline.validate(profile=profile)
+    discovery = [d for d in report.diagnostics if d.phase == "plugin_discovery"]
+    assert discovery, "expected plugin_discovery phase diagnostics"
+    assert any(d.code == "PMPLUG401" for d in discovery)

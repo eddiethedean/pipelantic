@@ -59,7 +59,7 @@ def _row_as_dict(row: Any) -> dict[str, Any]:
 
 
 def create_plugin() -> PySparkPlugin:
-    """Entry-point factory."""
+    """Entry-point factory for ``etlantic.spark_plugins``."""
     return PySparkPlugin()
 
 

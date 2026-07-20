@@ -592,10 +592,14 @@ def load_profile(path: str | Path) -> Profile:
     Raises:
         ValueError: When the document is not a JSON object or fields are invalid.
         OSError: When the file cannot be read.
+        UnsafeLoadError: When the path escapes the profile directory root.
     """
-    from etlantic.interchange.security import read_text_bounded
+    from etlantic.io_policy import SafeIoPolicy, read_text_safe
 
-    _resolved, text = read_text_bounded(path)
+    resolved = Path(path).expanduser()
+    parent = resolved.parent
+    policy = SafeIoPolicy.for_root(parent)
+    _resolved, text, _events = read_text_safe(resolved, policy, run_id="profile-read")
     data = json.loads(text)
     if not isinstance(data, dict):
         raise ValueError("Profile document must be a JSON object")
