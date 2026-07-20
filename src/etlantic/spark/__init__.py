@@ -1,7 +1,7 @@
-"""Versioned Spark execution protocol (etlantic.spark/1).
+"""Versioned Spark execution protocol (``etlantic.spark/1``).
 
 Core stays PySpark-free. Install ``etlantic-pyspark`` for the reference plugin.
-Streaming APIs are **experimental** in 0.7.
+Structured Streaming APIs are **experimental**; see :data:`~etlantic.spark.STREAMING_STABILITY`.
 """
 
 from __future__ import annotations

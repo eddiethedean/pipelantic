@@ -107,7 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ETLantic 0.17.0 is production/stable within the documented single-tenant
 reference envelope. Experimental features and adopter-owned deployment,
 compliance, and supply-chain controls remain outside that support claim. See
-[Migration 0.16 → 0.17](docs/11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md).
+[Migration 0.16 → 0.17](11_DEVELOPMENT/MIGRATION_0_16_TO_0_17.md).
 
 ### Added
 - Graduated portable families on Polars and PySpark: string-advanced,

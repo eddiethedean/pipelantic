@@ -1,9 +1,9 @@
 # 0.18 Versioned Tabular Interchange Plan (Gate A)
 
-> **Status: Gate A shipped in 0.19.0.** Versioned tabular interchange is
+> **Status: Gate A shipped in 0.18.0.** Versioned tabular interchange is
 > available for the Polars↔Pandas conformance pair. Gate B (DataFusion) remains
-> planned for 0.19+ and did not ship in 0.19.0. The older Arrow helper remains
-> a legacy **best-effort conversion** path.
+> experimental in 0.20. The older Arrow helper remains a legacy **best-effort
+> conversion** path.
 
 This plan records the shipped 0.18 Gate A scope, contracts, milestones, and
 the still-planned Gate B policy.
@@ -12,7 +12,7 @@ the still-planned Gate B policy.
 
 | Decision | Lock |
 |---|---|
-| **0.19.0 ships Gate A only** | Versioned tabular interchange. DataFusion does **not** block 0.19.0 |
+| **0.18.0 ships Gate A only** | Versioned tabular interchange. DataFusion does **not** block 0.18.0 |
 | **DataFusion** | Non-blocking **Gate B / 0.19+** experiment with graduation criteria written before scaffolding |
 | **0.18 conformance pair** | Polars + Pandas only. PySpark/SQL Arrow boundaries are explicit follow-ups |
 | **Engine registry** | Capability/registry generalization is a **Gate A prerequisite (A0)**, not deferred into DataFusion |
@@ -43,7 +43,7 @@ See [Capabilities](../01_GETTING_STARTED/CAPABILITIES.md).
 
 ---
 
-## Gate A — Versioned tabular interchange (0.19.0)
+## Gate A — Versioned tabular interchange (0.18.0)
 
 ### Architectural boundary
 

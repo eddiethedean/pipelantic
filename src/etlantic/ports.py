@@ -8,7 +8,18 @@ T = TypeVar("T")
 
 
 class Input(Generic[T]):
-    """Declares data consumed under contract ``T``."""
+    """Declares a typed input port consumed under contract ``T``.
+
+    Use on :class:`~etlantic.transformation.Transformation` subclasses::
+
+        class Normalize(Transformation):
+            rows: Input[RawRow]
+            result: Output[CuratedRow]
+
+    Args:
+        contract_type: :class:`~etlantic.contracts.Data` subclass (via subscript
+            ``Input[MyData]`` or constructor argument).
+    """
 
     __slots__ = ("contract_type",)
 
@@ -60,7 +71,18 @@ class Output(Generic[T]):
 
 
 class Parameter(Generic[T]):
-    """Declares typed configuration that is not a graph edge."""
+    """Declares typed configuration that is not a graph edge.
+
+    Parameters are bound at :meth:`~etlantic.transformation.Transformation.step`
+    time and appear in plans separately from input/output ports.
+
+    Example::
+
+        class ThresholdFilter(Transformation):
+            rows: Input[Row]
+            min_score: Parameter[int]
+            result: Output[Row]
+    """
 
     __slots__ = ("contract_type", "default", "has_default")
 

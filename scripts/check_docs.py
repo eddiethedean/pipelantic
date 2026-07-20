@@ -53,6 +53,19 @@ def main() -> None:
         "0.17 support envelope",
         "implemented 0.17 controls",
         "Is ETLantic 0.17 production-supported?",
+        "Is ETLantic 0.19 production-supported?",
+        "0.19 reference envelope",
+        "Prefer pages marked **Available in 0.18**",
+        "Treat **Available in 0.18**",
+        "| Available in 0.18 | Tested against the current package |",
+        "match the core minor** (`0.19.0`",
+        "pin both to `0.19.0`",
+        "reproducible 0.19.0 environment",
+        "Gate A shipped in 0.19.0",
+        "Available in 0.19.0** for Polars",
+        "Public Surface Inventory (0.19)",
+        "docs target 0.19.0",
+        "python -m pip install -e \".[dev]\"",
         "ETLantic 0.18.0 shipped portable coverage expansion",
         "not a ETLantic 0.11 API guide",
         "etlantic==0.13.0",
@@ -914,7 +927,8 @@ def main() -> None:
                     f"{path} still shows Extract/Load binding= constructor usage"
                 )
     # Classifiers and plugin dependency ranges must match the stable posture.
-    stable_classifier = "Development Status :: 5 - Production/Stable"
+    plugin_stable_classifier = "Development Status :: 5 - Production/Stable"
+    root_beta_classifier = "Development Status :: 4 - Beta"
     alpha_classifier = "Development Status :: 3 - Alpha"
     next_minor = None
     try:
@@ -923,8 +937,13 @@ def main() -> None:
     except ValueError:
         next_minor = None
     experimental_packages = {"etlantic-datafusion"}
+    root_pyproject_path = ROOT / "pyproject.toml"
+    root_text = root_pyproject_path.read_text(encoding="utf-8")
+    if root_beta_classifier not in root_text:
+        raise SystemExit(f"{root_pyproject_path} missing Beta classifier")
+    if plugin_stable_classifier in root_text:
+        raise SystemExit(f"{root_pyproject_path} should use Beta, not Production/Stable")
     for path in (
-        ROOT / "pyproject.toml",
         *(ROOT / "packages").glob("etlantic-*/pyproject.toml"),
     ):
         text = path.read_text(encoding="utf-8")
@@ -941,7 +960,7 @@ def main() -> None:
             continue
         if alpha_classifier in text:
             raise SystemExit(f"{path} still uses Alpha classifier")
-        if stable_classifier not in text:
+        if plugin_stable_classifier not in text:
             raise SystemExit(f"{path} missing Production/Stable classifier")
         if path.parent.name.startswith("etlantic-") and next_minor is not None:
             expected = f"etlantic>={package_version},<{next_minor}"
@@ -973,6 +992,25 @@ def main() -> None:
                 raise SystemExit(
                     f"{path} still presents current release as alpha: {banned!r}"
                 )
+
+    # Adopter-facing pages must use current milestone vocabulary.
+    doc_status = (ROOT / "docs/02_FOUNDATIONS/DOCUMENTATION_STATUS.md").read_text(
+        encoding="utf-8"
+    )
+    if "Available in 0.20" not in doc_status:
+        raise SystemExit("DOCUMENTATION_STATUS.md must reference Available in 0.20")
+    surface_inventory = (
+        ROOT / "docs/10_REFERENCE/SURFACE_INVENTORY.md"
+    ).read_text(encoding="utf-8")
+    if "0.20 reference envelope" not in surface_inventory:
+        raise SystemExit("SURFACE_INVENTORY.md must reference 0.20 reference envelope")
+    upgrade_hub = (ROOT / "docs/01_GETTING_STARTED/UPGRADE.md").read_text(
+        encoding="utf-8"
+    )
+    if "MIGRATION_0_19_TO_0_20" not in upgrade_hub:
+        raise SystemExit("UPGRADE.md must link Migration 0.19 → 0.20")
+    if "0.20 configuration cheat sheet" not in upgrade_hub.lower():
+        raise SystemExit("UPGRADE.md must include 0.20 configuration cheat sheet")
 
     subprocess.run(
         [sys.executable, str(ROOT / "scripts/check_runnable_docs.py")],

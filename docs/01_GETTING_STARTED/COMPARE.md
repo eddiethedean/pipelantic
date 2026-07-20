@@ -38,7 +38,8 @@ durable orchestrator.
 - Dataframe compute kernels
 - Multi-worker / multi-tenant control planes
 - Managed Spark clusters
-- Compliance attestations, SBOM, or signed provenance (adopter-owned today)
+- Release SBOM digests and attestations ship in 0.20; broader compliance
+  programs and multi-tenant attestation remain adopter-owned
 
 ## Next
 

@@ -15,6 +15,7 @@ from etlantic.dataframe.protocol import (
 
 
 def assert_plugin_info(plugin: DataframePlugin, *, engine: str) -> None:
+    """Assert a dataframe plugin advertises the expected engine and protocol."""
     info = plugin.info
     assert info.engine == engine
     assert info.protocol_version == DATAFRAME_PROTOCOL_VERSION
@@ -29,6 +30,7 @@ def assert_roundtrip_records(
     rows: list[dict[str, Any]],
     contract_type: type[Any] | None = None,
 ) -> None:
+    """Assert materialize → validate → to_records preserves row dicts."""
     context = DataframeExecutionContext(
         run_id="conformance",
         pipeline_id="conformance",

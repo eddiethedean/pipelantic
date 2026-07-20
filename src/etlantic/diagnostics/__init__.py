@@ -67,7 +67,12 @@ class Diagnostic:
 
 @dataclass(frozen=True, slots=True)
 class ValidationReport:
-    """Immutable collection of diagnostics for a validation pass."""
+    """Immutable collection of diagnostics from a validation pass.
+
+    Produced by :meth:`~etlantic.pipeline.Pipeline.validate` and related loaders.
+    Use :meth:`raise_for_errors` to fail closed in application or CI code.
+    Serialize to JSON or SARIF via CLI ``etlantic validate --format``.
+    """
 
     diagnostics: tuple[Diagnostic, ...] = ()
     phases: tuple[str, ...] = ()

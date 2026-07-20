@@ -8,7 +8,19 @@ from etlantic.plan.model import PipelinePlan
 
 
 def explain_plan(plan: PipelinePlan) -> dict[str, Any]:
-    """Return a structured, tooling-friendly explanation of a plan."""
+    """Return a structured, tooling-friendly explanation of a plan.
+
+    Suitable for CLI ``etlantic plan explain``, IDE tooling, and debugging.
+    Does not mutate or re-plan the pipeline.
+
+    Args:
+        plan: Resolved plan to summarize.
+
+    Returns:
+        JSON-serializable dict with keys such as ``steps``, ``regions``,
+        ``materialization_boundaries``, ``capability_decisions``, and
+        ``fingerprint``.
+    """
     region_by_node: dict[str, str] = {}
     for region in plan.regions:
         for name in region.node_names:

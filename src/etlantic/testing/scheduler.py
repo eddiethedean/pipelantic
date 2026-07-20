@@ -54,6 +54,7 @@ class _TinyPipeline(Pipeline):
 
 
 def assert_scheduler_plugin_info(scheduler: ExecutionScheduler) -> None:
+    """Assert a scheduler plugin advertises direct-execution protocol metadata."""
     info = scheduler.info
     assert info.scheduler_protocol == SCHEDULER_PROTOCOL
     assert info.direct_execution is True

@@ -109,13 +109,13 @@ class NormalizeCustomers(Transformation):
 
 
 @NormalizeCustomers.implementation("local")
-def normalize(customers: list[RawCustomer]) -> list[Customer]:
+def normalize_customers(customers: list[RawCustomer]) -> list[Customer]:
     return [
         Customer(
-            customer_id=row.customer_id,
-            full_name=f"{row.first_name} {row.last_name}",
+            customer_id=customer.customer_id,
+            full_name=f"{customer.first_name} {customer.last_name}",
         )
-        for row in customers
+        for customer in customers
     ]
 
 
@@ -129,19 +129,23 @@ class CustomerPipeline(Pipeline):
 
 
 def main() -> None:
+    validation = CustomerPipeline.validate(profile="development")
+    validation.raise_for_errors()
+    CustomerPipeline.plan(profile="development")
+
     runtime = PipelineRuntime()
     runtime.memory.seed(
         "customer_source",
-        [RawCustomer(customer_id=1, first_name="Ada", last_name="Lovelace")],
+        [
+            RawCustomer(customer_id=1, first_name="Ada", last_name="Lovelace"),
+            RawCustomer(customer_id=2, first_name="Grace", last_name="Hopper"),
+        ],
     )
-
-    CustomerPipeline.validate(profile="development").raise_for_errors()
-    plan = CustomerPipeline.plan(profile="development")
     report = CustomerPipeline.run(profile="development", runtime=runtime)
 
-    print(plan.fingerprint)
-    print(report.status)  # succeeded
-    print(runtime.memory.get("customer_sink")[0].model_dump())
+    print(report.status.value)
+    for customer in runtime.memory.get("customer_sink"):
+        print(customer.model_dump())
 
 
 if __name__ == "__main__":
@@ -152,12 +156,17 @@ For an import-safe module and CLI workflow, use the tested
 [Quickstart](https://etlantic.readthedocs.io/en/latest/01_GETTING_STARTED/QUICKSTART/)
 or [examples/quickstart.py](https://github.com/eddiethedean/etlantic/blob/main/examples/quickstart.py).
 
+Save the Python example above as `pipeline.py` in an empty directory, then run:
+
 ```bash
 etlantic inspect pipeline.py:CustomerPipeline --format json
 etlantic validate pipeline.py:CustomerPipeline --profile development
 etlantic plan pipeline.py:CustomerPipeline --profile development --format json
 etlantic validate pipeline.py:CustomerPipeline --format sarif
 ```
+
+Pass `--profile development` on every CLI command above. The CLI defaults to
+`local` when `--profile` is omitted, which may not match tutorial pipelines.
 
 ## Engines and integrations
 
@@ -169,6 +178,13 @@ etlantic validate pipeline.py:CustomerPipeline --format sarif
 | PySpark | `etlantic-pyspark` | Spark execution and portable compilation |
 | Airflow | `etlantic-airflow` | Compile plans into DAG artifacts |
 | Prefect | `etlantic-prefect` | Direct-execution scheduler integration |
+| Keyring | `etlantic-keyring` | OS keyring secret provider |
+| SQLModel | `etlantic-sqlmodel` | SQLModel bridge helpers |
+| SparkForge | `etlantic-sparkforge` | Medallion adapter (bronze/silver/gold stay out of core) |
+| DataFusion | `etlantic-datafusion` | Experimental query engine stub (Gate B) |
+
+See [Optional packages](https://etlantic.readthedocs.io/en/latest/10_REFERENCE/OPTIONAL_PACKAGES/)
+for observability (`otel` / `observability` extras) and Arrow helpers.
 
 Matching extras such as `etlantic[polars]` are equivalent. Pin matching minors
 while ETLantic is pre-1.0. Airflow is compile-only and does not install Apache

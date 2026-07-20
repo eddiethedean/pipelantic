@@ -1,4 +1,9 @@
-"""External orchestration protocols (ETLantic 0.8)."""
+"""External orchestration protocols (``etlantic.orchestration/1``).
+
+Compile secret-free :class:`~etlantic.plan.model.PipelinePlan` objects into
+orchestrator artifacts via :func:`~etlantic.orchestration.compile.compile_plan`.
+Install ``etlantic-airflow`` for the reference Airflow compiler.
+"""
 
 from __future__ import annotations
 

@@ -31,7 +31,21 @@ Lifespan = Callable[["PipelineRuntime"], AbstractAsyncContextManager[Any]]
 
 @dataclass
 class PipelineRuntime:
-    """Process-scoped runtime coordinating local execution."""
+    """Process-scoped runtime coordinating local execution.
+
+    Owns in-memory and file-backed storage bindings, plugin registries,
+    middleware stacks, secret providers, and run reports. Application code
+    creates one runtime per process (or per test) and passes it to
+    :meth:`~etlantic.pipeline.Pipeline.run`.
+
+    Call :meth:`ensure_plugins_for_profile` before the first run when using
+    optional engine plugins so entry points are authorized and loaded for the
+    active :class:`~etlantic.profile.Profile`.
+
+    Built-in storage ids include ``memory``, ``local``, ``callable``, ``json``,
+    ``csv``, and ``null``. Seed in-memory assets with
+    :attr:`memory` (:class:`~etlantic.storage.memory.MemoryStorage`).
+    """
 
     lifespan: Lifespan | None = None
     registry: RegistryBundle = field(default_factory=builtin_stub_registry)
@@ -115,18 +129,50 @@ class PipelineRuntime:
         return list(result.diagnostics)
 
     def add_run_middleware(self, middleware: Any, *, name: str | None = None) -> None:
+        """Register middleware invoked around entire pipeline runs.
+
+        Args:
+            middleware: Callable or async callable conforming to the run
+                middleware protocol.
+            name: Optional stable name for ordering and diagnostics.
+        """
         self.run_middleware.add(middleware, name=name)
 
     def add_step_middleware(self, middleware: Any, *, name: str | None = None) -> None:
+        """Register middleware invoked around individual step execution.
+
+        Args:
+            middleware: Callable or async callable conforming to the step
+                middleware protocol.
+            name: Optional stable name for ordering and diagnostics.
+        """
         self.step_middleware.add(middleware, name=name)
 
     def override_resource(self, name: str, provider: Callable[..., Any]) -> None:
+        """Replace a named injectable resource provider for this runtime.
+
+        Args:
+            name: Resource key referenced by :class:`~etlantic.lifecycle.Inject`.
+            provider: Factory callable resolved at execution time.
+        """
         self.resources.override(name, provider)
 
     def register_secret_provider(self, name: str, provider: SecretProvider) -> None:
+        """Register a secret provider under ``name``.
+
+        Args:
+            name: Provider id referenced by profile ``secret_providers``.
+            provider: Implementation of :class:`~etlantic.secrets.provider.SecretProvider`.
+        """
         self.secret_providers[name] = provider
 
     def register_storage(self, name: str, binding: StorageBinding) -> None:
+        """Register a storage binding under ``name``.
+
+        Args:
+            name: Provider id referenced by profile ``assets`` / bindings.
+            binding: Storage implementation (JSON, CSV, SQL-backed, …).
+        """
         self.storage[name] = binding
 
     def register_dataframe_plugin(self, engine: str, plugin: Any) -> None:

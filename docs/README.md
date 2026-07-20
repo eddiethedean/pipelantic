@@ -19,17 +19,9 @@ Its central idea is simple:
 > Define data, transformations, and pipelines with typed Python classes.
 > Validate and plan them once. Execute them through interchangeable backends.
 
-ETLantic also treats validation as a continuous envelope around ETL:
-
-```text
-V(model) ──▶ Extract ──▶ V(input) ──▶ Transform ──▶ V(output) ──▶ Load ──▶ V/evidence
-```
-
-The model is validated before execution, runtime values are validated at typed
-boundaries, and publication produces contract and write evidence. This is
-**ETL with validation at every boundary**, without requiring validation to be
-modeled as an ordinary transformation or forcing a sink reread when the
-provider cannot truthfully support one. See
+ETLantic also treats validation as a continuous envelope around ETL. ETLantic
+validates at every typed boundary—before extract, between steps, and at
+load—without treating validation as an ordinary transform. See
 [Validation Everywhere](02_FOUNDATIONS/VALIDATION_EVERYWHERE.md).
 
 This is the practical meaning of the name: **ETL** is the data flow;

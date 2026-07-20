@@ -1,11 +1,11 @@
-"""Shared graph IR and visualization exporters beyond Mermaid (0.9).
+"""Shared graph IR and visualization exporters beyond Mermaid.
 
 Public helpers:
 
-- ``logical_graph_to_ir`` / ``plan_to_ir`` — build a ``GraphIR``
-- ``graph_to_dot`` — Graphviz DOT text
-- ``graph_to_html`` — single-page HTML lineage document
-- ``lineage_export`` — JSON lineage document (``etlantic.lineage/1``)
+- :func:`logical_graph_to_ir` / :func:`plan_to_ir` — build a :class:`GraphIR`
+- :func:`graph_to_dot` — Graphviz DOT text
+- :func:`graph_to_html` — single-page HTML lineage document
+- :func:`lineage_export` — JSON lineage document (``etlantic.lineage/1``)
 
 CLI: ``etlantic viz dot|html|lineage``.
 """
@@ -23,6 +23,8 @@ from etlantic.plan.model import PipelinePlan
 
 @dataclass(frozen=True, slots=True)
 class GraphNode:
+    """Node in a visualization intermediate representation (IR)."""
+
     id: str
     label: str
     kind: str
@@ -31,6 +33,7 @@ class GraphNode:
 
 @dataclass(frozen=True, slots=True)
 class GraphEdge:
+    """Directed edge in a visualization IR."""
     source: str
     target: str
     label: str = ""
@@ -59,6 +62,7 @@ class GraphIR:
 
 
 def logical_graph_to_ir(graph: LogicalGraph) -> GraphIR:
+    """Convert a logical pipeline graph into visualization IR."""
     nodes = tuple(
         GraphNode(
             id=node.name,
@@ -88,6 +92,7 @@ def logical_graph_to_ir(graph: LogicalGraph) -> GraphIR:
 
 
 def plan_to_ir(plan: PipelinePlan) -> GraphIR:
+    """Convert a resolved plan's logical graph into visualization IR."""
     return logical_graph_to_ir(plan.logical_graph)
 
 

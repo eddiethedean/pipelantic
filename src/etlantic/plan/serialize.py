@@ -46,7 +46,15 @@ def plan_to_json(plan: PipelinePlan, *, indent: int | None = 2) -> str:
 
 
 def verify_plan_fingerprint(plan: PipelinePlan) -> None:
-    """Recompute the plan fingerprint and raise ``ValueError`` on mismatch."""
+    """Recompute the canonical plan fingerprint and compare to ``plan.fingerprint``.
+
+    Args:
+        plan: Plan whose embedded fingerprint is checked.
+
+    Raises:
+        ValueError: When the embedded fingerprint does not match the canonical
+            SHA-256 of the plan content (excluding derived ``plan_id`` fields).
+    """
     expected = plan_fingerprint(plan)
     if plan.fingerprint != expected:
         raise ValueError(
@@ -58,8 +66,18 @@ def verify_plan_fingerprint(plan: PipelinePlan) -> None:
 def plan_from_json(text: str, *, verify: bool = True) -> PipelinePlan:
     """Deserialize a plan from JSON text.
 
-    When ``verify`` is True (default), recompute the fingerprint and reject
-    tampered plans.
+    Args:
+        text: UTF-8 JSON object matching ``etlantic.plan/1``.
+        verify: When True (default), validate wire ``schema`` and recompute the
+            fingerprint after :meth:`PipelinePlan.from_dict`.
+
+    Returns:
+        Parsed :class:`~etlantic.plan.model.PipelinePlan`.
+
+    Raises:
+        ValueError: When JSON is not an object, schema is missing/unknown, or
+            (when ``verify``) the fingerprint does not match content.
+        UnsupportedPlanSchemaError: When the document schema cannot be upgraded.
     """
     data = json.loads(text)
     if not isinstance(data, dict):

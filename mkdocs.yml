@@ -111,8 +111,6 @@ nav:
       - First Pipeline: 01_GETTING_STARTED/FIRST_PIPELINE.md
       - Engine selection: 01_GETTING_STARTED/ENGINE_SELECTION.md
       - Current 0.20 Guide: 01_GETTING_STARTED/CURRENT_VERSION.md
-      - What's new in 0.20: 01_GETTING_STARTED/WHATS_NEW_0_20.md
-      - What's new in 0.19: 01_GETTING_STARTED/WHATS_NEW_0_19.md
       - Upgrade: 01_GETTING_STARTED/UPGRADE.md
       - FAQ: 01_GETTING_STARTED/FAQ.md
       - Troubleshooting: 01_GETTING_STARTED/TROUBLESHOOTING.md
@@ -130,6 +128,7 @@ nav:
       - Production readiness: 06_EXECUTION/PRODUCTION_READINESS.md
       - Security: 02_FOUNDATIONS/SECURITY.md
   - Release notes:
+      - Changelog: CHANGELOG.md
       - What's new in 0.20: 01_GETTING_STARTED/WHATS_NEW_0_20.md
       - What's new in 0.19: 01_GETTING_STARTED/WHATS_NEW_0_19.md
       - What's new in 0.18: 01_GETTING_STARTED/WHATS_NEW_0_18.md
@@ -288,9 +287,55 @@ nav:
       - Governance: 11_DEVELOPMENT/GOVERNANCE.md
       - Code of Conduct: 11_DEVELOPMENT/CODE_OF_CONDUCT.md
       - API stability and deprecation: 11_DEVELOPMENT/DEPRECATION_POLICY.md
-      - Changelog: https://github.com/eddiethedean/etlantic/blob/main/CHANGELOG.md
+      - Changelog: CHANGELOG.md
       - Roadmap summary: 11_DEVELOPMENT/ROADMAP_SUMMARY.md
       - Full roadmap: https://github.com/eddiethedean/etlantic/blob/main/ROADMAP.md
+      - Design Proposals (not shipped):
+          - Read this first: 11_DEVELOPMENT/DESIGN_PROPOSALS.md
+          - Design studies (not shipped):
+              - CSV to CSV: 09_EXAMPLES/CSV_TO_CSV.md
+              - CSV to SQL: 09_EXAMPLES/CSV_TO_SQL.md
+              - SQL to SQL: 09_EXAMPLES/SQL_TO_SQL.md
+              - Pandas Pipeline: 09_EXAMPLES/PANDAS_PIPELINE.md
+              - Polars Pipeline: 09_EXAMPLES/POLARS_PIPELINE.md
+              - Airflow Pipeline: 09_EXAMPLES/AIRFLOW_PIPELINE.md
+              - Multi-output: 09_EXAMPLES/MULTI_OUTPUT.md
+              - Callbacks: 09_EXAMPLES/CALLBACKS.md
+              - Async Pipelines: 09_EXAMPLES/ASYNC_PIPELINES.md
+              - Contract First: 09_EXAMPLES/CONTRACT_FIRST.md
+              - Code First: 09_EXAMPLES/CODE_FIRST.md
+              - End to End: 09_EXAMPLES/END_TO_END.md
+              - SQL to PySpark: 09_EXAMPLES/SQL_TO_PYSPARK.md
+              - PySpark to SQL: 09_EXAMPLES/PYSPARK_TO_SQL.md
+              - PySpark to Delta: 09_EXAMPLES/PYSPARK_TO_DELTA.md
+              - Streaming PySpark: 09_EXAMPLES/STREAMING_PYSPARK.md
+          - Portable compilers and plans (history):
+              - Implementation plan: 11_DEVELOPMENT/PORTABLE_TRANSFORM_PLAN.md
+              - Scheduler and Prefect plan: 11_DEVELOPMENT/SCHEDULER_AND_PREFECT_PLAN.md
+              - DTCS evolution: 11_DEVELOPMENT/DTCS_PORTABLE_EVOLUTION.md
+              - DTCS 2.0 Publication Record: 11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md
+              - DTCS 3.0 Publication Record: 11_DEVELOPMENT/DTCS_3_0_SPEC_PROPOSAL.md
+          - Execution Plugins:
+              - Overview: 06_EXECUTION/PLUGINS.md
+              - Storage Plugins: 06_EXECUTION/STORAGE_PLUGINS.md
+              - Resource Plugins: 06_EXECUTION/RESOURCE_PLUGINS.md
+          - Future Plugin SDK protocols:
+              - Storage Plugin: 07_PLUGIN_SDK/STORAGE_PLUGIN.md
+              - Resource Provider: 07_PLUGIN_SDK/RESOURCE_PROVIDER.md
+              - Observability Provider: 07_PLUGIN_SDK/OBSERVABILITY_PROVIDER.md
+          - Visualization (future):
+              - Documentation: 08_VISUALIZATION/DOCUMENTATION.md
+              - Pipeline Interface: 08_VISUALIZATION/OPENAPI_FOR_PIPELINES.md
+          - Proposed configuration:
+              - Configuration: 10_REFERENCE/CONFIGURATION.md
+              - Environment Variables: 10_REFERENCE/ENVIRONMENT_VARIABLES.md
+          - Maintainer plans:
+              - 0.18 Gate A interchange record: 11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md
+              - FastAPI Integration Plan: 11_DEVELOPMENT/FASTAPI_INTEGRATION_PLAN.md
+              - Schema Drift Plan: 11_DEVELOPMENT/SCHEMA_DRIFT_PLAN.md
+              - ETL Reliability Plan: 11_DEVELOPMENT/ETL_RELIABILITY_PLAN.md
+              - SQLModel Integration Plan: 11_DEVELOPMENT/SQLMODEL_INTEGRATION_PLAN.md
+              - SparkForge Adoption: 11_DEVELOPMENT/SPARKFORGE_ADOPTION.md
       - Migration archive:
           - Migration 0.15 → 0.16: 11_DEVELOPMENT/MIGRATION_0_15_TO_0_16.md
           - Migration 0.14 → 0.15: 11_DEVELOPMENT/MIGRATION_0_14_TO_0_15.md
@@ -316,53 +361,7 @@ nav:
       - ADR-014 SOLID Core Refactor: 11_DEVELOPMENT/adr/ADR-014-SOLID-CORE-REFACTOR.md
       - Benchmarks: 11_DEVELOPMENT/BENCHMARKS.md
       - Performance baselines: 11_DEVELOPMENT/PERFORMANCE_RESULTS.md
-  - Design Proposals (not shipped):
-      - Read this first: 11_DEVELOPMENT/DESIGN_PROPOSALS.md
-      - Design studies (not shipped):
-          - CSV to CSV: 09_EXAMPLES/CSV_TO_CSV.md
-          - CSV to SQL: 09_EXAMPLES/CSV_TO_SQL.md
-          - SQL to SQL: 09_EXAMPLES/SQL_TO_SQL.md
-          - Pandas Pipeline: 09_EXAMPLES/PANDAS_PIPELINE.md
-          - Polars Pipeline: 09_EXAMPLES/POLARS_PIPELINE.md
-          - Airflow Pipeline: 09_EXAMPLES/AIRFLOW_PIPELINE.md
-          - Multi-output: 09_EXAMPLES/MULTI_OUTPUT.md
-          - Callbacks: 09_EXAMPLES/CALLBACKS.md
-          - Async Pipelines: 09_EXAMPLES/ASYNC_PIPELINES.md
-          - Contract First: 09_EXAMPLES/CONTRACT_FIRST.md
-          - Code First: 09_EXAMPLES/CODE_FIRST.md
-          - End to End: 09_EXAMPLES/END_TO_END.md
-          - SQL to PySpark: 09_EXAMPLES/SQL_TO_PYSPARK.md
-          - PySpark to SQL: 09_EXAMPLES/PYSPARK_TO_SQL.md
-          - PySpark to Delta: 09_EXAMPLES/PYSPARK_TO_DELTA.md
-          - Streaming PySpark: 09_EXAMPLES/STREAMING_PYSPARK.md
-      - Portable compilers and plans (history):
-          - Implementation plan: 11_DEVELOPMENT/PORTABLE_TRANSFORM_PLAN.md
-          - Scheduler and Prefect plan: 11_DEVELOPMENT/SCHEDULER_AND_PREFECT_PLAN.md
-          - DTCS evolution: 11_DEVELOPMENT/DTCS_PORTABLE_EVOLUTION.md
-          - DTCS 2.0 Publication Record: 11_DEVELOPMENT/DTCS_PORTABLE_SPEC_PROPOSAL.md
-          - DTCS 3.0 Publication Record: 11_DEVELOPMENT/DTCS_3_0_SPEC_PROPOSAL.md
-      - Execution Plugins:
-          - Overview: 06_EXECUTION/PLUGINS.md
-          - Storage Plugins: 06_EXECUTION/STORAGE_PLUGINS.md
-          - Resource Plugins: 06_EXECUTION/RESOURCE_PLUGINS.md
-      - Future Plugin SDK protocols:
-          - Storage Plugin: 07_PLUGIN_SDK/STORAGE_PLUGIN.md
-          - Resource Provider: 07_PLUGIN_SDK/RESOURCE_PROVIDER.md
-          - Observability Provider: 07_PLUGIN_SDK/OBSERVABILITY_PROVIDER.md
-      - Visualization (future):
-          - Documentation: 08_VISUALIZATION/DOCUMENTATION.md
-          - Pipeline Interface: 08_VISUALIZATION/OPENAPI_FOR_PIPELINES.md
-      - Proposed configuration:
-          - Configuration: 10_REFERENCE/CONFIGURATION.md
-          - Environment Variables: 10_REFERENCE/ENVIRONMENT_VARIABLES.md
-      - Maintainer plans:
-          - 0.18 Gate A interchange record: 11_DEVELOPMENT/INTEROPERABILITY_FOUNDATION_PLAN.md
-          - FastAPI Integration Plan: 11_DEVELOPMENT/FASTAPI_INTEGRATION_PLAN.md
-          - Schema Drift Plan: 11_DEVELOPMENT/SCHEMA_DRIFT_PLAN.md
-          - ETL Reliability Plan: 11_DEVELOPMENT/ETL_RELIABILITY_PLAN.md
-          - SQLModel Integration Plan: 11_DEVELOPMENT/SQLMODEL_INTEGRATION_PLAN.md
-          - SparkForge Adoption: 11_DEVELOPMENT/SPARKFORGE_ADOPTION.md
-
+      - Documentation audit 0.20: 11_DEVELOPMENT/DOCUMENTATION_AUDIT_0_20.md
   - Standards:
       - Overview: specifications/README.md
       - DTCS 3.0 (canonical): specifications/DTCS.md

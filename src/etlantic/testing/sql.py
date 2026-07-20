@@ -12,6 +12,7 @@ from etlantic.sql.protocol import (
 
 
 def assert_sql_plugin_info(plugin: SqlPlugin) -> None:
+    """Assert a SQL plugin advertises protocol version and core capabilities."""
     info = plugin.info
     assert info.engine == "sql"
     assert info.protocol_version == SQL_PROTOCOL_VERSION

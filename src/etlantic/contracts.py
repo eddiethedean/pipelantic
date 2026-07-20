@@ -55,7 +55,20 @@ def load_data_contract(
     root: str | Path | None = None,
     class_name: str | None = None,
 ) -> type[Data]:
-    """Load an ODCS artifact into a ``Data`` (ContractModel) subclass."""
+    """Load an ODCS YAML artifact into a :class:`Data` (ContractModel) subclass.
+
+    Args:
+        path: ODCS YAML file path.
+        root: Optional contract search root for relative imports.
+        class_name: Optional explicit generated class name.
+
+    Returns:
+        A concrete ``Data`` subclass reflecting the ODCS document.
+
+    Raises:
+        OSError: When the path cannot be read.
+        ValueError: When the document is not valid ODCS for ContractModel.
+    """
     from etlantic.interchange.odcs import load_data_contract as _load
 
     return _load(path, root=root, class_name=class_name)
@@ -67,7 +80,17 @@ def write_odcs(
     *,
     root: str | Path | None = None,
 ) -> Path:
-    """Write a ``Data`` class to an ODCS YAML file."""
+    """Write a :class:`Data` class to an ODCS YAML file.
+
+    Args:
+        model: ContractModel-compatible class to serialize.
+        path: Destination YAML path (created or overwritten via safe I/O when
+            applicable).
+        root: Optional contract search root for relative references.
+
+    Returns:
+        Resolved output path.
+    """
     from etlantic.interchange.odcs import write_odcs as _write
 
     return _write(model, path, root=root)

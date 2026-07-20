@@ -232,14 +232,14 @@ Dagster compilers are not shipped.
 
 ## Gate A / Polars ↔ Pandas interchange fails
 
-Gate A (`etlantic.interchange/1`) is **Available in 0.19.0** for Polars ↔
-Pandas boundaries only.
+Gate A (`etlantic.interchange/1`) shipped in **0.18.0** for Polars ↔
+Pandas boundaries and remains available in 0.20.
 
 | Symptom | Fix |
 |---|---|
 | Plugin not discovered | Install `etlantic-polars==0.20.0` **and** `etlantic-pandas==0.20.0`; match core minor |
 | Plan fails closed on descriptor / mechanism | Both plugins must advertise compatible `interchange_mechanisms`; see Plugin SDK |
-| Expecting PySpark or SQL Gate A | Out of scope in 0.19 — stay on Polars↔Pandas or keep a single engine |
+| Expecting PySpark or SQL Gate A | Out of scope — stay on Polars↔Pandas or keep a single engine |
 | Treating Arrow helpers as Gate A | Best-effort Arrow conversion is **not** the Gate A contract; use planned descriptors / evidence |
 | `examples/interchange_polars_pandas.py` missing | Script is checkout-only; paste from docs or clone the repo |
 

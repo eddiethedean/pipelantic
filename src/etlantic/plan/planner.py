@@ -59,7 +59,26 @@ def plan_pipeline(
     profile: str | Any | None = None,
     selection: dict[str, Any] | None = None,
 ) -> PipelinePlan:
-    """Plan a pipeline. Raises PipelineValidationError when invalid."""
+    """Resolve a validated logical pipeline into a secret-free :class:`PipelinePlan`.
+
+    Validates the pipeline for the resolved profile, then builds the immutable
+    plan IR (schema ``etlantic.plan/1``). No transformation code runs during
+    planning.
+
+    Args:
+        pipeline_cls: Pipeline class to plan.
+        context: Optional planning context (registry, profile object, selection).
+            When omitted, ``PlanningContext.create(profile=profile)`` is used.
+        profile: Profile name, JSON path, :class:`~etlantic.profile.Profile`, or
+            ``None`` (defaults via :func:`~etlantic.profile.resolve_profile`).
+        selection: Optional partial-run selection (``run_one``, ``run_until``).
+
+    Returns:
+        Immutable, fingerprinted :class:`~etlantic.plan.model.PipelinePlan`.
+
+    Raises:
+        PipelineValidationError: When validation reports errors.
+    """
     from etlantic.validation import validate_pipeline
 
     ctx = context or PlanningContext.create(profile=profile)
@@ -79,7 +98,21 @@ def plan_pipeline_with_report(
     profile: str | Any | None = None,
     selection: dict[str, Any] | None = None,
 ) -> tuple[PipelinePlan | None, ValidationReport]:
-    """Plan a pipeline, returning (plan, report). Plan is None when invalid."""
+    """Plan a pipeline and always return the validation report.
+
+    Same validation and planning rules as :func:`plan_pipeline`, but returns
+    ``(None, report)`` instead of raising when validation fails.
+
+    Args:
+        pipeline_cls: Pipeline class to plan.
+        context: Optional planning context.
+        profile: Profile name, path, object, or ``None``.
+        selection: Optional partial-run selection.
+
+    Returns:
+        ``(plan, report)`` where ``plan`` is ``None`` when validation failed or
+        planning raised :class:`~etlantic.exceptions.PipelineValidationError`.
+    """
     from etlantic.validation import validate_pipeline
 
     ctx = context or PlanningContext.create(profile=profile)

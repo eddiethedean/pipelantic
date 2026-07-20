@@ -115,8 +115,10 @@ def main() -> int:
     root_pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     if "Development Status :: 3 - Alpha" in root_pyproject:
         errors.append("root pyproject.toml still uses Alpha classifier")
-    if "Development Status :: 5 - Production/Stable" not in root_pyproject:
-        errors.append("root pyproject.toml missing Production/Stable classifier")
+    if "Development Status :: 4 - Beta" not in root_pyproject:
+        errors.append("root pyproject.toml missing Beta classifier")
+    if "Development Status :: 5 - Production/Stable" in root_pyproject:
+        errors.append("root pyproject.toml should use Beta, not Production/Stable")
     release_yml = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
     for pkg in PACKAGES:
         expected = pkg.replace("-", "_")

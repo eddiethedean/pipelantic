@@ -2,19 +2,21 @@
 
 > Generated from package source. Hub: [Python API Reference](API_REFERENCE.md).
 
-## 0.19 freeze essentials
+## 0.20 trust and plan essentials
 
 | API | Behavior |
 |---|---|
 | `Profile.security_mode` | `development` \| `test` \| `production`; production fail-closed trust uses **mode only** |
+| `Profile.plugin_allowlist` | Required in production; evaluated **before** plugin import |
+| `Profile.safe_io` / `Profile.outbound` | Safe filesystem writes and outbound HTTP policy (0.20) |
 | `resolve_profile(name, allow_adhoc_profile=False)` | Unknown bare names raise `PMCFG100` unless ad hoc is allowed |
 | `Profile.from_dict(..., accept_legacy_bindings=True)` | Legacy `bindings`-only JSON warns `PMCFG110`; set `False` to fail closed |
 | `PipelinePlan.from_dict` / `plan_from_json` | Require wire `schema: "etlantic.plan/1"`; verify fingerprint by default |
 | `verify_plan_fingerprint(plan)` | Public check; also called before `compile_plan` and local run |
 | `deep_freeze(value)` | Recursively freeze plan-owned nests |
 
-See [Migration 0.18 → 0.19](../11_DEVELOPMENT/MIGRATION_0_18_TO_0_19.md) and
-[What's new in 0.19](../01_GETTING_STARTED/WHATS_NEW_0_19.md).
+See [Migration 0.19 → 0.20](../11_DEVELOPMENT/MIGRATION_0_19_TO_0_20.md) and
+[What's new in 0.20](../01_GETTING_STARTED/WHATS_NEW_0_20.md).
 
 ## Validation and diagnostics
 

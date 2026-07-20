@@ -7,8 +7,9 @@
 
 ## Install core (2 minutes)
 
-Pin the published release for reproducible evaluation. Prefer `python -m pip`
-so you use the interpreter you intend (any supported 3.11+):
+Pin the published release for reproducible evaluation. Use a virtual environment
+when installing with pip (`python -m venv .venv` then activate it). Prefer
+`python -m pip` so you use the interpreter you intend (any supported 3.11+):
 
 ```bash
 python -m pip install --upgrade pip
@@ -45,7 +46,7 @@ checkout are below—skip them until after first success.
 ## Optional engine plugins
 
 Core never installs Polars, Pandas, database drivers, or PySpark. Add engines
-explicitly and **match the core minor** (`0.19.0` with `0.19.0`).
+explicitly and **match the core minor** (`0.20.0` with `0.20.0`).
 
 **Primary install (separate packages):**
 
@@ -132,15 +133,28 @@ uv sync --group keyring
 uv sync --group sqlmodel
 ```
 
-### Editable install with pip (no uv)
+### Editable install (contributors)
+
+Contributors should use **uv** (recommended):
+
+```bash
+git clone https://github.com/eddiethedean/etlantic.git
+cd etlantic
+uv sync --locked
+```
+
+If you must use pip, install the package editable only — `[dev]` is **not**
+published as a pip extra (dev tools live in the uv `dev` dependency group):
 
 ```bash
 git clone https://github.com/eddiethedean/etlantic.git
 cd etlantic
 python -m venv .venv
 source .venv/bin/activate   # Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
+python -m pip install -e .
 ```
+
+Install pytest, ruff, and mkdocs manually or switch to `uv sync --locked`.
 
 ## Upgrade
 

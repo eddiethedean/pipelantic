@@ -88,7 +88,20 @@ class OutputResolution:
 
 @dataclass(frozen=True, slots=True)
 class PipelinePlan:
-    """Immutable, versioned, secret-free execution-facing IR."""
+    """Immutable, versioned, secret-free execution-facing intermediate representation.
+
+    Produced by :func:`~etlantic.plan.planner.plan_pipeline` or
+    :meth:`~etlantic.pipeline.Pipeline.plan`. Wire schema id:
+    :data:`~etlantic.plan.model.PLAN_SCHEMA` (``etlantic.plan/1``).
+
+    Plans contain secret **references** only — never resolved secret values.
+    Nested mappings owned by the plan are deep-frozen after construction.
+
+    Serialize with :meth:`to_dict` / :func:`~etlantic.plan.serialize.plan_to_json`.
+    Deserialize with :meth:`from_dict` / :func:`~etlantic.plan.serialize.plan_from_json`.
+    Verify integrity with :func:`~etlantic.plan.serialize.verify_plan_fingerprint`
+    before compile or run trust boundaries.
+    """
 
     schema: str
     plan_id: str
@@ -158,9 +171,23 @@ class PipelinePlan:
         plugin: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Compile this plan for an external orchestrator (0.8).
+        """Compile this plan for an external orchestrator.
 
-        Delegates to :func:`etlantic.orchestration.compile_plan`.
+        Delegates to :func:`etlantic.orchestration.compile_plan`. Verifies the
+        plan fingerprint before compilation.
+
+        Args:
+            target: Orchestrator engine id (default ``"airflow"``).
+            profile: Optional profile for compilation context.
+            plugin: Optional pre-constructed orchestrator plugin instance.
+            **kwargs: Forwarded to :func:`~etlantic.orchestration.compile_plan`.
+
+        Returns:
+            :class:`~etlantic.orchestration.protocol.CompiledOrchestrationArtifact`.
+
+        Raises:
+            ValueError: When the embedded fingerprint does not match content.
+            OrchestrationCompilationError: When compilation fails closed.
         """
         from etlantic.orchestration.compile import compile_plan
 

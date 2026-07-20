@@ -128,8 +128,13 @@ class Step:
 class Transformation:
     """Base class for typed transformation contracts.
 
-    Subclasses declare ``Input``, ``Output``, and ``Parameter`` annotations.
-    Implementations are registered separately with :meth:`implementation`.
+    Subclasses declare :class:`~etlantic.ports.Input`, :class:`~etlantic.ports.Output`,
+    and :class:`~etlantic.ports.Parameter` annotations. Execution backends are
+    registered separately with :meth:`implementation` (native) or
+    :meth:`portable` (symbolic DTCS plan compiled by engine plugins).
+
+    Wire instances in pipelines via :meth:`step`, which returns a symbolic
+    :class:`Step` without running user code.
     """
 
     __ports__: ClassVar[tuple[PortDefinition, ...]] = ()

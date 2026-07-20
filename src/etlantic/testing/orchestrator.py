@@ -14,6 +14,7 @@ from etlantic.runtime.logging import redact_message
 
 
 def assert_orchestrator_plugin_info(plugin: OrchestratorPlugin, *, engine: str) -> None:
+    """Assert an orchestrator plugin advertises the expected engine and protocol."""
     info = plugin.info
     assert info.engine == engine
     assert info.protocol_version == ORCHESTRATION_PROTOCOL_VERSION

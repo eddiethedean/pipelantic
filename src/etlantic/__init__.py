@@ -1,12 +1,20 @@
 """ETLantic — typed, contract-driven data pipeline modeling.
 
-Public authoring surfaces include ``Data``, ``Transformation`` (including
-``@Transformation.portable`` / ``etlantic.transform`` → ``dtcs.transform-plan/2``),
-``Pipeline``, ``Extract``, and ``Load``. Optional SparkForge migration adapter
-(``etlantic-sparkforge``) remains available without introducing
-bronze/silver/gold into core. Structured Streaming APIs remain experimental.
-Versioned tabular interchange Gate A (``etlantic.interchange/1``) ships in
-0.18 for Polars↔Pandas boundaries.
+Public authoring surfaces include :class:`~etlantic.contracts.Data`,
+:class:`~etlantic.transformation.Transformation` (including
+:meth:`~etlantic.transformation.Transformation.portable` and
+``etlantic.transform`` → ``dtcs.transform-plan/2``),
+:class:`~etlantic.pipeline.Pipeline`, :class:`~etlantic.pipeline.Extract`, and
+:class:`~etlantic.pipeline.Load`.
+
+Optional plugins live in separate packages (``etlantic-polars``,
+``etlantic-sql``, ``etlantic-pyspark``, ``etlantic-airflow``, …). Install only
+the engines you need and pin matching minors while ETLantic is pre-1.0.
+
+Versioned tabular interchange Gate A (``etlantic.interchange/1``) ships for
+Polars↔Pandas boundaries. Structured Streaming and ``etlantic-datafusion`` remain
+experimental. Medallion bronze/silver/gold stay in SparkForge /
+``etlantic-sparkforge`` — never in core.
 """
 
 from __future__ import annotations

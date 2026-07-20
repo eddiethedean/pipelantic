@@ -68,10 +68,30 @@ def compile_plan(
     plugins: dict[str, OrchestratorPlugin] | None = None,
     allow_adhoc_profile: bool = False,
 ) -> CompiledOrchestrationArtifact:
-    """Compile a secret-free ``PipelinePlan`` into an orchestration artifact.
+    """Compile a secret-free :class:`~etlantic.plan.model.PipelinePlan` into an orchestration artifact.
 
-    Fails closed when the target plugin is missing or cannot preserve required
-    semantics.
+    Verifies the plan fingerprint, resolves the target orchestrator plugin
+    (discovered entry points or explicit ``plugin``), and fails closed when
+    required capabilities are missing or compilation diagnostics contain errors.
+
+    Args:
+        plan: Resolved plan to compile. Must include a valid ``fingerprint``.
+        target: Orchestrator engine id (default ``"airflow"``).
+        profile: Optional profile for compilation context and plugin discovery.
+        plugin: Optional pre-constructed orchestrator plugin instance.
+        context: Optional explicit :class:`~etlantic.orchestration.protocol.CompilationContext`.
+        plugins: Optional pre-discovered plugin mapping (``engine`` → plugin).
+        allow_adhoc_profile: Forwarded to :func:`~etlantic.profile.resolve_profile`.
+
+    Returns:
+        :class:`~etlantic.orchestration.protocol.CompiledOrchestrationArtifact`
+        with secret-free source/metadata suitable for DAG check-in.
+
+    Raises:
+        ValueError: When :func:`~etlantic.plan.serialize.verify_plan_fingerprint`
+            fails.
+        OrchestrationCompilationError: When the plugin is missing or compilation
+            diagnostics include errors (codes such as ``PMORCH300``).
     """
     from etlantic.plan.serialize import verify_plan_fingerprint
 

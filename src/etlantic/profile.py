@@ -48,7 +48,29 @@ def _normalize_assets(
 
 @dataclass(frozen=True, slots=True, init=False)
 class Profile:
-    """Environment binding for planning without changing logical semantics."""
+    """Environment binding for planning and execution without changing logic.
+
+    A profile selects engines (local Python, Polars, SQL, PySpark, …), maps
+    logical ``asset`` names to storage providers, and carries trust and policy
+    settings. The same :class:`~etlantic.pipeline.Pipeline` class can be
+    validated, planned, and run under different profiles.
+
+    Important fields:
+
+    - ``assets`` (public) / internal ``bindings``: logical asset → provider id
+    - ``dataframe_engine``, ``sql_engine``, ``spark_engine``: engine selection
+    - ``security_mode``: ``development``, ``test``, or ``production``
+    - ``plugin_allowlist``: production fail-closed plugin trust (name → pin)
+    - ``portable_transform_policy``: ``prefer``, ``require``, or ``native``
+    - ``safe_io``, ``outbound``: 0.20 safe I/O and outbound HTTP policy
+
+    Production profiles with ``security_mode="production"`` require a non-empty
+    ``plugin_allowlist`` and readable static plugin manifests before import.
+
+    Use :func:`development_profile`, :func:`test_profile`, or
+    :func:`production_profile` as templates, or resolve names and JSON paths
+    with :func:`resolve_profile`.
+    """
 
     name: str
     orchestrator: str = "local"
@@ -413,7 +435,17 @@ def _infer_security_mode(*, name: str, security_domain: str) -> SecurityMode:
 
 
 def development_profile(**overrides: Any) -> Profile:
-    """Built-in development profile template."""
+    """Return the built-in development profile template.
+
+    Defaults: ``orchestrator="local"``, ``dataframe_engine="local"``,
+    ``security_mode="development"``, ``validation_policy="default"``.
+
+    Args:
+        **overrides: Passed to :meth:`Profile.with_updates` when non-empty.
+
+    Returns:
+        A concrete :class:`Profile` instance.
+    """
     base = Profile(
         name="development",
         orchestrator="local",
@@ -426,7 +458,16 @@ def development_profile(**overrides: Any) -> Profile:
 
 
 def test_profile(**overrides: Any) -> Profile:
-    """Built-in test profile template."""
+    """Return the built-in test profile template.
+
+    Defaults: ``security_mode="test"``, ``validation_policy="strict"``.
+
+    Args:
+        **overrides: Passed to :meth:`Profile.with_updates` when non-empty.
+
+    Returns:
+        A concrete :class:`Profile` instance.
+    """
     base = Profile(
         name="test",
         orchestrator="local",
@@ -439,7 +480,18 @@ def test_profile(**overrides: Any) -> Profile:
 
 
 def production_profile(**overrides: Any) -> Profile:
-    """Built-in production profile template."""
+    """Return the built-in production profile template.
+
+    Defaults: ``security_mode="production"``, ``validation_policy="strict"``.
+    Callers must still set ``plugin_allowlist`` (and usually ``assets``) before
+    planning or running in production.
+
+    Args:
+        **overrides: Passed to :meth:`Profile.with_updates` when non-empty.
+
+    Returns:
+        A concrete :class:`Profile` instance.
+    """
     base = Profile(
         name="production",
         orchestrator="local",
@@ -468,10 +520,27 @@ def resolve_profile(
 ) -> Profile:
     """Resolve a profile name, JSON path, or object to a concrete Profile.
 
-    When ``profile`` is a string ending in ``.json`` that exists as a file,
-    the profile is loaded with :func:`load_profile`. Built-in template names
-    (``development``, ``production``, …) resolve to templates. Other bare
-    names fail closed unless ``allow_adhoc_profile`` is True.
+    Resolution order for string ``profile``:
+
+    1. Existing ``.json`` file path → :func:`load_profile`
+    2. Built-in template name (``development``, ``local``, ``test``, ``production``,
+       ``prod``, ``dev``) → template from :data:`PROFILE_TEMPLATES`
+    3. Unknown bare name → fail closed unless ``allow_adhoc_profile`` is True
+
+    Args:
+        profile: Template name, JSON path, :class:`Profile`, or ``None``.
+            ``None`` resolves to ``development_profile(name="local")``.
+        allow_adhoc_profile: When True, unknown bare names become ad hoc
+            development profiles. CLI exposes this as ``--allow-adhoc-profile``.
+
+    Returns:
+        A concrete :class:`Profile`.
+
+    Raises:
+        FileNotFoundError: When ``profile`` ends with ``.json`` but the path
+            does not exist.
+        ValueError: When the name is unknown and ``allow_adhoc_profile`` is
+            False (message includes diagnostic ``PMCFG100``).
     """
     if profile is None:
         return development_profile(name="local")
@@ -491,7 +560,15 @@ def resolve_profile(
 
 
 def write_profile(profile: Profile, path: str | Path) -> Path:
-    """Write a profile as JSON through SafeIoPolicy when a parent root exists."""
+    """Write a profile as JSON through :class:`~etlantic.io_policy.SafeIoPolicy`.
+
+    Args:
+        profile: Profile to serialize.
+        path: Destination ``.json`` path (parent directories created).
+
+    Returns:
+        Resolved absolute output path.
+    """
     from etlantic.io_policy import SafeIoPolicy, write_text_safe
 
     resolved = Path(path).expanduser()
@@ -504,7 +581,18 @@ def write_profile(profile: Profile, path: str | Path) -> Path:
 
 
 def load_profile(path: str | Path) -> Profile:
-    """Load a profile from a JSON file."""
+    """Load a profile from a JSON file.
+
+    Args:
+        path: Profile JSON document.
+
+    Returns:
+        Parsed :class:`Profile` (legacy ``bindings`` keys may warn ``PMCFG110``).
+
+    Raises:
+        ValueError: When the document is not a JSON object or fields are invalid.
+        OSError: When the file cannot be read.
+    """
     from etlantic.interchange.security import read_text_bounded
 
     _resolved, text = read_text_bounded(path)

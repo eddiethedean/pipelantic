@@ -14,6 +14,7 @@ from etlantic.secrets.value import SecretValue
 
 
 def assert_secret_provider_info(provider: SecretProvider) -> None:
+    """Assert a secret provider exposes a non-empty descriptor and capabilities."""
     descriptor = provider.descriptor
     assert descriptor.name
     assert descriptor.engine

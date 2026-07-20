@@ -11,6 +11,12 @@ etlantic --version
 Pipeline targets use `package.module:PipelineClass` or
 `path/to/file.py:PipelineClass`.
 
+!!! note "Profile defaults"
+    CLI `validate`, `plan`, and `run` default to profile **`local`** when
+    `--profile` is omitted. Tutorials use **`development`**. Pass the same
+    `--profile` for every command in a workflow (for example
+    `--profile development` on validate, plan, and run).
+
 ## `validate`
 
 Validate without executing transformation code:

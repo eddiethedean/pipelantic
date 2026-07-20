@@ -1,4 +1,7 @@
-"""Structured Streaming foundation types (experimental in 0.7)."""
+"""Structured Streaming foundation types (experimental).
+
+See :data:`~etlantic.spark.STREAMING_STABILITY` for stability expectations.
+"""
 
 from __future__ import annotations
 
