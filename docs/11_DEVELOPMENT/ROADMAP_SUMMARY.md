@@ -42,9 +42,8 @@ not graduated).
 
 The 1.0 goal is a stable foundation with frozen contracts (0.19), completed
 trust/isolation gates (**0.20.0**), conformance across reference engines, and
-complete migration guides. Remaining pre-1.0 work includes cohesive CLI
-(0.21), plugin SDK RC (0.22), and TransformationModel graduation (0.20+
-incubation).
+complete migration guides. Remaining pre-1.0 work includes cohesive CLI (0.21) and plugin SDK RC (0.22).
+TransformationModel incubation is deferred to post-1.0 phases.
 
 > **Production use is supported only within the documented reference
 > envelope.** See the [Evaluator Brief](../01_GETTING_STARTED/EVALUATOR.md).

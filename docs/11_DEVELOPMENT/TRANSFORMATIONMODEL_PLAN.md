@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed 0.20+ incubation plan. The package and APIs described here are not
-shipped behavior.
+Proposed post-1.0 incubation plan (deferred from 0.20+). The package and APIs
+described here are not shipped behavior.
 
 TransformationModel begins as an independently buildable workspace package at
 `packages/transformationmodel`. It may become a separately released ETLantic
