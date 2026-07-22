@@ -201,7 +201,7 @@ See [Portable Transformation Compiler Protocol](PORTABLE_TRANSFORM_COMPILER.md),
 [Testing Plugins](TESTING_PLUGINS.md).
 # Third-Party Portable Compiler Tutorial
 
-> **Status: Available in ETLantic 0.21.0.**
+> **Status: Available in ETLantic 0.22.0.**
 
 Build a transform compiler that claims DTCS profiles, registers through entry
 points, and proves its claims with the public conformance suite.

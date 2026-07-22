@@ -216,7 +216,6 @@ def assert_capabilities_supported(
     available = context.registry.engines.get(engine)
     if (
         available is not None
-        and engine == "pandas"
         and "lazy" in context.required_capabilities
         and not available.supports("lazy")
     ):
@@ -225,7 +224,7 @@ def assert_capabilities_supported(
                 "requirement": "lazy",
                 "engine": engine,
                 "decision": CapabilityDecision.UNSUPPORTED.value,
-                "message": "Pandas plugin does not support lazy execution.",
+                "message": "Engine does not support lazy execution.",
             }
         )
     if not unsupported:

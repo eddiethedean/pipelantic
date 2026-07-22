@@ -26,7 +26,7 @@ Upgrade from PyPI (pin the published **0.22.0** release for reproducible install
 ```bash
 python -m pip install --upgrade 'etlantic==0.22.0'
 # or accept compatible 0.22.x patches within the minor:
-python -m pip install --upgrade 'etlantic>=0.22.0,<0.22'
+python -m pip install --upgrade 'etlantic>=0.22.0,<0.23'
 ```
 
 From a checkout, prefer `uv sync` / `git pull`.

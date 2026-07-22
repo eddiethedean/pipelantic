@@ -13,7 +13,6 @@ from etlantic.runtime.state import FailureStage
 from etlantic.sql.discovery import load_sql_plugin
 from etlantic.sql.helpers import require_safe_identifier
 from etlantic.sql.protocol import (
-    SQL_ENGINES,
     RelationRef,
     SqlExecutionContext,
     SqlExecutionResult,
@@ -27,8 +26,14 @@ from etlantic.sql.protocol import (
 from etlantic.transformation import ImplementationRecord
 
 
-def is_sql_engine(engine: str) -> bool:
-    return engine in SQL_ENGINES
+def is_sql_engine(
+    engine: str,
+    engines: dict[str, object] | object | None = None,
+) -> bool:
+    """Return True when capabilities/registration say sql (builtin name fallback)."""
+    from etlantic.engines import get_engine_registry
+
+    return get_engine_registry().is_sql_engine(engine, engines)
 
 
 def resolve_sql_plugin(

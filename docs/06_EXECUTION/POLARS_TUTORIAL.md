@@ -1,6 +1,6 @@
 # Execute with Polars
 
-> **Status: Available in ETLantic 0.21.0.** This guide uses the CI-tested
+> **Status: Available in ETLantic 0.22.0.** This guide uses the CI-tested
 > dataframe parity example.
 
 

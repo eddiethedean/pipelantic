@@ -119,7 +119,8 @@ def ownership_for_engine(
     capabilities: PluginCapabilities | None = None,
 ) -> ArtifactOwnership:
     """Choose artifact ownership from fan-out and engine capabilities."""
-    if fan_out or engine == "pandas":
+    _ = engine  # retained for call-site clarity; identity is capability-driven
+    if fan_out:
         return ArtifactOwnership.COPIED
     if capabilities is not None:
         return (
@@ -167,6 +168,11 @@ async def execute_dataframe_step(
     )
     output_ports = tuple(p.name for p in node.outputs) or ("result",)
     any_fan_out = any(has_fan_out(plan, node.name, p) for p in output_ports)
+    plugin_caps = None
+    try:
+        plugin_caps = plugin.info().capabilities
+    except Exception:
+        plugin_caps = None
     # Initial context; per-port collect overrides applied below.
     context = DataframeExecutionContext(
         run_id=run_id,
@@ -176,7 +182,9 @@ async def execute_dataframe_step(
         engine=engine,
         attempt=attempt,
         collect=False,
-        ownership=ownership_for_engine(engine, fan_out=any_fan_out),
+        ownership=ownership_for_engine(
+            engine, fan_out=any_fan_out, capabilities=plugin_caps
+        ),
         validation_policy=DataframeValidationPolicy.from_dict(
             plan.metadata.get("validation_policy")
         ),
@@ -324,7 +332,9 @@ async def execute_dataframe_step(
             engine=context.engine,
             attempt=context.attempt,
             collect=port_collect,
-            ownership=ownership_for_engine(engine, fan_out=port_fan_out),
+            ownership=ownership_for_engine(
+                engine, fan_out=port_fan_out, capabilities=plugin_caps
+            ),
             validation_policy=context.validation_policy,
             metadata=context.metadata,
         )

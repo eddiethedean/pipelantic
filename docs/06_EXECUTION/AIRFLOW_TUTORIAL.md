@@ -1,6 +1,6 @@
 # Compile an Airflow DAG
 
-> **Status: Available in ETLantic 0.21.0.** ETLantic compiles a plan; it does
+> **Status: Available in ETLantic 0.22.0.** ETLantic compiles a plan; it does
 > not install or operate an Airflow scheduler.
 
 !!! warning "`etlantic-airflow` is compile-only"

@@ -209,6 +209,9 @@ def _build_plan(
         engines=context.registry.engines,
     )
     if profile.spark_streaming:
+        from etlantic.engines import get_engine_registry
+
+        registry = get_engine_registry()
         regions = [
             ExecutionRegion(
                 identity=r.identity,
@@ -217,7 +220,9 @@ def _build_plan(
                 security_domain=r.security_domain,
                 metadata={
                     **dict(r.metadata),
-                    "streaming": r.engine in {"pyspark", "spark"},
+                    "streaming": registry.is_spark_engine(
+                        r.engine, context.registry.engines
+                    ),
                 },
             )
             for r in regions
@@ -245,7 +250,9 @@ def _build_plan(
                         None,
                     ),
                     "capabilities": caps.to_dict() if caps is not None else None,
-                    "ownership": "copied" if region.engine == "pandas" else "shared",
+                    "ownership": (
+                        "shared" if caps is not None and caps.thread_safe else "copied"
+                    ),
                 },
             )
         )
@@ -342,6 +349,9 @@ def _build_plan(
     if profile.timeout_seconds is not None:
         intents["timeout"] = {"seconds": profile.timeout_seconds}
 
+    from etlantic.engines import get_engine_registry
+
+    _engine_registry = get_engine_registry()
     plan = PipelinePlan(
         schema=PLAN_SCHEMA,
         plan_id="",
@@ -379,10 +389,16 @@ def _build_plan(
                     "region": r.identity,
                     "engine": r.engine,
                     "nodes": list(r.node_names),
-                    "strategy": "temp_relation" if r.engine == "sql" else None,
+                    "strategy": (
+                        "temp_relation"
+                        if _engine_registry.is_sql_engine(
+                            r.engine, context.registry.engines
+                        )
+                        else None
+                    ),
                 }
                 for r in regions
-                if r.engine == "sql"
+                if _engine_registry.is_sql_engine(r.engine, context.registry.engines)
             ],
             "spark_fusion": [
                 {
@@ -394,7 +410,7 @@ def _build_plan(
                     "logical_identities": list(r.node_names),
                 }
                 for r in regions
-                if r.engine in {"pyspark", "spark"}
+                if _engine_registry.is_spark_engine(r.engine, context.registry.engines)
             ],
             "collection_points": [
                 {
@@ -956,9 +972,12 @@ def _form_regions(
         by_engine.setdefault(engine, []).append(node.name)
 
     regions: list[ExecutionRegion] = []
+    from etlantic.engines import get_engine_registry
+
+    registry = get_engine_registry()
     for engine, names in sorted(by_engine.items()):
         meta: dict[str, Any] = {}
-        if engine in {"pyspark", "spark"}:
+        if registry.is_spark_engine(engine, engines):
             meta["strategy"] = "lazy_dataframe"
             meta["logical_identities"] = list(names)
         regions.append(
@@ -1045,11 +1064,7 @@ def _interchange_descriptor(
         already_collecting=True,
         pyarrow_available=arrow_available(),
     )
-    copied = (
-        producer_engine == "pandas"
-        or producer_capabilities is None
-        or not producer_capabilities.thread_safe
-    )
+    copied = producer_capabilities is None or not producer_capabilities.thread_safe
     if copied or mechanism in {
         InterchangeMechanism.RECORDS_FALLBACK,
         InterchangeMechanism.NATIVE_FALLBACK,

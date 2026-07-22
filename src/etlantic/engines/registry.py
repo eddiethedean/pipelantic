@@ -28,10 +28,6 @@ class _BuiltinFamily:
             caps.extend(profile.required_spark_capabilities)
             if profile.spark_streaming:
                 caps.extend(["streaming", "spark_streaming"])
-        elif self.name == "dataframe":
-            engine = profile.dataframe_engine or "local"
-            if engine == "polars":
-                caps.append("lazy")
         return caps
 
 

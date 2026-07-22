@@ -1,6 +1,6 @@
 # Prefect Direct Execution
 
-> **Status: Available in ETLantic 0.21.0.** This guide runs the shipped Prefect
+> **Status: Available in ETLantic 0.22.0.** This guide runs the shipped Prefect
 > scheduler locally through `etlantic-prefect`.
 
 Runnable companion:

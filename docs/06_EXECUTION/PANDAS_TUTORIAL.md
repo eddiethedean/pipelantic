@@ -1,6 +1,6 @@
 # Execute with Pandas
 
-> **Status: Available in ETLantic 0.21.0.** This guide uses the same logical
+> **Status: Available in ETLantic 0.22.0.** This guide uses the same logical
 > pipeline as the Polars tutorial.
 
 

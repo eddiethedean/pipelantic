@@ -1,6 +1,6 @@
-# Configuration in 0.21.0
+# Configuration in 0.22.0
 
-ETLantic 0.21.0 configures execution with a `Profile` object, a JSON profile
+ETLantic 0.22.0 configures execution with a `Profile` object, a JSON profile
 document, and an optional project `etlantic.toml`. Prefer **`assets`** for
 logical-to-physical maps; legacy `bindings` fail closed (`PMCFG111`) unless
 `--accept-legacy-bindings` / `accept_legacy_bindings=True`.
@@ -15,7 +15,7 @@ project = "my-pipeline"
 default_profile = "development"
 
 [metadata]
-etlantic.version = "0.21"
+etlantic.version = "0.22"
 ```
 
 Optional `[profiles]` entries may reference built-in names, `profiles/*.json`

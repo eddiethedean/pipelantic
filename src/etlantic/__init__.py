@@ -4,8 +4,8 @@ Recommended application and tutorial import style (0.22+)::
 
     import etlantic as etl
 
-    class Customer(etl.Data):
-        ...
+
+    class Customer(etl.Data): ...
 
 Curated root symbols (stable): ``Data``, ``Transformation``, ``Pipeline``,
 ``Extract``, ``Load``, ``Input``, ``Output``, ``Parameter``, ``Profile``,

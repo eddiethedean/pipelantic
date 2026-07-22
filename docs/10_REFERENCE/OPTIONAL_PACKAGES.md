@@ -1,6 +1,6 @@
 # Optional Packages
 
-> **Status: Available in ETLantic 0.21.0.** Core `etlantic` does not install
+> **Status: Available in ETLantic 0.22.0.** Core `etlantic` does not install
 > engines. Install only the plugins you need, pinned to the same minor line.
 
 ## Install pins
@@ -15,9 +15,9 @@ pip install 'etlantic-sql==0.22.0'
 pip install 'etlantic-pyspark==0.22.0'
 pip install 'etlantic-airflow==0.22.0'
 pip install 'etlantic-prefect==0.22.0'
-pip install 'etlantic-keyring==0.21.0'
-pip install 'etlantic-sqlmodel==0.21.0'
-pip install 'etlantic-sparkforge==0.21.0'
+pip install 'etlantic-keyring==0.22.0'
+pip install 'etlantic-sqlmodel==0.22.0'
+pip install 'etlantic-sparkforge==0.22.0'
 ```
 
 Official first-party plugins declare `etlantic>=0.22.0,<0.23`.
@@ -25,8 +25,8 @@ Keep core and plugins on the same minor (for 0.21.x pilots, pin all to
 `0.21.0`). Cross-minor mixes are unsupported and commonly fail plugin
 discovery.
 
-Experimental (not recommended): `pip install 'etlantic[datafusion]==0.21.0'`
-or `etlantic-datafusion==0.21.0` — Gate B stub; no graduated claims.
+Experimental (not recommended): `pip install 'etlantic[datafusion]==0.22.0'`
+or `etlantic-datafusion==0.22.0` — Gate B stub; no graduated claims.
 
 ## Package API index
 

@@ -73,3 +73,117 @@ def test_capability_backed_spark_and_sql_identity() -> None:
         is ExecutionFamily.SPARK
     )
     assert registry.resolve_execution_family("acme_sql", engines) is ExecutionFamily.SQL
+
+
+def test_sql_exec_is_sql_engine_uses_capabilities() -> None:
+    from etlantic.runtime.sql_exec import is_sql_engine
+
+    engines = {
+        "acme_sql": PluginCapabilities(engine="acme_sql", dataframe=False, sql=True),
+    }
+    assert is_sql_engine("acme_sql", engines)
+    assert is_sql_engine("sql")
+    assert not is_sql_engine("acme_unknown", engines={})
+
+
+def test_ownership_from_capabilities_not_engine_name() -> None:
+    from etlantic.dataframe.protocol import ArtifactOwnership
+    from etlantic.runtime.dataframe_exec import ownership_for_engine
+
+    unsafe = PluginCapabilities(engine="acme_df", dataframe=True, thread_safe=False)
+    safe = PluginCapabilities(engine="acme_df", dataframe=True, thread_safe=True)
+    assert (
+        ownership_for_engine("acme_df", capabilities=unsafe) is ArtifactOwnership.COPIED
+    )
+    assert (
+        ownership_for_engine("acme_df", capabilities=safe) is ArtifactOwnership.SHARED
+    )
+    assert (
+        ownership_for_engine(
+            "pandas",
+            capabilities=PluginCapabilities(
+                engine="pandas", dataframe=True, thread_safe=True
+            ),
+        )
+        is ArtifactOwnership.SHARED
+    )
+
+
+def test_region_strategy_for_capability_spark_engine() -> None:
+    from etlantic.model import LogicalGraph, Node, NodeKind, PortSpec
+    from etlantic.plan.planner import _form_regions
+    from etlantic.registry import ImplementationDescriptor
+
+    engines = {
+        "acme_spark": PluginCapabilities(
+            engine="acme_spark", dataframe=False, spark=True, lazy=True
+        ),
+    }
+    graph = LogicalGraph(
+        pipeline_id="p",
+        pipeline_name="P",
+        nodes=(
+            Node(
+                name="step",
+                kind=NodeKind.STEP,
+                identity="step",
+                inputs=(),
+                outputs=(
+                    PortSpec(
+                        name="result",
+                        direction="output",
+                        contract_type=None,
+                        contract_id=None,
+                    ),
+                ),
+            ),
+        ),
+        edges=(),
+    )
+    implementations = {
+        "step": ImplementationDescriptor(
+            transformation_id="t",
+            engine="acme_spark",
+            identity="impl:acme_spark",
+            kind="spark",
+        ),
+    }
+    regions = _form_regions(
+        graph,
+        implementations,
+        default_engine="acme_spark",
+        security_domain="default",
+        engines=engines,
+    )
+    assert len(regions) == 1
+    assert regions[0].engine == "acme_spark"
+    assert regions[0].metadata.get("strategy") == "lazy_dataframe"
+
+
+def test_interchange_copy_from_thread_safe_not_pandas_name() -> None:
+    from etlantic.plan.planner import _interchange_descriptor
+
+    unsafe = PluginCapabilities(engine="acme_a", dataframe=True, thread_safe=False)
+    safe = PluginCapabilities(engine="acme_b", dataframe=True, thread_safe=True)
+    desc = _interchange_descriptor(
+        producer_engine="acme_a",
+        consumer_engine="acme_b",
+        producer_capabilities=unsafe,
+        consumer_capabilities=safe,
+        contract_id=None,
+    )
+    assert desc.ownership == "copied"
+
+    # Engine name "pandas" is not privileged: thread_safe producer stays shared.
+    desc_safe = _interchange_descriptor(
+        producer_engine="pandas",
+        consumer_engine="polars",
+        producer_capabilities=PluginCapabilities(
+            engine="pandas", dataframe=True, thread_safe=True
+        ),
+        consumer_capabilities=PluginCapabilities(
+            engine="polars", dataframe=True, thread_safe=True
+        ),
+        contract_id=None,
+    )
+    assert desc_safe.ownership == "shared"

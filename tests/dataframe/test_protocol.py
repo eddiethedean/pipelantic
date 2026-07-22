@@ -183,6 +183,17 @@ def test_dataframe_engine_and_ownership_use_registered_capabilities() -> None:
                 thread_safe=True,
             ),
         )
+        is ArtifactOwnership.SHARED
+    )
+    assert (
+        ownership_for_engine(
+            "acme_df",
+            capabilities=PluginCapabilities(
+                engine="acme_df",
+                dataframe=True,
+                thread_safe=False,
+            ),
+        )
         is ArtifactOwnership.COPIED
     )
 
@@ -194,9 +205,24 @@ def test_local_registry_is_not_dataframe_engine() -> None:
 
 
 def test_planning_context_auto_requires_dataframe_caps() -> None:
+    registry = builtin_stub_registry()
+    registry.register_plugin(
+        PluginDescriptor(
+            name="acme-lazy-df",
+            kind="dataframe",
+            version="0.22.0",
+            engine="acme_lazy",
+            capabilities=PluginCapabilities(
+                engine="acme_lazy",
+                dataframe=True,
+                eager=True,
+                lazy=True,
+            ),
+        )
+    )
     ctx = PlanningContext.create(
-        profile=Profile(name="p", dataframe_engine="polars"),
-        registry=builtin_stub_registry(),
+        profile=Profile(name="p", dataframe_engine="acme_lazy"),
+        registry=registry,
     )
     assert "dataframe" in ctx.required_capabilities
     assert "lazy" in ctx.required_capabilities

@@ -324,6 +324,22 @@ class PlanningContext:
                 spark_engine=spark_engine,
             )
             plan_diags = tuple(discovered)
+
+        # Prefer capabilities advertised by the selected engine (e.g. lazy)
+        # rather than inventing requirements from first-party engine names.
+        def _augment_from_engine(name: str | None) -> None:
+            if not name:
+                return
+            available = reg.engines.get(name)
+            if available is None:
+                return
+            if available.supports("lazy") and "lazy" not in caps:
+                caps.append("lazy")
+
+        _augment_from_engine(engine if engine != "local" else None)
+        _augment_from_engine(sql_engine)
+        _augment_from_engine(spark_engine)
+
         return cls(
             profile=resolved,
             registry=reg,

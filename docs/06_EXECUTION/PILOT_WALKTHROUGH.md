@@ -76,7 +76,7 @@ write_profile(
         dataframe_engine="polars",
         security_domain="production",
         validation_policy="strict",
-        plugin_allowlist={"etlantic-polars": "==0.21.0"},
+        plugin_allowlist={"etlantic-polars": "==0.22.0"},
         assets={
             "customer_source": "reviewed-source",
             "customer_sink": "reviewed-sink",

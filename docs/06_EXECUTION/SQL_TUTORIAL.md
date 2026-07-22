@@ -1,6 +1,6 @@
 # Execute Inside SQL
 
-> **Status: Available in ETLantic 0.21.0.** SQLite is used only for this local
+> **Status: Available in ETLantic 0.22.0.** SQLite is used only for this local
 > demonstration; PostgreSQL is the reference backend.
 
 

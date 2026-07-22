@@ -866,6 +866,38 @@ def main() -> None:
             prior_minor = f"{maj_s}.{int(min_s) - 1}"
     except ValueError:
         prior_minor = None
+
+    # Impossible version ranges: >=X.Y…,<X.Y (empty set).
+    # Skip historical audit/migration pages that may quote past mistakes.
+    impossible_pin = re.compile(
+        r">=\s*(\d+\.\d+(?:\.\d+)?)\s*,\s*<\s*(\d+\.\d+(?:\.\d+)?)"
+    )
+    impossible_skip = re.compile(
+        r"(WHATS_NEW_|MIGRATION_|EXIT_GATE_|DOCUMENTATION_AUDIT_|CHANGELOG|ROADMAP)"
+    )
+
+    def _major_minor(ver: str) -> str:
+        parts = ver.split(".")
+        return f"{parts[0]}.{parts[1]}"
+
+    for path in ROOT.rglob("*"):
+        if path.suffix not in {".md", ".py", ".toml", ".yml", ".yaml", ".json"}:
+            continue
+        if any(
+            part in {"node_modules", ".venv", "site", ".git"} for part in path.parts
+        ):
+            continue
+        if impossible_skip.search(str(path)):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        for match in impossible_pin.finditer(text):
+            lower, upper = match.group(1), match.group(2)
+            if _major_minor(lower) == _major_minor(upper):
+                raise SystemExit(f"{path}: impossible version range {match.group(0)!r}")
+
     if prior_minor is not None:
         for path in (
             ROOT / "docs/01_GETTING_STARTED/README.md",
@@ -899,14 +931,31 @@ def main() -> None:
     # Active install/tutorial pins must not target the prior minor release.
     prior_pin_paths = [
         ROOT / "examples/README.md",
+        ROOT / "examples/interchange_polars_pandas.py",
         ROOT / "profiles/prod.example.json",
         ROOT / "docs/01_GETTING_STARTED/prod.example.json",
+        ROOT / "docs/01_GETTING_STARTED/ENGINE_SELECTION.md",
+        ROOT / "docs/01_GETTING_STARTED/BEST_PRACTICES.md",
+        ROOT / "docs/01_GETTING_STARTED/COMPARE.md",
+        ROOT / "docs/01_GETTING_STARTED/COOKBOOK.md",
+        ROOT / "docs/01_GETTING_STARTED/OPS_EXAMPLES.md",
+        ROOT / "docs/01_GETTING_STARTED/PORTABLE_VS_NATIVE.md",
+        ROOT / "docs/01_GETTING_STARTED/PORTABLE_FAILURE_COOKBOOK.md",
+        ROOT / "docs/01_GETTING_STARTED/INTERCHANGE_GATE_A_FAQ.md",
+        ROOT / "docs/05_PIPELINES/PROFILE_PRIMER.md",
         ROOT / "docs/10_REFERENCE/KNOWN_ISSUES.md",
+        ROOT / "docs/10_REFERENCE/CONFIGURATION_TODAY.md",
+        ROOT / "docs/10_REFERENCE/RUNTIME_CONFIGURATION.md",
+        ROOT / "docs/10_REFERENCE/EXCEPTIONS.md",
+        ROOT / "docs/10_REFERENCE/API_PLAN_RUNTIME.md",
         ROOT / "docs/11_DEVELOPMENT/SUPPORT.md",
+        ROOT / "docs/11_DEVELOPMENT/PERFORMANCE.md",
         ROOT / "docs/01_GETTING_STARTED/INSTALLATION.md",
         ROOT / "docs/01_GETTING_STARTED/QUICKSTART.md",
         ROOT / "docs/01_GETTING_STARTED/TROUBLESHOOTING.md",
         ROOT / "docs/02_FOUNDATIONS/SECURITY.md",
+        ROOT / "docs/04_TRANSFORMATIONS/CALLBACKS.md",
+        ROOT / "docs/04_TRANSFORMATIONS/ERROR_HANDLING.md",
         ROOT / "docs/06_EXECUTION/POLARS_TUTORIAL.md",
         ROOT / "docs/06_EXECUTION/PANDAS_TUTORIAL.md",
         ROOT / "docs/06_EXECUTION/SQL_TUTORIAL.md",
@@ -918,10 +967,21 @@ def main() -> None:
         ROOT / "docs/06_EXECUTION/OPS_PILOT.md",
         ROOT / "docs/06_EXECUTION/PRODUCTION_READINESS.md",
         ROOT / "docs/06_EXECUTION/PRODUCTION_PROFILES.md",
+        ROOT / "docs/06_EXECUTION/STORAGE_TODAY.md",
+        ROOT / "docs/06_EXECUTION/OBSERVABILITY_TODAY.md",
+        ROOT / "docs/06_EXECUTION/CI_INTEGRATION.md",
+        ROOT / "docs/06_EXECUTION/DEPLOYMENT.md",
+        ROOT / "docs/06_EXECUTION/RUN_REPORTS.md",
         ROOT / "docs/07_PLUGIN_SDK/THIRD_PARTY_COMPILER_TUTORIAL.md",
         ROOT / "docs/07_PLUGIN_SDK/BUILDING_A_PLUGIN.md",
+        ROOT / "docs/07_PLUGIN_SDK/TESTING_PLUGINS.md",
+        ROOT / "docs/07_PLUGIN_SDK/OVERVIEW.md",
+        ROOT / "docs/07_PLUGIN_SDK/DATAFRAME_PLUGIN.md",
         ROOT / "docs/09_EXAMPLES/PORTABLE_TRANSFORMS.md",
         ROOT / "docs/09_EXAMPLES/PREFECT_RUN.md",
+        ROOT / "docs/09_EXAMPLES/INTERCHANGE_POLARS_PANDAS.md",
+        ROOT / "docs/09_EXAMPLES/SAMPLE_PROJECT.md",
+        ROOT / "docs/09_EXAMPLES/CONTRACT_FIRST_TUTORIAL.md",
         ROOT / "docs/10_REFERENCE/OPTIONAL_PACKAGES.md",
         ROOT / "docs/10_REFERENCE/PORTABLE_COMPILER_MATRIX.md",
         ROOT / "docs/10_REFERENCE/CLI.md",
@@ -938,6 +998,8 @@ def main() -> None:
         prior_range = f">={prior_minor}.0,<{major_minor}"
         prior_range_short = f">={prior_minor},<{major_minor}"
         prior_tag = f"v{prior_minor}.0"
+        prior_status = f"Available in ETLantic {prior_minor}.0"
+        prior_status_short = f"Available in ETLantic {prior_minor}"
         for path in prior_pin_paths:
             if not path.exists():
                 continue
@@ -948,6 +1010,18 @@ def main() -> None:
                 raise SystemExit(f"{path} still uses prior-minor range {prior_range}")
             if f"etlantic-polars=={prior_minor}.0" in text:
                 raise SystemExit(f"{path} still pins etlantic-polars=={prior_minor}.0")
+            if f"=={prior_minor}.0" in text and "plugin_allowlist" in text.lower():
+                raise SystemExit(f"{path} still allowlists plugins at {prior_minor}.0")
+            if prior_status in text or (
+                prior_status_short in text and f"{prior_minor}.0" in text
+            ):
+                raise SystemExit(
+                    f"{path} still presents {prior_minor} as available/current"
+                )
+            if f"Configuration in {prior_minor}.0" in text:
+                raise SystemExit(
+                    f"{path} still titles Configuration in {prior_minor}.0"
+                )
             if prior_tag in text and f"v{package_version}" not in text:
                 raise SystemExit(f"{path} still references checkout {prior_tag}")
             if "planned for 0.16" in text.lower() or "planned for **0.16" in text:
